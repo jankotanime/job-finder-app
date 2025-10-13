@@ -1,0 +1,19 @@
+services:
+  spring-boot-service:
+    container_name: spring-boot-service
+    build:
+      context: ./spring-boot-service
+      dockerfile: dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - job-finder-app
+    develop:
+      watch:
+        - action: sync+restart
+          path: .
+          target: /opt/
+
+networks:
+  job-finder-app:
+    driver: bridge

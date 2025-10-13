@@ -1,0 +1,9 @@
+FROM gradle:8.13.0-jdk21 AS builder
+WORKDIR /opt
+
+COPY . .
+RUN gradle wrapper
+
+EXPOSE 8080
+
+CMD ["./gradlew", "bootRun"]
