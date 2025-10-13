@@ -1,4 +1,4 @@
 # job-finder-app
 
 
-### Created by Jan Gasztold
+### Created by Jan Gasztold, Maciej Adamski
