@@ -3,12 +3,7 @@ import { Image, Dimensions, ImageSourcePropType, ImageStyle, StyleProp } from "r
 
 const { height, width} = Dimensions.get("window")
 
-type Props = {
-    width?: number
-    height?: number
-}
-
-const ImageBackground: React.FC<Props> = () => {
+const ImageBackground = () => {
     const backgroundImage: ImageSourcePropType = require("../../assets/images/background.png")
     return (
         <Image
