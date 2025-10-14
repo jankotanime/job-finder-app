@@ -1,6 +1,5 @@
 services:
   database:
-    container_name: database
     image: postgres:16-alpine
     restart: always
     ports:
@@ -31,25 +30,25 @@ services:
     networks:
       - job-finder-app
   spring-boot-service:
-    container_name: spring-boot-service
     build:
       context: ./spring-boot-service
-      dockerfile: dockerfile
-    depends_on:
-      - database
+      dockerfile: Dockerfile
+    restart: always
     ports:
       - "8080:8080"
+    depends_on:
+      - database
     networks:
       - job-finder-app
     develop:
       watch:
         - action: sync+restart
-          path: .
-          target: /opt/
+          path: ./spring-boot-service
+          target: /opt
 
 networks:
   job-finder-app:
-    driver: bridge
+    name: job-finder-app
 
 volumes:
   db-volume:
