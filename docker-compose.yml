@@ -1,9 +1,42 @@
 services:
+  database:
+    container_name: database
+    image: postgres:16-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+      POSTGRES_DB: jobFinderApp
+    networks:
+      - job-finder-app
+    volumes:
+      - db-volume:/var/lib/postgresql/data
+  db-update:
+    container_name: db-update
+    image: postgres:16-alpine
+    profiles:
+      - init
+    depends_on:
+      - database
+      - spring-boot-service
+    volumes:
+      - ./data.sql:/data.sql:ro
+      - ./wait-for-it.sh:/wait-for-it.sh
+    entrypoint: >
+      /bin/sh -c "chmod +x /wait-for-it.sh && /wait-for-it.sh spring-boot-service:8080 --timeout=60 && psql -h database -U admin -d jobFinderApp -f /data.sql"
+    environment:
+      PGPASSWORD: admin
+    networks:
+      - job-finder-app
   spring-boot-service:
     container_name: spring-boot-service
     build:
       context: ./spring-boot-service
       dockerfile: dockerfile
+    depends_on:
+      - database
     ports:
       - "8080:8080"
     networks:
@@ -17,3 +50,6 @@ services:
 networks:
   job-finder-app:
     driver: bridge
+
+volumes:
+  db-volume:
