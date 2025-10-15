@@ -38,6 +38,10 @@ services:
       - "8080:8080"
     depends_on:
       - database
+    environment:
+      JWT_SECRET_FILE: /run/secrets/spring-boot-jwt-secret
+    secrets:
+      - spring-boot-jwt-secret
     networks:
       - job-finder-app
     develop:
@@ -49,6 +53,10 @@ services:
 networks:
   job-finder-app:
     name: job-finder-app
+
+secrets:
+  spring-boot-jwt-secret:
+    file: ./secrets/spring-boot-jwt
 
 volumes:
   db-volume:
