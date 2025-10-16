@@ -6,30 +6,30 @@ import en from './en.json'
 import pl from './pl.json'
 
 const LANGUAGE_DETECTOR = {
-  type: 'languageDetector' as const,
-  async: true,
-  detect: async (callback: (lng: string) => void) => {
-    try {
-      const savedLanguage = await AsyncStorage.getItem('user-language')
-      if (savedLanguage) {
-        callback(savedLanguage)
-        return
-      }
-  const deviceLanguage = RNLocalize.getLocales()[0]?.languageCode || 'en'
-      callback(deviceLanguage)
-    } catch (error) {
-      console.error('Error detecting language:', error)
-      callback('en')
+    type: 'languageDetector' as const,
+    async: true,
+    detect: async (callback: (lng: string) => void) => {
+        try {
+            const savedLanguage = await AsyncStorage.getItem('user-language')
+            if (savedLanguage) {
+                callback(savedLanguage)
+                return
+            }
+            const deviceLanguage = RNLocalize.getLocales()[0]?.languageCode || 'en'
+            callback(deviceLanguage)
+        } catch (error) {
+            console.error('Error detecting language:', error)
+            callback('en')
+        }
+    },
+    init: () => {},
+    cacheUserLanguage: async (lng: string) => {
+        try {
+            await AsyncStorage.setItem('user-language', lng)
+        } catch (error) {
+            console.error('Error saving language:', error)
+        }
     }
-  },
-  init: () => {},
-  cacheUserLanguage: async (lng: string) => {
-    try {
-      await AsyncStorage.setItem('user-language', lng)
-    } catch (error) {
-      console.error('Error saving language:', error)
-    }
-  }
 }
 
 i18n
