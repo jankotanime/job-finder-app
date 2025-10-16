@@ -7,6 +7,7 @@
 - [Wymagania](#wymagania)
 - [Struktura projektu](#struktura-projektu)
 - [Uruchamianie aplikacji i bazy danych](#uruchamianie-aplikacji-i-bazy-danych)
+- [Uruchamianie aplikacji mobilnej](#uruchamianie-aplikacji-mobilnej)
 - [Aktualizacja danych w bazie](#aktualizacja-danych-w-bazie)
 - [Eksport aktualnych danych do pliku `data.sql`](#eksport-aktualnych-danych-do-pliku-datasql)
 - [Synchronizacja danych w zespole](#synchronizacja-danych-w-zespole)
@@ -63,6 +64,18 @@ JobFinderApp/
       ```sh
       docker compose up --build
       ```
+
+---
+
+## Uruchamianie aplikacji mobilnej
+
+Uruchamianie za pomoca npx expo run:ios dla symulatora ios i :android dla androida, mozna uruchomic na swoim telefonie:
+   1. Wejsc w folder mobile/
+   2. ```npm install```
+   3. Wlaczyc w ustawieniach telefonu tryb dewelopera
+   4. Podlaczyc telefon do laptopa przez kabel
+   5. Wpisac npx expo run:(ios/android) --device i zaznaczyc swoj telefon
+   6. Dla macOS: npx expo run:ios wlaczy symulator
 
 ---
 
