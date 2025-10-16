@@ -1,7 +1,8 @@
 import React from "react"
 import { View, Text, StyleSheet } from "react-native"
-import ImageBackground from "../components/ImageBackground"
+import ImageBackground from "../../components/reusable/ImageBackground"
 import { useTranslation } from "react-i18next"
+import { Button } from "react-native-paper"
 
 const HomeScreen = () => {
     const { t } = useTranslation()
