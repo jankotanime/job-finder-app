@@ -2,7 +2,6 @@ package com.mimaja.job_finder_app.security.configuration;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,17 +16,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimaja.job_finder_app.security.jwt.authorizationFilter.JwtAuthorizationFilter;
 import com.mimaja.job_finder_app.security.jwt.configuration.JwtSecretKeyConfiguration;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityFilterChainConfiguration {
   private final JwtSecretKeyConfiguration jwtSecretKeyConfiguration;
 
-  @Autowired
-  public SecurityFilterChainConfiguration(JwtSecretKeyConfiguration jwtSecretKeyConfiguration) {
-    this.jwtSecretKeyConfiguration = jwtSecretKeyConfiguration;
-  }
-
-  Boolean jwtAuthorizationEnabled = false; // ! false only for dev
+  Boolean jwtAuthorizationEnabled = true; // ! false only for dev
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -36,6 +33,7 @@ public class SecurityFilterChainConfiguration {
     if (jwtAuthorizationEnabled) {
       httpSecurity.authorizeHttpRequests(auth -> auth
         .requestMatchers(HttpMethod.GET, "/health-check").permitAll()
+        .requestMatchers(HttpMethod.POST, "/auth/*").permitAll()
         .anyRequest().authenticated());
     } else {
       httpSecurity.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());

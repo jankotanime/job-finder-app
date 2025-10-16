@@ -34,9 +34,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       accessToken = accessToken.substring(7);
       try {
         DecodedJWT jwt = JWT.require(com.auth0.jwt.algorithms.Algorithm.HMAC256(secretKey)).build().verify(accessToken);
+        String id = jwt.getSubject();
         String username = jwt.getClaim("username").asString();
-        if (username != null) {
-          JwtPrincipal principal = new JwtPrincipal(username);
+        if (id != null && username != null) {
+          JwtPrincipal principal = new JwtPrincipal(id, username);
           UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(principal, null, null);
           SecurityContextHolder.getContext().setAuthentication(authentication);
