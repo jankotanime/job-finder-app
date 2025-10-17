@@ -1,11 +1,11 @@
-package com.mimaja.job_finder_app.security.jwt.configuration;
+package com.mimaja.job_finder_app.security.tokens.jwt.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.mimaja.job_finder_app.security.jwt.authorizationFilter.JwtPrincipal;
+import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,8 +34,8 @@ public class JwtConfiguration {
     return username;
   }
 
-  public String getIdFromJWT() {
-    String id = ((JwtPrincipal) SecurityContextHolder.getContext()
+  public UUID getIdFromJWT() {
+    UUID id = ((JwtPrincipal) SecurityContextHolder.getContext()
       .getAuthentication().getPrincipal()).getId();
     return id;
   }

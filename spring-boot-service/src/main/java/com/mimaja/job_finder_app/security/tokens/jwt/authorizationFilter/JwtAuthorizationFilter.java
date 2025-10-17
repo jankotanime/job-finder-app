@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.security.jwt.authorizationFilter;
+package com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,9 +35,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       accessToken = accessToken.substring(7);
       try {
         DecodedJWT jwt = JWT.require(com.auth0.jwt.algorithms.Algorithm.HMAC256(secretKey)).build().verify(accessToken);
-        String id = jwt.getSubject();
+        String idString = jwt.getSubject();
         String username = jwt.getClaim("username").asString();
-        if (id != null && username != null) {
+        if (idString != null && username != null) {
+          UUID id = UUID.fromString(idString);
           JwtPrincipal principal = new JwtPrincipal(id, username);
           UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(principal, null, null);

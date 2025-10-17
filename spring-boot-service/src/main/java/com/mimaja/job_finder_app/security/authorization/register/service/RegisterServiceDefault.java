@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.jwt.configuration.JwtConfiguration;
+import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

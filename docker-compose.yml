@@ -38,10 +38,15 @@ services:
       - "8080:8080"
     depends_on:
       - database
+      - redis
     environment:
       JWT_SECRET_FILE: /run/secrets/spring-boot-jwt-secret
+      REFRESH_TOKEN_SECRET_FILE: /run/secrets/spring-boot-refresh-token-secret
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     secrets:
       - spring-boot-jwt-secret
+      - spring-boot-refresh-token-secret
     networks:
       - job-finder-app
     develop:
@@ -49,6 +54,16 @@ services:
         - action: sync+restart
           path: ./spring-boot-service
           target: /opt
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - job-finder-app
 
 networks:
   job-finder-app:
@@ -57,6 +72,9 @@ networks:
 secrets:
   spring-boot-jwt-secret:
     file: ./secrets/spring-boot-jwt
+  spring-boot-refresh-token-secret:
+    file: ./secrets/spring-boot-refresh-token
 
 volumes:
   db-volume:
+  redis_data:

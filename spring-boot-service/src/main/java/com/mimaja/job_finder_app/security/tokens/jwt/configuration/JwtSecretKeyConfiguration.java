@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.security.jwt.configuration;
+package com.mimaja.job_finder_app.security.tokens.jwt.configuration;
 
 import java.io.IOException;
 import java.nio.file.Files;

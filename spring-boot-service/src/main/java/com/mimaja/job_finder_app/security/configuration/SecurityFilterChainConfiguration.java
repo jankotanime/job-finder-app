@@ -13,8 +13,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mimaja.job_finder_app.security.jwt.authorizationFilter.JwtAuthorizationFilter;
-import com.mimaja.job_finder_app.security.jwt.configuration.JwtSecretKeyConfiguration;
+import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtAuthorizationFilter;
+import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtSecretKeyConfiguration;
 
 import lombok.RequiredArgsConstructor;
 
