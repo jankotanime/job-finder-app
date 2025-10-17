@@ -4,6 +4,7 @@ import { createContext, useContext } from 'react'
 import { useColorScheme } from 'react-native'
 import { themeDark, themeLight } from '../constans/theme'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { tryCatch } from '../utils/try-catch'
 
 type ThemeContextType = {
     theme: typeof DefaultTheme,
@@ -24,26 +25,19 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode}) => {
     const [isLoading, setIsLoading] = useState<boolean>(true)
 
     useEffect(() => {
-        const loadTheme = async () => {
-            try {
-                const userTheme = await AsyncStorage.getItem("isDarkMode")
-                if (userTheme !== null) setIsDarkMode(JSON.parse(userTheme))
-            } catch (e) {
-                console.error("error during saving theme: ", e)
-            } finally {
-                setIsLoading(false)
-            }
-        }
-        loadTheme()
+         (async () => {
+            const [userTheme, error] = await tryCatch(AsyncStorage.getItem("isDarkMode"))
+            if (userTheme !== null) setIsDarkMode(JSON.parse(userTheme))
+            if (error) console.error("error during saving theme: ", error)
+            setIsLoading(false)
+        })()
     }, [theme])
+
     const toggleTheme = async () => {
-        try {
-            const newThemeState = !isDarkMode
-            setIsDarkMode(newThemeState)
-            await AsyncStorage.setItem("isDarkMode", JSON.stringify(newThemeState))
-        } catch (e) {
-            console.error("error during toggling theme: ", e)
-        }
+        const newThemeState = !isDarkMode
+        setIsDarkMode(newThemeState)
+        const [, error] = await tryCatch(AsyncStorage.setItem("isDarkMode", JSON.stringify(newThemeState)))
+        if (error) console.error("error during toggling theme: ", error)
     }
     if (isLoading) return null
     return (
