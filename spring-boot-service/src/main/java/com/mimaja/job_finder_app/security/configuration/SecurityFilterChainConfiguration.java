@@ -33,7 +33,7 @@ public class SecurityFilterChainConfiguration {
     if (jwtAuthorizationEnabled) {
       httpSecurity.authorizeHttpRequests(auth -> auth
         .requestMatchers(HttpMethod.GET, "/health-check").permitAll()
-        .requestMatchers(HttpMethod.POST, "/auth/*").permitAll()
+        .requestMatchers(HttpMethod.POST, "/auth/*", "/refresh-token/rotate").permitAll()
         .anyRequest().authenticated());
     } else {
       httpSecurity.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());

@@ -13,12 +13,14 @@ import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
+import com.mimaja.job_finder_app.security.tokens.refreshTokens.service.RefreshTokenServiceDefault;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class LoginServiceDefault implements LoginService {
   private final JwtConfiguration jwtConfiguration;
+  private final RefreshTokenServiceDefault refreshTokenServiceDefault;
   private final UserRepository userRepository;
   private final PasswordConfiguration passwordConfiguration;
 
@@ -63,7 +65,11 @@ public class LoginServiceDefault implements LoginService {
       return response;
     }
 
-    String token = jwtConfiguration.createToken(user.getId(), user.getUsername());
-    return Map.of("token", token);
+    String accessToken = jwtConfiguration.createToken(user.getId(), user.getUsername());
+    response = refreshTokenServiceDefault.createToken(user.getId());
+
+    response.put("accessToken", accessToken);
+
+    return response;
   }
 }
