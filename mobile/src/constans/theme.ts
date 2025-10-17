@@ -5,7 +5,7 @@ export const themeLight = {
     colors: {
         ...LightTheme.colors,
         primary: '#337EFF',
-        secondary: '#1B6EFF'
+        secondary: '#1B6EFF',
     }
 }
 export const themeDark = {
