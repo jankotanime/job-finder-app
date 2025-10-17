@@ -1,3 +1,8 @@
 {
-	"welcome": "Witaj!"
+	"pre-login-home": {
+		"welcome": "Witaj!",
+		"welcome_subtext": "Zaloguj się zeby korzystać z aplikacji!"
+	},
+	"signup": "Zarejestruj się",
+	"signin": "Zaloguj się"
 }

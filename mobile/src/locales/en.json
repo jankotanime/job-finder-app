@@ -1,3 +1,8 @@
 {
-	"welcome": "Welcome!"
+	"pre-login-home": {
+		"welcome": "Welcome!",
+		"welcome_subtext": "Log in to explore the app!"
+	},
+	"signup": "Sign up",
+	"signin": "Sign In"
 }
