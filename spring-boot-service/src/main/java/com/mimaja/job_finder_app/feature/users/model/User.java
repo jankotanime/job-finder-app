@@ -65,4 +65,11 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public User(String username, String email, String passwordHash, int phoneNumber) {
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.phoneNumber = phoneNumber;
+    }
 }
