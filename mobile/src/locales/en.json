@@ -4,5 +4,16 @@
 		"welcome_subtext": "Log in to explore the app!"
 	},
 	"signup": "Sign up",
-	"signin": "Sign In"
+	"signin": "Sign In",
+	"email": "Email",
+	"password": "Password",
+	"repeat_password": "Repeat password",
+	"login": {
+		"welcome_back": "Welcome back",
+		"sign_up_question": "Don't have an account?",
+		"forgot_password": "Forgot password?"
+	},
+	"register": {
+		"get_started": "Get started"
+	}
 }

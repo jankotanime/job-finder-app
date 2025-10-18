@@ -4,5 +4,16 @@
 		"welcome_subtext": "Zaloguj się zeby korzystać z aplikacji!"
 	},
 	"signup": "Zarejestruj się",
-	"signin": "Zaloguj się"
+	"signin": "Zaloguj się",
+	"email": "Email",
+	"password": "Hasło",
+	"repeat_password": "Powtórz hasło",
+	"login": {
+		"welcome_back": "Witaj z powrotem",
+		"sign_up_question": "Nie masz konta?",
+		"forgot_password": "Zapomniałes hasła?"
+	},
+	"register": {
+		"get_started": "Zarejestruj się"
+	}
 }
