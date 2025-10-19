@@ -7,6 +7,9 @@ import { useTheme, Button } from "react-native-paper"
 import Input from "../../components/reusable/Input"
 import { fieldsRegister } from "../../constans/formFields"
 import { useNavigation } from "@react-navigation/native"
+import { register } from "../../utils/register"
+import Error from "../../components/reusable/Error"
+import { tryCatch } from "../../utils/try-catch"
 
 interface FormState {
     email: string
@@ -23,6 +26,21 @@ const RegisterScreen = () => {
         password: "",
         repeatPassword: ""
     })
+    const [error, setError] = useState<string>("")
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const handleSubmit = async () => {
+        setError("")
+        setIsLoading(true)
+        if (formState.password !== formState.repeatPassword) {
+            setError(t('passwords_dont_match'))
+            setIsLoading(false)
+            return
+        }
+        const [response, error] = await tryCatch(register(formState.email, formState.password))
+        if (error) setError(error.message)
+        if (response.error) setError(response.error)
+        setIsLoading(false)
+    }
     return (
         <View>
             <ImageBackground />
@@ -49,12 +67,16 @@ const RegisterScreen = () => {
                         />
                     ))}
                 </View>
+                {error ? (<Error error={error}/>) : null}
                 <Button
                     mode="contained"
                     style={styles.signUpButton}
                     contentStyle={{ height: 48 }}
+                    onPress={handleSubmit}
+                    disabled={isLoading || !formState.email.trim() || !formState.password.trim() || !formState.repeatPassword.trim()}
+                    loading={isLoading}
                 >
-                    {t('signup')}
+                    {isLoading ? t('register.signing_up') : t('signup')}
                 </Button>
                 <View style={styles.footer}>
                     <Text style={{ color: theme.colors.primary }}>
@@ -91,7 +113,7 @@ const styles = StyleSheet.create({
         fontSize: 25,
     },
     main: {
-        height: height * 0.35
+        height: height * 0.33
     },
     signUpButton: {
         width: width * 0.8,

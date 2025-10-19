@@ -8,6 +8,7 @@
 	"email": "Email",
 	"password": "Password",
 	"repeat_password": "Repeat password",
+	"passwords_dont_match": "Passwords don't match",
 	"login": {
 		"welcome_back": "Welcome back",
 		"sign_up_question": "Don't have an account?",
@@ -15,6 +16,7 @@
 	},
 	"register": {
 		"get_started": "Get started",
-		"sign_in_question": "Already have an account?"
+		"sign_in_question": "Already have an account?",
+		"signing_up": "Signing up..."
 	}
 }
