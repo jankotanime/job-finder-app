@@ -29,7 +29,7 @@ export default Input
 const styles = StyleSheet.create({
     input: {
         alignSelf: 'center',
-        width: width * 0.85,
+        width: width * 0.8,
         borderRadius: 12,
         marginTop: 10,
         top: height * 0.06

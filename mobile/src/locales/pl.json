@@ -1,7 +1,7 @@
 {
 	"pre-login-home": {
 		"welcome": "Witaj!",
-		"welcome_subtext": "Zaloguj się zeby korzystać z aplikacji!"
+		"welcome_subtext": "Zaloguj się żeby korzystać z aplikacji!"
 	},
 	"signup": "Zarejestruj się",
 	"signin": "Zaloguj się",
@@ -11,9 +11,10 @@
 	"login": {
 		"welcome_back": "Witaj z powrotem",
 		"sign_up_question": "Nie masz konta?",
-		"forgot_password": "Zapomniałes hasła?"
+		"forgot_password": "Zapomniałeś hasła?"
 	},
 	"register": {
-		"get_started": "Zarejestruj się"
+		"get_started": "Zarejestruj się",
+		"sign_in_question": "Masz już konto?"
 	}
 }

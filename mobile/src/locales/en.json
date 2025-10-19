@@ -14,6 +14,7 @@
 		"forgot_password": "Forgot password?"
 	},
 	"register": {
-		"get_started": "Get started"
+		"get_started": "Get started",
+		"sign_in_question": "Already have an account?"
 	}
 }
