@@ -17,6 +17,8 @@
 	"register": {
 		"get_started": "Zarejestruj się",
 		"sign_in_question": "Masz już konto?",
-		"signing_up": "Rejestrowanie..."
+		"signing_up": "Rejestrowanie...",
+		"username": "Nazwa",
+		"phone_number": "Numer telefonu"
 	}
 }

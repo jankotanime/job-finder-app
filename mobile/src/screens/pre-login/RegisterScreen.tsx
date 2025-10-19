@@ -7,12 +7,13 @@ import { useTheme, Button } from "react-native-paper"
 import Input from "../../components/reusable/Input"
 import { fieldsRegister } from "../../constans/formFields"
 import { useNavigation } from "@react-navigation/native"
-import { register } from "../../utils/register"
+import { handleRegisterSubmit } from "../../utils/handleRegisterSubmit"
 import Error from "../../components/reusable/Error"
-import { tryCatch } from "../../utils/try-catch"
 
 interface FormState {
+    username: string
     email: string
+    phone_number: string
     password: string
     repeatPassword: string
 }
@@ -22,25 +23,14 @@ const RegisterScreen = () => {
     const theme = useTheme()
     const navigation = useNavigation<any>()
     const [formState, setFormState] = useState<FormState>({
+        username: "",
         email: "",
+        phone_number: "",
         password: "",
         repeatPassword: ""
     })
     const [error, setError] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const handleSubmit = async () => {
-        setError("")
-        setIsLoading(true)
-        if (formState.password !== formState.repeatPassword) {
-            setError(t('passwords_dont_match'))
-            setIsLoading(false)
-            return
-        }
-        const [response, error] = await tryCatch(register(formState.email, formState.password))
-        if (error) setError(error.message)
-        if (response.error) setError(response.error)
-        setIsLoading(false)
-    }
     return (
         <View>
             <ImageBackground />
@@ -72,8 +62,8 @@ const RegisterScreen = () => {
                     mode="contained"
                     style={styles.signUpButton}
                     contentStyle={{ height: 48 }}
-                    onPress={handleSubmit}
-                    disabled={isLoading || !formState.email.trim() || !formState.password.trim() || !formState.repeatPassword.trim()}
+                    onPress={() => handleRegisterSubmit({ formState, setError, setIsLoading, t })}
+                    disabled={isLoading || Object.values(formState).some(value => value.trim() === '')}
                     loading={isLoading}
                 >
                     {isLoading ? t('register.signing_up') : t('signup')}
@@ -113,7 +103,7 @@ const styles = StyleSheet.create({
         fontSize: 25,
     },
     main: {
-        height: height * 0.33
+        height: height * 0.48
     },
     signUpButton: {
         width: width * 0.8,

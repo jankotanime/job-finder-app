@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
         fontSize: 25,
     },
     main: {
-        height: height * 0.3
+        height: height * 0.28
     },
     signInButton: {
         width: width * 0.8,
