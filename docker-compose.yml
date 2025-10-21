@@ -65,6 +65,18 @@ services:
     networks:
       - job-finder-app
 
+  website:
+    container_name: website
+    build:
+      context: ./website
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - spring-boot-service
+    networks:
+      - job-finder-app
+
 networks:
   job-finder-app:
     name: job-finder-app
