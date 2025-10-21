@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtAuthorizationFilter;
@@ -33,7 +32,9 @@ public class SecurityFilterChainConfiguration {
     if (jwtAuthorizationEnabled) {
       httpSecurity.authorizeHttpRequests(auth -> auth
         .requestMatchers(HttpMethod.GET, "/health-check").permitAll()
+        .requestMatchers(HttpMethod.GET, "/example-error").permitAll()
         .requestMatchers(HttpMethod.POST, "/auth/*", "/refresh-token/rotate").permitAll()
+        .requestMatchers("/api-docs/**").permitAll()
         .anyRequest().authenticated());
     } else {
       httpSecurity.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
@@ -52,9 +53,9 @@ public class SecurityFilterChainConfiguration {
         })
       )
       // ? Web app endpoints need to be protected from csrf
-      .csrf(csrf -> csrf
-        .requireCsrfProtectionMatcher(new AntPathRequestMatcher("/web"))
-      )
+        .csrf(csrf -> csrf
+                .requireCsrfProtectionMatcher(request -> request.getServletPath() != null && request.getServletPath().startsWith("/web"))
+        )
       .logout(logout -> logout.disable())
       .formLogin(AbstractHttpConfigurer::disable)
       .httpBasic(AbstractHttpConfigurer::disable)
