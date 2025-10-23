@@ -1,7 +1,8 @@
 package com.mimaja.job_finder_app.security.authorization.login.service;
 
-import java.util.Map;
+import com.mimaja.job_finder_app.security.shared.dto.RequestLoginDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseTokensDto;
 
 public interface LoginService {
-  Map<String, String> tryToLogin(Map<String, String> reqData);
+  public ResponseTokensDto tryToLogin(RequestLoginDto reqData);
 }

@@ -44,6 +44,7 @@ services:
       REFRESH_TOKEN_SECRET_FILE: /run/secrets/spring-boot-refresh-token-secret
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      APP_SECURITY_PROFILE: prod
     secrets:
       - spring-boot-jwt-secret
       - spring-boot-refresh-token-secret

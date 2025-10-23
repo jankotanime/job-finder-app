@@ -12,9 +12,9 @@ public class Healthcheck {
   @GetMapping
   public ResponseDto<String> getHealthcheck() {
     return new ResponseDto<>(
-            SuccessCode.RESPONSE_SUCCESSFUL,
-            "Health check",
-            "Data"
+      SuccessCode.RESPONSE_SUCCESSFUL,
+      "Health check",
+      "Data"
     );
   }
 }
