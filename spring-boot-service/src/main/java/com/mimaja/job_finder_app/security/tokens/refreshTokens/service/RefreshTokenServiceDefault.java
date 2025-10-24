@@ -17,7 +17,7 @@ import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
 import com.mimaja.job_finder_app.security.shared.dto.RequestRefreshTokenRotateDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseRefreshTokenDto;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokensDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.security.tokens.encoder.RefreshTokenEncoder;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 import com.mimaja.job_finder_app.security.tokens.refreshTokens.model.RefreshToken;
@@ -73,7 +73,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
   }
 
   @Override
-  public ResponseTokensDto rotateToken(RequestRefreshTokenRotateDto reqData) {
+  public ResponseTokenDto rotateToken(RequestRefreshTokenRotateDto reqData) {
     String refreshToken = reqData.refreshToken();
     String refreshTokenId = reqData.refreshTokenId();
 
@@ -101,7 +101,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
     String accessToken = jwtConfiguration.createToken(userId, user.getUsername());
     ResponseRefreshTokenDto newRefreshToken = createToken(userId);
 
-    ResponseTokensDto response = new ResponseTokensDto(
+    ResponseTokenDto response = new ResponseTokenDto(
       accessToken,
       newRefreshToken.refreshToken(),
       newRefreshToken.refreshTokenId()

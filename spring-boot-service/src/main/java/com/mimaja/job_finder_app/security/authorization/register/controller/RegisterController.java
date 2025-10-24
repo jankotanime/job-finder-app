@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mimaja.job_finder_app.security.authorization.register.service.RegisterServiceDefault;
 import com.mimaja.job_finder_app.security.shared.dto.RequestRegisterDto;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokensDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 
@@ -20,15 +20,13 @@ public class RegisterController {
   private final RegisterServiceDefault registerService;
 
   @PostMapping
-  public ResponseDto<ResponseTokensDto> registerPostMapping(@RequestBody RequestRegisterDto reqData) {
-    ResponseTokensDto tokens = registerService.tryToRegister(reqData);
+  public ResponseDto<ResponseTokenDto> registerPostMapping(@RequestBody RequestRegisterDto reqData) {
+    ResponseTokenDto tokens = registerService.tryToRegister(reqData);
 
-    ResponseDto<ResponseTokensDto> response = new ResponseDto<ResponseTokensDto>(
+    return new ResponseDto<>(
       SuccessCode.RESOURCE_CREATED,
       "Successfully registered",
       tokens
     );
-
-    return response;
   }
 }

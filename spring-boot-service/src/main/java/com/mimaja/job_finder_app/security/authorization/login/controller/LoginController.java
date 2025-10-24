@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mimaja.job_finder_app.security.authorization.login.service.LoginService;
 import com.mimaja.job_finder_app.security.shared.dto.RequestLoginDto;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokensDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 
@@ -20,15 +20,13 @@ public class LoginController {
   private final LoginService loginService;
 
   @PostMapping
-  public ResponseDto<ResponseTokensDto> loginPostMapping(@RequestBody RequestLoginDto reqData) {
-    ResponseTokensDto tokens = loginService.tryToLogin(reqData);
+  public ResponseDto<ResponseTokenDto> loginPostMapping(@RequestBody RequestLoginDto reqData) {
+    ResponseTokenDto tokens = loginService.tryToLogin(reqData);
 
-    ResponseDto<ResponseTokensDto> response = new ResponseDto<ResponseTokensDto>(
+    return new ResponseDto<>(
       SuccessCode.RESOURCE_CREATED,
       "Successfuly logged in",
       tokens
     );
-
-    return response;
   }
 }

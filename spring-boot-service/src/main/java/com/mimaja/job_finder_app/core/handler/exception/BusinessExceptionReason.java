@@ -11,20 +11,19 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum BusinessExceptionReason implements BusinessExceptionPolicy {
-    BODY_MISSING("Body is missing", HttpStatus.BAD_REQUEST, null),
     JOB_NOT_FOUND("Job not found", HttpStatus.NOT_FOUND, null),
 
     WRONG_LOGIN_DATA("Wrong login data", HttpStatus.UNAUTHORIZED, null),
     WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED, null),
 
-    INVALID_USERNAME("Invalid username", HttpStatus.UNAUTHORIZED, null),
-    INVALID_EMAIL("Invalid email", HttpStatus.UNAUTHORIZED, null),
-    INVALID_PHONE_NUMBER("Invalid phone number", HttpStatus.UNAUTHORIZED, null),
-    INVALID_PASSWORD("Invalid password", HttpStatus.UNAUTHORIZED, null),
+    INVALID_USERNAME_PATTERN("Invalid username", HttpStatus.UNAUTHORIZED, null),
+    INVALID_EMAIL_PATTERN("Invalid email", HttpStatus.UNAUTHORIZED, null),
+    INVALID_PHONE_NUMBER_PATTERN("Invalid phone number", HttpStatus.UNAUTHORIZED, null),
+    INVALID_PASSWORD_PATTERN("Invalid password", HttpStatus.UNAUTHORIZED, null),
 
-    USERNAME_TAKEN("User with this username exists", HttpStatus.UNAUTHORIZED, null),
-    EMAIL_TAKEN("User with this email exists", HttpStatus.UNAUTHORIZED, null),
-    PHONE_NUMBER_TAKEN("User with this phone number exists", HttpStatus.UNAUTHORIZED, null),
+    USERNAME_ALREADY_TAKEN("User with this username exists", HttpStatus.UNAUTHORIZED, null),
+    EMAIL_ALREADY_TAKEN("User with this email exists", HttpStatus.UNAUTHORIZED, null),
+    PHONE_NUMBER_ALREADY_TAKEN("User with this phone number exists", HttpStatus.UNAUTHORIZED, null),
 
     INVALID_REFRESH_TOKEN("Invalid refresh token", HttpStatus.UNAUTHORIZED, null);
 
