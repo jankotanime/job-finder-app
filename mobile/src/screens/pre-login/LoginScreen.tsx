@@ -6,6 +6,7 @@ import {
   Pressable,
   ScrollView,
   KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import ImageBackground from "../../components/reusable/ImageBackground";
 import WhiteCard from "../../components/pre-login/WhiteCard";
@@ -36,83 +37,91 @@ const LoginScreen = () => {
     <View>
       <ImageBackground />
       <WhiteCard>
-        <ScrollView>
-          <View style={styles.header}>
-            <Text style={[styles.headerText, { color: theme.colors.primary }]}>
-              {t("login.welcome_back")}
-            </Text>
-          </View>
-          <View style={styles.main}>
-            {fieldsLogin(t).map((field) => (
-              <Input
-                key={field.key}
-                placeholder={field.placeholder}
-                value={formState[field.key as keyof FormState]}
-                onChangeText={(text) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    [field.key]: text,
-                  }))
-                }
-                mode="outlined"
-                secure={field.secure}
-              />
-            ))}
-          </View>
-          <View style={styles.forgot}>
-            <Pressable>
-              {({ pressed }) => (
-                <Text
-                  style={{
-                    color: pressed
-                      ? theme.colors.onSecondary
-                      : theme.colors.primary,
-                    fontWeight: "600",
-                    marginLeft: 5,
-                  }}
-                >
-                  {t("login.forgot_password")}
-                </Text>
-              )}
-            </Pressable>
-          </View>
-          {error ? <Error error={error} /> : null}
-          <Button
-            mode="contained"
-            style={styles.signInButton}
-            contentStyle={{ height: 48 }}
-            onPress={() =>
-              handleLoginSubmit({ formState, setError, setIsLoading })
-            }
-            disabled={
-              isLoading ||
-              Object.values(formState).some((value) => value.trim() === "")
-            }
-            loading={isLoading}
-          >
-            {isLoading ? t("login.signing_in") : t("signin")}
-          </Button>
-          <View style={styles.footer}>
-            <Text style={{ color: theme.colors.primary }}>
-              {t("login.sign_up_question")}
-            </Text>
-            <Pressable onPress={() => navigation.navigate("Register")}>
-              {({ pressed }) => (
-                <Text
-                  style={{
-                    color: pressed
-                      ? theme.colors.primary
-                      : theme.colors.onSecondary,
-                    fontWeight: "600",
-                    marginLeft: 5,
-                  }}
-                >
-                  {t("signup")}
-                </Text>
-              )}
-            </Pressable>
-          </View>
-        </ScrollView>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 230 : 30}
+        >
+          <ScrollView>
+            <View style={styles.header}>
+              <Text
+                style={[styles.headerText, { color: theme.colors.primary }]}
+              >
+                {t("login.welcome_back")}
+              </Text>
+            </View>
+            <View style={styles.main}>
+              {fieldsLogin(t).map((field) => (
+                <Input
+                  key={field.key}
+                  placeholder={field.placeholder}
+                  value={formState[field.key as keyof FormState]}
+                  onChangeText={(text) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      [field.key]: text,
+                    }))
+                  }
+                  mode="outlined"
+                  secure={field.secure}
+                />
+              ))}
+            </View>
+            <View style={styles.forgot}>
+              <Pressable>
+                {({ pressed }) => (
+                  <Text
+                    style={{
+                      color: pressed
+                        ? theme.colors.onSecondary
+                        : theme.colors.primary,
+                      fontWeight: "600",
+                      marginLeft: 5,
+                    }}
+                  >
+                    {t("login.forgot_password")}
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+            {error ? <Error error={error} /> : null}
+            <Button
+              mode="contained"
+              style={styles.signInButton}
+              contentStyle={{ height: 48 }}
+              onPress={() =>
+                handleLoginSubmit({ formState, setError, setIsLoading })
+              }
+              disabled={
+                isLoading ||
+                Object.values(formState).some((value) => value.trim() === "")
+              }
+              loading={isLoading}
+            >
+              {isLoading ? t("login.signing_in") : t("signin")}
+            </Button>
+            <View style={styles.footer}>
+              <Text style={{ color: theme.colors.primary }}>
+                {t("login.sign_up_question")}
+              </Text>
+              <Pressable onPress={() => navigation.navigate("Register")}>
+                {({ pressed }) => (
+                  <Text
+                    style={{
+                      color: pressed
+                        ? theme.colors.primary
+                        : theme.colors.onSecondary,
+                      fontWeight: "600",
+                      marginLeft: 5,
+                    }}
+                  >
+                    {t("signup")}
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </WhiteCard>
     </View>
   );
