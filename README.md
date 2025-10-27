@@ -30,8 +30,9 @@
 JobFinderApp/
 ├── docker-compose.yml
 ├── data.sql
-├── extract_db.sh
-├── wait-for-it.sh
+├── scripts/
+    ├── extract_db.sh
+    ├── wait-for-it.sh
 ├── spring-boot-service/
 │   └── ...
 └── ...
@@ -104,7 +105,7 @@ Aby zrzucić aktualne dane z bazy do pliku `data.sql`:
 1. **Uruchom skrypt eksportujący:**
 
    ```sh
-   ./extract_db.sh
+   ./scripts/extract_db.sh
    ```
 
    - Skrypt utworzy/nadpisze plik `data.sql` aktualnymi danymi z bazy.
