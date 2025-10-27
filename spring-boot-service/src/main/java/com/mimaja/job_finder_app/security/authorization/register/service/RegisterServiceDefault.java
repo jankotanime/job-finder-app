@@ -1,20 +1,15 @@
-package com.mimaja.job_finder_app.security.authorization.register.service;
-
+package com.mimaja.job_finder_app.security.authorization.register.service;import com.mimaja.job_finder_app.feature.users.model.User;
+import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
+import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
+import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
-import org.springframework.stereotype.Service;
-
-import com.mimaja.job_finder_app.feature.users.model.User;
-import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
-import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -26,16 +21,16 @@ public class RegisterServiceDefault implements RegisterService {
 
   @Override
   public boolean patternMatches(String emailAddress, String regexPattern) {
-    return Pattern.compile(regexPattern)
-      .matcher(emailAddress)
-      .matches();
+    return Pattern.compile(regexPattern).matcher(emailAddress).matches();
   }
 
   @Override
   public Map<String, String> tryToRegister(Map<String, String> reqData) {
-    Map<String, String> response = new HashMap<String,String>();
-    if (!reqData.containsKey("username") || !reqData.containsKey("email")
-    ||  !reqData.containsKey("phoneNumber") || !reqData.containsKey("password")) {
+    Map<String, String> response = new HashMap<String, String>();
+    if (!reqData.containsKey("username")
+        || !reqData.containsKey("email")
+        || !reqData.containsKey("phoneNumber")
+        || !reqData.containsKey("password")) {
       response.put("err", "Invalid body!");
       return response;
     }
@@ -50,7 +45,8 @@ public class RegisterServiceDefault implements RegisterService {
       return response;
     }
 
-    if (!patternMatches(email, "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+.[a-zA-Z0-9.-]+$")) {
+    if (!patternMatches(
+        email, "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+.[a-zA-Z0-9.-]+$")) {
       response.put("err", "Wrong email");
       return response;
     }
@@ -64,8 +60,7 @@ public class RegisterServiceDefault implements RegisterService {
 
     try {
       phoneNumber = Integer.parseInt(phoneNumberString);
-    }
-    catch (NumberFormatException e) {
+    } catch (NumberFormatException e) {
       response.put("err", "Invalid phone number format!");
       return response;
     }

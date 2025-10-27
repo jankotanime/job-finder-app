@@ -1,6 +1,4 @@
-package com.mimaja.job_finder_app.security.configuration;
-
-import org.springframework.context.annotation.Configuration;
+package com.mimaja.job_finder_app.security.configuration;import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

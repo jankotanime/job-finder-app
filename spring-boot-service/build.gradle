@@ -1,7 +1,9 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.6'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'pmd'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.diffplug.spotless' version '6.24.0'
 }
 
 group = 'com.mimaja'
@@ -9,39 +11,89 @@ version = '0.0.1-SNAPSHOT'
 description = 'Spring Boot application for mobile JobFinderApp'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+spotless {
+    java {
+        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+        googleJavaFormat('1.25.0')
+        importOrder()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+        lineEndings = com.diffplug.spotless.LineEnding.UNIX
+
+        replaceRegex("One blank line after package line",
+                "(package .+;)\\n+import",
+                """\$1import""")
+
+        replaceRegex("One blank line after import lists",
+                "(import .+;\\n\\n)\\n+",
+                """\$1""")
+
+        replaceRegex("Remove wildcard imports",
+                "import( static)?\\s+[^*\\s]+\\*;(\\r\\n|\\r|\\n)",
+                """\$2""")
+
+        replaceRegex("Remove empty lines after start of block",
+                "(\\{)\\s*\\n\\s*\\n",
+                """\$1""")
+
+        replaceRegex("Remove empty lines before end of block",
+                "\\n[\\n]+(\\s*})(?=\\n)",
+                """\n\$1""")
+
+        replaceRegex("Remove trailing empty comment lines.",
+                "\\n\\s*\\*(\\n\\s*\\*/\\n)",
+                """\$1""")
+    }
+    format("misc") {
+        target '*.md', '**/*.yml', '**/*.yaml', '**/*.properties', '**/*.json', '**/*.gradle'
+        trimTrailingWhitespace()
+        endWithNewline()
+        indentWithSpaces()
+        lineEndings = com.diffplug.spotless.LineEnding.UNIX
+    }
+}
+
+pmd {
+    toolVersion = '6.52.0'
+    ignoreFailures = false
+    ruleSets = ["category/java/errorprone.xml", "category/java/bestpractices.xml"]
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
-	runtimeOnly 'org.postgresql:postgresql'
-	implementation 'com.auth0:java-jwt:4.0.0'
-	testImplementation 'org.springframework.security:spring-security-test'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'com.auth0:java-jwt:4.0.0'
+    testImplementation 'org.springframework.security:spring-security-test'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

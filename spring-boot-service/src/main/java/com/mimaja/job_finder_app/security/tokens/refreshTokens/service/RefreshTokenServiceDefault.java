@@ -1,5 +1,7 @@
-package com.mimaja.job_finder_app.security.tokens.refreshTokens.service;
-
+package com.mimaja.job_finder_app.security.tokens.refreshTokens.service;import com.mimaja.job_finder_app.feature.users.model.User;
+import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
+import com.mimaja.job_finder_app.security.tokens.encoder.RefreshTokenEncoder;
+import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -8,17 +10,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-
-import com.mimaja.job_finder_app.feature.users.model.User;
-import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
-import com.mimaja.job_finder_app.security.tokens.encoder.RefreshTokenEncoder;
-import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -29,9 +24,11 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
   private final JwtConfiguration jwtConfiguration;
   private final UserRepository userRepository;
 
-  public RefreshTokenServiceDefault(StringRedisTemplate redisTemplate,
-    RefreshTokenEncoder refreshTokenEncoder, JwtConfiguration jwtConfiguration,
-    UserRepository userRepository) {
+  public RefreshTokenServiceDefault(
+      StringRedisTemplate redisTemplate,
+      RefreshTokenEncoder refreshTokenEncoder,
+      JwtConfiguration jwtConfiguration,
+      UserRepository userRepository) {
     this.redisTemplate = redisTemplate;
     this.hashOps = redisTemplate.opsForHash();
     this.refreshTokenEncoder = refreshTokenEncoder;
@@ -41,7 +38,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
 
   @Override
   public Map<String, String> createToken(UUID userId) {
-    Map<String, String> response = new HashMap<String,String>();
+    Map<String, String> response = new HashMap<String, String>();
 
     String refreshTokenId = UUID.randomUUID().toString();
     String refreshTokenKey = "RefreshToken-" + refreshTokenId;
@@ -69,7 +66,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
 
   @Override
   public Map<String, String> rotateToken(Map<String, String> reqData) {
-    Map<String, String> response = new HashMap<String,String>();
+    Map<String, String> response = new HashMap<String, String>();
 
     if (!reqData.containsKey("refreshToken") || !reqData.containsKey("refreshTokenId")) {
       response.put("err", "Invalid body!");
@@ -92,7 +89,8 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
 
     User user;
     try {
-      Optional<User> userOptional = userRepository.findById(UUID.fromString(tokenData.get("userId")));
+      Optional<User> userOptional =
+          userRepository.findById(UUID.fromString(tokenData.get("userId")));
       user = userOptional.get();
     } catch (InternalError e) {
       response.put("err", "User does not exist");
@@ -110,9 +108,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
     Set<String> tokenIds = redisTemplate.opsForSet().members("userTokens:" + userId);
 
     if (tokenIds != null && !tokenIds.isEmpty()) {
-      List<String> keysToDelete = tokenIds.stream()
-        .map(id -> "refreshToken:" + id)
-        .toList();
+      List<String> keysToDelete = tokenIds.stream().map(id -> "refreshToken:" + id).toList();
 
       redisTemplate.delete(keysToDelete);
       redisTemplate.delete("userTokens:" + userId);

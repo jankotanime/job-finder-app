@@ -1,18 +1,15 @@
-package com.mimaja.job_finder_app.security.tokens.jwt.configuration;
-
+package com.mimaja.job_finder_app.security.tokens.jwt.configuration;import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-
-import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class JwtSecretKeyConfiguration {
   @Value("${jwt.secret}")
   private String secretFilePath;
+
   private String secretKey;
 
   @PostConstruct

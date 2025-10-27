@@ -1,16 +1,11 @@
-package com.mimaja.job_finder_app.security.authorization.register.controller;
-
+package com.mimaja.job_finder_app.security.authorization.register.controller;import com.mimaja.job_finder_app.security.authorization.register.service.RegisterServiceDefault;
 import java.util.Map;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.mimaja.job_finder_app.security.authorization.register.service.RegisterServiceDefault;
-
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,7 +14,8 @@ public class RegisterController {
   private final RegisterServiceDefault registerService;
 
   @PostMapping
-  public ResponseEntity<Map<String, String>> registerPostMapping(@RequestBody Map<String, String> reqData) {
+  public ResponseEntity<Map<String, String>> registerPostMapping(
+      @RequestBody Map<String, String> reqData) {
     Map<String, String> result = registerService.tryToRegister(reqData);
 
     if (result.containsKey("err")) {

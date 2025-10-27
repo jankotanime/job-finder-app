@@ -1,13 +1,15 @@
-package com.mimaja.job_finder_app.feature.jobs.tags.model;
-
-import jakarta.persistence.*;
+package com.mimaja.job_finder_app.feature.jobs.tags.model;import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -15,13 +17,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @Table(name = "tags")
 public class Tag {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    private String name;
+  private String name;
 
-    @Column(updatable = false)
-    @CreationTimestamp
-    private LocalDate createdAt;
+  @Column(updatable = false)
+  @CreationTimestamp
+  private LocalDate createdAt;
 }

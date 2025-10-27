@@ -1,19 +1,14 @@
-package com.mimaja.job_finder_app.security.authorization.login.service;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
-import com.mimaja.job_finder_app.feature.users.model.User;
+package com.mimaja.job_finder_app.security.authorization.login.service;import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 import com.mimaja.job_finder_app.security.tokens.refreshTokens.service.RefreshTokenServiceDefault;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -46,8 +41,7 @@ public class LoginServiceDefault implements LoginService {
       try {
         int phoneNumber = Integer.parseInt(loginData);
         userOptional = userRepository.findByPhoneNumber(phoneNumber);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
         response.put("err", "User not found!");
         return response;
       }
