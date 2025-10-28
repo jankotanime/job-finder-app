@@ -1,9 +1,7 @@
 package com.mimaja.job_finder_app.security.tokens.refreshTokens.service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -13,10 +11,16 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
+import com.mimaja.job_finder_app.security.shared.dto.RequestRefreshTokenRotateDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseRefreshTokenDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.security.tokens.encoder.RefreshTokenEncoder;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
+import com.mimaja.job_finder_app.security.tokens.refreshTokens.model.RefreshToken;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,9 +44,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
   }
 
   @Override
-  public Map<String, String> createToken(UUID userId) {
-    Map<String, String> response = new HashMap<String,String>();
-
+  public ResponseRefreshTokenDto createToken(UUID userId) {
     String refreshTokenId = UUID.randomUUID().toString();
     String refreshTokenKey = "RefreshToken-" + refreshTokenId;
     String refreshTokenValue = UUID.randomUUID().toString();
@@ -57,9 +59,12 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
     hashOps.put(refreshTokenKey, "expiresAt", expiresAt.toString());
     redisTemplate.expire(refreshTokenKey, lifetimeDays, TimeUnit.DAYS);
 
-    response.put("refreshToken", refreshTokenValue);
-    response.put("refreshTokenId", refreshTokenId);
-    return response;
+    ResponseRefreshTokenDto result = new ResponseRefreshTokenDto(
+      refreshTokenValue,
+      refreshTokenId
+    );
+
+    return result;
   }
 
   @Override
@@ -68,40 +73,40 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
   }
 
   @Override
-  public Map<String, String> rotateToken(Map<String, String> reqData) {
-    Map<String, String> response = new HashMap<String,String>();
+  public ResponseTokenDto rotateToken(RequestRefreshTokenRotateDto reqData) {
+    String refreshToken = reqData.refreshToken();
+    String refreshTokenId = reqData.refreshTokenId();
 
-    if (!reqData.containsKey("refreshToken") || !reqData.containsKey("refreshTokenId")) {
-      response.put("err", "Invalid body!");
-      return response;
+    RefreshToken tokenData = new RefreshToken(
+      refreshTokenId,
+      hashOps.entries("RefreshToken-" + refreshTokenId)
+      );
+    System.out.println(tokenData.getHashedToken());
+
+    if (!refreshTokenEncoder.verifyToken(refreshToken, tokenData.getHashedToken())) {
+      throw new BusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
     }
-
-    String refreshToken = reqData.get("refreshToken");
-    String refreshTokenId = reqData.get("refreshTokenId");
-
-    Map<String, String> tokenData = hashOps.entries("RefreshToken-" + refreshTokenId);
-
-    if (!refreshTokenEncoder.verifyToken(refreshToken, tokenData.get("tokenValue"))) {
-      response.put("err", "Invalid refresh token!");
-      return response;
-    }
-
-    System.out.println(tokenData);
 
     deleteToken(refreshTokenId);
 
-    User user;
-    try {
-      Optional<User> userOptional = userRepository.findById(UUID.fromString(tokenData.get("userId")));
-      user = userOptional.get();
-    } catch (InternalError e) {
-      response.put("err", "User does not exist");
-      return response;
+    UUID userId = UUID.fromString(tokenData.getUserId());
+    Optional<User> userOptional = userRepository.findById(userId);
+
+    if (userOptional.isEmpty()) {
+      throw new BusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
     }
 
-    String accessToken = jwtConfiguration.createToken(user.getId(), user.getUsername());
-    response = createToken(user.getId());
-    response.put("accessToken", accessToken);
+    User user = userOptional.get();
+
+    String accessToken = jwtConfiguration.createToken(userId, user.getUsername());
+    ResponseRefreshTokenDto newRefreshToken = createToken(userId);
+
+    ResponseTokenDto response = new ResponseTokenDto(
+      accessToken,
+      newRefreshToken.refreshToken(),
+      newRefreshToken.refreshTokenId()
+    );
+
     return response;
   }
 
