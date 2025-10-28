@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "jobFinderApp",
+    "slug": "jobFinderApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.madamski9.mobile"
+      "package": "com.madamski9.jobFinderApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

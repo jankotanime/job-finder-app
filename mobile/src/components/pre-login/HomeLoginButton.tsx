@@ -1,23 +1,23 @@
-import React from "react"
-import { Button } from "react-native-paper"
+import React from "react";
+import { Button } from "react-native-paper";
 
 interface ButtonProps {
-    text: string
-    onPress?: () => void
-    styles: object
-    white?: boolean
+  text: string;
+  onPress?: () => void;
+  styles: object;
+  white?: boolean;
 }
-const HomeLoginButton = (props: ButtonProps) => {
-    return (
-        <Button
-            mode="text"
-            style={props.styles}
-            labelStyle={{ fontSize: 20 }}
-            textColor={props.white ? 'white' : ''}
-            onPress={props.onPress}
-        >
-            {props.text}
-        </Button>
-    )
-}
-export default HomeLoginButton
+const HomeLoginButton = ({ styles, white, onPress, text }: ButtonProps) => {
+  return (
+    <Button
+      mode="text"
+      style={styles}
+      labelStyle={{ fontSize: 20 }}
+      textColor={white ? "white" : ""}
+      onPress={onPress}
+    >
+      {text}
+    </Button>
+  );
+};
+export default HomeLoginButton;
