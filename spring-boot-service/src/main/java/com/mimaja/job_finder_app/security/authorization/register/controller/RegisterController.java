@@ -1,7 +1,9 @@
 package com.mimaja.job_finder_app.security.authorization.register.controller;import com.mimaja.job_finder_app.security.authorization.register.service.RegisterServiceDefault;
-import java.util.Map;
+import com.mimaja.job_finder_app.security.shared.dto.RequestRegisterDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.shared.dto.ResponseDto;
+import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,14 +16,10 @@ public class RegisterController {
   private final RegisterServiceDefault registerService;
 
   @PostMapping
-  public ResponseEntity<Map<String, String>> registerPostMapping(
-      @RequestBody Map<String, String> reqData) {
-    Map<String, String> result = registerService.tryToRegister(reqData);
+  public ResponseDto<ResponseTokenDto> registerPostMapping(
+      @RequestBody RequestRegisterDto reqData) {
+    ResponseTokenDto tokens = registerService.tryToRegister(reqData);
 
-    if (result.containsKey("err")) {
-      return ResponseEntity.status(401).body(result);
-    }
-
-    return ResponseEntity.ok(result);
+    return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfully registered", tokens);
   }
 }

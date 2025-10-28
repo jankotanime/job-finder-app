@@ -1,24 +1,25 @@
 {
-	"pre-login-home": {
-		"welcome": "Welcome!",
-		"welcome_subtext": "Log in to explore the app!"
-	},
-	"signup": "Sign up",
-	"signin": "Sign In",
-	"email": "Email",
-	"password": "Password",
-	"repeat_password": "Repeat password",
-	"passwords_dont_match": "Passwords don't match",
-	"login": {
-		"welcome_back": "Welcome back",
-		"sign_up_question": "Don't have an account?",
-		"forgot_password": "Forgot password?"
-	},
-	"register": {
-		"get_started": "Get started",
-		"sign_in_question": "Already have an account?",
-		"signing_up": "Signing up...",
-		"username": "Username",
-		"phone_number": "Phone number"
-	}
+  "pre-login-home": {
+    "welcome": "Welcome!",
+    "welcome_subtext": "Log in to explore the app!"
+  },
+  "signup": "Sign up",
+  "signin": "Sign In",
+  "email": "Email",
+  "password": "Password",
+  "repeat_password": "Repeat password",
+  "passwords_dont_match": "Passwords don't match",
+  "login": {
+    "welcome_back": "Welcome back",
+    "sign_up_question": "Don't have an account?",
+    "forgot_password": "Forgot password?",
+    "signing_in": "Signing in..."
+  },
+  "register": {
+    "get_started": "Get started",
+    "sign_in_question": "Already have an account?",
+    "signing_up": "Signing up...",
+    "username": "Username",
+    "phone_number": "Phone number"
+  }
 }

@@ -1,8 +1,9 @@
 package com.mimaja.job_finder_app.security.authorization.login.controller;import com.mimaja.job_finder_app.security.authorization.login.service.LoginService;
-import java.util.HashMap;
-import java.util.Map;
+import com.mimaja.job_finder_app.security.shared.dto.RequestLoginDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.shared.dto.ResponseDto;
+import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,11 +16,9 @@ public class LoginController {
   private final LoginService loginService;
 
   @PostMapping
-  public ResponseEntity<Map<String, String>> loginPostMapping(
-      @RequestBody Map<String, String> reqData) {
-    Map<String, String> response = new HashMap<String, String>();
+  public ResponseDto<ResponseTokenDto> loginPostMapping(@RequestBody RequestLoginDto reqData) {
+    ResponseTokenDto tokens = loginService.tryToLogin(reqData);
 
-    response = loginService.tryToLogin(reqData);
-    return ResponseEntity.ok(response);
+    return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfuly logged in", tokens);
   }
 }

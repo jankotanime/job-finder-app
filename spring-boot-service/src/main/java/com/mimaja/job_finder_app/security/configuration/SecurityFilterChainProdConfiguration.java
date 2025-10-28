@@ -3,6 +3,7 @@ import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtAuth
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtSecretKeyConfiguration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,32 +16,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityFilterChainConfiguration {
+@ConditionalOnProperty(name = "app.security.profile", havingValue = "prod", matchIfMissing = true)
+public class SecurityFilterChainProdConfiguration {
   private final JwtSecretKeyConfiguration jwtSecretKeyConfiguration;
-
-  Boolean jwtAuthorizationEnabled = true; // ! false only for dev
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     String secretKey = jwtSecretKeyConfiguration.getSecretKey();
-
-    if (jwtAuthorizationEnabled) {
-      httpSecurity.authorizeHttpRequests(
-          auth ->
-              auth.requestMatchers(HttpMethod.GET, "/health-check")
-                  .permitAll()
-                  .requestMatchers(HttpMethod.GET, "/example-error")
-                  .permitAll()
-                  .requestMatchers(HttpMethod.POST, "/auth/*", "/refresh-token/rotate")
-                  .permitAll()
-                  .requestMatchers("/api-docs/**")
-                  .permitAll()
-                  .anyRequest()
-                  .authenticated());
-    } else {
-      httpSecurity.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-    }
     httpSecurity
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(HttpMethod.GET, "/health-check")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/example-error")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/auth/*", "/refresh-token/rotate")
+                    .permitAll()
+                    .requestMatchers("/api-docs/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .exceptionHandling(
             eh ->
                 eh.authenticationEntryPoint(
@@ -52,7 +47,6 @@ public class SecurityFilterChainConfiguration {
                       new ObjectMapper().writeValue(response.getWriter(), errorBody);
                       response.getWriter().flush();
                     }))
-        // ? Web app endpoints need to be protected from csrf
         .csrf(
             csrf ->
                 csrf.requireCsrfProtectionMatcher(

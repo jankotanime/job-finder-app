@@ -40,6 +40,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.5",
     "typescript": "~5.9.2"

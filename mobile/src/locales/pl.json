@@ -1,24 +1,25 @@
 {
-	"pre-login-home": {
-		"welcome": "Witaj!",
-		"welcome_subtext": "Zaloguj się żeby korzystać z aplikacji!"
-	},
-	"signup": "Zarejestruj się",
-	"signin": "Zaloguj się",
-	"email": "Email",
-	"password": "Hasło",
-	"repeat_password": "Powtórz hasło",
-	"passwords_dont_match": "Hasła nie są takie same",
-	"login": {
-		"welcome_back": "Witaj z powrotem",
-		"sign_up_question": "Nie masz konta?",
-		"forgot_password": "Zapomniałeś hasła?"
-	},
-	"register": {
-		"get_started": "Zarejestruj się",
-		"sign_in_question": "Masz już konto?",
-		"signing_up": "Rejestrowanie...",
-		"username": "Nazwa",
-		"phone_number": "Numer telefonu"
-	}
+  "pre-login-home": {
+    "welcome": "Witaj!",
+    "welcome_subtext": "Zaloguj się żeby korzystać z aplikacji!"
+  },
+  "signup": "Zarejestruj się",
+  "signin": "Zaloguj się",
+  "email": "Email",
+  "password": "Hasło",
+  "repeat_password": "Powtórz hasło",
+  "passwords_dont_match": "Hasła nie są takie same",
+  "login": {
+    "welcome_back": "Witaj z powrotem",
+    "sign_up_question": "Nie masz konta?",
+    "forgot_password": "Zapomniałeś hasła?",
+    "signing_in": "Logowanie..."
+  },
+  "register": {
+    "get_started": "Zarejestruj się",
+    "sign_in_question": "Masz już konto?",
+    "signing_up": "Rejestrowanie...",
+    "username": "Nazwa",
+    "phone_number": "Numer telefonu"
+  }
 }
