@@ -23,7 +23,7 @@ services:
       - spring-boot-service
     volumes:
       - ./data.sql:/data.sql:ro
-      - ./wait-for-it.sh:/wait-for-it.sh
+      - ./scripts/wait-for-it.sh:/wait-for-it.sh
     entrypoint: >
       /bin/sh -c "chmod +x /wait-for-it.sh && /wait-for-it.sh spring-boot-service:8080 --timeout=60 && psql -h database -U admin -d jobFinderApp -f /data.sql"
     environment:

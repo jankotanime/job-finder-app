@@ -1,13 +1,9 @@
-package com.mimaja.job_finder_app.security.tokens.encoder;
-
+package com.mimaja.job_finder_app.security.tokens.encoder;import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import jakarta.annotation.PostConstruct;
 
 @Component
 public class RefreshTokenEncoder {

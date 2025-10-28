@@ -1,15 +1,10 @@
-package com.mimaja.job_finder_app.security.authorization.login.utils;
-
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
-
-import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+package com.mimaja.job_finder_app.security.authorization.login.utils;import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
-
+import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -27,8 +22,7 @@ public class DefaultLoginValidation {
       try {
         int phoneNumber = Integer.parseInt(loginData);
         userOptional = userRepository.findByPhoneNumber(phoneNumber);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
         throw new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA);
       }
     }

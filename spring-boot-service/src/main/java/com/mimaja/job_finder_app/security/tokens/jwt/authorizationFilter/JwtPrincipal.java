@@ -1,7 +1,4 @@
-package com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter;
-
-import java.util.UUID;
-
+package com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter;import java.util.UUID;
 import lombok.Getter;
 
 @Getter
@@ -14,4 +11,3 @@ public class JwtPrincipal {
     this.username = username;
   }
 }
-
