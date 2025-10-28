@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @RedisHash("refreshToken")
 @Getter
@@ -17,4 +18,11 @@ public class RefreshToken implements Serializable {
   private final String userId;
   private final String hashedToken;
   private final String expiresAt;
+
+  public RefreshToken(String id, Map<String, String> tokenData) {
+    this.id = id;
+    this.userId = tokenData.get("userId");
+    this.hashedToken = tokenData.get("tokenValue");
+    this.expiresAt = tokenData.get("expiresAt");
+  }
 }

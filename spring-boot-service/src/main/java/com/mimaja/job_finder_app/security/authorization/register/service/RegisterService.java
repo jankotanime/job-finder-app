@@ -1,8 +1,8 @@
 package com.mimaja.job_finder_app.security.authorization.register.service;
 
-import java.util.Map;
+import com.mimaja.job_finder_app.security.shared.dto.RequestRegisterDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 
 public interface RegisterService {
-  boolean patternMatches(String emailAddress, String regexPattern);
-  public Map<String, String> tryToRegister(Map<String, String> reqData);
+  public ResponseTokenDto tryToRegister(RequestRegisterDto reqData);
 }
