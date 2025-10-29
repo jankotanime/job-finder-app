@@ -1,5 +1,4 @@
 import { tryCatch } from "./try-catch";
-import { login } from "./login";
 
 export interface FormState {
   loginData: string;
@@ -9,15 +8,28 @@ export async function handleLoginSubmit({
   formState,
   setError,
   setIsLoading,
+  navigation,
+  signIn,
 }: {
   formState: FormState;
   setError: (err: string) => void;
   setIsLoading: (loading: boolean) => void;
+  navigation?: any;
+  signIn: (form: {
+    loginData: string;
+    password: string;
+  }) => Promise<{ ok: boolean; error?: string }>;
 }) {
   setError("");
   setIsLoading(true);
-  const [response, error] = await tryCatch(login(formState));
-  if (error) setError(error.message);
-  if (response.error) setError(response.error);
+  const [result, error] = await tryCatch(
+    signIn({ loginData: formState.loginData, password: formState.password }),
+  );
+  if (result?.ok) {
+    navigation?.reset({ index: 0, routes: [{ name: "Main" }] });
+  } else {
+    setError(result?.error || "Login failed");
+  }
+  if (error) setError(error?.message);
   setIsLoading(false);
 }

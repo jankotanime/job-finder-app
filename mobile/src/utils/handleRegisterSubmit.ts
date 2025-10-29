@@ -18,6 +18,7 @@ export async function handleRegisterSubmit({
   setError: (err: string) => void;
   setIsLoading: (loading: boolean) => void;
   t: (key: string) => string;
+  navigaion?: any;
 }) {
   setError("");
   setIsLoading(true);

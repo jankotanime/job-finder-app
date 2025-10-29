@@ -17,6 +17,7 @@ import Input from "../../components/reusable/Input";
 import { fieldsRegister } from "../../constans/formFields";
 import { useNavigation } from "@react-navigation/native";
 import { handleRegisterSubmit } from "../../utils/handleRegisterSubmit";
+import { useAuth } from "../../contexts/AuthContext";
 import Error from "../../components/reusable/Error";
 
 interface FormState {
@@ -31,6 +32,7 @@ const RegisterScreen = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const navigation = useNavigation<any>();
+  const { signUp } = useAuth();
   const [formState, setFormState] = useState<FormState>({
     username: "",
     email: "",
@@ -79,9 +81,16 @@ const RegisterScreen = () => {
               mode="contained"
               style={styles.signUpButton}
               contentStyle={{ height: 48 }}
-              onPress={() =>
-                handleRegisterSubmit({ formState, setError, setIsLoading, t })
-              }
+              onPress={() => {
+                handleRegisterSubmit({
+                  formState,
+                  setError,
+                  setIsLoading,
+                  t,
+                  // navigation,
+                  // signUp,
+                });
+              }}
               disabled={
                 isLoading ||
                 Object.values(formState).some((value) => value.trim() === "")

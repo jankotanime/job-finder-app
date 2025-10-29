@@ -16,6 +16,7 @@ import Input from "../../components/reusable/Input";
 import { fieldsLogin } from "../../constans/formFields";
 import { useNavigation } from "@react-navigation/native";
 import { handleLoginSubmit } from "../../utils/handleLoginSubmit";
+import { useAuth } from "../../contexts/AuthContext";
 import Error from "../../components/reusable/Error";
 
 interface FormState {
@@ -27,6 +28,7 @@ const LoginScreen = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const navigation = useNavigation<any>();
+  const { signIn } = useAuth();
   const [formState, setFormState] = useState<FormState>({
     loginData: "",
     password: "",
@@ -89,9 +91,15 @@ const LoginScreen = () => {
               mode="contained"
               style={styles.signInButton}
               contentStyle={{ height: 48 }}
-              onPress={() =>
-                handleLoginSubmit({ formState, setError, setIsLoading })
-              }
+              onPress={() => {
+                handleLoginSubmit({
+                  formState,
+                  setError,
+                  setIsLoading,
+                  navigation,
+                  signIn,
+                });
+              }}
               disabled={
                 isLoading ||
                 Object.values(formState).some((value) => value.trim() === "")
