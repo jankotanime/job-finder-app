@@ -19,7 +19,9 @@ type AuthContextType = {
     formState: FormStateLoginProps,
   ) => Promise<{ ok: boolean; error?: string }>;
   signOut: () => Promise<void>;
-  signUp: (formState: FormStateRegisterProps) => Promise<void>;
+  signUp: (
+    formState: FormStateRegisterProps,
+  ) => Promise<{ ok: boolean; error?: string }>;
 };
 interface FormStateLoginProps {
   loginData: string;
@@ -37,7 +39,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   signIn: async () => ({ ok: false, error: "not-initialized" }),
   signOut: async () => {},
-  signUp: async () => {},
+  signUp: async () => ({ ok: false, error: "not-initialized" }),
 });
 export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -70,6 +72,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data?.error) return { ok: false, error: data.error };
     const { accessToken, refreshToken } = extractTokens(data);
 
+    if (!accessToken || typeof accessToken !== "string") {
+      return { ok: false, error: "Invalid token" };
+    }
+
     await EncryptedStorage.setItem(
       "auth",
       JSON.stringify({ accessToken, refreshToken }),
@@ -90,8 +96,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const signUp = async (formState: FormStateRegisterProps) => {
     const [data, error] = await tryCatch(register(formState));
-    if (error) return;
+    if (error) return { ok: false, error: error?.message || String(error) };
+    if (data?.error) return { ok: false, error: data.error };
     const { accessToken, refreshToken } = extractTokens(data);
+
+    if (!accessToken || typeof accessToken !== "string") {
+      return { ok: false, error: "Invalid token" };
+    }
 
     await EncryptedStorage.setItem(
       "auth",
@@ -103,6 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     setIsAuthenticated(true);
     setUser(formState.username);
+    return { ok: true };
   };
   return (
     <AuthContext.Provider

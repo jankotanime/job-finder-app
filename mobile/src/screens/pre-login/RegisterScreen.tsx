@@ -86,9 +86,8 @@ const RegisterScreen = () => {
                   formState,
                   setError,
                   setIsLoading,
-                  t,
-                  // navigation,
-                  // signUp,
+                  navigation,
+                  signUp,
                 });
               }}
               disabled={
