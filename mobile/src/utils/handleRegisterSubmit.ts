@@ -13,24 +13,26 @@ export async function handleRegisterSubmit({
   setError,
   setIsLoading,
   navigation,
+  t,
   signUp,
 }: {
   formState: FormState;
   setError: (err: string) => void;
   setIsLoading: (loading: boolean) => void;
   navigation?: any;
+  t: (text: string) => string;
   signUp: (form: FormState) => Promise<{ ok: boolean; error?: string }>;
 }): Promise<void> {
   setError("");
   setIsLoading(true);
   if (formState.password != formState.repeatPassword) {
-    setError("Passwords are not the same");
+    setError(t("errors.passwords_dont_match"));
     setIsLoading(false);
     return;
   }
   const [result, error] = await tryCatch(signUp(formState));
-  if (error) setError(error?.message || "Register failed");
-  else if (!result?.ok) setError(result?.error || "Register failed");
+  if (error) setError(error?.message || t("errors.register_failed"));
+  else if (!result?.ok) setError(result?.error || t("errors.register_failed"));
   else navigation?.reset({ index: 0, routes: [{ name: "Main" }] });
   setIsLoading(false);
 }

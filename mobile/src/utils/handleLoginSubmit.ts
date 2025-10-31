@@ -9,12 +9,14 @@ export async function handleLoginSubmit({
   setError,
   setIsLoading,
   navigation,
+  t,
   signIn,
 }: {
   formState: FormState;
   setError: (err: string) => void;
   setIsLoading: (loading: boolean) => void;
   navigation?: any;
+  t: (text: string) => string;
   signIn: (form: {
     loginData: string;
     password: string;
@@ -28,8 +30,8 @@ export async function handleLoginSubmit({
       password: formState.password,
     }),
   );
-  if (error) setError(error?.message || "Login failed");
-  else if (!result?.ok) setError(result?.error || "Login failed");
+  if (error) setError(error?.message || t("errors.login_failed"));
+  else if (!result?.ok) setError(result?.error || t("errors.login_failed"));
   else navigation?.reset({ index: 0, routes: [{ name: "Main" }] });
   setIsLoading(false);
 }

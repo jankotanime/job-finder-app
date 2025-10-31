@@ -97,6 +97,7 @@ const LoginScreen = () => {
                   setError,
                   setIsLoading,
                   navigation,
+                  t,
                   signIn,
                 });
               }}

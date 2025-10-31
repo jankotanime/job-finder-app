@@ -10,6 +10,7 @@ import { tryCatch } from "../utils/try-catch";
 import { login } from "../utils/login";
 import { register } from "../utils/register";
 import { extractTokens } from "../constans/extractTokens";
+import { useTranslation } from "react-i18next";
 
 type AuthContextType = {
   user: string;
@@ -50,6 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     accessToken: string;
     refreshToken: string;
   } | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadTokens();
@@ -73,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { accessToken, refreshToken } = extractTokens(data);
 
     if (!accessToken || typeof accessToken !== "string") {
-      return { ok: false, error: "Invalid token" };
+      return { ok: false, error: t("errors.no_access_token") };
     }
 
     await EncryptedStorage.setItem(
@@ -101,7 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { accessToken, refreshToken } = extractTokens(data);
 
     if (!accessToken || typeof accessToken !== "string") {
-      return { ok: false, error: "Invalid token" };
+      return { ok: false, error: t("errors.no_access_token") };
     }
 
     await EncryptedStorage.setItem(

@@ -21,5 +21,12 @@
     "signing_up": "Signing up...",
     "username": "Username",
     "phone_number": "Phone number"
+  },
+  "errors": {
+    "login_failed": "Login failed",
+    "register_failed": "Registration failed",
+    "passwords_dont_match": "Passwords don't match",
+    "no_access_token": "No access token in server response",
+    "network": "Network error"
   }
 }

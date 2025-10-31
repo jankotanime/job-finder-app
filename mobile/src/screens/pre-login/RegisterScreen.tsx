@@ -87,6 +87,7 @@ const RegisterScreen = () => {
                   setError,
                   setIsLoading,
                   navigation,
+                  t,
                   signUp,
                 });
               }}
