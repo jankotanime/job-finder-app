@@ -9,7 +9,7 @@ import EncryptedStorage from "react-native-encrypted-storage";
 import { tryCatch } from "../utils/try-catch";
 import { login } from "../utils/login";
 import { register } from "../utils/register";
-import { extractTokens } from "../constans/extractTokens";
+import { extractTokens } from "../utils/extractTokens";
 import { useTranslation } from "react-i18next";
 
 type AuthContextType = {
@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [tokens, setTokens] = useState<{
     accessToken: string;
     refreshToken: string;
+    refreshTokenId: string;
   } | null>(null);
   const { t } = useTranslation();
 
@@ -69,10 +70,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     formState: FormStateLoginProps,
   ): Promise<{ ok: boolean; error?: string }> => {
     const [data, error] = await tryCatch(login(formState));
-
+    console.log("data: ", data);
     if (error) return { ok: false, error: error?.message || String(error) };
     if (data?.error) return { ok: false, error: data.error };
-    const { accessToken, refreshToken } = extractTokens(data);
+    const { accessToken, refreshToken, refreshTokenId } = extractTokens(data);
 
     if (!accessToken || typeof accessToken !== "string") {
       return { ok: false, error: t("errors.no_access_token") };
@@ -80,11 +81,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     await EncryptedStorage.setItem(
       "auth",
-      JSON.stringify({ accessToken, refreshToken }),
+      JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
     );
     setTokens({
       accessToken: accessToken || "",
       refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
     });
     setIsAuthenticated(true);
     setUser(formState.loginData);
@@ -100,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [data, error] = await tryCatch(register(formState));
     if (error) return { ok: false, error: error?.message || String(error) };
     if (data?.error) return { ok: false, error: data.error };
-    const { accessToken, refreshToken } = extractTokens(data);
+    const { accessToken, refreshToken, refreshTokenId } = extractTokens(data);
 
     if (!accessToken || typeof accessToken !== "string") {
       return { ok: false, error: t("errors.no_access_token") };
@@ -108,11 +110,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     await EncryptedStorage.setItem(
       "auth",
-      JSON.stringify({ accessToken, refreshToken }),
+      JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
     );
     setTokens({
       accessToken: accessToken || "",
       refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
     });
     setIsAuthenticated(true);
     setUser(formState.username);
