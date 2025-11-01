@@ -6,6 +6,7 @@
   "signup": "Zarejestruj się",
   "signin": "Zaloguj się",
   "email": "Email",
+  "emailOrLogin": "Email lub nazwa",
   "password": "Hasło",
   "repeat_password": "Powtórz hasło",
   "passwords_dont_match": "Hasła nie są takie same",

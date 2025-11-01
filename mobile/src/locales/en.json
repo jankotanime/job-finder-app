@@ -6,6 +6,7 @@
   "signup": "Sign up",
   "signin": "Sign In",
   "email": "Email",
+  "emailOrLogin": "Email or login",
   "password": "Password",
   "repeat_password": "Repeat password",
   "passwords_dont_match": "Passwords don't match",

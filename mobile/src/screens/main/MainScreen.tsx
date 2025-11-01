@@ -1,35 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Button } from "react-native-paper";
-import EncryptedStorage from "react-native-encrypted-storage";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
+import { getTokens } from "../../utils/getTokens";
+import Error from "../../components/reusable/Error";
 
 const MainScreen = () => {
   const { isAuthenticated, user, signOut } = useAuth();
   const navigation = useNavigation<any>();
+  const [error, setError] = useState<string>("");
 
   const logTokens = async () => {
-    try {
-      const saved = await EncryptedStorage.getItem("auth");
-      if (!saved) {
-        console.log("[MainScreen] No tokens stored under 'auth'.");
-        return;
-      }
-      const parsed = JSON.parse(saved);
-      console.log("[MainScreen] Stored tokens (parsed):", parsed);
-    } catch (e) {
-      console.log("[MainScreen] Failed to read tokens:", e);
-    }
+    await getTokens(setError);
   };
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      console.log("[MainScreen] Signed out, navigating to Home");
       navigation.reset({ index: 0, routes: [{ name: "Home" }] });
     } catch (e) {
-      console.log("[MainScreen] Sign out failed:", e);
+      console.error("[MainScreen] Sign out failed:", e);
     }
   };
 
@@ -39,6 +30,7 @@ const MainScreen = () => {
       <Text style={styles.info}>
         isAuthenticated: {String(isAuthenticated)}
       </Text>
+      {error && <Error error={error} />}
       <Text style={styles.info}>user: {user || "-"}</Text>
       <Button mode="contained" onPress={logTokens} style={styles.button}>
         Log tokens to console
