@@ -13,15 +13,15 @@ export const login = async ({ loginData, password }: LoginProps) => {
       credentials: "include",
     }),
   );
-
-  if (error || !response) {
-    return { error: error?.message || String(error) };
-  }
-  const data = await response.json();
-  if (!response.ok) return { error: data?.err };
-  if (data && data.err) {
-    const err = data.err || "Login failed";
-    return { error: err };
+  const data = await response?.json();
+  if (error || !response) return { error: error?.message || String(error) };
+  if (!response.ok) {
+    return {
+      error:
+        data?.message ||
+        data?.err ||
+        `Błąd ${response.status}: ${response.statusText || "Nieznany błąd"}`,
+    };
   }
   return data;
 };

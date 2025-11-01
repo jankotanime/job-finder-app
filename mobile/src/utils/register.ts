@@ -20,11 +20,15 @@ export const register = async ({
       credentials: "include",
     }),
   );
+  const data = await response?.json();
   if (error || !response) return { error: error?.message || String(error) };
   if (!response.ok) {
-    const errorBody = await response.json();
-    return { error: errorBody.err };
+    return {
+      error:
+        data?.message ||
+        data?.err ||
+        `Błąd ${response.status}: ${response.statusText || "Nieznany błąd"}`,
+    };
   }
-  const data = await response.json();
   return data;
 };

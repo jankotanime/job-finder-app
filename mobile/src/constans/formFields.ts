@@ -1,6 +1,6 @@
 export const fieldsLogin = (t: (text: string) => string) =>
   [
-    { key: "loginData", placeholder: t("email"), secure: false },
+    { key: "loginData", placeholder: t("emailOrLogin"), secure: false },
     { key: "password", placeholder: t("password"), secure: true },
   ] as const;
 export const fieldsRegister = (t: (text: string) => string) =>

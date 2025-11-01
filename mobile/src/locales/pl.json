@@ -6,6 +6,7 @@
   "signup": "Zarejestruj się",
   "signin": "Zaloguj się",
   "email": "Email",
+  "emailOrLogin": "Email lub nazwa",
   "password": "Hasło",
   "repeat_password": "Powtórz hasło",
   "passwords_dont_match": "Hasła nie są takie same",
@@ -21,5 +22,12 @@
     "signing_up": "Rejestrowanie...",
     "username": "Nazwa",
     "phone_number": "Numer telefonu"
+  },
+  "errors": {
+    "login_failed": "Błąd logowania",
+    "register_failed": "Błąd rejestracji",
+    "passwords_dont_match": "Hasła nie są takie same",
+    "no_access_token": "Brak tokena dostępu w odpowiedzi serwera",
+    "network": "Błąd sieci"
   }
 }
