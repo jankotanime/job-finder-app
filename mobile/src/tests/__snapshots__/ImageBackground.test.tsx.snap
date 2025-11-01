@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImageBackground component renders correctly 1`] = `
+<Image
+  source={
+    {
+      "testUri": "../../../assets/images/background.png",
+    }
+  }
+  style={
+    {
+      "height": 1334,
+      "resizeMode": "cover",
+      "width": 750,
+      "zIndex": -1,
+    }
+  }
+  testID="background-image"
+/>
+`;

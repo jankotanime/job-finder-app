@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Error component renders correctly with a raw error string 1`] = `
+<View
+  style={
+    {
+      "alignSelf": "center",
+      "backgroundColor": "#ffebee",
+      "borderRadius": 15,
+      "marginBottom": 10,
+      "padding": 10,
+      "width": 600,
+    }
+  }
+>
+  <Text
+    style={
+      {
+        "color": "#c62828",
+        "fontSize": 14,
+        "textAlign": "center",
+      }
+    }
+  >
+    This is an error
+  </Text>
+</View>
+`;
+
+exports[`Error component renders correctly with a translation key 1`] = `
+<View
+  style={
+    {
+      "alignSelf": "center",
+      "backgroundColor": "#ffebee",
+      "borderRadius": 15,
+      "marginBottom": 10,
+      "padding": 10,
+      "width": 600,
+    }
+  }
+>
+  <Text
+    style={
+      {
+        "color": "#c62828",
+        "fontSize": 14,
+        "textAlign": "center",
+      }
+    }
+  >
+    translated:errors.login_failed
+  </Text>
+</View>
+`;
