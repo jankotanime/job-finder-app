@@ -1,4 +1,5 @@
 import { tryCatch } from "./try-catch";
+import { getErrorMessage } from "../constans/errorMessages";
 
 export interface FormState {
   loginData: string;
@@ -30,8 +31,12 @@ export async function handleLoginSubmit({
       password: formState.password,
     }),
   );
-  if (error) setError(error?.message || t("errors.login_failed"));
-  else if (!result?.ok) setError(result?.error || t("errors.login_failed"));
+  if (error)
+    setError(getErrorMessage(error?.message, t) || t("errors.login_failed"));
+  else if (!result?.ok)
+    setError(
+      getErrorMessage(result?.error ?? "", t) || t("errors.login_failed"),
+    );
   else navigation?.reset({ index: 0, routes: [{ name: "Main" }] });
   setIsLoading(false);
 }

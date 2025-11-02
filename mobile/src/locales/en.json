@@ -28,6 +28,17 @@
     "register_failed": "Registration failed",
     "passwords_dont_match": "Passwords don't match",
     "no_access_token": "No access token in server response",
-    "network": "Network error"
+    "network": "Network error",
+    "job_not_found": "Job not found",
+    "wrong_login_data": "Wrong login data",
+    "wrong_password": "Wrong password",
+    "invalid_username": "Invalid username",
+    "invalid_email": "Invalid email",
+    "invalid_phone_number": "Invalid phone number",
+    "invalid_password": "Password must contain at least one uppercase letter, one number, and be at least 8 characters long.",
+    "username_already_taken": "User with this username already exists",
+    "email_already_taken": "User with this email already exists",
+    "phone_number_already_taken": "User with this phone number already exists",
+    "invalid_refresh_token": "Invalid refresh token"
   }
 }
