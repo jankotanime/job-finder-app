@@ -28,6 +28,17 @@
     "register_failed": "Błąd rejestracji",
     "passwords_dont_match": "Hasła nie są takie same",
     "no_access_token": "Brak tokena dostępu w odpowiedzi serwera",
-    "network": "Błąd sieci"
+    "network": "Błąd sieci",
+    "job_not_found": "Nie znaleziono oferty pracy",
+    "wrong_login_data": "Nieprawidłowe dane logowania",
+    "wrong_password": "Nieprawidłowe hasło",
+    "invalid_username": "Nieprawidłowa nazwa użytkownika",
+    "invalid_email": "Nieprawidłowy adres e-mail",
+    "invalid_phone_number": "Nieprawidłowy numer telefonu",
+    "invalid_password": "Hasło musi zawierać przynajmniej jedną wielką literę, jedną cyfrę i mieć długość co najmniej 8 znaków.",
+    "username_already_taken": "Użytkownik o tej nazwie już istnieje",
+    "email_already_taken": "Użytkownik z tym adresem e-mail już istnieje",
+    "phone_number_already_taken": "Użytkownik z tym numerem telefonu już istnieje",
+    "invalid_refresh_token": "Nieprawidłowy token odświeżania"
   }
 }
