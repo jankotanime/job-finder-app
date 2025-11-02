@@ -1,7 +1,16 @@
-package com.mimaja.job_finder_app.core.exception;import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.createBusinessException;
+package com.mimaja.job_finder_app.core.exception;
+
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.createBusinessException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.mimaja.job_finder_app.core.handler.exception.ApplicationException;
+import com.mimaja.job_finder_app.core.handler.exception.ApplicationExceptionReason;
+import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.core.handler.exception.GlobalApiExceptionHandler;
 import com.mimaja.job_finder_app.core.handler.exception.dto.ErrorResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
@@ -25,174 +34,181 @@ import org.springframework.web.context.request.WebRequest;
 
 @ExtendWith(MockitoExtension.class)
 public class GlobalApiExceptionHandlerTest {
-  @InjectMocks private GlobalApiExceptionHandler exceptionHandler;
-  @Mock private ServletWebRequest servletWebRequest;
-  @Mock private WebRequest webRequest;
+    @InjectMocks private GlobalApiExceptionHandler exceptionHandler;
+    @Mock private ServletWebRequest servletWebRequest;
+    @Mock private WebRequest webRequest;
 
-  @BeforeEach
-  void setUp() {
-    lenient().when(servletWebRequest.toString()).thenReturn("test-request");
-  }
+    @BeforeEach
+    void setUp() {
+        lenient().when(servletWebRequest.toString()).thenReturn("test-request");
+    }
 
-  @Test
-  void handleUncaughtException_shouldReturnInternalServerError() {
-    Exception exception = new Exception("test");
+    @Test
+    void handleUncaughtException_shouldReturnInternalServerError() {
+        Exception exception = new Exception("test");
 
-    ResponseEntity<ErrorResponseDto> response =
-        exceptionHandler.handleUncaughtException(exception, servletWebRequest);
+        ResponseEntity<ErrorResponseDto> response =
+                exceptionHandler.handleUncaughtException(exception, servletWebRequest);
 
-    assertEquals(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        response.getStatusCode(),
-        "Should return internal server error status");
-  }
+        assertEquals(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                response.getStatusCode(),
+                "Should return internal server error status");
+    }
 
-  @Test
-  void handleCustomUncaughtBusinessException_shouldReturnBusinessError() {
-    BusinessException exception =
-        createBusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
+    @Test
+    void handleCustomUncaughtBusinessException_shouldReturnBusinessError() {
+        BusinessException exception =
+                createBusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
 
-    ResponseEntity<ErrorResponseDto> response =
-        exceptionHandler.handleCustomUncaughtBusinessException(exception, servletWebRequest);
+        ResponseEntity<ErrorResponseDto> response =
+                exceptionHandler.handleCustomUncaughtBusinessException(
+                        exception, servletWebRequest);
 
-    assertEquals(
-        exception.getHttpStatus(),
-        response.getStatusCode(),
-        "Should return business exception status");
-  }
+        assertEquals(
+                exception.getHttpStatus(),
+                response.getStatusCode(),
+                "Should return business exception status");
+    }
 
-  @Test
-  void handleCustomUncaughtApplicationException_shouldReturnInternalServerError() {
-    ApplicationException exception =
-        new ApplicationException(ApplicationExceptionReason.BEAN_PROPERTY_NOT_EXISTS);
+    @Test
+    void handleCustomUncaughtApplicationException_shouldReturnInternalServerError() {
+        ApplicationException exception =
+                new ApplicationException(ApplicationExceptionReason.BEAN_PROPERTY_NOT_EXISTS);
 
-    ResponseEntity<ErrorResponseDto> response =
-        exceptionHandler.handleUncaughtApplicationException(exception, servletWebRequest);
+        ResponseEntity<ErrorResponseDto> response =
+                exceptionHandler.handleUncaughtApplicationException(exception, servletWebRequest);
 
-    assertEquals(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        response.getStatusCode(),
-        "Should return internal server error status");
-  }
+        assertEquals(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                response.getStatusCode(),
+                "Should return internal server error status");
+    }
 
-  @Test
-  void handleIllegalArgumentException_shouldReturnNotFound_whenMessageContainsNotFound() {
-    IllegalArgumentException exception = new IllegalArgumentException("not found");
+    @Test
+    void handleIllegalArgumentException_shouldReturnNotFound_whenMessageContainsNotFound() {
+        IllegalArgumentException exception = new IllegalArgumentException("not found");
 
-    ResponseEntity<ErrorResponseDto> response =
-        exceptionHandler.handleIllegalArgumentException(exception);
+        ResponseEntity<ErrorResponseDto> response =
+                exceptionHandler.handleIllegalArgumentException(exception);
 
-    assertEquals(
-        HttpStatus.NOT_FOUND,
-        response.getStatusCode(),
-        "Should return not found status for 'not found' message");
-  }
+        assertEquals(
+                HttpStatus.NOT_FOUND,
+                response.getStatusCode(),
+                "Should return not found status for 'not found' message");
+    }
 
-  @Test
-  void handleIllegalArgumentException_shouldReturnBadRequest_whenOtherErrorMessage() {
-    IllegalArgumentException exception = new IllegalArgumentException("other message");
+    @Test
+    void handleIllegalArgumentException_shouldReturnBadRequest_whenOtherErrorMessage() {
+        IllegalArgumentException exception = new IllegalArgumentException("other message");
 
-    ResponseEntity<ErrorResponseDto> response =
-        exceptionHandler.handleIllegalArgumentException(exception);
+        ResponseEntity<ErrorResponseDto> response =
+                exceptionHandler.handleIllegalArgumentException(exception);
 
-    assertEquals(
-        HttpStatus.BAD_REQUEST,
-        response.getStatusCode(),
-        "Should return bad request status for other error messages");
-  }
+        assertEquals(
+                HttpStatus.BAD_REQUEST,
+                response.getStatusCode(),
+                "Should return bad request status for other error messages");
+    }
 
-  @Test
-  void handleUncheckedIOException_shouldReturnNotFound_whenMessageContainsNotFound() {
-    IOException ioException = new IOException("not found");
-    UncheckedIOException uncheckedIOException = new UncheckedIOException(ioException);
+    @Test
+    void handleUncheckedIOException_shouldReturnNotFound_whenMessageContainsNotFound() {
+        IOException ioException = new IOException("not found");
+        UncheckedIOException uncheckedIOException = new UncheckedIOException(ioException);
 
-    ResponseEntity<ErrorResponseDto> response =
-        exceptionHandler.handleUncheckedIOException(uncheckedIOException);
+        ResponseEntity<ErrorResponseDto> response =
+                exceptionHandler.handleUncheckedIOException(uncheckedIOException);
 
-    assertEquals(
-        HttpStatus.NOT_FOUND,
-        response.getStatusCode(),
-        "Should return not found status for 'not found' message");
-  }
+        assertEquals(
+                HttpStatus.NOT_FOUND,
+                response.getStatusCode(),
+                "Should return not found status for 'not found' message");
+    }
 
-  @Test
-  void handleUncheckedIOException_shouldReturnBadRequest_whenOtherErrorMessage() {
-    IOException ioException = new IOException("other message");
-    UncheckedIOException uncheckedIOException = new UncheckedIOException(ioException);
+    @Test
+    void handleUncheckedIOException_shouldReturnBadRequest_whenOtherErrorMessage() {
+        IOException ioException = new IOException("other message");
+        UncheckedIOException uncheckedIOException = new UncheckedIOException(ioException);
 
-    ResponseEntity<ErrorResponseDto> response =
-        exceptionHandler.handleUncheckedIOException(uncheckedIOException);
+        ResponseEntity<ErrorResponseDto> response =
+                exceptionHandler.handleUncheckedIOException(uncheckedIOException);
 
-    assertEquals(
-        HttpStatus.BAD_REQUEST,
-        response.getStatusCode(),
-        "Should return bad request status for other error messages");
-  }
+        assertEquals(
+                HttpStatus.BAD_REQUEST,
+                response.getStatusCode(),
+                "Should return bad request status for other error messages");
+    }
 
-  @Test
-  void handleEntityNotFoundException_shouldReturnNotFound() {
-    EntityNotFoundException exception = new EntityNotFoundException("test");
+    @Test
+    void handleEntityNotFoundException_shouldReturnNotFound() {
+        EntityNotFoundException exception = new EntityNotFoundException("test");
 
-    ResponseEntity<Object> response = exceptionHandler.handleEntityNotFoundException(exception);
+        ResponseEntity<Object> response = exceptionHandler.handleEntityNotFoundException(exception);
 
-    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return not found status");
-  }
+        assertEquals(
+                HttpStatus.NOT_FOUND, response.getStatusCode(), "Should return not found status");
+    }
 
-  @Test
-  void handleDataIntegrityViolationException_shouldReturnConflict() {
-    DataIntegrityViolationException exception = new DataIntegrityViolationException("test");
+    @Test
+    void handleDataIntegrityViolationException_shouldReturnConflict() {
+        DataIntegrityViolationException exception = new DataIntegrityViolationException("test");
 
-    ResponseEntity<Object> response =
-        exceptionHandler.handleDataIntegrityViolationException(exception);
+        ResponseEntity<Object> response =
+                exceptionHandler.handleDataIntegrityViolationException(exception);
 
-    assertEquals(HttpStatus.CONFLICT, response.getStatusCode(), "Should return conflict status");
-  }
+        assertEquals(
+                HttpStatus.CONFLICT, response.getStatusCode(), "Should return conflict status");
+    }
 
-  @Test
-  void handleDataAccessException_shouldReturnInternalServerError() {
-    DataAccessException exception = new DataAccessException("test") {};
+    @Test
+    void handleDataAccessException_shouldReturnInternalServerError() {
+        DataAccessException exception = new DataAccessException("test") {};
 
-    ResponseEntity<Object> response = exceptionHandler.handleDataAccessException(exception);
+        ResponseEntity<Object> response = exceptionHandler.handleDataAccessException(exception);
 
-    assertEquals(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        response.getStatusCode(),
-        "Should return internal server error status");
-  }
+        assertEquals(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                response.getStatusCode(),
+                "Should return internal server error status");
+    }
 
-  @Test
-  void handlePersistenceException_shouldReturnInternalServerError() {
-    PersistenceException exception = new PersistenceException("test");
+    @Test
+    void handlePersistenceException_shouldReturnInternalServerError() {
+        PersistenceException exception = new PersistenceException("test");
 
-    ResponseEntity<Object> response = exceptionHandler.handlePersistenceException(exception);
+        ResponseEntity<Object> response = exceptionHandler.handlePersistenceException(exception);
 
-    assertEquals(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        response.getStatusCode(),
-        "Should return internal server error status");
-  }
+        assertEquals(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                response.getStatusCode(),
+                "Should return internal server error status");
+    }
 
-  @Test
-  void handleConstraintViolationException_shouldReturnBadRequest() {
-    ConstraintViolationException exception = new ConstraintViolationException(new HashSet<>());
+    @Test
+    void handleConstraintViolationException_shouldReturnBadRequest() {
+        ConstraintViolationException exception = new ConstraintViolationException(new HashSet<>());
 
-    ResponseEntity<Object> response =
-        exceptionHandler.handleConstraintViolationException(exception, servletWebRequest);
+        ResponseEntity<Object> response =
+                exceptionHandler.handleConstraintViolationException(exception, servletWebRequest);
 
-    assertEquals(
-        HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return bad request status");
-  }
+        assertEquals(
+                HttpStatus.BAD_REQUEST,
+                response.getStatusCode(),
+                "Should return bad request status");
+    }
 
-  @Test
-  void handlePropertyReferenceException_shouldReturnBadRequest() {
-    PropertyReferenceException exception = mock(PropertyReferenceException.class);
-    when(exception.getPropertyName()).thenReturn("invalidProperty");
-    when(exception.getMessage()).thenReturn("Invalid property");
+    @Test
+    void handlePropertyReferenceException_shouldReturnBadRequest() {
+        PropertyReferenceException exception = mock(PropertyReferenceException.class);
+        when(exception.getPropertyName()).thenReturn("invalidProperty");
+        when(exception.getMessage()).thenReturn("Invalid property");
 
-    ResponseEntity<Object> response =
-        exceptionHandler.handlePropertyReferenceException(exception, servletWebRequest);
+        ResponseEntity<Object> response =
+                exceptionHandler.handlePropertyReferenceException(exception, servletWebRequest);
 
-    assertEquals(
-        HttpStatus.BAD_REQUEST, response.getStatusCode(), "Should return bad request status");
-  }
+        assertEquals(
+                HttpStatus.BAD_REQUEST,
+                response.getStatusCode(),
+                "Should return bad request status");
+    }
 }
