@@ -1,8 +1,4 @@
-package com.mimaja.job_finder_app.security.authorization.register.service;import java.util.UUID;
-
-import org.springframework.stereotype.Service;
-
-import com.mimaja.job_finder_app.feature.users.model.User;
+package com.mimaja.job_finder_app.security.authorization.register.service;import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
 import com.mimaja.job_finder_app.security.authorization.register.utils.DefaultRegisterDataManager;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
@@ -11,9 +7,10 @@ import com.mimaja.job_finder_app.security.shared.dto.ResponseRefreshTokenDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 import com.mimaja.job_finder_app.security.tokens.refreshTokens.service.RefreshTokenServiceDefault;
-
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

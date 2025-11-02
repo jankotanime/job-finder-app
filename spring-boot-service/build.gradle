@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'pmd'
+    id 'jacoco'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.diffplug.spotless' version '6.24.0'
@@ -16,9 +17,13 @@ java {
     }
 }
 
+jacoco {
+    toolVersion = '0.8.10'
+}
+
 spotless {
     java {
-        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+        target('src/main/java/**/*.java', 'src/test/java/**/*.java')
         googleJavaFormat('1.25.0')
         importOrder()
         removeUnusedImports()
@@ -91,9 +96,46 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
+    testImplementation 'org.testcontainers:postgresql:1.19.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn test
+    violationRules {
+        rule {
+            // ogólny poziom pokrycia linii
+            limit {
+                counter = 'LINE'
+                value = 'COVERED_RATIO'
+                minimum = 0.80
+            }
+        }
+        rule {
+            // minimalne pokrycie gałęzi (opcjonalne)
+            limit {
+                counter = 'BRANCH'
+                value = 'COVERED_RATIO'
+                minimum = 0.60
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn jacocoTestCoverageVerification
 }
