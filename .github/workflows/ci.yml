@@ -40,6 +40,8 @@ jobs:
             ~/.gradle/wrapper
           key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-${{ runner.os }}-
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./spring-boot-service/gradlew
       - name: Run tests and coverage
         run: ./gradlew clean test jacocoTestReport jacocoTestCoverageVerification --no-daemon
       - name: Upload JaCoCo HTML report
