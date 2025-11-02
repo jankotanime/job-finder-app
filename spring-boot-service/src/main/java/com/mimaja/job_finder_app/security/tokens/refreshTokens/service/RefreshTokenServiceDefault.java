@@ -1,4 +1,6 @@
-package com.mimaja.job_finder_app.security.tokens.refreshTokens.service;import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+package com.mimaja.job_finder_app.security.tokens.refreshTokens.service;
+
+import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
@@ -22,93 +24,96 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class RefreshTokenServiceDefault implements RefreshTokenService {
-  private final StringRedisTemplate redisTemplate;
-  private final HashOperations<String, String, String> hashOps;
-  private final RefreshTokenEncoder refreshTokenEncoder;
-  private final JwtConfiguration jwtConfiguration;
-  private final UserRepository userRepository;
+    private final StringRedisTemplate redisTemplate;
+    private final HashOperations<String, String, String> hashOps;
+    private final RefreshTokenEncoder refreshTokenEncoder;
+    private final JwtConfiguration jwtConfiguration;
+    private final UserRepository userRepository;
 
-  public RefreshTokenServiceDefault(
-      StringRedisTemplate redisTemplate,
-      RefreshTokenEncoder refreshTokenEncoder,
-      JwtConfiguration jwtConfiguration,
-      UserRepository userRepository) {
-    this.redisTemplate = redisTemplate;
-    this.hashOps = redisTemplate.opsForHash();
-    this.refreshTokenEncoder = refreshTokenEncoder;
-    this.jwtConfiguration = jwtConfiguration;
-    this.userRepository = userRepository;
-  }
-
-  @Override
-  public ResponseRefreshTokenDto createToken(UUID userId) {
-    String refreshTokenId = UUID.randomUUID().toString();
-    String refreshTokenKey = "RefreshToken-" + refreshTokenId;
-    String refreshTokenValue = UUID.randomUUID().toString();
-
-    String hashedRefreshTokenValue = refreshTokenEncoder.encodeToken(refreshTokenValue);
-
-    int lifetimeDays = 30;
-    LocalDate expiresAt = LocalDate.now().plusDays(30);
-
-    hashOps.put(refreshTokenKey, "tokenValue", hashedRefreshTokenValue);
-    hashOps.put(refreshTokenKey, "userId", userId.toString());
-    hashOps.put(refreshTokenKey, "expiresAt", expiresAt.toString());
-    redisTemplate.expire(refreshTokenKey, lifetimeDays, TimeUnit.DAYS);
-
-    ResponseRefreshTokenDto result = new ResponseRefreshTokenDto(refreshTokenValue, refreshTokenId);
-
-    return result;
-  }
-
-  @Override
-  public void deleteToken(String tokenId) {
-    redisTemplate.delete("RefreshToken-" + tokenId);
-  }
-
-  @Override
-  public ResponseTokenDto rotateToken(RequestRefreshTokenRotateDto reqData) {
-    String refreshToken = reqData.refreshToken();
-    String refreshTokenId = reqData.refreshTokenId();
-
-    RefreshToken tokenData =
-        new RefreshToken(refreshTokenId, hashOps.entries("RefreshToken-" + refreshTokenId));
-    System.out.println(tokenData.getHashedToken());
-
-    if (!refreshTokenEncoder.verifyToken(refreshToken, tokenData.getHashedToken())) {
-      throw new BusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
+    public RefreshTokenServiceDefault(
+            StringRedisTemplate redisTemplate,
+            RefreshTokenEncoder refreshTokenEncoder,
+            JwtConfiguration jwtConfiguration,
+            UserRepository userRepository) {
+        this.redisTemplate = redisTemplate;
+        this.hashOps = redisTemplate.opsForHash();
+        this.refreshTokenEncoder = refreshTokenEncoder;
+        this.jwtConfiguration = jwtConfiguration;
+        this.userRepository = userRepository;
     }
 
-    deleteToken(refreshTokenId);
+    @Override
+    public ResponseRefreshTokenDto createToken(UUID userId) {
+        String refreshTokenId = UUID.randomUUID().toString();
+        String refreshTokenKey = "RefreshToken-" + refreshTokenId;
+        String refreshTokenValue = UUID.randomUUID().toString();
 
-    UUID userId = UUID.fromString(tokenData.getUserId());
-    Optional<User> userOptional = userRepository.findById(userId);
+        String hashedRefreshTokenValue = refreshTokenEncoder.encodeToken(refreshTokenValue);
 
-    if (userOptional.isEmpty()) {
-      throw new BusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
+        int lifetimeDays = 30;
+        LocalDate expiresAt = LocalDate.now().plusDays(30);
+
+        hashOps.put(refreshTokenKey, "tokenValue", hashedRefreshTokenValue);
+        hashOps.put(refreshTokenKey, "userId", userId.toString());
+        hashOps.put(refreshTokenKey, "expiresAt", expiresAt.toString());
+        redisTemplate.expire(refreshTokenKey, lifetimeDays, TimeUnit.DAYS);
+
+        ResponseRefreshTokenDto result =
+                new ResponseRefreshTokenDto(refreshTokenValue, refreshTokenId);
+
+        return result;
     }
 
-    User user = userOptional.get();
-
-    String accessToken = jwtConfiguration.createToken(userId, user.getUsername());
-    ResponseRefreshTokenDto newRefreshToken = createToken(userId);
-
-    ResponseTokenDto response =
-        new ResponseTokenDto(
-            accessToken, newRefreshToken.refreshToken(), newRefreshToken.refreshTokenId());
-
-    return response;
-  }
-
-  @Override
-  public void deleteAllUserTokens(UUID userId) {
-    Set<String> tokenIds = redisTemplate.opsForSet().members("userTokens:" + userId);
-
-    if (tokenIds != null && !tokenIds.isEmpty()) {
-      List<String> keysToDelete = tokenIds.stream().map(id -> "refreshToken:" + id).toList();
-
-      redisTemplate.delete(keysToDelete);
-      redisTemplate.delete("userTokens:" + userId);
+    @Override
+    public void deleteToken(String tokenId) {
+        redisTemplate.delete("RefreshToken-" + tokenId);
     }
-  }
+
+    @Override
+    public ResponseTokenDto rotateToken(RequestRefreshTokenRotateDto reqData) {
+        String refreshToken = reqData.refreshToken();
+        String refreshTokenId = reqData.refreshTokenId();
+
+        RefreshToken tokenData =
+                new RefreshToken(refreshTokenId, hashOps.entries("RefreshToken-" + refreshTokenId));
+        System.out.println(tokenData.getHashedToken());
+
+        if (!refreshTokenEncoder.verifyToken(refreshToken, tokenData.getHashedToken())) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
+        }
+
+        deleteToken(refreshTokenId);
+
+        UUID userId = UUID.fromString(tokenData.getUserId());
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
+        }
+
+        User user = userOptional.get();
+
+        String accessToken = jwtConfiguration.createToken(userId, user.getUsername());
+        ResponseRefreshTokenDto newRefreshToken = createToken(userId);
+
+        ResponseTokenDto response =
+                new ResponseTokenDto(
+                        accessToken,
+                        newRefreshToken.refreshToken(),
+                        newRefreshToken.refreshTokenId());
+
+        return response;
+    }
+
+    @Override
+    public void deleteAllUserTokens(UUID userId) {
+        Set<String> tokenIds = redisTemplate.opsForSet().members("userTokens:" + userId);
+
+        if (tokenIds != null && !tokenIds.isEmpty()) {
+            List<String> keysToDelete = tokenIds.stream().map(id -> "refreshToken:" + id).toList();
+
+            redisTemplate.delete(keysToDelete);
+            redisTemplate.delete("userTokens:" + userId);
+        }
+    }
 }
