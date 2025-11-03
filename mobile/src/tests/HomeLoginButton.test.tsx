@@ -3,6 +3,12 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 import HomeLoginButton from "../components/pre-login/HomeLoginButton";
+import { Provider as PaperProvider } from "react-native-paper";
+import themeLight from "../constans/theme";
+
+const wrapper = ({ children }: any) => (
+  <PaperProvider theme={themeLight}>{children}</PaperProvider>
+);
 
 describe("HomeLoginButton component", () => {
   it("renders correctly with good props", () => {
@@ -28,5 +34,26 @@ describe("HomeLoginButton component", () => {
     const button = getByText("login");
     fireEvent.press(button);
     expect(onPress).toHaveBeenCalled();
+  });
+  it("enables correct text color", () => {
+    const { getByText, rerender } = render(
+      <HomeLoginButton
+        styles={{ width: 50, height: 48 }}
+        text="login"
+        white={true}
+      />,
+      { wrapper },
+    );
+    const button = getByText("login");
+    expect(button).toHaveStyle({ color: "white" });
+    rerender(
+      <HomeLoginButton
+        styles={{ width: 50, height: 48 }}
+        text="login"
+        white={false}
+      />,
+    );
+    expect(button).not.toHaveStyle({ color: "white" });
+    expect(button).toHaveStyle({ color: "#337EFF" });
   });
 });
