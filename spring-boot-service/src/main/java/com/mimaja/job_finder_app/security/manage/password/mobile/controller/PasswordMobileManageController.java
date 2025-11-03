@@ -1,11 +1,11 @@
-package com.mimaja.job_finder_app.security.password.controller;
+package com.mimaja.job_finder_app.security.manage.password.mobile.controller;
 
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mimaja.job_finder_app.security.password.service.PasswordManageService;
+import com.mimaja.job_finder_app.security.manage.password.mobile.service.PasswordMobileManageService;
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
@@ -15,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/password")
-public class PasswordManageController {
-  private final PasswordManageService passwordManageService;
+@RequestMapping("/password/mobile")
+public class PasswordMobileManageController {
+  private final PasswordMobileManageService passwordManageService;
 
   @PutMapping("/update")
-  public ResponseDto<ResponseTokenDto> loginPostMapping(@RequestBody RequestPasswordDto reqData) {
-    passwordManageService.changePassword(reqData);
+  public ResponseDto<ResponseTokenDto> updatePasswordPostMapping(@RequestBody RequestPasswordDto reqData) {
+    passwordManageService.updatePassword(reqData);
 
     return new ResponseDto<>(SuccessCode.RESOURCE_UPDATED, "Password successfuly updated", null);
   }

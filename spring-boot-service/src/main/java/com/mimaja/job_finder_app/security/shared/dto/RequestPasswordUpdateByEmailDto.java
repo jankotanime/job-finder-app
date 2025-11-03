@@ -2,9 +2,10 @@ package com.mimaja.job_finder_app.security.shared.dto;
 
 import jakarta.validation.constraints.NotNull;
 
-public record ResponseResetTokenDto(
+public record RequestPasswordUpdateByEmailDto(
   @NotNull
-  String resetToken,
+  String password,
   @NotNull
-  String resetTokenId
-) {}
+  String token,
+  @NotNull
+  String tokenId) {}

@@ -1,3 +1,10 @@
 package com.mimaja.job_finder_app.security.shared.dto;
 
-public record RequestLoginDto(String loginData, String password) {}
+import jakarta.validation.constraints.NotNull;
+
+public record RequestLoginDto(
+  @NotNull
+  String loginData,
+  @NotNull
+  String password
+) {}

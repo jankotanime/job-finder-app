@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.security.password.service;
+package com.mimaja.job_finder_app.security.manage.password.mobile.service;
 
 import org.springframework.stereotype.Service;
 
@@ -7,7 +7,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.password.utils.DefaultPasswordManageDataManager;
+import com.mimaja.job_finder_app.security.manage.password.utils.PasswordManageDataManager;
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordDto;
 import com.mimaja.job_finder_app.security.tokens.jwt.utils.JwtAuthenticationManager;
 
@@ -17,14 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PasswordManageServiceDefault implements PasswordManageService {
+public class PasswordMobileManageServiceDefault implements PasswordMobileManageService {
   private final UserRepository userRepository;
   private final JwtAuthenticationManager jwtAuthenticationManager;
   private final PasswordConfiguration passwordConfiguration;
-  private final DefaultPasswordManageDataManager defaultPasswordManageDataManager;
+  private final PasswordManageDataManager passwordManageDataManager;
 
   @Override
-  public void changePassword(RequestPasswordDto reqData) {
+  public void updatePassword(RequestPasswordDto reqData) {
     String password = reqData.password();
     String newPassword = reqData.newPassword();
 
@@ -34,7 +34,7 @@ public class PasswordManageServiceDefault implements PasswordManageService {
       throw new BusinessException(BusinessExceptionReason.WRONG_PASSWORD);
     }
 
-    defaultPasswordManageDataManager.checkDataPatterns(newPassword);
+    passwordManageDataManager.checkDataPatterns(newPassword);
 
     String newPasswordHash = passwordConfiguration.encodePassword(newPassword);
 
