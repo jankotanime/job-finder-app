@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import EncryptedStorage from "react-native-encrypted-storage";
+import getUsernameFromAccessToken from "../utils/getUsernameFromAccessToken";
 import { tryCatch } from "../utils/try-catch";
 import { login } from "../utils/login";
 import { register } from "../utils/register";
@@ -23,6 +24,7 @@ type AuthContextType = {
   signUp: (
     formState: FormStateRegisterProps,
   ) => Promise<{ ok: boolean; error?: string }>;
+  refreshAuth: () => Promise<void>;
 };
 interface FormStateLoginProps {
   loginData: string;
@@ -41,6 +43,7 @@ const AuthContext = createContext<AuthContextType>({
   signIn: async () => ({ ok: false, error: "not-initialized" }),
   signOut: async () => {},
   signUp: async () => ({ ok: false, error: "not-initialized" }),
+  refreshAuth: async () => {},
 });
 export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -61,7 +64,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [saved, error] = await tryCatch(EncryptedStorage.getItem("auth"));
     if (saved) {
       const parsed = JSON.parse(saved);
+      const username = getUsernameFromAccessToken(parsed?.accessToken);
+      if (username) setUser(username);
       setTokens(parsed);
+      setIsAuthenticated(true);
     }
     if (error) throw new Error("error while loading tokens");
     setLoading(false);
@@ -123,7 +129,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   return (
     <AuthContext.Provider
-      value={{ user, loading, isAuthenticated, signIn, signOut, signUp }}
+      value={{
+        user,
+        loading,
+        isAuthenticated,
+        signIn,
+        signOut,
+        signUp,
+        refreshAuth: loadTokens,
+      }}
     >
       {children}
     </AuthContext.Provider>
