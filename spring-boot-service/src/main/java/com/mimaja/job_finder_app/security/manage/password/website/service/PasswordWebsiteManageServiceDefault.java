@@ -34,7 +34,7 @@ public class PasswordWebsiteManageServiceDefault implements PasswordWebsiteManag
 
     String email = user.getEmail();
     String[] emailSplitted = email.split("@");
-    String modifiedEmail = email.charAt(0) + "***" + emailSplitted[emailSplitted.length - 1];
+    String modifiedEmail = email.charAt(0) + "***@" + emailSplitted[emailSplitted.length - 1];
 
     ResponsePasswordUpdateEmailRequestDto response = new ResponsePasswordUpdateEmailRequestDto(modifiedEmail);
 
@@ -47,7 +47,13 @@ public class PasswordWebsiteManageServiceDefault implements PasswordWebsiteManag
     String token = reqData.token();
     String tokenId = reqData.tokenId();
 
+    System.out.println(newPassword);
+    System.out.println(token);
+    System.out.println(tokenId);
+
     User user = resetTokenServiceDefault.validateToken(token, tokenId);
+
+    System.out.println(user.getEmail());
 
     passwordManageDataManager.checkDataPatterns(newPassword);
 
@@ -56,6 +62,10 @@ public class PasswordWebsiteManageServiceDefault implements PasswordWebsiteManag
     user.setPasswordHash(newPasswordHash);
     userRepository.save(user);
 
+    System.out.println("po zapisie");
+
     resetTokenServiceDefault.deleteToken(tokenId);
+
+    System.out.println("koniec");
   }
 }

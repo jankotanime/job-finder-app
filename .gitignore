@@ -3,3 +3,4 @@
 secrets
 test.js
 certs
+.env

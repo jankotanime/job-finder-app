@@ -48,6 +48,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       APP_SECURITY_PROFILE: prod
+      API_SSR_URL: ${API_SSR_URL}
     secrets:
       - spring-boot-jwt-secret
       - spring-boot-refresh-token-secret
@@ -86,6 +87,8 @@ services:
     depends_on:
       spring-boot-service:
         condition: service_healthy
+    environment:
+      - SSR_API_URL=${SSR_API_URL}
     networks:
       - job-finder-app
     healthcheck:
