@@ -40,6 +40,6 @@
     "email_already_taken": "User with this email already exists",
     "phone_number_already_taken": "User with this phone number already exists",
     "invalid_refresh_token": "Invalid refresh token",
-    "token_expired": "Session expired"
+    "token_expired": "Session expired, log in again"
   }
 }

@@ -24,7 +24,6 @@ export const rotateTokens = async ({
       }),
     }),
   );
-  console.log(response);
   if (error) {
     setError(getErrorMessage(error.message, t) || t("token_expired"));
     return null;
@@ -34,6 +33,5 @@ export const rotateTokens = async ({
     return null;
   }
   const data = await response.json();
-  console.log("rotated tokens: ", data);
   return data;
 };

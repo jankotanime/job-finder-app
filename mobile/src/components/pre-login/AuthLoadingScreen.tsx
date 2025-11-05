@@ -22,9 +22,10 @@ const AuthLoadingScreen = () => {
     const doRotate = async () => {
       const [tokensRaw, getErr] = await tryCatch(getTokens(setError));
       if (getErr) {
-        setError(
-          getErrorMessage(getErr?.message, t) || String(getErr?.message),
-        );
+        const msg =
+          getErrorMessage(getErr?.message, t) || String(getErr?.message);
+        setError(msg);
+        navigation.replace("Home", { authError: msg });
         return;
       }
       if (!tokensRaw) return;
@@ -38,9 +39,10 @@ const AuthLoadingScreen = () => {
         });
       const [parsed, parseErr] = await tryCatch(parseJsonAsync(tokensRaw));
       if (parseErr) {
-        setError(
-          getErrorMessage(parseErr?.message, t) || String(parseErr?.message),
-        );
+        const msg =
+          getErrorMessage(parseErr?.message, t) || String(parseErr?.message);
+        setError(msg);
+        navigation.replace("Home", { authError: msg });
         return;
       }
       if (!parsed?.refreshToken || !parsed?.refreshTokenId) return;
@@ -55,9 +57,10 @@ const AuthLoadingScreen = () => {
         }),
       );
       if (rotateErr) {
-        setError(
-          getErrorMessage(rotateErr?.message, t) || String(rotateErr?.message),
-        );
+        const msg =
+          getErrorMessage(rotateErr?.message, t) || String(rotateErr?.message);
+        setError(msg);
+        navigation.replace("Home", { authError: msg });
         return;
       }
       if (!rotated) return;
@@ -74,15 +77,18 @@ const AuthLoadingScreen = () => {
           ),
         );
         if (setItemErr) {
-          setError(
-            getErrorMessage(setItemErr?.message, t) || String(setItemErr),
-          );
+          const msg =
+            getErrorMessage(setItemErr?.message, t) || String(setItemErr);
+          setError(msg);
+          navigation.replace("Home", { authError: msg });
         } else {
           const [, refreshErr] = await tryCatch(refreshAuth());
-          if (refreshErr)
-            setError(
-              getErrorMessage(refreshErr?.message, t) || String(refreshErr),
-            );
+          if (refreshErr) {
+            const msg =
+              getErrorMessage(refreshErr?.message, t) || String(refreshErr);
+            setError(msg);
+            navigation.replace("Home", { authError: msg });
+          }
         }
       }
     };
@@ -97,11 +103,12 @@ const AuthLoadingScreen = () => {
         navigation.replace("Main");
       } else {
         hasNavigated.current = true;
-        navigation.replace("Home");
+        navigation.replace("Home", { authError: t("errors.token_expired") });
       }
     };
     checkAuthStatus();
   }, [user, loading, isAuthenticated]);
+  if (error) console.error("error: ", error);
   return (
     <View style={styles.main}>
       <ActivityIndicator size="large" color={colors.primary} />

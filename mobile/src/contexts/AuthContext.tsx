@@ -76,7 +76,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     formState: FormStateLoginProps,
   ): Promise<{ ok: boolean; error?: string }> => {
     const [data, error] = await tryCatch(login(formState));
-    console.log("data: ", data);
     if (error) return { ok: false, error: error?.message || String(error) };
     if (data?.error) return { ok: false, error: data.error };
     const { accessToken, refreshToken, refreshTokenId } = extractTokens(data);
