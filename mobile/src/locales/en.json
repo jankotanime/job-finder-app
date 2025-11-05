@@ -6,7 +6,7 @@
   "signup": "Sign up",
   "signin": "Sign In",
   "email": "Email",
-  "emailOrLogin": "Email or login",
+  "emailOrLogin": "Email, login or phone number",
   "password": "Password",
   "repeat_password": "Repeat password",
   "passwords_dont_match": "Passwords don't match",
@@ -39,6 +39,7 @@
     "username_already_taken": "User with this username already exists",
     "email_already_taken": "User with this email already exists",
     "phone_number_already_taken": "User with this phone number already exists",
-    "invalid_refresh_token": "Invalid refresh token"
+    "invalid_refresh_token": "Invalid refresh token",
+    "token_expired": "Session expired, log in again"
   }
 }

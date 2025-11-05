@@ -6,7 +6,7 @@
   "signup": "Zarejestruj się",
   "signin": "Zaloguj się",
   "email": "Email",
-  "emailOrLogin": "Email lub nazwa",
+  "emailOrLogin": "Email, nazwa lub numer telefonu",
   "password": "Hasło",
   "repeat_password": "Powtórz hasło",
   "passwords_dont_match": "Hasła nie są takie same",
@@ -39,6 +39,7 @@
     "username_already_taken": "Użytkownik o tej nazwie już istnieje",
     "email_already_taken": "Użytkownik z tym adresem e-mail już istnieje",
     "phone_number_already_taken": "Użytkownik z tym numerem telefonu już istnieje",
-    "invalid_refresh_token": "Nieprawidłowy token odświeżania"
+    "invalid_refresh_token": "Nieprawidłowy token odświeżania",
+    "token_expired": "Sesja wygasła, zaloguj się ponownie"
   }
 }
