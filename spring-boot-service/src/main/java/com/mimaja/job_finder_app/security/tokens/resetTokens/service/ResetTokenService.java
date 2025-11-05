@@ -1,14 +1,13 @@
 package com.mimaja.job_finder_app.security.tokens.resetTokens.service;
 
-import java.util.UUID;
-
 import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseResetTokenDto;
+import java.util.UUID;
 
 public interface ResetTokenService {
-  public ResponseResetTokenDto createToken(UUID userId);
+    ResponseResetTokenDto createToken(UUID userId);
 
-  public void deleteToken(String tokenId);
+    void deleteToken(String tokenId);
 
-  public User validateToken(String token, String tokenId);
+    User validateToken(String token, String tokenId);
 }

@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class RefreshTokenController {
     private final RefreshTokenServiceDefault refreshTokenServiceDefault;
 
-  @PostMapping("/rotate")
-  public ResponseDto<ResponseTokenDto> rotateToken(
-      @RequestBody RequestRefreshTokenRotateDto reqData) {
-    ResponseTokenDto tokens = refreshTokenServiceDefault.rotateToken(reqData);
+    @PostMapping("/rotate")
+    public ResponseDto<ResponseTokenDto> rotateToken(
+            @RequestBody RequestRefreshTokenRotateDto reqData) {
+        ResponseTokenDto tokens = refreshTokenServiceDefault.rotateToken(reqData);
 
         ResponseDto<ResponseTokenDto> response =
                 new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfully refreshed", tokens);

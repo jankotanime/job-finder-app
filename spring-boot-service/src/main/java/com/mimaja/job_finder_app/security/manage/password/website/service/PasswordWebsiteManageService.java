@@ -5,6 +5,8 @@ import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateEmailR
 import com.mimaja.job_finder_app.security.shared.dto.ResponsePasswordUpdateEmailRequestDto;
 
 public interface PasswordWebsiteManageService {
-  public ResponsePasswordUpdateEmailRequestDto sendEmailWithUpdatePasswordRequest(RequestPasswordUpdateEmailRequestDto reqData);
-  public void updatePasswordByEmail(RequestPasswordUpdateByEmailDto reqData);
+    ResponsePasswordUpdateEmailRequestDto sendEmailWithUpdatePasswordRequest(
+            RequestPasswordUpdateEmailRequestDto reqData);
+
+    void updatePasswordByEmail(RequestPasswordUpdateByEmailDto reqData);
 }

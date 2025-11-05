@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 public class DefaultLoginValidation {
     private final UserRepository userRepository;
 
-  public User userValidation(String loginData) {
-    Optional<User> userOptional = userRepository.findByUsername(loginData);
+    public User userValidation(String loginData) {
+        Optional<User> userOptional = userRepository.findByUsername(loginData);
 
         if (userOptional.isEmpty()) {
             userOptional = userRepository.findByEmail(loginData);

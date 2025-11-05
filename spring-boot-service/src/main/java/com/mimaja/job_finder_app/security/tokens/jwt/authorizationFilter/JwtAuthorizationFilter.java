@@ -5,7 +5,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,17 +45,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (JWTVerificationException e) {
-                response.setStatus(401);
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                Map<String, Object> errorBody = Map.of("err", e.getMessage());
-                new ObjectMapper().writeValue(response.getWriter(), errorBody);
-                response.getWriter();
-                return;
+                throw new BusinessException(BusinessExceptionReason.INVALID_ACCESS_TOKEN);
             }
         }
-      } catch (JWTVerificationException e) {
-        throw new BusinessException(BusinessExceptionReason.INVALID_ACCESS_TOKEN);
-      }
+        filterChain.doFilter(request, response);
     }
 }
