@@ -1,5 +1,15 @@
 package com.mimaja.job_finder_app.core.exception;
 
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.TEST_CODE;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.TEST_ERROR_MESSAGE;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.TEST_FIELD_NAME;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.TEST_MESSAGE;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.createApplicationException;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.createApplicationExceptionWithParams;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.createBusinessException;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.createBusinessExceptionWithErrors;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.createBusinessExceptionWithStatus;
+import static com.mimaja.job_finder_app.core.mockdata.CoreMockData.createFieldValidationError;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.lenient;
