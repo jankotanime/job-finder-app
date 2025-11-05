@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'pmd'
+    id 'jacoco'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.diffplug.spotless' version '6.24.0'
@@ -16,47 +17,41 @@ java {
     }
 }
 
+jacoco {
+    toolVersion = '0.8.10'
+}
+
 spotless {
     java {
-        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
-        googleJavaFormat('1.25.0')
+        target("src/*/java/**/*.java")
+        cleanthat().excludeMutator("ModifierOrder")
         importOrder()
         removeUnusedImports()
+
+        googleJavaFormat("1.23.0").aosp().reflowLongStrings()
+
         trimTrailingWhitespace()
-        indentWithSpaces()
         endWithNewline()
+        indentWithSpaces()
+        formatAnnotations()
+        toggleOffOn()
         lineEndings = com.diffplug.spotless.LineEnding.UNIX
 
-        replaceRegex("One blank line after package line",
-                "(package .+;)\\n+import",
-                """\$1import""")
-
-        replaceRegex("One blank line after import lists",
-                "(import .+;\\n\\n)\\n+",
-                """\$1""")
-
-        replaceRegex("Remove wildcard imports",
-                "import( static)?\\s+[^*\\s]+\\*;(\\r\\n|\\r|\\n)",
-                """\$2""")
-
-        replaceRegex("Remove empty lines after start of block",
-                "(\\{)\\s*\\n\\s*\\n",
-                """\$1""")
-
-        replaceRegex("Remove empty lines before end of block",
-                "\\n[\\n]+(\\s*})(?=\\n)",
-                """\n\$1""")
-
-        replaceRegex("Remove trailing empty comment lines.",
-                "\\n\\s*\\*(\\n\\s*\\*/\\n)",
-                """\$1""")
+        replaceRegex("One blank line after package line", "(package .+;)\n+import", '$1\n\nimport')
+        replaceRegex("One blank line after import lists", "(import .+;\n\n)\n+", '$1')
+        replaceRegex("Remove wildcard imports", "import( static)?\\s+[^*\\s]+\\*;(\\r\\n|\\r|\\n)", '\$2')
+        replaceRegex("Remove empty lines after start of block", "(\\{)\\s*\\n\\s*\\n", '$1\n')
+        replaceRegex("Remove empty lines before end of block", "\\n[\\n]+(\\s*})(?=\\n)", '\n$1')
+        replaceRegex("Remove trailing empty comment lines.", "\n\\s*\\*(\n\\s*\\*/\n)", '$1')
     }
-    format("misc") {
-        target '*.md', '**/*.yml', '**/*.yaml', '**/*.properties', '**/*.json', '**/*.gradle'
-        trimTrailingWhitespace()
-        endWithNewline()
-        indentWithSpaces()
-        lineEndings = com.diffplug.spotless.LineEnding.UNIX
+    format("styling") {
+        target(
+                '**/*.md',
+                '**/*.yml',
+                '**/*.yaml',
+                '**/*.json'
+        )
+        prettier()
     }
 }
 
@@ -84,16 +79,33 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
-    runtimeOnly 'org.postgresql:postgresql'
     implementation 'com.auth0:java-jwt:4.0.0'
-    testImplementation 'org.springframework.security:spring-security-test'
+    runtimeOnly 'org.postgresql:postgresql'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+  useJUnitPlatform()
+  finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+  dependsOn test
+  reports {
+    xml.required.set(true)
+    html.required.set(true)
+    csv.required.set(false)
+  }
+}
+
+tasks.named('check') {
+  dependsOn jacocoTestReport
 }
