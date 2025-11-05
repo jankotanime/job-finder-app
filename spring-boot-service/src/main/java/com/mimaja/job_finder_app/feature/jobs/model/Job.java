@@ -1,4 +1,6 @@
-package com.mimaja.job_finder_app.feature.jobs.model;import com.mimaja.job_finder_app.feature.jobs.locations.model.Location;
+package com.mimaja.job_finder_app.feature.jobs.model;
+
+import com.mimaja.job_finder_app.feature.jobs.locations.model.Location;
 import com.mimaja.job_finder_app.feature.jobs.tags.model.Tag;
 import com.mimaja.job_finder_app.feature.users.model.User;
 import jakarta.persistence.Column;
@@ -28,37 +30,37 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 @Table(name = "jobs")
 public class Job {
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  private String title;
+    private String title;
 
-  @Column(columnDefinition = "TEXT")
-  private String description;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-  private LocalDateTime startTime;
+    private LocalDateTime startTime;
 
-  @ManyToOne() private Location location;
+    @ManyToOne() private Location location;
 
-  private Double salary;
+    private Double salary;
 
-  @ManyToMany(fetch = FetchType.LAZY)
-  private Set<Tag> tags = new HashSet<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    private Set<Tag> tags = new HashSet<>();
 
-  @ManyToOne
-  @JoinColumn(name = "owner_id")
-  private User owner;
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
-  @ManyToOne()
-  @JoinColumn(name = "contractor_id")
-  private User contractor;
+    @ManyToOne()
+    @JoinColumn(name = "contractor_id")
+    private User contractor;
 
-  private JobStatus status;
+    private JobStatus status;
 
-  @Column(updatable = false)
-  @CreationTimestamp
-  private LocalDate createdAt;
+    @Column(updatable = false)
+    @CreationTimestamp
+    private LocalDate createdAt;
 
-  @UpdateTimestamp private LocalDateTime updatedAt;
+    @UpdateTimestamp private LocalDateTime updatedAt;
 }

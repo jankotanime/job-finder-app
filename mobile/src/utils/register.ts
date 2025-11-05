@@ -27,7 +27,7 @@ export const register = async ({
       error:
         data?.message ||
         data?.err ||
-        `Błąd ${response.status}: ${response.statusText || "Nieznany błąd"}`,
+        `Error ${response.status}: ${response.statusText || "Unknown error"}`,
     };
   }
   return data;

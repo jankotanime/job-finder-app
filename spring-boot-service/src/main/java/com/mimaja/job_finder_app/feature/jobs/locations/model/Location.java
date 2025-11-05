@@ -1,4 +1,6 @@
-package com.mimaja.job_finder_app.feature.jobs.locations.model;import jakarta.persistence.Column;
+package com.mimaja.job_finder_app.feature.jobs.locations.model;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,15 +20,15 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Table(name = "locations")
 public class Location {
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  private List<Double> coordinates;
+    private List<Double> coordinates;
 
-  private City city;
+    private City city;
 
-  @Column(updatable = false)
-  @CreationTimestamp
-  private LocalDate createdAt;
+    @Column(updatable = false)
+    @CreationTimestamp
+    private LocalDate createdAt;
 }

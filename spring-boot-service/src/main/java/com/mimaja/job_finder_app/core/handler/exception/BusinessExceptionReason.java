@@ -1,4 +1,6 @@
-package com.mimaja.job_finder_app.core.handler.exception;import com.mimaja.job_finder_app.core.handler.exception.dto.FieldValidationErrorsDto;
+package com.mimaja.job_finder_app.core.handler.exception;
+
+import com.mimaja.job_finder_app.core.handler.exception.dto.FieldValidationErrorsDto;
 import com.mimaja.job_finder_app.core.handler.exception.policy.BusinessExceptionPolicy;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -14,7 +16,7 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
   WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED, null),
 
   INVALID_USERNAME_LENGTH("Username should have between 4 and 25 characters", HttpStatus.UNAUTHORIZED, null),
-  INVALID_PASSWORD_LENGTH("Password should have between 8 and 100 characters", HttpStatus.UNAUTHORIZED, null),
+  INVALID_PASSWORD_LENGTH("Password should have between 8 and 128 characters", HttpStatus.UNAUTHORIZED, null),
   INVALID_PHONE_NUMBER_LENGTH("Phone number should have 9 digits", HttpStatus.UNAUTHORIZED, null),
 
   INVALID_USERNAME_PATTERN("Invalid username", HttpStatus.UNAUTHORIZED, null),

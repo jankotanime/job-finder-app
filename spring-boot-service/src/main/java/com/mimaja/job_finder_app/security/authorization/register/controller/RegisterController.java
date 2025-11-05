@@ -1,4 +1,6 @@
-package com.mimaja.job_finder_app.security.authorization.register.controller;import com.mimaja.job_finder_app.security.authorization.register.service.RegisterServiceDefault;
+package com.mimaja.job_finder_app.security.authorization.register.controller;
+
+import com.mimaja.job_finder_app.security.authorization.register.service.RegisterServiceDefault;
 import com.mimaja.job_finder_app.security.shared.dto.RequestRegisterDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
@@ -13,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/auth/register")
 public class RegisterController {
-  private final RegisterServiceDefault registerService;
+    private final RegisterServiceDefault registerService;
 
-  @PostMapping
-  public ResponseDto<ResponseTokenDto> registerPostMapping(
-      @RequestBody RequestRegisterDto reqData) {
-    ResponseTokenDto tokens = registerService.tryToRegister(reqData);
+    @PostMapping
+    public ResponseDto<ResponseTokenDto> registerPostMapping(
+            @RequestBody RequestRegisterDto reqData) {
+        ResponseTokenDto tokens = registerService.tryToRegister(reqData);
 
-    return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfully registered", tokens);
-  }
+        return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfully registered", tokens);
+    }
 }

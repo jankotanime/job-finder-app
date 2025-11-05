@@ -4,3 +4,4 @@ secrets
 test.js
 certs
 .env
+coverage

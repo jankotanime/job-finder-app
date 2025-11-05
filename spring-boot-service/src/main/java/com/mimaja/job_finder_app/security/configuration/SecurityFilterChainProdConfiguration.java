@@ -1,4 +1,6 @@
-package com.mimaja.job_finder_app.security.configuration;import com.fasterxml.jackson.databind.ObjectMapper;
+package com.mimaja.job_finder_app.security.configuration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtAuthorizationFilter;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtSecretKeyConfiguration;
 import java.util.Map;
@@ -18,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.security.profile", havingValue = "prod", matchIfMissing = true)
 public class SecurityFilterChainProdConfiguration {
-  private final JwtSecretKeyConfiguration jwtSecretKeyConfiguration;
+    private final JwtSecretKeyConfiguration jwtSecretKeyConfiguration;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {

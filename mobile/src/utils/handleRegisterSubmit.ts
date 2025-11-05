@@ -1,4 +1,5 @@
 import { tryCatch } from "./try-catch";
+import { getErrorMessage } from "../constans/errorMessages";
 
 export interface FormState {
   username: string;
@@ -31,8 +32,12 @@ export async function handleRegisterSubmit({
     return;
   }
   const [result, error] = await tryCatch(signUp(formState));
-  if (error) setError(error?.message || t("errors.register_failed"));
-  else if (!result?.ok) setError(result?.error || t("errors.register_failed"));
+  if (error)
+    setError(getErrorMessage(error?.message, t) || t("errors.register_failed"));
+  else if (!result?.ok)
+    setError(
+      getErrorMessage(result?.error ?? "", t) || t("errors.register_failed"),
+    );
   else navigation?.reset({ index: 0, routes: [{ name: "Main" }] });
   setIsLoading(false);
 }

@@ -20,7 +20,7 @@ export const login = async ({ loginData, password }: LoginProps) => {
       error:
         data?.message ||
         data?.err ||
-        `Błąd ${response.status}: ${response.statusText || "Nieznany błąd"}`,
+        `Error ${response.status}: ${response.statusText || "Unknown error"}`,
     };
   }
   return data;

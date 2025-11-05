@@ -53,8 +53,10 @@ JobFinderApp/
     git clone repo-url
     cd JobFinderApp
     ```
+2. **Dodaj zmienne:**
+   + Utwórz folder z sekretami `secrets` zgodnie z folderem `secrets.template`. Każdy plik powinien zawierać sekretny ciąg znaków w jednej linii (np. aaa).
 
-2. **Uruchom usługi:**
+3. **Uruchom usługi:**
   + Pierwsze uruchomienie: baza zostanie zainicjalizowana danymi z `data.sql` za pomocą usługi `db-update`.
 
       ```sh

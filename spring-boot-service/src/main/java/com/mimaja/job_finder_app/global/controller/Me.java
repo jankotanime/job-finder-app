@@ -1,4 +1,5 @@
-package com.mimaja.job_finder_app.global.controller;import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
+package com.mimaja.job_finder_app.global.controller;
+import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 
