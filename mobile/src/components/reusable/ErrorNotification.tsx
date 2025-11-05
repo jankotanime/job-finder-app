@@ -29,6 +29,7 @@ const ErrorNotification = ({ error }: error) => {
   };
   return (
     <Animated.View
+      testID="error-notification"
       style={[styles.container, { transform: [{ translateY: slideAnim }] }]}
       onTouchEnd={cancel}
     >
