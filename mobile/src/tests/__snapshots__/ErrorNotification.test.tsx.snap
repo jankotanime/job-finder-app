@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ErrorNotification component renders correctly with a raw error string 1`] = `
+<View
+  collapsable={false}
+  onTouchEnd={[Function]}
+  style={
+    {
+      "alignSelf": "center",
+      "backgroundColor": "#ffebee",
+      "borderRadius": 15,
+      "marginBottom": 10,
+      "padding": 10,
+      "position": "absolute",
+      "top": 10,
+      "transform": [
+        {
+          "translateY": -100,
+        },
+      ],
+      "width": 600,
+    }
+  }
+  testID="error-notification"
+>
+  <Text
+    style={
+      {
+        "color": "#c62828",
+        "fontSize": 14,
+        "textAlign": "center",
+      }
+    }
+  >
+    This is an error
+  </Text>
+</View>
+`;
+
+exports[`ErrorNotification component renders correctly with a translation key 1`] = `
+<View
+  collapsable={false}
+  onTouchEnd={[Function]}
+  style={
+    {
+      "alignSelf": "center",
+      "backgroundColor": "#ffebee",
+      "borderRadius": 15,
+      "marginBottom": 10,
+      "padding": 10,
+      "position": "absolute",
+      "top": 10,
+      "transform": [
+        {
+          "translateY": -100,
+        },
+      ],
+      "width": 600,
+    }
+  }
+  testID="error-notification"
+>
+  <Text
+    style={
+      {
+        "color": "#c62828",
+        "fontSize": 14,
+        "textAlign": "center",
+      }
+    }
+  >
+    translated:errors.login_failed
+  </Text>
+</View>
+`;
