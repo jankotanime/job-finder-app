@@ -1,7 +1,9 @@
 package com.mimaja.job_finder_app.global.controller;
 
+import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class Me {
     @GetMapping
     public ResponseDto<String> getMe() {
-        return new ResponseDto<>(SuccessCode.RESPONSE_SUCCESSFUL, "Me!", "Data");
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof JwtPrincipal) {
+            JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+            return new ResponseDto<>(
+                    SuccessCode.RESPONSE_SUCCESSFUL, "Me!", principal.getUsername());
+        }
+        return new ResponseDto<>(SuccessCode.RESPONSE_SUCCESSFUL, "Me!", "No principal");
     }
 }

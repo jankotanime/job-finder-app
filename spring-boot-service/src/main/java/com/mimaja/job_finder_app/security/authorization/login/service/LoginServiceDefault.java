@@ -29,7 +29,7 @@ public class LoginServiceDefault implements LoginService {
         String loginData = reqData.loginData();
         String password = reqData.password();
 
-        User user = defaultLoginValidation.userValidation(loginData, password);
+        User user = defaultLoginValidation.userValidation(loginData);
 
         String username = user.getUsername();
         UUID userId = user.getId();

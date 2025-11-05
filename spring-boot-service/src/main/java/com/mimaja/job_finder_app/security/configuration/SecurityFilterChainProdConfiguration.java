@@ -33,7 +33,12 @@ public class SecurityFilterChainProdConfiguration {
                                         .requestMatchers(HttpMethod.GET, "/example-error")
                                         .permitAll()
                                         .requestMatchers(
-                                                HttpMethod.POST, "/auth/*", "/refresh-token/rotate")
+                                                HttpMethod.POST,
+                                                "/auth/*",
+                                                "/refresh-token/rotate",
+                                                "/password/website/send-email")
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.PUT, "/password/website/update")
                                         .permitAll()
                                         .requestMatchers("/api-docs/**")
                                         .permitAll()

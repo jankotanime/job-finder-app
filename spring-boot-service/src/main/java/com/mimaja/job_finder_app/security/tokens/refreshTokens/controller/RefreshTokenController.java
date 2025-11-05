@@ -18,7 +18,7 @@ public class RefreshTokenController {
     private final RefreshTokenServiceDefault refreshTokenServiceDefault;
 
     @PostMapping("/rotate")
-    public ResponseDto<ResponseTokenDto> saveToken(
+    public ResponseDto<ResponseTokenDto> rotateToken(
             @RequestBody RequestRefreshTokenRotateDto reqData) {
         ResponseTokenDto tokens = refreshTokenServiceDefault.rotateToken(reqData);
 

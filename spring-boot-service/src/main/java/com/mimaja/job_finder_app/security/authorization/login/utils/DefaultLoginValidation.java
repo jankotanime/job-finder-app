@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class DefaultLoginValidation {
     private final UserRepository userRepository;
 
-    public User userValidation(String loginData, String password) {
+    public User userValidation(String loginData) {
         Optional<User> userOptional = userRepository.findByUsername(loginData);
 
         if (userOptional.isEmpty()) {
