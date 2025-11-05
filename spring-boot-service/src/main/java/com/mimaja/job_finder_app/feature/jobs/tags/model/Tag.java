@@ -1,4 +1,6 @@
-package com.mimaja.job_finder_app.feature.jobs.tags.model;import jakarta.persistence.Column;
+package com.mimaja.job_finder_app.feature.jobs.tags.model;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,13 +19,13 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Table(name = "tags")
 public class Tag {
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  private String name;
+    private String name;
 
-  @Column(updatable = false)
-  @CreationTimestamp
-  private LocalDate createdAt;
+    @Column(updatable = false)
+    @CreationTimestamp
+    private LocalDate createdAt;
 }

@@ -1,4 +1,6 @@
-package com.mimaja.job_finder_app.security.authorization.login.controller;import com.mimaja.job_finder_app.security.authorization.login.service.LoginService;
+package com.mimaja.job_finder_app.security.authorization.login.controller;
+
+import com.mimaja.job_finder_app.security.authorization.login.service.LoginService;
 import com.mimaja.job_finder_app.security.shared.dto.RequestLoginDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
@@ -13,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/auth/login")
 public class LoginController {
-  private final LoginService loginService;
+    private final LoginService loginService;
 
-  @PostMapping
-  public ResponseDto<ResponseTokenDto> loginPostMapping(@RequestBody RequestLoginDto reqData) {
-    ResponseTokenDto tokens = loginService.tryToLogin(reqData);
+    @PostMapping
+    public ResponseDto<ResponseTokenDto> loginPostMapping(@RequestBody RequestLoginDto reqData) {
+        ResponseTokenDto tokens = loginService.tryToLogin(reqData);
 
-    return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfuly logged in", tokens);
-  }
+        return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfuly logged in", tokens);
+    }
 }
