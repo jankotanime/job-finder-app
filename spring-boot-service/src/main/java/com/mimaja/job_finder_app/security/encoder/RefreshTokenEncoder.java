@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.security.tokens.encoder;
+package com.mimaja.job_finder_app.security.encoder;
 
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
