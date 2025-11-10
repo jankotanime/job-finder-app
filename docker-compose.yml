@@ -50,7 +50,8 @@ services:
       REDIS_PORT: 6379
       APP_SECURITY_PROFILE: prod
       API_SSR_URL: ${API_SSR_URL}
-      GOOGLE_ID_IOS: ${API_GOOGLE_ID_IOS}
+      GOOGLE_ID_IOS: ${API_GOOGLE_ID_WEB}
+      GOOGLE_ID_ANDROID: ${API_GOOGLE_ID_WEB}
     secrets:
       - spring-boot-jwt-secret
       - spring-boot-refresh-token-secret

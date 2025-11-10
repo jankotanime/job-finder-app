@@ -23,19 +23,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GoogleAuthServiceIos implements GoogleAuthService {
+public class GoogleAuthServiceAndroid implements GoogleAuthService {
     private final UserRepository userRepository;
     private final GoogleAuthDataManager googleAuthDataManager;
     private final JwtConfiguration jwtConfiguration;
     private final RefreshTokenServiceDefault refreshTokenServiceDefault;
     private final GoogleIdTokenVerifier verifier;
 
-    public GoogleAuthServiceIos(
+    public GoogleAuthServiceAndroid(
             UserRepository userRepository,
             GoogleAuthDataManager googleAuthDataManager,
             JwtConfiguration jwtConfiguration,
             RefreshTokenServiceDefault refreshTokenServiceDefault,
-            @Value("${google.id.ios}") String googleIdIos) {
+            @Value("${google.id.android}") String googleIdAndroid) {
         this.userRepository = userRepository;
         this.googleAuthDataManager = googleAuthDataManager;
         this.jwtConfiguration = jwtConfiguration;
@@ -43,7 +43,7 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
 
         this.verifier =
                 new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                        .setAudience(Collections.singletonList(googleIdIos))
+                        .setAudience(Collections.singletonList(googleIdAndroid))
                         .build();
     }
 
