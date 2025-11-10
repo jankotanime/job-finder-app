@@ -34,7 +34,7 @@ public class SecurityFilterChainProdConfiguration {
                                         .permitAll()
                                         .requestMatchers(
                                                 HttpMethod.POST,
-                                                "/auth/*",
+                                                "/auth/**",
                                                 "/refresh-token/rotate",
                                                 "/password/website/send-email")
                                         .permitAll()

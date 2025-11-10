@@ -34,11 +34,9 @@ public class RegisterServiceDefault implements RegisterService {
         defaultRegisterDataValidation.checkDataPatterns(
                 username, email, phoneNumberString, password);
 
-        int phoneNumber = defaultRegisterDataValidation.convertePhoneNumberToInt(phoneNumberString);
-
         String hashedPassword = passwordConfiguration.passwordEncoder().encode(password);
 
-        User user = new User(username, email, hashedPassword, phoneNumber);
+        User user = new User(username, email, hashedPassword, null);
         userRepository.save(user);
 
         UUID userId = user.getId();

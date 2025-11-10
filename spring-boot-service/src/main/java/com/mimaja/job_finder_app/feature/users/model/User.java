@@ -3,6 +3,7 @@ package com.mimaja.job_finder_app.feature.users.model;
 import com.mimaja.job_finder_app.feature.archivedJobs.model.ArchivedJob;
 import com.mimaja.job_finder_app.feature.jobs.model.Job;
 import com.mimaja.job_finder_app.feature.users.ratings.model.Rating;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,9 +38,11 @@ public class User {
 
     private String email;
 
-    private String passwordHash;
+    @Nullable private String passwordHash;
 
-    private int phoneNumber;
+    @Nullable private String googleId;
+
+    @Nullable private int phoneNumber;
 
     @Column(columnDefinition = "TEXT", length = 500)
     private String profileDescription;
@@ -80,10 +83,10 @@ public class User {
 
     @UpdateTimestamp private LocalDateTime updatedAt;
 
-    public User(String username, String email, String passwordHash, int phoneNumber) {
+    public User(String username, String email, String passwordHash, String googleId) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.phoneNumber = phoneNumber;
+        this.googleId = googleId;
     }
 }

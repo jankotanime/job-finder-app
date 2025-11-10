@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.security.tokens.encoder;
+package com.mimaja.job_finder_app.security.encoder;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
