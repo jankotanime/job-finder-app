@@ -103,7 +103,7 @@ const AuthLoadingScreen = () => {
         navigation.replace("Main");
       } else {
         hasNavigated.current = true;
-        navigation.replace("Home", { authError: t("errors.token_expired") });
+        navigation.replace("Home");
       }
     };
     checkAuthStatus();

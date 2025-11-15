@@ -15,8 +15,8 @@ export default Card;
 const styles = StyleSheet.create({
   shadowWrap: {
     alignSelf: "center",
-    height: height * 0.7,
-    width: width * 0.9,
+    height: height * 0.72,
+    width: width * 0.93,
     marginTop: height * 0.05,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 0 },
