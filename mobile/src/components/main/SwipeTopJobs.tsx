@@ -7,15 +7,20 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
+import { useTheme } from "react-native-paper";
 import JobGrid from "./JobGrid";
 
 const { width, height } = Dimensions.get("window");
+
 interface SwipeProps {
   enable: boolean;
   onClose: () => void;
 }
+
 const SwipeTopJobs = ({ enable, onClose }: SwipeProps) => {
+  const { colors } = useTheme();
   const slideAnim = useRef(new Animated.Value(height + 100)).current;
+
   const enableAnim = () => {
     Animated.timing(slideAnim, {
       toValue: 0,
@@ -23,6 +28,7 @@ const SwipeTopJobs = ({ enable, onClose }: SwipeProps) => {
       useNativeDriver: true,
     }).start();
   };
+
   const disableAnim = () => {
     Animated.timing(slideAnim, {
       toValue: height + 100,
@@ -32,9 +38,11 @@ const SwipeTopJobs = ({ enable, onClose }: SwipeProps) => {
       onClose();
     });
   };
+
   useEffect(() => {
     if (enable) enableAnim();
   }, [enable]);
+
   return (
     <View style={{ flex: 1 }}>
       <Animated.View
@@ -42,17 +50,32 @@ const SwipeTopJobs = ({ enable, onClose }: SwipeProps) => {
           styles.box,
           {
             transform: [{ translateY: slideAnim }],
+            backgroundColor: colors.surface,
           },
         ]}
       >
         <TouchableOpacity
-          style={styles.closeButton}
-          onPress={() => disableAnim()}
+          style={[
+            styles.closeButton,
+            {
+              backgroundColor: colors.primary,
+            },
+          ]}
+          onPress={disableAnim}
           accessibilityLabel="Close panel"
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
         >
-          <Text style={styles.closeText}>✕</Text>
+          <Text
+            style={[
+              styles.closeText,
+              { color: colors.onPrimary, fontWeight: "bold" },
+            ]}
+          >
+            ✕
+          </Text>
         </TouchableOpacity>
+
         <JobGrid />
       </Animated.View>
     </View>
@@ -67,28 +90,33 @@ const styles = StyleSheet.create({
     height: height,
     left: -width * 0.5001,
     width: width,
-    backgroundColor: "gray",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    overflow: "hidden",
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
   },
   closeButton: {
     position: "absolute",
     top: 56,
-    right: 18,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#ffffffee",
+    right: width * 0.04,
+    width: 45,
+    height: 45,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 20,
-    elevation: 6,
+    elevation: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    zIndex: 20,
   },
   closeText: {
-    fontSize: 18,
-    color: "#222",
-    lineHeight: 20,
+    fontSize: 20,
+    lineHeight: 22,
   },
 });

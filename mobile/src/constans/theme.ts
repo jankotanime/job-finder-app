@@ -8,6 +8,9 @@ export const themeLight = {
   colors: {
     ...LightTheme.colors,
     primary: "#337EFF",
+    onPrimary: "#ffffffff",
+    primaryContainer: "#337EFF",
+    onPrimaryContainer: "#ffffffff",
     secondary: "#1B6EFF",
     onSecondary: "#1145a0ff",
     background: "#ebeeffff",
@@ -22,7 +25,8 @@ export const themeDark = {
   colors: {
     ...DarkTheme.colors,
     primary: "#BB86FC",
-    onPrimary: "#3700B3",
+    onPrimary: "#ffffffff",
+    primaryContainer: "#3700B3",
     secondary: "#03DAC6",
     onSecondary: "#000000",
     background: "#121212",
