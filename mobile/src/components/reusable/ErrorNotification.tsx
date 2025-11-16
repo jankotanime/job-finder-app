@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: width * 0.8,
     alignSelf: "center",
-    backgroundColor: "#ffebee",
     marginBottom: 10,
   },
   text: {

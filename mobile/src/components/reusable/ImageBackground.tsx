@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Image, Dimensions, ImageSourcePropType } from "react-native";
-import { useThemeContext } from "../../contexts/ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { tryCatch } from "../../utils/try-catch";
 const { height, width } = Dimensions.get("window");
 
 const ImageBackground = () => {
   const [darkMode, setDarkMode] = useState<boolean>();
   useEffect(() => {
     const getDakMode = async () => {
-      try {
-        const isDarkMode = await AsyncStorage.getItem("isDarkMode");
-        setDarkMode(isDarkMode == null ? undefined : isDarkMode === "true");
-      } catch (e) {
-        console.error("error background: ", e);
-      }
+      const [isDarkMode, error] = await tryCatch(
+        AsyncStorage.getItem("isDarkMode"),
+      );
+      if (error) console.error("error background: ", error);
+      setDarkMode(isDarkMode == null ? undefined : isDarkMode === "true");
     };
     getDakMode();
   }, []);

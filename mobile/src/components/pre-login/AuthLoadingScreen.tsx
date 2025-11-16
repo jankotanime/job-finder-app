@@ -103,7 +103,7 @@ const AuthLoadingScreen = () => {
         navigation.replace("Main");
       } else {
         hasNavigated.current = true;
-        navigation.replace("Home", { authError: "Error errroe reeroereormfa" });
+        navigation.replace("Home");
       }
     };
     checkAuthStatus();
