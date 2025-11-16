@@ -1,11 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
+import { useTheme } from "react-native-paper";
 const { height, width } = Dimensions.get("window");
 
 const Card = ({ children }: { children: React.ReactNode }) => {
+  const { colors } = useTheme();
   return (
     <View style={styles.shadowWrap}>
-      <View style={styles.main}>{children}</View>
+      <View style={[styles.main, { backgroundColor: colors.primary }]}>
+        {children}
+      </View>
     </View>
   );
 };
@@ -28,7 +32,6 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 20,
     overflow: "hidden",
-    backgroundColor: "red",
     justifyContent: "center",
     alignItems: "center",
   },

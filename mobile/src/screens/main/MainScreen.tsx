@@ -1,69 +1,105 @@
-import React, { useRef } from "react";
-import { View, StyleSheet, Text, Dimensions } from "react-native";
+import React, { useRef, useState } from "react";
+import { View, StyleSheet, Dimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Card from "../../components/main/Card";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigation } from "@react-navigation/native";
+import { Button } from "react-native-paper";
+import useJobStorage from "../../hooks/useJobStorage";
+import { data } from "../../constans/jobsDataTest";
+import SwipeTopJobs from "../../components/main/SwipeTopJobs";
+import { useTheme } from "react-native-paper";
+import { useThemeContext } from "../../contexts/ThemeContext";
+import renderCard from "../../components/main/RenderCard";
 
-const data = [
-  { id: 1, name: "karta1" },
-  { id: 2, name: "karta2" },
-  { id: 3, name: "karta3" },
-];
 const { width, height } = Dimensions.get("window");
 
 const MainScreen = () => {
   const swiperRef = useRef<SwiperCardRefType | null>(null);
+  const { colors } = useTheme();
+  const { toggleTheme } = useThemeContext();
+  const { signOut } = useAuth();
+  const navigation = useNavigation<any>();
+  const {
+    acceptedJobs,
+    declinedJobs,
+    addAcceptedJob,
+    removeAcceptedJob,
+    addDeclinedJob,
+    removeDeclinedJob,
+  } = useJobStorage();
+  const [showSwipeTop, setShowSwipeTop] = useState(false);
 
-  const renderCard = (item: any) => {
-    return (
-      <Card key={item.id}>
-        <Text>{item.name}</Text>
-      </Card>
-    );
+  const handleSignOut = async () => {
+    await signOut();
+    navigation.navigate("Auth");
   };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <View style={styles.subContainer}>
-        <Swiper
-          ref={swiperRef}
-          data={data}
-          initialIndex={0}
-          cardStyle={styles.cardStyle}
-          renderCard={renderCard}
-          onIndexChange={(index) => {
-            console.log("Current Active index", index);
-          }}
-          onSwipeRight={(cardIndex) => {
-            console.log("cardIndex", cardIndex);
-          }}
-          onPress={() => {
-            console.log("onPress");
-          }}
-          onSwipedAll={() => {
-            console.log("onSwipedAll");
-          }}
-          onSwipeLeft={(cardIndex) => {
-            console.log("onSwipeLeft", cardIndex);
-          }}
-          onSwipeTop={(cardIndex) => {
-            console.log("onSwipeTop", cardIndex);
-          }}
-          onSwipeBottom={(cardIndex) => {
-            console.log("onSwipeBottom", cardIndex);
-          }}
-          onSwipeActive={() => {
-            console.log("onSwipeActive");
-          }}
-          onSwipeStart={() => {
-            console.log("onSwipeStart");
-          }}
-          onSwipeEnd={() => {
-            console.log("onSwipeEnd");
-          }}
-        />
-      </View>
-    </GestureHandlerRootView>
+    <View style={{ flex: 1 }}>
+      <GestureHandlerRootView
+        style={[styles.container, { backgroundColor: colors.background }]}
+      >
+        <Button
+          mode="contained"
+          onPress={handleSignOut}
+          style={styles.signOutButton}
+        >
+          Sign out
+        </Button>
+        <Button
+          mode="contained"
+          onPress={toggleTheme}
+          style={styles.darkModeButton}
+        >
+          Dark mode
+        </Button>
+        <View style={styles.subContainer}>
+          <Swiper
+            ref={swiperRef}
+            data={data}
+            initialIndex={0}
+            cardStyle={styles.cardStyle}
+            renderCard={renderCard}
+            onIndexChange={(index) => {
+              console.log("Current Active index", index);
+            }}
+            onSwipeRight={(cardIndex) => {
+              console.log("cardIndex", cardIndex);
+            }}
+            onPress={() => {
+              console.log("onPress");
+            }}
+            onSwipedAll={() => {
+              console.log("onSwipedAll");
+            }}
+            disableBottomSwipe
+            onSwipeLeft={(cardIndex) => {
+              console.log("onSwipeLeft", cardIndex);
+            }}
+            onSwipeTop={(cardIndex) => {
+              console.log("onSwipeTop", cardIndex);
+              setShowSwipeTop(true);
+            }}
+            onSwipeActive={() => {
+              // console.log("onSwipeActive");
+            }}
+            onSwipeStart={() => {
+              console.log("onSwipeStart");
+            }}
+            onSwipeEnd={() => {
+              console.log("onSwipeEnd");
+            }}
+          />
+          {showSwipeTop && (
+            <SwipeTopJobs
+              enable={showSwipeTop}
+              onClose={() => setShowSwipeTop(false)}
+            />
+          )}
+        </View>
+      </GestureHandlerRootView>
+    </View>
   );
 };
 
@@ -74,6 +110,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    zIndex: -1,
   },
   subContainer: {
     flex: 1,
@@ -83,5 +120,16 @@ const styles = StyleSheet.create({
   cardStyle: {
     width: width,
     height: height * 0.7,
+    backgroundColor: "transparent",
+  },
+  signOutButton: {
+    position: "absolute",
+    top: 65,
+    right: 10,
+  },
+  darkModeButton: {
+    position: "absolute",
+    top: 65,
+    right: 200,
   },
 });

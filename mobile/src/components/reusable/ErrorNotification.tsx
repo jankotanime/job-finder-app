@@ -1,10 +1,12 @@
 import React, { useRef, useEffect } from "react";
 import { Animated, Text, StyleSheet, Dimensions } from "react-native";
+import { useTheme } from "react-native-paper";
 const { width } = Dimensions.get("window");
 
 type error = { error: string };
 const ErrorNotification = ({ error }: error) => {
   const slideAnim = useRef(new Animated.Value(-100)).current;
+  const { colors } = useTheme();
   useEffect(() => {
     Animated.sequence([
       Animated.timing(slideAnim, {
@@ -30,10 +32,16 @@ const ErrorNotification = ({ error }: error) => {
   return (
     <Animated.View
       testID="error-notification"
-      style={[styles.container, { transform: [{ translateY: slideAnim }] }]}
+      style={[
+        styles.container,
+        {
+          transform: [{ translateY: slideAnim }],
+          backgroundColor: colors.error,
+        },
+      ]}
       onTouchEnd={cancel}
     >
-      <Text style={styles.text}>{error}</Text>
+      <Text style={[styles.text, { color: colors.onError }]}>{error}</Text>
     </Animated.View>
   );
 };
@@ -54,6 +62,5 @@ const styles = StyleSheet.create({
   text: {
     textAlign: "center",
     fontSize: 14,
-    color: "#c62828",
   },
 });
