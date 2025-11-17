@@ -1,4 +1,4 @@
-import { Job } from "../hooks/useJobStorage";
+import { Job } from "../types/Job";
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export const data: Job[] = [
@@ -8,13 +8,20 @@ export const data: Job[] = [
     description: "Build responsive web apps",
     startAt: "2025-12-01T09:00:00Z",
     location: "Remote",
-    salary: 70000,
+    salary: 5000,
     status: "pending",
     owner: "Company A",
     candidates: ["user1", "user2"],
     tags: [
       { id: generateId(), name: "React" },
       { id: generateId(), name: "TypeScript" },
+      { id: generateId(), name: "JavaScript" },
+      { id: generateId(), name: "Docker" },
+      { id: generateId(), name: "Kubernetes" },
+      { id: generateId(), name: "Java" },
+      { id: generateId(), name: "Python" },
+      { id: generateId(), name: "Scala" },
+      { id: generateId(), name: "DevOps" },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -32,6 +39,11 @@ export const data: Job[] = [
     tags: [
       { id: generateId(), name: "Node.js" },
       { id: generateId(), name: "PostgreSQL" },
+      { id: generateId(), name: "Kubernetes" },
+      { id: generateId(), name: "Java" },
+      { id: generateId(), name: "Python" },
+      { id: generateId(), name: "Scala" },
+      { id: generateId(), name: "DevOps" },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -66,6 +78,11 @@ export const data: Job[] = [
     tags: [
       { id: generateId(), name: "AWS" },
       { id: generateId(), name: "Docker" },
+      { id: generateId(), name: "Kubernetes" },
+      { id: generateId(), name: "Java" },
+      { id: generateId(), name: "Python" },
+      { id: generateId(), name: "Scala" },
+      { id: generateId(), name: "DevOps" },
       { id: generateId(), name: "Kubernetes" },
     ],
     createdAt: new Date().toISOString(),

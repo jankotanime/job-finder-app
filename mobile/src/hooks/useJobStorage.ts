@@ -1,26 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect, useCallback } from "react";
 import { tryCatch } from "../utils/try-catch";
+import { Job } from "../types/Job";
 
-export type JobStatus = "accepted" | "declined" | "pending";
-export type Tag = {
-  id: string;
-  name: string;
-};
-export type Job = {
-  id: string;
-  title: string;
-  description: string;
-  startAt: string;
-  location: string;
-  salary: number;
-  status: JobStatus;
-  owner: string;
-  candidates: string[];
-  tags: Tag[];
-  createdAt: string;
-  updatedAt: string;
-};
 export const useJobStorage = () => {
   const [acceptedJobs, setAcceptedJobs] = useState<Job[]>([]);
   const [declinedJobs, setDeclinedJobs] = useState<Job[]>([]);

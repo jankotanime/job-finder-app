@@ -6,9 +6,26 @@ const { height, width } = Dimensions.get("window");
 const Card = ({ children }: { children: React.ReactNode }) => {
   const { colors } = useTheme();
   return (
-    <View style={styles.shadowWrap}>
-      <View style={[styles.main, { backgroundColor: colors.primary }]}>
-        {children}
+    <View
+      style={[
+        styles.shadowWrap,
+        {
+          shadowColor: colors.shadow ?? "#000",
+          backgroundColor: "transparent",
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.main,
+          {
+            borderColor: "rgba(0,0,0,0.06)",
+            backgroundColor: colors.onBackground,
+          },
+        ]}
+      >
+        <View style={[styles.accentBar, { backgroundColor: colors.primary }]} />
+        <View style={styles.content}>{children}</View>
       </View>
     </View>
   );
@@ -22,17 +39,27 @@ const styles = StyleSheet.create({
     height: height * 0.72,
     width: width * 0.93,
     marginTop: height * 0.05,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.22,
-    shadowRadius: 10,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 8,
+    borderRadius: 20,
   },
   main: {
     flex: 1,
     borderRadius: 20,
     overflow: "hidden",
-    justifyContent: "center",
-    alignItems: "center",
+  },
+  accentBar: {
+    height: 10,
+    width: "100%",
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 25,
+    justifyContent: "flex-start",
+    alignItems: "stretch",
+    width: "100%",
   },
 });

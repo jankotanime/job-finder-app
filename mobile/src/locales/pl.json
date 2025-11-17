@@ -41,5 +41,10 @@
     "phone_number_already_taken": "Użytkownik z tym numerem telefonu już istnieje",
     "invalid_refresh_token": "Nieprawidłowy token odświeżania",
     "token_expired": "Sesja wygasła, zaloguj się ponownie"
+  },
+  "main": {
+    "card": {
+      "details_check": "Dotknij, aby zobaczyć detale"
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Job } from "../hooks/useJobStorage";
+import { Job } from "../types/Job";
 export const renderCardText = (item: Job) => {
   return [
     { label: "ID", value: item.id },

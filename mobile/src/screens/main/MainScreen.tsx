@@ -7,7 +7,6 @@ import { useNavigation } from "@react-navigation/native";
 import { Button } from "react-native-paper";
 import useJobStorage from "../../hooks/useJobStorage";
 import { data } from "../../constans/jobsDataTest";
-import SwipeTopJobs from "../../components/main/SwipeTopJobs";
 import { useTheme } from "react-native-paper";
 import { useThemeContext } from "../../contexts/ThemeContext";
 import renderCard from "../../components/main/RenderCard";
@@ -28,7 +27,6 @@ const MainScreen = () => {
     addDeclinedJob,
     removeDeclinedJob,
   } = useJobStorage();
-  const [showSwipeTop, setShowSwipeTop] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -79,7 +77,6 @@ const MainScreen = () => {
             }}
             onSwipeTop={(cardIndex) => {
               console.log("onSwipeTop", cardIndex);
-              setShowSwipeTop(true);
             }}
             onSwipeActive={() => {
               // console.log("onSwipeActive");
@@ -91,12 +88,6 @@ const MainScreen = () => {
               console.log("onSwipeEnd");
             }}
           />
-          {showSwipeTop && (
-            <SwipeTopJobs
-              enable={showSwipeTop}
-              onClose={() => setShowSwipeTop(false)}
-            />
-          )}
         </View>
       </GestureHandlerRootView>
     </View>

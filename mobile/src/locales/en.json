@@ -41,5 +41,10 @@
     "phone_number_already_taken": "User with this phone number already exists",
     "invalid_refresh_token": "Invalid refresh token",
     "token_expired": "Session expired, log in again"
+  },
+  "main": {
+    "card": {
+      "detal_check": "Press, to check details"
+    }
   }
 }
