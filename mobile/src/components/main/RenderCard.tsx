@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { palette } from "../../constans/tagPalette";
 
 const { width, height } = Dimensions.get("window");
-const JobCard = (item: Job) => {
+const JobCard = ({ item }: { item: Job }) => {
   const { colors } = useTheme();
   const metaColor = colors.onSurfaceVariant || "gray";
   const { t } = useTranslation();

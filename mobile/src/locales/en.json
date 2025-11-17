@@ -46,5 +46,18 @@
     "card": {
       "detal_check": "Press, to check details"
     }
+  },
+  "menu": {
+    "profile": "Profile",
+    "myProfile": "My Profile",
+    "friends": "Friends",
+    "premium": "Premium",
+    "achievements": "Achievements",
+    "settings": "Settings",
+    "darkMode": "Dark Mode",
+    "language": "Language",
+    "support": "Support",
+    "contactUs": "Contact Us",
+    "logout": "Logout"
   }
 }

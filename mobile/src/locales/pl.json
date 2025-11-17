@@ -46,5 +46,18 @@
     "card": {
       "details_check": "Dotknij, aby zobaczyć detale"
     }
+  },
+  "menu": {
+    "profile": "Profil",
+    "myProfile": "Mój Profil",
+    "friends": "Znajomi",
+    "premium": "Premium",
+    "achievements": "Osiągnięcia",
+    "settings": "Ustawienia",
+    "darkMode": "Tryb Ciemny",
+    "language": "Język",
+    "support": "Wsparcie",
+    "contactUs": "Skontaktuj się z nami",
+    "logout": "Wyloguj"
   }
 }

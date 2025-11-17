@@ -1,15 +1,14 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
-import { useAuth } from "../../contexts/AuthContext";
-import { useNavigation } from "@react-navigation/native";
-import { Button } from "react-native-paper";
 import useJobStorage from "../../hooks/useJobStorage";
 import { data } from "../../constans/jobsDataTest";
 import { useTheme } from "react-native-paper";
 import { useThemeContext } from "../../contexts/ThemeContext";
-import renderCard from "../../components/main/RenderCard";
+import { Job } from "../../types/Job";
+import JobCard from "../../components/main/RenderCard";
+import Menu from "../../components/reusable/Menu";
 
 const { width, height } = Dimensions.get("window");
 
@@ -17,8 +16,6 @@ const MainScreen = () => {
   const swiperRef = useRef<SwiperCardRefType | null>(null);
   const { colors } = useTheme();
   const { toggleTheme } = useThemeContext();
-  const { signOut } = useAuth();
-  const navigation = useNavigation<any>();
   const {
     acceptedJobs,
     declinedJobs,
@@ -27,38 +24,25 @@ const MainScreen = () => {
     addDeclinedJob,
     removeDeclinedJob,
   } = useJobStorage();
+  const [jobsData, setJobsData] = useState<Job[]>([]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigation.navigate("Auth");
-  };
+  useEffect(() => {
+    setJobsData(data);
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView
         style={[styles.container, { backgroundColor: colors.background }]}
       >
-        <Button
-          mode="contained"
-          onPress={handleSignOut}
-          style={styles.signOutButton}
-        >
-          Sign out
-        </Button>
-        <Button
-          mode="contained"
-          onPress={toggleTheme}
-          style={styles.darkModeButton}
-        >
-          Dark mode
-        </Button>
+        <Menu />
         <View style={styles.subContainer}>
           <Swiper
             ref={swiperRef}
-            data={data}
+            data={jobsData}
             initialIndex={0}
             cardStyle={styles.cardStyle}
-            renderCard={renderCard}
+            renderCard={(item) => <JobCard item={item} />}
             onIndexChange={(index) => {
               console.log("Current Active index", index);
             }}
@@ -76,7 +60,7 @@ const MainScreen = () => {
               console.log("onSwipeLeft", cardIndex);
             }}
             onSwipeTop={(cardIndex) => {
-              console.log("onSwipeTop", cardIndex);
+              setJobsData((prev) => [...prev, jobsData[cardIndex]]);
             }}
             onSwipeActive={() => {
               // console.log("onSwipeActive");
