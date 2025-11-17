@@ -69,7 +69,10 @@ const Menu = () => {
   });
   return (
     <>
-      <TouchableOpacity style={styles.menu} onPress={firstRotate}>
+      <TouchableOpacity
+        style={[styles.menu, { zIndex: isActive ? 16 : 13 }]}
+        onPress={firstRotate}
+      >
         <Animated.View
           style={[
             styles.bar,
@@ -234,7 +237,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: height * 0.09,
     right: 30,
-    zIndex: 12,
   },
   bar: {
     width: 25,
@@ -242,12 +244,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#5F5100",
     marginBottom: 4,
     borderRadius: 20,
-    zIndex: 1,
   },
   menuDisplay: {
     width: width,
     height: height,
-    zIndex: 11,
+    zIndex: 15,
     position: "absolute",
     top: height,
   },

@@ -12,6 +12,7 @@ const Card = ({ children }: { children: React.ReactNode }) => {
         {
           shadowColor: colors.shadow ?? "#000",
           backgroundColor: "transparent",
+          zIndex: 10,
         },
       ]}
     >
@@ -36,9 +37,9 @@ export default Card;
 const styles = StyleSheet.create({
   shadowWrap: {
     alignSelf: "center",
-    height: height * 0.72,
+    height: height * 0.73,
     width: width * 0.93,
-    marginTop: height * 0.05,
+    marginTop: height * 0.03,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.12,
     shadowRadius: 12,

@@ -5,7 +5,6 @@ import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import useJobStorage from "../../hooks/useJobStorage";
 import { data } from "../../constans/jobsDataTest";
 import { useTheme } from "react-native-paper";
-import { useThemeContext } from "../../contexts/ThemeContext";
 import { Job } from "../../types/Job";
 import JobCard from "../../components/main/RenderCard";
 import Menu from "../../components/reusable/Menu";
@@ -15,7 +14,6 @@ const { width, height } = Dimensions.get("window");
 const MainScreen = () => {
   const swiperRef = useRef<SwiperCardRefType | null>(null);
   const { colors } = useTheme();
-  const { toggleTheme } = useThemeContext();
   const {
     acceptedJobs,
     declinedJobs,
@@ -62,9 +60,6 @@ const MainScreen = () => {
             onSwipeTop={(cardIndex) => {
               setJobsData((prev) => [...prev, jobsData[cardIndex]]);
             }}
-            onSwipeActive={() => {
-              // console.log("onSwipeActive");
-            }}
             onSwipeStart={() => {
               console.log("onSwipeStart");
             }}
@@ -85,12 +80,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    zIndex: -1,
   },
   subContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 14,
   },
   cardStyle: {
     width: width,
