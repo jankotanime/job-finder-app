@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.feature.jobs.locations.model;
+package com.mimaja.job_finder_app.feature.offer.tag.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,15 +17,15 @@ import org.hibernate.annotations.CreationTimestamp;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "locations")
-public class Location {
+@Table(name = "tags")
+public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private List<Double> coordinates;
+    private String name;
 
-    private City city;
+    private TagColor color;
 
     @Column(updatable = false)
     @CreationTimestamp

@@ -1,7 +1,7 @@
 package com.mimaja.job_finder_app.security.authorization.register.service;
 
-import com.mimaja.job_finder_app.feature.users.model.User;
-import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
+import com.mimaja.job_finder_app.feature.user.model.User;
+import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.authorization.register.utils.DefaultRegisterDataManager;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
 import com.mimaja.job_finder_app.security.shared.dto.RequestRegisterDto;
