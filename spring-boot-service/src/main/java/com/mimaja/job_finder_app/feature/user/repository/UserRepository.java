@@ -1,6 +1,6 @@
-package com.mimaja.job_finder_app.feature.users.repository;
+package com.mimaja.job_finder_app.feature.user.repository;
 
-import com.mimaja.job_finder_app.feature.users.model.User;
+import com.mimaja.job_finder_app.feature.user.model.User;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

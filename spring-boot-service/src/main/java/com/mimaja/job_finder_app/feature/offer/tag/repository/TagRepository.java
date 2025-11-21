@@ -1,6 +1,6 @@
-package com.mimaja.job_finder_app.feature.jobs.tags.repository;
+package com.mimaja.job_finder_app.feature.offer.tag.repository;
 
-import com.mimaja.job_finder_app.feature.jobs.tags.model.Tag;
+import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 

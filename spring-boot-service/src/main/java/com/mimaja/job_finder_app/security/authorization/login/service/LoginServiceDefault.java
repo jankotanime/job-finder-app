@@ -2,7 +2,7 @@ package com.mimaja.job_finder_app.security.authorization.login.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.users.model.User;
+import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.security.authorization.login.utils.DefaultLoginValidation;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
 import com.mimaja.job_finder_app.security.shared.dto.RequestLoginDto;
