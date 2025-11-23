@@ -33,13 +33,8 @@ const Card = ({
       style={[
         styles.shadowWrap,
         {
-          shadowColor: colors.shadow ?? "#000",
-          backgroundColor: "transparent",
-          zIndex: 10,
           width: widthExpand,
           height: heightExpand,
-          borderRadius,
-          overflow: "hidden",
           transform: [{ translateY: translateY }],
         },
       ]}
@@ -67,11 +62,14 @@ const styles = StyleSheet.create({
     height: height * 0.73,
     width: width * 0.93,
     marginTop: height * 0.03,
-    shadowOffset: { width: 0, height: 6 },
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 8,
     borderRadius: 20,
+    backgroundColor: "transparent",
+    zIndex: 10,
   },
   main: {
     flex: 1,

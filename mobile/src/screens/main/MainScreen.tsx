@@ -1,12 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  Animated,
-  Pressable,
-  Text,
-} from "react-native";
+import { View, StyleSheet, Dimensions, Animated } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import useJobStorage from "../../hooks/useJobStorage";
@@ -49,9 +42,8 @@ const MainScreen = () => {
       setIsActivePressAnim(false);
     }
   };
-  const collapseCard = () => {
-    setIsActivePressAnim(false);
-  };
+  const collapseCard = () => setIsActivePressAnim(false);
+
   useEffect(() => {
     setJobsData(data);
   }, []);

@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { useTheme, Icon } from "react-native-paper";
 import { Job } from "../../types/Job";
-import { useTranslation } from "react-i18next";
 import { palette } from "../../constans/tagPalette";
 import { createAnimation } from "../../utils/animationHelper";
 
@@ -27,7 +26,6 @@ const CardContent = ({
   finalizeHide?: boolean;
 }) => {
   const { colors } = useTheme();
-  const { t } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [shouldRenderDescription, setShouldRenderDescription] =
     useState(isActive);
@@ -50,7 +48,7 @@ const CardContent = ({
   }, [finalizeHide]);
 
   return (
-    <View style={styles.container2}>
+    <View style={styles.container}>
       {item.logoUrl ? (
         <View style={[styles.logoWrapper, { borderColor: colors.primary }]}>
           <Image
@@ -134,13 +132,7 @@ export default CardContent;
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    paddingHorizontal: 0,
-    paddingTop: 0,
-    flex: 1,
-  },
-  container2: {
-    width: "100%",
+    width: width,
     paddingHorizontal: 0,
     alignItems: "center",
     paddingTop: 0,
