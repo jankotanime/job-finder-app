@@ -17,10 +17,13 @@ const MainScreen = () => {
   const {
     acceptedJobs,
     declinedJobs,
+    storageJobs,
     addAcceptedJob,
     removeAcceptedJob,
     addDeclinedJob,
     removeDeclinedJob,
+    addStorageJob,
+    removeStorageJob,
   } = useJobStorage();
   const [jobsData, setJobsData] = useState<Job[]>([]);
 
@@ -53,12 +56,12 @@ const MainScreen = () => {
             onSwipedAll={() => {
               console.log("onSwipedAll");
             }}
-            disableBottomSwipe
+            disableTopSwipe
             onSwipeLeft={(cardIndex) => {
               console.log("onSwipeLeft", cardIndex);
             }}
-            onSwipeTop={(cardIndex) => {
-              setJobsData((prev) => [...prev, jobsData[cardIndex]]);
+            onSwipeBottom={(cardIndex) => {
+              addStorageJob(jobsData[cardIndex]);
             }}
             onSwipeStart={() => {
               console.log("onSwipeStart");

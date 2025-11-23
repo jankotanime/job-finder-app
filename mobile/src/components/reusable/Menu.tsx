@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { createAnimation } from "../../utils/animationHelper";
 import { Linking } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
+import Entypo from "@expo/vector-icons/Entypo";
 
 const { width, height } = Dimensions.get("window");
 
@@ -138,28 +139,25 @@ const Menu = () => {
                 color={colors.primary}
               />
             </TouchableOpacity>
-            {process.env.EXPO_PUBLIC_PREMIUM === "true" && (
-              <TouchableOpacity
-                style={[styles.menuItem, { backgroundColor: colors.surface }]}
-                onPress={() => navigation.navigate("Premium")}
-              >
-                <Ionicons
-                  name="diamond-outline"
-                  size={24}
-                  color={colors.primary}
-                />
-                <Text
-                  style={[styles.menuItemText, { color: colors.onSurface }]}
-                >
-                  {t("menu.premium")}
-                </Text>
-                <Ionicons
-                  name="chevron-forward"
-                  size={20}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={() => navigation.navigate("Storage")}
+            >
+              <Entypo
+                name="box"
+                size={20}
+                color={colors.primary}
+                style={{ marginLeft: 2 }}
+              />
+              <Text style={[styles.menuItemText, { color: colors.onSurface }]}>
+                {t("menu.storage")}
+              </Text>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
           </View>
           <Text style={[styles.menuTitle, { color: colors.onSurface }]}>
             {t("menu.settings")}

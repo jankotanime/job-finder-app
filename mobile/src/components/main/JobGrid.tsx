@@ -1,12 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet, FlatList, Dimensions } from "react-native";
 import { useTheme } from "react-native-paper";
-import { data } from "../../constans/jobsDataTest";
+import useJobStorage from "../../hooks/useJobStorage";
 
 const { width, height } = Dimensions.get("window");
 
 const JobGrid = () => {
   const { colors } = useTheme();
+  const { storageJobs } = useJobStorage();
 
   const renderItem = ({ item }: any) => {
     return (
@@ -26,7 +27,7 @@ const JobGrid = () => {
 
   return (
     <FlatList
-      data={data}
+      data={storageJobs}
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
       numColumns={2}

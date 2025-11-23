@@ -6,6 +6,7 @@ import { Job } from "../types/Job";
 export const useJobStorage = () => {
   const [acceptedJobs, setAcceptedJobs] = useState<Job[]>([]);
   const [declinedJobs, setDeclinedJobs] = useState<Job[]>([]);
+  const [storageJobs, setStorageJobs] = useState<Job[]>([]);
 
   useEffect(() => {
     const loadJobs = async () => {
@@ -16,10 +17,16 @@ export const useJobStorage = () => {
       if (error) console.error("failed to load accepted jobs: ", error);
 
       const [declinedJson, err] = await tryCatch(
-        AsyncStorage.getItem("acceptedJobs"),
+        AsyncStorage.getItem("declinedJobs"),
       );
-      if (declinedJson) setAcceptedJobs(JSON.parse(declinedJson));
-      if (err) console.error("failed to load declined jobs: ", error);
+      if (declinedJson) setDeclinedJobs(JSON.parse(declinedJson));
+      if (err) console.error("failed to load declined jobs: ", err);
+
+      const [storageJson, errS] = await tryCatch(
+        AsyncStorage.getItem("storageJobs"),
+      );
+      if (storageJson) setStorageJobs(JSON.parse(storageJson));
+      if (errS) console.error("failed to load storage jobs: ", errS);
     };
     loadJobs();
   }, []);
@@ -71,13 +78,40 @@ export const useJobStorage = () => {
     [declinedJobs],
   );
 
+  const addStorageJob = useCallback(
+    async (job: Job) => {
+      const newJobs = [...storageJobs, job];
+      setStorageJobs(newJobs);
+      const [_, error] = await tryCatch(
+        AsyncStorage.setItem("storageJobs", JSON.stringify(newJobs)),
+      );
+      if (error) console.error("failed to add storage job: ", error);
+    },
+    [storageJobs],
+  );
+
+  const removeStorageJob = useCallback(
+    async (job: Job) => {
+      const newJobs = storageJobs.filter((storageJob) => storageJob !== job);
+      setStorageJobs(newJobs);
+      const [_, error] = await tryCatch(
+        AsyncStorage.setItem("storageJobs", JSON.stringify(newJobs)),
+      );
+      if (error) console.error("failed to remove storage job: ", error);
+    },
+    [storageJobs],
+  );
+
   return {
     acceptedJobs,
     declinedJobs,
+    storageJobs,
     addAcceptedJob,
     removeAcceptedJob,
     addDeclinedJob,
     removeDeclinedJob,
+    addStorageJob,
+    removeStorageJob,
   };
 };
 
