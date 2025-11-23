@@ -48,7 +48,6 @@ const Card = ({
         style={[
           styles.main,
           {
-            borderColor: "rgba(0,0,0,0.06)",
             backgroundColor: colors.onBackground,
           },
         ]}

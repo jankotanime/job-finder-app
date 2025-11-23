@@ -36,14 +36,20 @@ const MainScreen = () => {
   const [jobsData, setJobsData] = useState<Job[]>([]);
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
   const expandAnim = useRef(new Animated.Value(0)).current;
+  const [finalizeHideForId, setFinalizeHideForId] = useState<
+    string | number | null
+  >(null);
 
   const onExpand = () => {
-    createAnimation(expandAnim, isActivePressAnim ? 0 : 1, 300).start(() => {
-      setIsActivePressAnim(!isActivePressAnim);
-    });
+    if (!isActivePressAnim) {
+      createAnimation(expandAnim, 1, 300).start(() => {
+        setIsActivePressAnim(true);
+      });
+    } else {
+      setIsActivePressAnim(false);
+    }
   };
   const collapseCard = () => {
-    createAnimation(expandAnim, 0, 300).start();
     setIsActivePressAnim(false);
   };
   useEffect(() => {
@@ -67,38 +73,31 @@ const MainScreen = () => {
                 item={item}
                 expandAnim={expandAnim}
                 isActive={isActivePressAnim}
+                onDescriptionHidden={() => {
+                  createAnimation(expandAnim, 0, 300).start(() => {
+                    setFinalizeHideForId(item.id);
+                    setTimeout(() => setFinalizeHideForId(null), 120);
+                  });
+                }}
+                finalizeHide={finalizeHideForId === item.id}
               />
             )}
-            onIndexChange={(index) => {
-              console.log("Current Active index", index);
-            }}
-            onSwipeRight={(cardIndex) => {
-              console.log("cardIndex", cardIndex);
-              console.log("right swipe anim: ", isActivePressAnim);
+            onSwipeRight={() => {
               collapseCard();
             }}
             onPress={() => {
-              console.log("onPress");
               onExpand();
-              console.log(isActivePressAnim);
             }}
             onSwipedAll={() => {
-              console.log("onSwipedAll");
+              // do zrobienia pozniej
             }}
             disableTopSwipe
-            onSwipeLeft={(cardIndex) => {
-              console.log("onSwipeLeft", cardIndex);
+            onSwipeLeft={() => {
               collapseCard();
             }}
             onSwipeBottom={(cardIndex) => {
               addStorageJob(jobsData[cardIndex]);
               collapseCard();
-            }}
-            onSwipeStart={() => {
-              console.log("onSwipeStart");
-            }}
-            onSwipeEnd={() => {
-              console.log("onSwipeEnd");
             }}
           />
         </View>

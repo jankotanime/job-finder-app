@@ -18,12 +18,15 @@ const { width, height } = Dimensions.get("window");
 const CardContent = ({
   item,
   isActive = false,
+  onFadeOutComplete,
+  finalizeHide = false,
 }: {
   item: Job;
   isActive?: boolean;
+  onFadeOutComplete?: () => void;
+  finalizeHide?: boolean;
 }) => {
   const { colors } = useTheme();
-  const metaColor = colors.onSurfaceVariant || "gray";
   const { t } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [shouldRenderDescription, setShouldRenderDescription] =
@@ -35,10 +38,16 @@ const CardContent = ({
       createAnimation(fadeAnim, 1, 250).start();
     } else {
       createAnimation(fadeAnim, 0, 250).start(() => {
-        setShouldRenderDescription(false);
+        onFadeOutComplete && onFadeOutComplete();
       });
     }
   }, [isActive]);
+
+  useEffect(() => {
+    if (finalizeHide) {
+      setShouldRenderDescription(false);
+    }
+  }, [finalizeHide]);
 
   return (
     <View style={styles.container2}>
@@ -67,7 +76,9 @@ const CardContent = ({
         </Text>
       )}
       {item.location && (
-        <Text style={[styles.meta, { color: metaColor }]}>{item.location}</Text>
+        <Text style={[styles.meta, { color: colors.onSurface }]}>
+          {item.location}
+        </Text>
       )}
       {item.title && (
         <Text style={[styles.title, { color: colors.onSurface }]}>
@@ -76,15 +87,10 @@ const CardContent = ({
       )}
       {item.salary && (
         <View style={styles.salaryContainer}>
-          <Text style={[styles.salary, { color: metaColor }]}>
+          <Text style={[styles.salary, { color: colors.onSurface }]}>
             {item.salary} zł
           </Text>
         </View>
-      )}
-      {!isActive && (
-        <Text style={[styles.detailsPrompt, { color: metaColor }]}>
-          {t("main.card.details_check")}
-        </Text>
       )}
       {item.tags && item.tags.length > 0 && (
         <View style={styles.tagsWrap}>
@@ -115,7 +121,7 @@ const CardContent = ({
             },
           ]}
         >
-          <Text style={[styles.salary, { color: metaColor }]}>
+          <Text style={[styles.salary, { color: colors.onSurface }]}>
             {item.description}
           </Text>
         </Animated.View>
@@ -195,14 +201,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginLeft: 5,
-  },
-  detailsPrompt: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    fontSize: 12,
-    fontWeight: "500",
-    opacity: 0.7,
   },
   tagsWrap: {
     position: "relative",
