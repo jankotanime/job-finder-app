@@ -1,5 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  Animated,
+  Pressable,
+  Text,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import useJobStorage from "../../hooks/useJobStorage";
@@ -8,6 +15,7 @@ import { useTheme } from "react-native-paper";
 import { Job } from "../../types/Job";
 import JobCard from "../../components/main/RenderCard";
 import Menu from "../../components/reusable/Menu";
+import { createAnimation } from "../../utils/animationHelper";
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,7 +34,18 @@ const MainScreen = () => {
     removeStorageJob,
   } = useJobStorage();
   const [jobsData, setJobsData] = useState<Job[]>([]);
+  const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
+  const expandAnim = useRef(new Animated.Value(0)).current;
 
+  const onExpand = () => {
+    createAnimation(expandAnim, isActivePressAnim ? 0 : 1, 300).start(() => {
+      setIsActivePressAnim(!isActivePressAnim);
+    });
+  };
+  const collapseCard = () => {
+    createAnimation(expandAnim, 0, 300).start();
+    setIsActivePressAnim(false);
+  };
   useEffect(() => {
     setJobsData(data);
   }, []);
@@ -43,15 +62,25 @@ const MainScreen = () => {
             data={jobsData}
             initialIndex={0}
             cardStyle={styles.cardStyle}
-            renderCard={(item) => <JobCard item={item} />}
+            renderCard={(item) => (
+              <JobCard
+                item={item}
+                expandAnim={expandAnim}
+                isActive={isActivePressAnim}
+              />
+            )}
             onIndexChange={(index) => {
               console.log("Current Active index", index);
             }}
             onSwipeRight={(cardIndex) => {
               console.log("cardIndex", cardIndex);
+              console.log("right swipe anim: ", isActivePressAnim);
+              collapseCard();
             }}
             onPress={() => {
               console.log("onPress");
+              onExpand();
+              console.log(isActivePressAnim);
             }}
             onSwipedAll={() => {
               console.log("onSwipedAll");
@@ -59,9 +88,11 @@ const MainScreen = () => {
             disableTopSwipe
             onSwipeLeft={(cardIndex) => {
               console.log("onSwipeLeft", cardIndex);
+              collapseCard();
             }}
             onSwipeBottom={(cardIndex) => {
               addStorageJob(jobsData[cardIndex]);
+              collapseCard();
             }}
             onSwipeStart={() => {
               console.log("onSwipeStart");

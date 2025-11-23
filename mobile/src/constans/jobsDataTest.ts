@@ -5,7 +5,8 @@ export const data: Job[] = [
   {
     id: generateId(),
     title: "Frontend Developer",
-    description: "Build responsive web apps",
+    description:
+      "Build responsive web apps amsd samd. das. ad as a das dnas nad sad asd asm dmadssadmsa md asm dasdas dsa dmas masd mas dmdas dmas dmas dmas md asmd ams dmas d msefjsrjvnrsmanfesnifd awfiesnfies cja iocnae cjesncies. cieosnc jesi esesncj escnies cueacnae daec. ac aecnae cas canieancies cjes c escjnesinfcesjnce c e cjse jce sc esc esj cjesnesifiesmdaej c esc es cejsncjes cjes c esh esj cjesncesnicenscise c esc es ce sjcnesncesj ces cjk esjc esnc jesc escniesncjes cesciesncjse cjes jcsenifnje vsd ise cejsniencjes cjseces cjes cjes cjesncenscnsen cesvornjes ed adandas dsa d d d dasdnasidn asdasic jc djs cjsces.",
     startAt: "2025-12-01T09:00:00Z",
     location: "Remote",
     salary: 5000,
