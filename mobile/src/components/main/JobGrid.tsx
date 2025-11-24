@@ -33,6 +33,7 @@ const JobGrid = () => {
       numColumns={2}
       columnWrapperStyle={styles.row}
       contentContainerStyle={[
+        styles.container,
         { backgroundColor: colors.background, paddingBottom: height * 0.129 },
       ]}
     />
@@ -42,12 +43,17 @@ const JobGrid = () => {
 export default JobGrid;
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 5,
+    paddingBottom: height * 0.129,
+  },
   row: {
-    justifyContent: "space-between",
+    flexDirection: "row",
+    justifyContent: "flex-start",
     marginBottom: 15,
   },
   card: {
-    width: (width - 30) / 2,
+    width: (width - 20) / 2,
     borderRadius: 12,
     padding: 20,
     shadowColor: "#000",
@@ -56,6 +62,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     marginRight: 10,
+    marginBottom: 0,
   },
   title: {
     fontSize: 16,
