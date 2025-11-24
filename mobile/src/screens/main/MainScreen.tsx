@@ -27,23 +27,45 @@ const MainScreen = () => {
     removeStorageJob,
   } = useJobStorage();
   const [jobsData, setJobsData] = useState<Job[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
   const expandAnim = useRef(new Animated.Value(0)).current;
   const [finalizeHideForId, setFinalizeHideForId] = useState<
     string | number | null
   >(null);
+  const isAnimatingRef = useRef<boolean>(false);
+  const animatingCardIndexRef = useRef<number | null>(null);
 
   const onExpand = () => {
+    if (
+      isAnimatingRef.current &&
+      animatingCardIndexRef.current === currentIndex
+    )
+      return;
     if (!isActivePressAnim) {
+      isAnimatingRef.current = true;
+      animatingCardIndexRef.current = currentIndex;
       createAnimation(expandAnim, 1, 300).start(() => {
         setIsActivePressAnim(true);
+        isAnimatingRef.current = false;
+        animatingCardIndexRef.current = null;
       });
     } else {
+      isAnimatingRef.current = true;
+      animatingCardIndexRef.current = currentIndex;
       setIsActivePressAnim(false);
     }
   };
-  const collapseCard = () => setIsActivePressAnim(false);
-
+  const collapseCard = () => {
+    if (
+      isAnimatingRef.current &&
+      animatingCardIndexRef.current === currentIndex
+    )
+      return;
+    isAnimatingRef.current = true;
+    animatingCardIndexRef.current = currentIndex;
+    setIsActivePressAnim(false);
+  };
   useEffect(() => {
     setJobsData(data);
   }, []);
@@ -66,14 +88,26 @@ const MainScreen = () => {
                 expandAnim={expandAnim}
                 isActive={isActivePressAnim}
                 onDescriptionHidden={() => {
+                  if (!isAnimatingRef.current) isAnimatingRef.current = true;
                   createAnimation(expandAnim, 0, 300).start(() => {
                     setFinalizeHideForId(item.id);
                     setTimeout(() => setFinalizeHideForId(null), 120);
+                    isAnimatingRef.current = false;
                   });
                 }}
                 finalizeHide={finalizeHideForId === item.id}
               />
             )}
+            onIndexChange={(index) => {
+              setCurrentIndex(index);
+              if (
+                animatingCardIndexRef.current !== null &&
+                animatingCardIndexRef.current !== index
+              ) {
+                isAnimatingRef.current = false;
+                animatingCardIndexRef.current = null;
+              }
+            }}
             onSwipeRight={() => {
               collapseCard();
             }}
