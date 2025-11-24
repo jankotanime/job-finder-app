@@ -10,6 +10,8 @@ import MainScreen from "./src/screens/main/MainScreen";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import AuthLoadingScreen from "./src/components/pre-login/AuthLoadingScreen";
 import StorageScreen from "./src/screens/main/StorageScreen";
+import MyProfile from "./src/screens/main/MyProfile";
+import LanguageMenu from "./src/screens/main/LanguageMenu";
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -27,6 +29,8 @@ export default function App() {
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="Main" component={MainScreen} />
             <Stack.Screen name="Storage" component={StorageScreen} />
+            <Stack.Screen name="MyProfile" component={MyProfile} />
+            <Stack.Screen name="LanguageMenu" component={LanguageMenu} />
           </Stack.Navigator>
         </NavigationContainer>
       </ThemeProvider>

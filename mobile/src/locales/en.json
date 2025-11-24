@@ -44,7 +44,7 @@
   },
   "main": {
     "card": {
-      "detal_check": "Press, to check details"
+      "details_check": "Press, to check details"
     }
   },
   "menu": {
