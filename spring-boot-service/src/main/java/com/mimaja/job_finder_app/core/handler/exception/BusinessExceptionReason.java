@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     JOB_NOT_FOUND("Job not found", HttpStatus.NOT_FOUND, null),
 
+    WRONG_GOOGLE_ID("User with this google id does not exist", HttpStatus.UNAUTHORIZED, null),
+
     WRONG_LOGIN_DATA("User with this login data does not exist", HttpStatus.UNAUTHORIZED, null),
     WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED, null),
 
@@ -27,6 +29,7 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     INVALID_PASSWORD_PATTERN("Invalid password", HttpStatus.UNAUTHORIZED, null),
 
     USERNAME_ALREADY_TAKEN("User with this username exists", HttpStatus.UNAUTHORIZED, null),
+    GOOGLEID_ALREADY_TAKEN("User with this google id exists", HttpStatus.UNAUTHORIZED, null),
     EMAIL_ALREADY_TAKEN("User with this email exists", HttpStatus.UNAUTHORIZED, null),
     PHONE_NUMBER_ALREADY_TAKEN("User with this phone number exists", HttpStatus.UNAUTHORIZED, null),
 
