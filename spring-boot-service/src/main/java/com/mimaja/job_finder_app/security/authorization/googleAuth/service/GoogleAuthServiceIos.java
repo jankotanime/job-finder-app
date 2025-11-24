@@ -9,6 +9,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.users.model.User;
 import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
 import com.mimaja.job_finder_app.security.authorization.googleAuth.utils.GoogleAuthDataManager;
+import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthCheckExistenceDto;
 import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthLoginDto;
 import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthRegisterDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseGoogleAuthLoginDto;
@@ -100,7 +101,7 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
     }
 
     @Override
-    public ResponseGoogleIdExistDto checkUserExistence(RequestGoogleAuthLoginDto reqData) {
+    public ResponseGoogleIdExistDto checkUserExistence(RequestGoogleAuthCheckExistenceDto reqData) {
         String googleIdToken = reqData.googleToken();
 
         GoogleIdToken verifiedToken;

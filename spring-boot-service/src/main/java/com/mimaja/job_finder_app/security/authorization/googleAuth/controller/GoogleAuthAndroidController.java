@@ -1,6 +1,7 @@
 package com.mimaja.job_finder_app.security.authorization.googleAuth.controller;
 
 import com.mimaja.job_finder_app.security.authorization.googleAuth.service.GoogleAuthServiceAndroid;
+import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthCheckExistenceDto;
 import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthLoginDto;
 import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthRegisterDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseGoogleAuthLoginDto;
@@ -30,7 +31,7 @@ public class GoogleAuthAndroidController {
 
     @PostMapping("/check-user-existence")
     public ResponseDto<ResponseGoogleIdExistDto> googleAuthAndroidCheckExistence(
-            @RequestBody RequestGoogleAuthLoginDto reqData) {
+            @RequestBody RequestGoogleAuthCheckExistenceDto reqData) {
         ResponseGoogleIdExistDto response = googleAuthServiceAndroid.checkUserExistence(reqData);
 
         return new ResponseDto<>(SuccessCode.RESPONSE_SUCCESSFUL, "User existence found", response);
