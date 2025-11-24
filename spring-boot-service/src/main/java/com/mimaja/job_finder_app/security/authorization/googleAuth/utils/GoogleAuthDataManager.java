@@ -22,7 +22,7 @@ public class GoogleAuthDataManager {
         }
 
         if (userRepository.findByGoogleId(googleId).isPresent()) {
-            throw new BusinessException(BusinessExceptionReason.WRONG_GOOGLE_ID);
+            throw new BusinessException(BusinessExceptionReason.GOOGLEID_ALREADY_TAKEN);
         }
 
         if (userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
