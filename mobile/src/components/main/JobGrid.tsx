@@ -33,7 +33,6 @@ const JobGrid = () => {
       numColumns={2}
       columnWrapperStyle={styles.row}
       contentContainerStyle={[
-        styles.container,
         { backgroundColor: colors.background, paddingBottom: height * 0.129 },
       ]}
     />
@@ -43,10 +42,6 @@ const JobGrid = () => {
 export default JobGrid;
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 10,
-    paddingTop: height * 0.15,
-  },
   row: {
     justifyContent: "space-between",
     marginBottom: 15,
@@ -60,6 +55,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    marginRight: 10,
   },
   title: {
     fontSize: 16,

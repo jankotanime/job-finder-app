@@ -58,6 +58,7 @@
     "language": "Language",
     "support": "Support",
     "contactUs": "Contact Us",
-    "logout": "Logout"
+    "logout": "Logout",
+    "saved_jobs": "Saved jobs"
   }
 }
