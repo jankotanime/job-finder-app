@@ -81,6 +81,8 @@ Uruchamianie za pomoca npx expo run:ios dla symulatora ios i :android dla androi
    5. Wpisac npx expo run:(ios/android) --device i zaznaczyc swoj telefon
    6. Dla macOS: npx expo run:ios wlaczy symulator
 
+Zobacz dokumentację mobilną [tutaj](mobile/README.md)
+
 ---
 
 ## Aktualizacja danych w bazie

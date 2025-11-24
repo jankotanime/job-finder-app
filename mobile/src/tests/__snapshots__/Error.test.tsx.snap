@@ -3,23 +3,31 @@
 exports[`Error component renders correctly with a raw error string 1`] = `
 <View
   style={
-    {
-      "alignSelf": "center",
-      "backgroundColor": "#ffebee",
-      "borderRadius": 15,
-      "marginBottom": 10,
-      "padding": 10,
-      "width": 600,
-    }
+    [
+      {
+        "alignSelf": "center",
+        "borderRadius": 15,
+        "marginBottom": 10,
+        "padding": 10,
+        "width": 600,
+      },
+      {
+        "backgroundColor": "rgba(179, 38, 30, 1)",
+      },
+    ]
   }
 >
   <Text
     style={
-      {
-        "color": "#c62828",
-        "fontSize": 14,
-        "textAlign": "center",
-      }
+      [
+        {
+          "fontSize": 14,
+          "textAlign": "center",
+        },
+        {
+          "color": "rgba(255, 255, 255, 1)",
+        },
+      ]
     }
   >
     This is an error
@@ -30,23 +38,31 @@ exports[`Error component renders correctly with a raw error string 1`] = `
 exports[`Error component renders correctly with a translation key 1`] = `
 <View
   style={
-    {
-      "alignSelf": "center",
-      "backgroundColor": "#ffebee",
-      "borderRadius": 15,
-      "marginBottom": 10,
-      "padding": 10,
-      "width": 600,
-    }
+    [
+      {
+        "alignSelf": "center",
+        "borderRadius": 15,
+        "marginBottom": 10,
+        "padding": 10,
+        "width": 600,
+      },
+      {
+        "backgroundColor": "rgba(179, 38, 30, 1)",
+      },
+    ]
   }
 >
   <Text
     style={
-      {
-        "color": "#c62828",
-        "fontSize": 14,
-        "textAlign": "center",
-      }
+      [
+        {
+          "fontSize": 14,
+          "textAlign": "center",
+        },
+        {
+          "color": "rgba(255, 255, 255, 1)",
+        },
+      ]
     }
   >
     translated:errors.login_failed

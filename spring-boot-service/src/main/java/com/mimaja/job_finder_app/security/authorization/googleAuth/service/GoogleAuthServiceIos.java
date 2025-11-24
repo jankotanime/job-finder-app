@@ -6,8 +6,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.users.model.User;
-import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
+import com.mimaja.job_finder_app.feature.user.model.User;
+import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.authorization.googleAuth.utils.GoogleAuthDataManager;
 import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthCheckExistenceDto;
 import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthLoginDto;
@@ -77,7 +77,18 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
 
         User user;
         if (userOptional.isEmpty()) {
-            throw new BusinessException(BusinessExceptionReason.WRONG_GOOGLE_ID);
+            userOptional = userRepository.findByEmail(email);
+            if (userOptional.isEmpty()) {
+                throw new BusinessException(BusinessExceptionReason.WRONG_GOOGLE_ID);
+            }
+            // TODO: update sms code validation
+            int smsCode = reqData.smsCode();
+            if (smsCode != 123456) {
+                throw new BusinessException(BusinessExceptionReason.INVALID_SMS_CODE);
+            }
+            user = userOptional.get();
+            user.setGoogleId(googleId);
+            userRepository.save(user);
         } else {
             user = userOptional.get();
         }

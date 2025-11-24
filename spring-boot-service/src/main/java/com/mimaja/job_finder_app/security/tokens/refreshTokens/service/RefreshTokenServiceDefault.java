@@ -2,8 +2,8 @@ package com.mimaja.job_finder_app.security.tokens.refreshTokens.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.users.model.User;
-import com.mimaja.job_finder_app.feature.users.repository.UserRepository;
+import com.mimaja.job_finder_app.feature.user.model.User;
+import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.encoder.RefreshTokenEncoder;
 import com.mimaja.job_finder_app.security.shared.dto.RequestRefreshTokenRotateDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseRefreshTokenDto;

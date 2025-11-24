@@ -35,6 +35,7 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
 
     INVALID_REFRESH_TOKEN("Invalid refresh token", HttpStatus.UNAUTHORIZED, null),
     INVALID_RESET_TOKEN("Invalid reset token", HttpStatus.UNAUTHORIZED, null),
+    INVALID_SMS_CODE("Invalid sms code", HttpStatus.UNAUTHORIZED, null),
     INVALID_ACCESS_TOKEN("Inalid access token", HttpStatus.UNAUTHORIZED, null),
     INVALID_GOOGLE_ID("Inalid google id", HttpStatus.UNAUTHORIZED, null);
 

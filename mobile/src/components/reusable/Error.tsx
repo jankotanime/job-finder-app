@@ -1,12 +1,14 @@
 import React from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { useTheme } from "react-native-paper";
 
 type error = { error: string };
 const { width } = Dimensions.get("window");
 const Error = ({ error }: error) => {
+  const { colors } = useTheme();
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{error}</Text>
+    <View style={[styles.container, { backgroundColor: colors.error }]}>
+      <Text style={[styles.text, { color: colors.onError }]}>{error}</Text>
     </View>
   );
 };
@@ -16,13 +18,11 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: width * 0.8,
     alignSelf: "center",
-    backgroundColor: "#ffebee",
     marginBottom: 10,
   },
   text: {
     textAlign: "center",
     fontSize: 14,
-    color: "#c62828",
   },
 });
 

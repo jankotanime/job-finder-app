@@ -98,16 +98,16 @@ const AuthLoadingScreen = () => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       if (hasNavigated.current || loading) return;
+      hasNavigated.current = true;
       if (isAuthenticated && user) {
-        hasNavigated.current = true;
         navigation.replace("Main");
       } else {
         hasNavigated.current = true;
-        navigation.replace("Home", { authError: t("errors.token_expired") });
+        navigation.replace("Home");
       }
     };
     checkAuthStatus();
-  }, [user, loading, isAuthenticated]);
+  }, [user, loading, isAuthenticated, error]);
   if (error) console.error("error: ", error);
   return (
     <View style={styles.main}>
