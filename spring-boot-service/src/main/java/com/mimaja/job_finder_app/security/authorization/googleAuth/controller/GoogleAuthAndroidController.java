@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth/google-auth/andriod")
+@RequestMapping("/auth/google-auth/android")
 public class GoogleAuthAndroidController {
     private final GoogleAuthServiceAndroid googleAuthServiceAndroid;
 
