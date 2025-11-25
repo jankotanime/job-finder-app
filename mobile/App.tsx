@@ -20,7 +20,7 @@ export default function App() {
       <ThemeProvider>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName="Auth"
+            initialRouteName="Main"
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name="Auth" component={AuthLoadingScreen} />
