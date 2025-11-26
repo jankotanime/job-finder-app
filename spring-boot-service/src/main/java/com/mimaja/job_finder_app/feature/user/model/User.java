@@ -76,10 +76,12 @@ public class User {
 
     @UpdateTimestamp private LocalDateTime updatedAt;
 
-    public User(String username, String email, String passwordHash, String googleId) {
+    public User(
+            String username, String email, String passwordHash, String googleId, int phoneNumber) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
         this.googleId = googleId;
+        this.phoneNumber = phoneNumber;
     }
 }
