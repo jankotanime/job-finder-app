@@ -9,6 +9,7 @@ import { Job } from "../../types/Job";
 import JobCard from "../../components/main/RenderCard";
 import Menu from "../../components/reusable/Menu";
 import { createAnimation } from "../../utils/animationHelper";
+import { makeExpandHandlers } from "../../utils/expandController";
 import OnSwipeRight from "../../components/main/swipe/OnSwipeRight";
 import OnSwipeLeft from "../../components/main/swipe/OnSwipeLeft";
 import OnSwipeBottom from "../../components/main/swipe/OnSwipeBottom";
@@ -40,36 +41,15 @@ const MainScreen = () => {
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
 
-  const onExpand = () => {
-    if (
-      isAnimatingRef.current &&
-      animatingCardIndexRef.current === currentIndex
-    )
-      return;
-    if (!isActivePressAnim) {
-      isAnimatingRef.current = true;
-      animatingCardIndexRef.current = currentIndex;
-      createAnimation(expandAnim, 1, 300).start(() => {
-        setIsActivePressAnim(true);
-        isAnimatingRef.current = false;
-        animatingCardIndexRef.current = null;
-      });
-    } else {
-      isAnimatingRef.current = true;
-      animatingCardIndexRef.current = currentIndex;
-      setIsActivePressAnim(false);
-    }
-  };
-  const collapseCard = () => {
-    if (
-      isAnimatingRef.current &&
-      animatingCardIndexRef.current === currentIndex
-    )
-      return;
-    isAnimatingRef.current = true;
-    animatingCardIndexRef.current = currentIndex;
-    setIsActivePressAnim(false);
-  };
+  const { onExpand, collapseCard } = makeExpandHandlers({
+    expandAnim,
+    getIsActive: () => isActivePressAnim,
+    setIsActive: setIsActivePressAnim,
+    isAnimatingRef,
+    animatingCardIndexRef,
+    getCurrentIndex: () => currentIndex,
+  });
+
   useEffect(() => {
     setJobsData(data);
   }, []);

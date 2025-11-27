@@ -13,17 +13,13 @@ import i18n from "../../locales/i18n";
 import CountryFlag from "react-native-country-flag";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
+import { languages } from "../../constans/languages";
 
 const LanguageMenu = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const [currentLang, setCurrentLang] = useState(i18n.language);
   const { t } = useTranslation();
-
-  const languages = [
-    { code: "en", name: "English", countryCode: "us" },
-    { code: "pl", name: "Polski", countryCode: "pl" },
-  ];
 
   const handleLanguageChange = async (lng: string) => {
     await i18n.changeLanguage(lng);
