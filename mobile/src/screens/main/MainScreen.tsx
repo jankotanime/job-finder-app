@@ -113,9 +113,15 @@ const MainScreen = () => {
                 animatingCardIndexRef.current = null;
               }
             }}
-            OverlayLabelRight={OnSwipeRight}
-            OverlayLabelLeft={OnSwipeLeft}
-            OverlayLabelBottom={OnSwipeBottom}
+            OverlayLabelRight={() => (
+              <OnSwipeRight isActive={isActivePressAnim} />
+            )}
+            OverlayLabelLeft={() => (
+              <OnSwipeLeft isActive={isActivePressAnim} />
+            )}
+            OverlayLabelBottom={() => (
+              <OnSwipeBottom isActive={isActivePressAnim} />
+            )}
             onSwipeRight={() => {
               collapseCard();
             }}
