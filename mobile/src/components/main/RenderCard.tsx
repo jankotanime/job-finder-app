@@ -1,13 +1,7 @@
 import React from "react";
 import { Job } from "../../types/Job";
 import Card from "./Card";
-import {
-  StyleSheet,
-  Animated,
-  ScrollView,
-  Text,
-  Dimensions,
-} from "react-native";
+import { StyleSheet, Animated, ScrollView, Text } from "react-native";
 import CardContent from "./CardContent";
 import { useTheme } from "react-native-paper";
 import { useTranslation } from "react-i18next";

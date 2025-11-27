@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { View, StyleSheet, Dimensions, Animated } from "react-native";
+import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import useJobStorage from "../../hooks/useJobStorage";
@@ -9,6 +9,11 @@ import { Job } from "../../types/Job";
 import JobCard from "../../components/main/RenderCard";
 import Menu from "../../components/reusable/Menu";
 import { createAnimation } from "../../utils/animationHelper";
+import { makeExpandHandlers } from "../../utils/expandController";
+import OnSwipeRight from "../../components/main/swipe/OnSwipeRight";
+import OnSwipeLeft from "../../components/main/swipe/OnSwipeLeft";
+import OnSwipeBottom from "../../components/main/swipe/OnSwipeBottom";
+import Filter from "../../components/main/Filter";
 
 const { width, height } = Dimensions.get("window");
 
@@ -36,36 +41,15 @@ const MainScreen = () => {
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
 
-  const onExpand = () => {
-    if (
-      isAnimatingRef.current &&
-      animatingCardIndexRef.current === currentIndex
-    )
-      return;
-    if (!isActivePressAnim) {
-      isAnimatingRef.current = true;
-      animatingCardIndexRef.current = currentIndex;
-      createAnimation(expandAnim, 1, 300).start(() => {
-        setIsActivePressAnim(true);
-        isAnimatingRef.current = false;
-        animatingCardIndexRef.current = null;
-      });
-    } else {
-      isAnimatingRef.current = true;
-      animatingCardIndexRef.current = currentIndex;
-      setIsActivePressAnim(false);
-    }
-  };
-  const collapseCard = () => {
-    if (
-      isAnimatingRef.current &&
-      animatingCardIndexRef.current === currentIndex
-    )
-      return;
-    isAnimatingRef.current = true;
-    animatingCardIndexRef.current = currentIndex;
-    setIsActivePressAnim(false);
-  };
+  const { onExpand, collapseCard } = makeExpandHandlers({
+    expandAnim,
+    getIsActive: () => isActivePressAnim,
+    setIsActive: setIsActivePressAnim,
+    isAnimatingRef,
+    animatingCardIndexRef,
+    getCurrentIndex: () => currentIndex,
+  });
+
   useEffect(() => {
     setJobsData(data);
   }, []);
@@ -75,6 +59,7 @@ const MainScreen = () => {
       <GestureHandlerRootView
         style={[styles.container, { backgroundColor: colors.background }]}
       >
+        <Filter />
         <Menu />
         <View style={styles.subContainer}>
           <Swiper
@@ -108,6 +93,15 @@ const MainScreen = () => {
                 animatingCardIndexRef.current = null;
               }
             }}
+            OverlayLabelRight={() => (
+              <OnSwipeRight isActive={isActivePressAnim} />
+            )}
+            OverlayLabelLeft={() => (
+              <OnSwipeLeft isActive={isActivePressAnim} />
+            )}
+            OverlayLabelBottom={() => (
+              <OnSwipeBottom isActive={isActivePressAnim} />
+            )}
             onSwipeRight={() => {
               collapseCard();
             }}

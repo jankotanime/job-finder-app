@@ -44,7 +44,7 @@
   },
   "main": {
     "card": {
-      "detal_check": "Press, to check details"
+      "details_check": "Press, to check details"
     }
   },
   "menu": {
@@ -58,6 +58,7 @@
     "language": "Language",
     "support": "Support",
     "contactUs": "Contact Us",
-    "logout": "Logout"
+    "logout": "Logout",
+    "saved_jobs": "Saved jobs"
   }
 }
