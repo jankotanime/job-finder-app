@@ -42,6 +42,14 @@
     "invalid_refresh_token": "Nieprawidłowy token odświeżania",
     "token_expired": "Sesja wygasła, zaloguj się ponownie"
   },
+  "pickerErrors": {
+    "camera_no_permission": "Brak uprawnień do kamery",
+    "gallery_no_permission": "Brak uprawnień do galerii",
+    "no_photo_uri_camera": "Nie udało się pobrać zdjęcia z kamery.",
+    "no_photo_uri_gallery": "Nie udało się pobrać zdjęcia z galerii.",
+    "camera_error": "Błąd kamery",
+    "gallery_error": "Błąd galerii"
+  },
   "main": {
     "card": {
       "details_check": "Dotknij, aby zobaczyć detale"
@@ -69,6 +77,12 @@
     "cv": "Załącz CV",
     "description": "Opis",
     "choosePicture": "Wybierz swoje zdjęcie profilowe",
+    "photoPicker": {
+      "title": "Wybierz źródło zdjęcia",
+      "camera": "Kamera",
+      "gallery": "Zdjęcia",
+      "cancel": "Anuluj"
+    },
     "moving_forward": "Przechodzenie dalej...",
     "move_forward": "Przejdź dalej"
   }

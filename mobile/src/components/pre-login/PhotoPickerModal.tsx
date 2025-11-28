@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   visible: boolean;
@@ -15,6 +16,7 @@ const PhotoPickerModal = ({
   onPickCamera,
   onPickGallery,
 }: Props) => {
+  const { t } = useTranslation();
   return (
     <Modal
       transparent
@@ -24,19 +26,27 @@ const PhotoPickerModal = ({
     >
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
-          <Text style={styles.title}>Wybierz źródło zdjęcia</Text>
+          <Text style={styles.title}>
+            {t("profileCompletion.photoPicker.title")}
+          </Text>
           <View style={styles.buttonsRow}>
             <TouchableOpacity style={styles.tile} onPress={onPickCamera}>
               <Ionicons name="camera" size={38} color="#000" />
-              <Text style={styles.tileText}>Kamera</Text>
+              <Text style={styles.tileText}>
+                {t("profileCompletion.photoPicker.camera")}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.tile} onPress={onPickGallery}>
               <Ionicons name="images" size={38} color="#000" />
-              <Text style={styles.tileText}>Zdjęcia</Text>
+              <Text style={styles.tileText}>
+                {t("profileCompletion.photoPicker.gallery")}
+              </Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={onClose}>
-            <Text style={styles.cancel}>Anuluj</Text>
+            <Text style={styles.cancel}>
+              {t("profileCompletion.photoPicker.cancel")}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

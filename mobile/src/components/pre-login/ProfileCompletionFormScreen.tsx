@@ -8,7 +8,6 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Image,
 } from "react-native";
 import Input from "../reusable/Input";
@@ -19,7 +18,10 @@ import Error from "../../components/reusable/Error";
 import WhiteCard from "./WhiteCard";
 import ImageBackground from "../reusable/ImageBackground";
 import PhotoPickerModal from "./PhotoPickerModal";
-import * as ImagePicker from "expo-image-picker";
+import {
+  uploadCameraImage,
+  uploadGalleryImage,
+} from "../../utils/imagePickerUtils";
 
 interface FormState {
   firstName: string;
@@ -46,57 +48,27 @@ const ProfileCompletionFormScreen = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [isPhotoAvailable, setIsPhotoAvailable] = useState<boolean>(false);
 
-  const uploadImage = async () => {
+  const handlePickCamera = async () => {
     try {
-      const cam = await ImagePicker.getCameraPermissionsAsync();
-      if (!cam.granted) {
-        const req = await ImagePicker.requestCameraPermissionsAsync();
-        if (!req.granted) {
-          alert("Brak uprawnień do kamery");
-          return;
-        }
+      const uri = await uploadCameraImage();
+      if (uri) {
+        setIsPhotoAvailable(true);
+        setFormState((prev) => ({ ...prev, profilePhoto: uri }));
       }
-      const result = await ImagePicker.launchCameraAsync({
-        cameraType: ImagePicker.CameraType.front,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-
-      console.log("launchCamera result:", JSON.stringify(result));
-      const canceled =
-        (result as any)?.canceled === true ||
-        (result as any)?.cancelled === true;
-      if (canceled) {
-        setModalVisible(false);
-        return;
-      }
-
-      let uri: string | undefined;
-      if (
-        (result as any)?.assets &&
-        Array.isArray((result as any).assets) &&
-        (result as any).assets.length > 0
-      ) {
-        uri = (result as any).assets[0]?.uri;
-      } else if ((result as any)?.uri) {
-        uri = (result as any).uri;
-      }
-
-      if (!uri) {
-        Alert.alert("Błąd", "Nie udało się pobrać zdjęcia z kamery.");
-        setModalVisible(false);
-        return;
-      }
-      setIsPhotoAvailable(true);
-      setFormState((prev) => ({
-        ...prev,
-        profilePhoto: uri,
-      }));
+    } finally {
       setModalVisible(false);
-    } catch (e) {
-      console.error("camera error: ", e);
-      Alert.alert("Błąd kamery", String(e));
+    }
+  };
+
+  const handlePickGallery = async () => {
+    try {
+      const uri = await uploadGalleryImage();
+      if (uri) {
+        setIsPhotoAvailable(true);
+        setFormState((prev) => ({ ...prev, profilePhoto: uri }));
+      }
+    } finally {
+      setModalVisible(false);
     }
   };
   return (
@@ -133,7 +105,8 @@ const ProfileCompletionFormScreen = () => {
               <PhotoPickerModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
-                onPickCamera={() => uploadImage()}
+                onPickCamera={() => handlePickCamera()}
+                onPickGallery={() => handlePickGallery()}
               />
             )}
             <ScrollView contentContainerStyle={styles.scrollContent}>
