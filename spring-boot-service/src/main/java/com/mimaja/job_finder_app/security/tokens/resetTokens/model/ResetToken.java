@@ -7,7 +7,7 @@ import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-@RedisHash("resetToken")
+@RedisHash("ResetToken")
 @Getter
 @AllArgsConstructor
 public class ResetToken implements Serializable {

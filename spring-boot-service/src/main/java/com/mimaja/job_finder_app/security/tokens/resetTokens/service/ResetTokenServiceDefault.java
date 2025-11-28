@@ -46,7 +46,6 @@ public class ResetTokenServiceDefault implements ResetTokenService {
         String resetTokenValue = UUID.randomUUID().toString();
 
         String hashedResetTokenValue = resetTokenEncoder.encodeToken(resetTokenValue);
-        System.out.println(hashedResetTokenValue);
 
         int lifetimeMinutes = 15;
         Instant expiresAt = Instant.now().plusSeconds(lifetimeMinutes * 60);
@@ -63,10 +62,7 @@ public class ResetTokenServiceDefault implements ResetTokenService {
 
     @Override
     public User validateToken(String token, String tokenId) {
-        System.out.println(token);
-        System.out.println(tokenId);
         ResetToken tokenData = new ResetToken(tokenId, hashOps.entries("ResetToken-" + tokenId));
-        System.out.println(tokenData.getHashedToken());
 
         if (!resetTokenEncoder.verifyToken(token, tokenData.getHashedToken())) {
             throw new BusinessException(BusinessExceptionReason.INVALID_RESET_TOKEN);
@@ -78,6 +74,8 @@ public class ResetTokenServiceDefault implements ResetTokenService {
         if (userOptional.isEmpty()) {
             throw new BusinessException(BusinessExceptionReason.INVALID_RESET_TOKEN);
         }
+
+        deleteToken(tokenId);
 
         return userOptional.get();
     }
