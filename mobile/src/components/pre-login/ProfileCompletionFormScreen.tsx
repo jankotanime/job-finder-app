@@ -230,7 +230,7 @@ const ProfileCompletionFormScreen = () => {
             <Button
               onPress={() => setPdfModalVisible(false)}
               style={styles.exitPdfButton}
-              labelStyle={{ fontSize: 20 }}
+              labelStyle={{ fontSize: 20, marginTop: 20 }}
             >
               {t("profileCompletion.exit")}
             </Button>
@@ -299,6 +299,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     opacity: 0.7,
     width: width * 0.6,
+    textAlign: "center",
   },
   completeButton: {
     width: width * 0.8,
