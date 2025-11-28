@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  Modal,
 } from "react-native";
 import Input from "../reusable/Input";
 import { fieldsProfileCompletion } from "../../constans/formFields";
@@ -23,6 +24,8 @@ import {
   uploadGalleryImage,
   uploadPDF,
 } from "../../utils/pickerUtils";
+import { Ionicons } from "@expo/vector-icons";
+import PDFPreview from "./PdfPreview";
 
 interface FormState {
   firstName: string;
@@ -50,6 +53,7 @@ const ProfileCompletionFormScreen = () => {
   const [isPhotoAvailable, setIsPhotoAvailable] = useState<boolean>(false);
   const [isCvAvailable, setIsCvAvailable] = useState<boolean>(false);
   const [cvName, setCvName] = useState("");
+  const [pdfModalVisible, setPdfModalVisible] = useState<boolean>(false);
 
   const handlePickCamera = async () => {
     try {
@@ -75,7 +79,7 @@ const ProfileCompletionFormScreen = () => {
   };
   const handlePickPDF = async () => {
     const pdf = await uploadPDF();
-    if (pdf) {
+    if (pdf.uri != "" && pdf.name != "") {
       setFormState((prev) => ({
         ...prev,
         cv: pdf.uri,
@@ -164,6 +168,15 @@ const ProfileCompletionFormScreen = () => {
                       onPress={() => handlePickPDF()}
                     >
                       <Text style={styles.uploadButtonText}>{cvName}</Text>
+                      <TouchableOpacity
+                        onPress={() => setPdfModalVisible(true)}
+                      >
+                        <Ionicons
+                          name="eye-outline"
+                          size={25}
+                          style={{ marginLeft: 20 }}
+                        />
+                      </TouchableOpacity>
                     </TouchableOpacity>
                   );
                 }
@@ -211,6 +224,18 @@ const ProfileCompletionFormScreen = () => {
             </ScrollView>
           </KeyboardAvoidingView>
         </WhiteCard>
+        {pdfModalVisible && (
+          <Modal visible={pdfModalVisible} animationType="slide">
+            <PDFPreview uri={formState.cv} />
+            <Button
+              onPress={() => setPdfModalVisible(false)}
+              style={styles.exitPdfButton}
+              labelStyle={{ fontSize: 20 }}
+            >
+              {t("profileCompletion.exit")}
+            </Button>
+          </Modal>
+        )}
       </View>
     </>
   );
@@ -258,23 +283,30 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   uploadButton: {
+    display: "flex",
+    flexDirection: "row",
     padding: 14,
     borderRadius: 15,
     borderWidth: 1,
     borderStyle: "dashed",
     alignSelf: "center",
     alignItems: "center",
+    justifyContent: "center",
     marginTop: height * 0.03,
     width: width * 0.8,
   },
   uploadButtonText: {
     fontSize: 16,
     opacity: 0.7,
+    width: width * 0.6,
   },
   completeButton: {
     width: width * 0.8,
     height: 48,
     alignSelf: "center",
     marginTop: height * 0.05,
+  },
+  exitPdfButton: {
+    height: height * 0.08,
   },
 });

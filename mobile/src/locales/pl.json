@@ -84,6 +84,7 @@
       "cancel": "Anuluj"
     },
     "moving_forward": "Przechodzenie dalej...",
-    "move_forward": "Przejdź dalej"
+    "move_forward": "Przejdź dalej",
+    "exit": "Zamknij"
   }
 }
