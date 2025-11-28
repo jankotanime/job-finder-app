@@ -25,7 +25,7 @@ const HomeScreen = () => {
     const animations = values.map((value, index) => {
       return Animated.sequence([
         createAnimation(value, 1, 500, index * 150, true),
-        Animated.delay(3000),
+        Animated.delay(4000),
         createAnimation(value, 0, 500, 0, true),
       ]);
     });
