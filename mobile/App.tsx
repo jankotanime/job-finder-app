@@ -12,6 +12,7 @@ import AuthLoadingScreen from "./src/components/pre-login/AuthLoadingScreen";
 import StorageScreen from "./src/screens/main/StorageScreen";
 import MyProfile from "./src/screens/main/MyProfile";
 import LanguageMenu from "./src/screens/main/LanguageMenu";
+import ProfileCompletionFormScreen from "./src/components/pre-login/ProfileCompletionFormScreen";
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -20,7 +21,7 @@ export default function App() {
       <ThemeProvider>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName="Main"
+            initialRouteName="ProfileCompletion"
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name="Auth" component={AuthLoadingScreen} />
@@ -31,6 +32,10 @@ export default function App() {
             <Stack.Screen name="Storage" component={StorageScreen} />
             <Stack.Screen name="MyProfile" component={MyProfile} />
             <Stack.Screen name="LanguageMenu" component={LanguageMenu} />
+            <Stack.Screen
+              name="ProfileCompletion"
+              component={ProfileCompletionFormScreen}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </ThemeProvider>

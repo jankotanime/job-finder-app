@@ -60,5 +60,16 @@
     "contactUs": "Contact Us",
     "logout": "Logout",
     "saved_jobs": "Saved jobs"
+  },
+  "profileCompletion": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "location": "Location",
+    "profilePicture": "Profile picture",
+    "cv": "Upload CV",
+    "description": "Description",
+    "choosePicture": "Choose your profile picture",
+    "moving_forward": "Moving forward...",
+    "move_forward": "Move forward"
   }
 }

@@ -60,5 +60,16 @@
     "contactUs": "Skontaktuj się z nami",
     "logout": "Wyloguj",
     "saved_jobs": "Zapisane prace"
+  },
+  "profileCompletion": {
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "location": "Lokalizacja",
+    "profilePicture": "Zdjęcie profilowe",
+    "cv": "Załącz CV",
+    "description": "Opis",
+    "choosePicture": "Wybierz swoje zdjęcie profilowe",
+    "moving_forward": "Przechodzenie dalej...",
+    "move_forward": "Przejdź dalej"
   }
 }
