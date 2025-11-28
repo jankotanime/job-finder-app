@@ -22,7 +22,7 @@ export default function App() {
       <ThemeProvider>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName="ProfileCompletionGoogle"
+            initialRouteName="Home"
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name="Auth" component={AuthLoadingScreen} />

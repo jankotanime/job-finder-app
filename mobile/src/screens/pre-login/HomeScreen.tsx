@@ -1,11 +1,12 @@
-import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import React, { useRef, useState, useEffect } from "react";
+import { View, Text, StyleSheet, Dimensions, Animated } from "react-native";
 import ImageBackground from "../../components/reusable/ImageBackground";
 import { useTranslation } from "react-i18next";
 import HomeLoginButton from "../../components/pre-login/HomeLoginButton";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
 import ErrorNotification from "../../components/reusable/ErrorNotification";
+import { createAnimation } from "../../utils/animationHelper";
 
 const { width, height } = Dimensions.get("window");
 const HomeScreen = () => {
@@ -13,6 +14,27 @@ const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const authError = route?.params?.authError as string | undefined;
+  const [animatedValues, setAnimatedValues] = useState<Animated.Value[]>([]);
+  const [words, setWords] = useState<string[]>([]);
+
+  const makeTextAnim = (text: string) => {
+    const split = text.trim().split(" ");
+    setWords(split);
+    const values = split.map(() => new Animated.Value(0));
+    setAnimatedValues(values);
+    const animations = values.map((value, index) => {
+      return Animated.sequence([
+        createAnimation(value, 1, 500, index * 150, true),
+        Animated.delay(3000),
+        createAnimation(value, 0, 500, 0, true),
+      ]);
+    });
+    Animated.loop(Animated.stagger(150, animations)).start();
+  };
+  useEffect(() => {
+    const welcomeText = t("pre-login-home.welcome_subtext");
+    makeTextAnim(welcomeText);
+  }, [t]);
   return (
     <View style={styles.container}>
       <ImageBackground />
@@ -21,8 +43,30 @@ const HomeScreen = () => {
           <ErrorNotification error={authError} />
         </View>
       ) : null}
-      <Text style={styles.text}>{t("pre-login-home.welcome")}</Text>
-      <Text style={styles.subtext}>{t("pre-login-home.welcome_subtext")}</Text>
+      <View style={styles.animatedTextWrapper}>
+        {words.map((word, i) => {
+          const opacity = animatedValues[i] || new Animated.Value(0);
+          const translateY = opacity.interpolate({
+            inputRange: [0, 1],
+            outputRange: [10, 0],
+          });
+
+          return (
+            <Animated.Text
+              key={i}
+              style={[
+                styles.text,
+                {
+                  opacity,
+                  transform: [{ translateY }],
+                },
+              ]}
+            >
+              {word + " "}
+            </Animated.Text>
+          );
+        })}
+      </View>
       <HomeLoginButton
         text={t("signup")}
         styles={styles.signUpButton}
@@ -54,23 +98,13 @@ const styles = StyleSheet.create({
     elevation: 999,
   },
   text: {
-    position: "absolute",
     top: height * 0.35,
     left: 0,
     right: 0,
     textAlign: "center",
     color: "white",
     fontSize: 28,
-    fontWeight: "700",
-  },
-  subtext: {
-    position: "absolute",
-    top: height * 0.35 + 40,
-    left: 20,
-    right: 20,
-    textAlign: "center",
-    color: "white",
-    fontSize: 20,
+    fontWeight: "600",
   },
   signUpButton: {
     position: "absolute",
@@ -83,5 +117,14 @@ const styles = StyleSheet.create({
     bottom: height * 0.03,
     left: width * 0.07,
     width: width * 0.32,
+  },
+  animatedTextWrapper: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    position: "absolute",
+    top: height * 0.35,
+    justifyContent: "center",
+    alignSelf: "center",
+    width: width * 0.8,
   },
 });
