@@ -70,6 +70,10 @@
     </array>
     <key>UIUserInterfaceStyle</key>
     <string>Light</string>
+    <key>NSCameraUsageDescription</key>
+    <string>App requires camera access to take your profile photo</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>App needs access to your photo library</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
   </dict>

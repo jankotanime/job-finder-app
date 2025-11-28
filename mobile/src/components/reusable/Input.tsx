@@ -11,6 +11,8 @@ interface TextInputProps {
   multiline?: boolean;
   numberOfLines?: number;
   style?: any;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 const { width, height } = Dimensions.get("window");
@@ -24,6 +26,8 @@ const Input = ({
   multiline,
   numberOfLines,
   style,
+  onFocus,
+  onBlur,
 }: TextInputProps) => {
   return (
     <TextInput
@@ -36,6 +40,8 @@ const Input = ({
       secureTextEntry={secure}
       style={[styles.input, multiline && styles.textarea, style]}
       theme={{ roundness: 20 }}
+      onFocus={onFocus}
+      onBlur={onBlur}
     />
   );
 };
