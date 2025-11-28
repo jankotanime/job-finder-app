@@ -38,3 +38,11 @@ export const fieldsProfileCompletion = (t: (text: string) => string) => [
   },
   { key: "cv", placeholder: t("profileCompletion.cv") },
 ];
+export const fieldsProfileCompletionGoogle = (t: (text: string) => string) => [
+  { key: "username", placeholder: t("register.username"), secure: false },
+  {
+    key: "phoneNumber",
+    placeholder: t("register.phone_number"),
+    secure: false,
+  },
+];

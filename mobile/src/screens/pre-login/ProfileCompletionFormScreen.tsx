@@ -11,21 +11,21 @@ import {
   Image,
   Modal,
 } from "react-native";
-import Input from "../reusable/Input";
+import Input from "../../components/reusable/Input";
 import { fieldsProfileCompletion } from "../../constans/formFields";
 import { useTranslation } from "react-i18next";
 import { useTheme, Icon, Button } from "react-native-paper";
 import Error from "../../components/reusable/Error";
-import WhiteCard from "./WhiteCard";
-import ImageBackground from "../reusable/ImageBackground";
-import PhotoPickerModal from "./PhotoPickerModal";
+import WhiteCard from "../../components/pre-login/WhiteCard";
+import ImageBackground from "../../components/reusable/ImageBackground";
+import PhotoPickerModal from "../../components/pre-login/PhotoPickerModal";
 import {
   uploadCameraImage,
   uploadGalleryImage,
   uploadPDF,
 } from "../../utils/pickerUtils";
 import { Ionicons } from "@expo/vector-icons";
-import PDFPreview from "./PdfPreview";
+import PDFPreview from "../../components/pre-login/PdfPreview";
 
 interface FormState {
   firstName: string;
