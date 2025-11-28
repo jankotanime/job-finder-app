@@ -1,6 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
 import i18n from "../locales/i18n";
+import * as DocumentPicker from "expo-document-picker";
 
 export async function uploadCameraImage(): Promise<string | null> {
   try {
@@ -38,7 +39,6 @@ export async function uploadCameraImage(): Promise<string | null> {
     return uri;
   } catch (e) {
     console.error("camera error util: ", e);
-    Alert.alert(i18n.t("pickerErrors.camera_error"), String(e));
     return null;
   }
 }
@@ -78,7 +78,19 @@ export async function uploadGalleryImage(): Promise<string | null> {
     return uri;
   } catch (e) {
     console.error("gallery error util: ", e);
-    Alert.alert(i18n.t("pickerErrors.gallery_error"), String(e));
     return null;
+  }
+}
+export async function uploadPDF(): Promise<{ uri: string; name: string }> {
+  try {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: "application/pdf",
+      copyToCacheDirectory: true,
+    });
+    if (result.canceled) return { uri: "", name: "" };
+    return { uri: result.assets[0].uri, name: result.assets[0].name };
+  } catch (err) {
+    console.error("PDF picker error:", err);
+    return { uri: "", name: "" };
   }
 }

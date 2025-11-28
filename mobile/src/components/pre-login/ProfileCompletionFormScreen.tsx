@@ -21,7 +21,8 @@ import PhotoPickerModal from "./PhotoPickerModal";
 import {
   uploadCameraImage,
   uploadGalleryImage,
-} from "../../utils/imagePickerUtils";
+  uploadPDF,
+} from "../../utils/pickerUtils";
 
 interface FormState {
   firstName: string;
@@ -47,6 +48,8 @@ const ProfileCompletionFormScreen = () => {
   const [error, setError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [isPhotoAvailable, setIsPhotoAvailable] = useState<boolean>(false);
+  const [isCvAvailable, setIsCvAvailable] = useState<boolean>(false);
+  const [cvName, setCvName] = useState("");
 
   const handlePickCamera = async () => {
     try {
@@ -59,7 +62,6 @@ const ProfileCompletionFormScreen = () => {
       setModalVisible(false);
     }
   };
-
   const handlePickGallery = async () => {
     try {
       const uri = await uploadGalleryImage();
@@ -69,6 +71,17 @@ const ProfileCompletionFormScreen = () => {
       }
     } finally {
       setModalVisible(false);
+    }
+  };
+  const handlePickPDF = async () => {
+    const pdf = await uploadPDF();
+    if (pdf) {
+      setFormState((prev) => ({
+        ...prev,
+        cv: pdf.uri,
+      }));
+      setCvName(pdf.name);
+      setIsCvAvailable(true);
     }
   };
   return (
@@ -131,15 +144,26 @@ const ProfileCompletionFormScreen = () => {
                     </View>
                   );
                 }
-                if (field.key === "cv") {
+                if (field.key === "cv" && !isCvAvailable) {
                   return (
                     <TouchableOpacity
                       key={field.key}
                       style={styles.uploadButton}
+                      onPress={() => handlePickPDF()}
                     >
                       <Text style={styles.uploadButtonText}>
                         {field.placeholder}
                       </Text>
+                    </TouchableOpacity>
+                  );
+                } else if (field.key === "cv" && isCvAvailable) {
+                  return (
+                    <TouchableOpacity
+                      key={field.key}
+                      style={styles.uploadButton}
+                      onPress={() => handlePickPDF()}
+                    >
+                      <Text style={styles.uploadButtonText}>{cvName}</Text>
                     </TouchableOpacity>
                   );
                 }
