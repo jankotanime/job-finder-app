@@ -19,6 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 import { handleRegisterSubmit } from "../../utils/handleRegisterSubmit";
 import { useAuth } from "../../contexts/AuthContext";
 import Error from "../../components/reusable/Error";
+import GoogleLoginButton from "../../components/pre-login/GoogleLoginButton";
 
 interface FormState {
   username: string;
@@ -119,6 +120,7 @@ const RegisterScreen = () => {
                 )}
               </Pressable>
             </View>
+            <GoogleLoginButton />
           </ScrollView>
         </KeyboardAvoidingView>
       </WhiteCard>

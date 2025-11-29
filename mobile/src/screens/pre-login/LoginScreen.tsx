@@ -18,6 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 import { handleLoginSubmit } from "../../utils/handleLoginSubmit";
 import { useAuth } from "../../contexts/AuthContext";
 import Error from "../../components/reusable/Error";
+import GoogleLoginButton from "../../components/pre-login/GoogleLoginButton";
 
 interface FormState {
   loginData: string;
@@ -129,6 +130,7 @@ const LoginScreen = () => {
                 )}
               </Pressable>
             </View>
+            <GoogleLoginButton />
           </ScrollView>
         </KeyboardAvoidingView>
       </WhiteCard>

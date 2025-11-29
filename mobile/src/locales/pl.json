@@ -14,7 +14,8 @@
     "welcome_back": "Witaj z powrotem",
     "sign_up_question": "Nie masz konta?",
     "forgot_password": "Zapomniałeś hasła?",
-    "signing_in": "Logowanie..."
+    "signing_in": "Logowanie...",
+    "or": "Albo"
   },
   "register": {
     "get_started": "Zarejestruj się",
