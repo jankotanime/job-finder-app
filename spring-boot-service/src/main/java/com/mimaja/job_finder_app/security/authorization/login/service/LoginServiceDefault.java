@@ -34,6 +34,10 @@ public class LoginServiceDefault implements LoginService {
         String username = user.getUsername();
         UUID userId = user.getId();
 
+        if (user.getPasswordHash() == null) {
+            throw new BusinessException(BusinessExceptionReason.LACK_OF_PASSWORD);
+        }
+
         if (!passwordConfiguration.verifyPassword(password, user.getPasswordHash())) {
             throw new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA);
         }

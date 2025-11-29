@@ -17,6 +17,9 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     WRONG_LOGIN_DATA("User with this login data does not exist", HttpStatus.UNAUTHORIZED, null),
     WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED, null),
 
+    LACK_OF_GOOGLE_ID("User exist, but does not have google id", HttpStatus.UNAUTHORIZED, null),
+    LACK_OF_PASSWORD("User exist, but does not have password", HttpStatus.UNAUTHORIZED, null),
+
     INVALID_USERNAME_LENGTH(
             "Username should have between 4 and 25 characters", HttpStatus.UNAUTHORIZED, null),
     INVALID_PASSWORD_LENGTH(

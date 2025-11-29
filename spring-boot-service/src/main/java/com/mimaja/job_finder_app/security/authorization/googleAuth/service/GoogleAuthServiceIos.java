@@ -88,6 +88,11 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
             user = userOptional.get();
 
             int smsCode = reqData.smsCode();
+
+            if (smsCode == 0) {
+                throw new BusinessException(BusinessExceptionReason.LACK_OF_GOOGLE_ID);
+            }
+
             smsCodeServiceDefault.validateCode(user.getId(), smsCode);
 
             user.setGoogleId(googleId);
