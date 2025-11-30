@@ -8,9 +8,9 @@ import React, {
 import EncryptedStorage from "react-native-encrypted-storage";
 import getUsernameFromAccessToken from "../utils/getUsernameFromAccessToken";
 import { tryCatch } from "../utils/try-catch";
-import { login } from "../utils/login";
-import { register } from "../utils/register";
-import { extractTokens } from "../utils/extractTokens";
+import { login } from "../utils/auth/login";
+import { register } from "../utils/auth/register";
+import { extractTokens } from "../utils/auth/tokens/extractTokens";
 import { useTranslation } from "react-i18next";
 
 type AuthContextType = {
