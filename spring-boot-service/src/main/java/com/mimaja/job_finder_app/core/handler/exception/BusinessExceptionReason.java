@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     JOB_NOT_FOUND("Job not found", HttpStatus.NOT_FOUND, null),
+    OFFER_NOT_FOUND("Offer not found", HttpStatus.NOT_FOUND, null),
 
     WRONG_LOGIN_DATA("User with this login data does not exist", HttpStatus.UNAUTHORIZED, null),
     WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED, null),
@@ -32,8 +33,10 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
 
     INVALID_REFRESH_TOKEN("Invalid refresh token", HttpStatus.UNAUTHORIZED, null),
     INVALID_RESET_TOKEN("Invalid reset token", HttpStatus.UNAUTHORIZED, null),
-    INVALID_ACCESS_TOKEN("Inalid access token", HttpStatus.UNAUTHORIZED, null),
-    INVALID_GOOGLE_ID("Inalid google id", HttpStatus.UNAUTHORIZED, null);
+    INVALID_ACCESS_TOKEN("Invalid access token", HttpStatus.UNAUTHORIZED, null),
+    INVALID_GOOGLE_ID("Invalid google id", HttpStatus.UNAUTHORIZED, null),
+    USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND, null),
+    TAG_NOT_FOUND("Tag not found", HttpStatus.NOT_FOUND, null);
 
     private final String code = name();
     private final String message;

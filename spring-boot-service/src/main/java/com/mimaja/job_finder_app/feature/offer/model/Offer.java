@@ -4,7 +4,6 @@ import com.mimaja.job_finder_app.feature.offer.location.model.Location;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.user.model.User;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,11 +66,22 @@ public class Offer {
     private Set<Tag> tags = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Nullable private OfferPhoto offerPhoto;
+    private OfferPhoto offerPhoto;
 
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDate createdAt;
 
     @UpdateTimestamp private LocalDateTime updatedAt;
+
+    public void update(Offer updatedOffer) {
+        this.title = updatedOffer.getTitle();
+        this.description = updatedOffer.getDescription();
+        this.dateAndTime = updatedOffer.getDateAndTime();
+        this.salary = updatedOffer.getSalary();
+        this.location = updatedOffer.getLocation();
+        this.maxParticipants = updatedOffer.getMaxParticipants();
+        this.tags = updatedOffer.getTags();
+        this.offerPhoto = updatedOffer.getOfferPhoto();
+    }
 }

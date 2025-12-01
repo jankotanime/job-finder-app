@@ -1,6 +1,6 @@
-package com.mimaja.job_finder_app.feature.offer.tag.model;
+package com.mimaja.job_finder_app.feature.offer.tag.category.model;
 
-public enum TagColor {
+public enum CategoryColor {
     BLUE,
     RED,
     GREEN,
