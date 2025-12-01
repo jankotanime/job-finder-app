@@ -1,8 +1,9 @@
 package com.mimaja.job_finder_app.security.authorization.googleAuth.utils;
 
+import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
-import com.mimaja.job_finder_app.security.encoder.GoogleIdEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -10,28 +11,28 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GoogleAuthDataManager {
     private final UserRepository userRepository;
-    private final GoogleIdEncoder googleIdEncoder;
 
-    public User registerUser(String username, String email, String googleId) {
-        String hashedGoogleId = googleIdEncoder.encodeGoogleId(googleId);
-        User user = new User(username, email, null, hashedGoogleId);
+    public User registerUser(String username, String email, String googleId, int phoneNumber) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN);
+        }
+
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.EMAIL_ALREADY_TAKEN);
+        }
+
+        if (userRepository.findByGoogleId(googleId).isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.GOOGLEID_ALREADY_TAKEN);
+        }
+
+        if (userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.PHONE_NUMBER_ALREADY_TAKEN);
+        }
+
+        User user = new User(username, email, null, googleId, phoneNumber);
 
         userRepository.save(user);
 
-        return user;
-    }
-
-    public User loginUser(User user, String googleId) {
-        String userGoogleId = user.getGoogleId();
-
-        if (userGoogleId == null) {
-            String hashedGoogleId = googleIdEncoder.encodeGoogleId(googleId);
-            user.setGoogleId(hashedGoogleId);
-            userRepository.save(user);
-            return user;
-        }
-
-        googleIdEncoder.verifyGoogleId(googleId, user.getGoogleId());
         return user;
     }
 }

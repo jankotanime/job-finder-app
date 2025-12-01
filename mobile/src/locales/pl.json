@@ -41,5 +41,24 @@
     "phone_number_already_taken": "Użytkownik z tym numerem telefonu już istnieje",
     "invalid_refresh_token": "Nieprawidłowy token odświeżania",
     "token_expired": "Sesja wygasła, zaloguj się ponownie"
+  },
+  "main": {
+    "card": {
+      "details_check": "Dotknij, aby zobaczyć detale"
+    }
+  },
+  "menu": {
+    "profile": "Profil",
+    "myProfile": "Mój Profil",
+    "friends": "Znajomi",
+    "storage": "Schowek",
+    "achievements": "Osiągnięcia",
+    "settings": "Ustawienia",
+    "darkMode": "Tryb Ciemny",
+    "language": "Język",
+    "support": "Wsparcie",
+    "contactUs": "Skontaktuj się z nami",
+    "logout": "Wyloguj",
+    "saved_jobs": "Zapisane prace"
   }
 }

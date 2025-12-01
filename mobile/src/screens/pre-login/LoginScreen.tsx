@@ -118,8 +118,8 @@ const LoginScreen = () => {
                   <Text
                     style={{
                       color: pressed
-                        ? theme.colors.primary
-                        : theme.colors.onSecondary,
+                        ? theme.colors.onSecondary
+                        : theme.colors.primary,
                       fontWeight: "600",
                       marginLeft: 5,
                     }}

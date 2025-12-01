@@ -41,5 +41,24 @@
     "phone_number_already_taken": "User with this phone number already exists",
     "invalid_refresh_token": "Invalid refresh token",
     "token_expired": "Session expired, log in again"
+  },
+  "main": {
+    "card": {
+      "details_check": "Press, to check details"
+    }
+  },
+  "menu": {
+    "profile": "Profile",
+    "myProfile": "My Profile",
+    "friends": "Friends",
+    "storage": "Storage",
+    "achievements": "Achievements",
+    "settings": "Settings",
+    "darkMode": "Dark Mode",
+    "language": "Language",
+    "support": "Support",
+    "contactUs": "Contact Us",
+    "logout": "Logout",
+    "saved_jobs": "Saved jobs"
   }
 }

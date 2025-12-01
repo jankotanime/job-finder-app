@@ -1,5 +1,5 @@
 package com.mimaja.job_finder_app.security.shared.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
-public record RequestPasswordDto(@NotNull String password, @NotNull String newPassword) {}
+public record RequestPasswordDto(@NotBlank String password, @NotBlank String newPassword) {}

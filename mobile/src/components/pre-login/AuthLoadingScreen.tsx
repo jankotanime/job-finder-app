@@ -102,12 +102,8 @@ const AuthLoadingScreen = () => {
       if (isAuthenticated && user) {
         navigation.replace("Main");
       } else {
-        if (error) {
-          const messageError = getErrorMessage(error, t);
-          navigation.replace("Home", { authError: messageError });
-        } else {
-          navigation.replace("Home");
-        }
+        hasNavigated.current = true;
+        navigation.replace("Home");
       }
     };
     checkAuthStatus();

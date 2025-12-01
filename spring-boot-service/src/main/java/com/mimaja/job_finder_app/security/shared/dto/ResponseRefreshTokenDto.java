@@ -1,6 +1,6 @@
 package com.mimaja.job_finder_app.security.shared.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record ResponseRefreshTokenDto(
-        @NotNull String refreshToken, @NotNull String refreshTokenId) {}
+        @NotBlank String refreshToken, @NotBlank String refreshTokenId) {}
