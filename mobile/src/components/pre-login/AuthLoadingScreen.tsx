@@ -110,7 +110,7 @@ const AuthLoadingScreen = () => {
   }, [user, loading, isAuthenticated, error]);
   if (error) console.error("error: ", error);
   return (
-    <View style={styles.main}>
+    <View style={[styles.main, { backgroundColor: colors.background }]}>
       <ActivityIndicator size="large" color={colors.primary} />
     </View>
   );

@@ -120,7 +120,7 @@ const RegisterScreen = () => {
                 )}
               </Pressable>
             </View>
-            <GoogleLoginButton />
+            <GoogleLoginButton screen="REGISTER" />
           </ScrollView>
         </KeyboardAvoidingView>
       </WhiteCard>

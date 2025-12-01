@@ -1,15 +1,10 @@
 import React, { useState } from "react";
 import {
-  View,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Text,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  Image,
-  Modal,
 } from "react-native";
 import WhiteCard from "../../components/pre-login/WhiteCard";
 import ImageBackground from "../../components/reusable/ImageBackground";

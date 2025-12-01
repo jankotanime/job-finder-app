@@ -1,5 +1,5 @@
 import "./src/locales/i18n";
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./src/screens/pre-login/HomeScreen";
@@ -14,15 +14,22 @@ import MyProfile from "./src/screens/main/MyProfile";
 import LanguageMenu from "./src/screens/main/LanguageMenu";
 import ProfileCompletionFormScreen from "./src/screens/pre-login/ProfileCompletionFormScreen";
 import ProfileCompletionGoogle from "./src/screens/pre-login/ProfileCompletionGoogle";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const Stack = createNativeStackNavigator();
 export default function App() {
+  useEffect(() => {
+    GoogleSignin.configure({
+      iosClientId: process.env.EXPO_PUBLIC_API_GOOGLE_ID_IOS,
+      webClientId: process.env.EXPO_PUBLIC_API_GOOGLE_ID_WEB,
+    });
+  });
   return (
     <AuthProvider>
       <ThemeProvider>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName="Home"
+            initialRouteName="Auth"
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name="Auth" component={AuthLoadingScreen} />

@@ -1,13 +1,25 @@
-import React from "react";
-import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme, Text } from "react-native-paper";
 import { AntDesign } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../../contexts/AuthContext";
 
 const { width } = Dimensions.get("window");
-const GoogleLoginButton = () => {
+const GoogleLoginButton = ({ screen }: { screen: string }) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
+  const navigation = useNavigation<any>();
+  const { signInGoogle, signUpGoogle } = useAuth();
+
   return (
     <>
       <View style={styles.separator}>
@@ -19,13 +31,24 @@ const GoogleLoginButton = () => {
       </View>
       <TouchableOpacity
         style={[styles.googleLogo, { backgroundColor: colors.primary }]}
+        onPress={() =>
+          screen == "REGISTER"
+            ? signUpGoogle({ setIsSubmiting, navigation })
+            : signInGoogle({ setIsSubmiting, navigation })
+        }
       >
-        <AntDesign
-          name="google"
-          size={20}
-          color="white"
-          style={{ alignSelf: "center" }}
-        />
+        {isSubmiting ? (
+          <View style={[styles.main, { backgroundColor: colors.background }]}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : (
+          <AntDesign
+            name="google"
+            size={20}
+            color="white"
+            style={{ alignSelf: "center" }}
+          />
+        )}
       </TouchableOpacity>
     </>
   );
@@ -34,6 +57,11 @@ const GoogleLoginButton = () => {
 export default GoogleLoginButton;
 
 const styles = StyleSheet.create({
+  main: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   separator: {
     display: "flex",
     flexDirection: "row",

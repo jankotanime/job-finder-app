@@ -155,6 +155,7 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
         try {
             verifiedToken = verifier.verify(googleIdToken);
         } catch (GeneralSecurityException | IOException e) {
+            System.out.println(e);
             throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
         }
 

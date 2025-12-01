@@ -14,10 +14,17 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.madamski9.mobile",
+      "bundleIdentifier": "com.majami.job-finder-app",
       "infoPlist": {
         "NSCameraUsageDescription": "App requires camera access to take your profile photo",
-        "NSPhotoLibraryUsageDescription": "App needs access to your photo library"
+        "NSPhotoLibraryUsageDescription": "App needs access to your photo library",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.285339726053-flbsrr41fo77lpmsphpncfteh6qs4s39"
+            ]
+          }
+        ]
       }
     },
     "android": {
@@ -27,15 +34,34 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.madamski9.jobFinderApp",
+      "package": "com.majami.job-finder-app",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "com.googleusercontent.apps.285339726053-flbsrr41fo77lpmsphpncfteh6qs4s39"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.285339726053-flbsrr41fo77lpmsphpncfteh6qs4s39"
+        }
+      ]
+    ]
   }
 }
