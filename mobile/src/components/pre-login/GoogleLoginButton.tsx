@@ -28,7 +28,6 @@ const GoogleLoginButton = ({ screen, setError }: GoogleLoginProps) => {
   const handleGoogleAuth = async () => {
     if (screen == "REGISTER") {
       const { ok, error } = await signUpGoogle({ setIsSubmiting, navigation });
-      console.log("error: ", error);
       if (error) setError(getErrorMessage(error, t) || error);
     } else {
       const { ok, error } = await signInGoogle({ setIsSubmiting, navigation });

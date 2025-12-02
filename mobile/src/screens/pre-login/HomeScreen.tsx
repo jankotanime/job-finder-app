@@ -1,12 +1,12 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions, Animated } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, Dimensions, Animated } from "react-native";
 import ImageBackground from "../../components/reusable/ImageBackground";
 import { useTranslation } from "react-i18next";
 import HomeLoginButton from "../../components/pre-login/HomeLoginButton";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
 import ErrorNotification from "../../components/reusable/ErrorNotification";
-import { createAnimation } from "../../utils/animationHelper";
+import makeTextAnim from "../../utils/textAnim";
 
 const { width, height } = Dimensions.get("window");
 const HomeScreen = () => {
@@ -17,23 +17,9 @@ const HomeScreen = () => {
   const [animatedValues, setAnimatedValues] = useState<Animated.Value[]>([]);
   const [words, setWords] = useState<string[]>([]);
 
-  const makeTextAnim = (text: string) => {
-    const split = text.trim().split(" ");
-    setWords(split);
-    const values = split.map(() => new Animated.Value(0));
-    setAnimatedValues(values);
-    const animations = values.map((value, index) => {
-      return Animated.sequence([
-        createAnimation(value, 1, 500, index * 150, true),
-        Animated.delay(4000),
-        createAnimation(value, 0, 500, 0, true),
-      ]);
-    });
-    Animated.loop(Animated.stagger(150, animations)).start();
-  };
   useEffect(() => {
     const welcomeText = t("pre-login-home.welcome_subtext");
-    makeTextAnim(welcomeText);
+    makeTextAnim({ text: welcomeText, setWords, setAnimatedValues });
   }, [t]);
   return (
     <View style={styles.container}>
