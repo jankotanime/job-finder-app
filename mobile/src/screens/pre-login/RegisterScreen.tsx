@@ -16,9 +16,10 @@ import { useTheme, Button } from "react-native-paper";
 import Input from "../../components/reusable/Input";
 import { fieldsRegister } from "../../constans/formFields";
 import { useNavigation } from "@react-navigation/native";
-import { handleRegisterSubmit } from "../../utils/handleRegisterSubmit";
+import { handleRegisterSubmit } from "../../utils/auth/handleRegisterSubmit";
 import { useAuth } from "../../contexts/AuthContext";
 import Error from "../../components/reusable/Error";
+import GoogleLoginButton from "../../components/pre-login/GoogleLoginButton";
 
 interface FormState {
   username: string;
@@ -119,6 +120,7 @@ const RegisterScreen = () => {
                 )}
               </Pressable>
             </View>
+            <GoogleLoginButton screen="REGISTER" setError={setError} />
           </ScrollView>
         </KeyboardAvoidingView>
       </WhiteCard>

@@ -8,24 +8,40 @@ interface TextInputProps {
   onChangeText?: (text: string) => void;
   mode: "flat" | "outlined";
   value: string;
+  multiline?: boolean;
+  numberOfLines?: number;
+  style?: any;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
+
 const { width, height } = Dimensions.get("window");
+
 const Input = ({
   placeholder,
   value,
   mode,
   onChangeText,
   secure,
+  multiline,
+  numberOfLines,
+  style,
+  onFocus,
+  onBlur,
 }: TextInputProps) => {
   return (
     <TextInput
       label={placeholder}
       value={value}
       mode={mode}
+      multiline={multiline}
+      numberOfLines={numberOfLines}
       onChangeText={onChangeText}
-      style={styles.input}
       secureTextEntry={secure}
+      style={[styles.input, multiline && styles.textarea, style]}
       theme={{ roundness: 20 }}
+      onFocus={onFocus}
+      onBlur={onBlur}
     />
   );
 };
@@ -39,5 +55,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 10,
     top: height * 0.06,
+  },
+  textarea: {
+    minHeight: 140,
+    textAlignVertical: "top",
   },
 });

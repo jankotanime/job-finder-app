@@ -12,7 +12,7 @@ const HomeLoginButton = ({ styles, white, onPress, text }: ButtonProps) => {
     <Button
       mode="text"
       style={styles}
-      labelStyle={{ fontSize: 20 }}
+      labelStyle={{ fontSize: 20, fontWeight: "600" }}
       textColor={white ? "white" : ""}
       onPress={onPress}
     >
