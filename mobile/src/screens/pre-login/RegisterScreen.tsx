@@ -120,7 +120,7 @@ const RegisterScreen = () => {
                 )}
               </Pressable>
             </View>
-            <GoogleLoginButton screen="REGISTER" />
+            <GoogleLoginButton screen="REGISTER" setError={setError} />
           </ScrollView>
         </KeyboardAvoidingView>
       </WhiteCard>

@@ -130,7 +130,7 @@ const LoginScreen = () => {
                 )}
               </Pressable>
             </View>
-            <GoogleLoginButton screen="LOGIN" />
+            <GoogleLoginButton screen="LOGIN" setError={setError} />
           </ScrollView>
         </KeyboardAvoidingView>
       </WhiteCard>

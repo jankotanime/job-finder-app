@@ -78,7 +78,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
   const loadTokens = async () => {
     const [saved, error] = await tryCatch(EncryptedStorage.getItem("auth"));
-    console.log(saved);
     if (saved) {
       const parsed = JSON.parse(saved);
       const username = getUsernameFromAccessToken(parsed?.accessToken);
@@ -145,9 +144,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { ok: true };
   };
   const signInGoogle = async (formState: GoogleLoginProps) => {
-    const [dataResponse, error] = await tryCatch(handleGoogleLogin(formState));
+    const dataResponse = await handleGoogleLogin(formState);
     const data = dataResponse?.dataLogin;
-    if (error) return { ok: false, error: error?.message || String(error) };
+    if (!dataResponse?.ok)
+      return { ok: false, error: dataResponse?.error?.message };
     if (data?.error) return { ok: false, error: data.code };
     const { accessToken, refreshToken, refreshTokenId } = extractTokens(
       data.data,
@@ -172,11 +172,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signUpGoogle = async (formState: GoogleLoginProps) => {
-    const [dataResponse, error] = await tryCatch(
-      handleGoogleRegister(formState),
-    );
+    const dataResponse = await handleGoogleRegister(formState);
     const data = dataResponse?.data;
-    if (error) return { ok: false, error: error?.message || String(error) };
+    if (!dataResponse.ok)
+      return { ok: false, error: dataResponse?.error?.message };
     if (data?.error) return { ok: false, error: data.code };
     const { accessToken, refreshToken, refreshTokenId } = extractTokens(
       data.data,

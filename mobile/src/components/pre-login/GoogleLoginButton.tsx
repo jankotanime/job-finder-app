@@ -11,14 +11,30 @@ import { useTheme, Text } from "react-native-paper";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../contexts/AuthContext";
+import { getErrorMessage } from "../../constans/errorMessages";
 
 const { width } = Dimensions.get("window");
-const GoogleLoginButton = ({ screen }: { screen: string }) => {
+interface GoogleLoginProps {
+  screen: string;
+  setError: (err: string) => void;
+}
+const GoogleLoginButton = ({ screen, setError }: GoogleLoginProps) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const navigation = useNavigation<any>();
   const { signInGoogle, signUpGoogle } = useAuth();
+
+  const handleGoogleAuth = async () => {
+    if (screen == "REGISTER") {
+      const { ok, error } = await signUpGoogle({ setIsSubmiting, navigation });
+      console.log("error: ", error);
+      if (error) setError(getErrorMessage(error, t) || error);
+    } else {
+      const { ok, error } = await signInGoogle({ setIsSubmiting, navigation });
+      if (error) setError(getErrorMessage(error, t) || error);
+    }
+  };
 
   return (
     <>
@@ -31,11 +47,7 @@ const GoogleLoginButton = ({ screen }: { screen: string }) => {
       </View>
       <TouchableOpacity
         style={[styles.googleLogo, { backgroundColor: colors.primary }]}
-        onPress={() =>
-          screen == "REGISTER"
-            ? signUpGoogle({ setIsSubmiting, navigation })
-            : signInGoogle({ setIsSubmiting, navigation })
-        }
+        onPress={() => handleGoogleAuth()}
       >
         {isSubmiting ? (
           <View style={[styles.main, { backgroundColor: colors.background }]}>
