@@ -76,7 +76,6 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
 
         RefreshToken tokenData =
                 new RefreshToken(refreshTokenId, hashOps.entries("RefreshToken-" + refreshTokenId));
-        System.out.println(tokenData.getHashedToken());
 
         if (!refreshTokenEncoder.verifyToken(refreshToken, tokenData.getHashedToken())) {
             throw new BusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
