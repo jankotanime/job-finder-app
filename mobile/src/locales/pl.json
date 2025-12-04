@@ -41,7 +41,8 @@
     "email_already_taken": "Użytkownik z tym adresem e-mail już istnieje",
     "phone_number_already_taken": "Użytkownik z tym numerem telefonu już istnieje",
     "invalid_refresh_token": "Nieprawidłowy token odświeżania",
-    "token_expired": "Sesja wygasła, zaloguj się ponownie"
+    "token_expired": "Sesja wygasła, zaloguj się ponownie",
+    "user_existence_found": "Użytkownik istnieje"
   },
   "pickerErrors": {
     "camera_no_permission": "Brak uprawnień do kamery",

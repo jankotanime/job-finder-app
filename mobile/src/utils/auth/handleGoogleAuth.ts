@@ -8,6 +8,22 @@ interface GoogleLoginProps {
   setIsSubmiting: (value: boolean) => void;
   navigation: any;
 }
+async function checkUserExistence(idToken: string | null) {
+  const [response, error] = await tryCatch(
+    fetch(
+      `${process.env.EXPO_PUBLIC_API_GOOGLE_AUTH_URL}/check-user-existence`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ googleToken: idToken }),
+      },
+    ),
+  );
+  if (error) return { ok: false, error: error };
+  const data = await response.json();
+  if (data?.error) return { ok: false, error: data.code };
+  return { ok: true, data: data };
+}
 export async function handleGoogleRegister({
   setIsSubmiting,
   navigation,
@@ -30,8 +46,17 @@ export async function handleGoogleRegister({
   const { idToken, user } = response.data;
   const { name, email, photo } = user;
 
+  const {
+    ok,
+    data: dataCheckUser,
+    error: error,
+  } = await checkUserExistence(idToken);
+  if (ok) {
+    setIsSubmiting(false);
+    return { ok: false, error: dataCheckUser };
+  }
   const [responseBackend, backendError] = await tryCatch(
-    fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/google-auth/ios/register`, {
+    fetch(`${process.env.EXPO_PUBLIC_API_GOOGLE_AUTH_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ googleToken: idToken }),
@@ -74,7 +99,7 @@ export async function handleGoogleLogin({
   const { name, email, photo } = user;
 
   const [responseLogin, backendError] = await tryCatch(
-    fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/google-auth/ios/login`, {
+    fetch(`${process.env.EXPO_PUBLIC_API_GOOGLE_AUTH_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ googleToken: idToken }),

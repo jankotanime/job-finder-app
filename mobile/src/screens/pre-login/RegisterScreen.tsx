@@ -52,7 +52,13 @@ const RegisterScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 230 : 30}
         >
-          <ScrollView>
+          <ScrollView
+            contentContainerStyle={
+              error
+                ? { flexGrow: 1, paddingBottom: 50 }
+                : { flexGrow: 1, paddingBottom: 20 }
+            }
+          >
             <View style={styles.header}>
               <Text
                 style={[styles.headerText, { color: theme.colors.primary }]}

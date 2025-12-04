@@ -175,7 +175,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const dataResponse = await handleGoogleRegister(formState);
     const data = dataResponse?.data;
     if (!dataResponse.ok)
-      return { ok: false, error: dataResponse?.error?.message };
+      return { ok: false, error: dataResponse.error.message };
     if (data?.error) return { ok: false, error: data.code };
     const { accessToken, refreshToken, refreshTokenId } = extractTokens(
       data.data,

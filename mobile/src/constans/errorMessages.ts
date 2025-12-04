@@ -10,7 +10,8 @@ export const errorMessages: Record<string, string> = {
   "User with this email exists": "errors.email_already_taken",
   "User with this phone number exists": "errors.phone_number_already_taken",
   "Invalid refresh token": "errors.invalid_refresh_token",
+  "User existence found": "errors.user_existence_found",
 };
 export const getErrorMessage = (code: string, t: (text: string) => string) => {
-  return t(errorMessages[code]) || "error";
+  return t(errorMessages[code] || code);
 };
