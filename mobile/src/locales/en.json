@@ -1,7 +1,11 @@
 {
   "pre-login-home": {
     "welcome": "Welcome!",
-    "welcome_subtext": "Log in to explore the app!"
+    "welcome_subtext": "Log in to explore the app!",
+    "sign_up_with_email": "Sign up with email",
+    "sign_up_with_google": "Continue with Google",
+    "signing_up_with_google": "Signing in with Google...",
+    "already_have_an_account": "Already have an account?"
   },
   "signup": "Sign up",
   "signin": "Sign In",

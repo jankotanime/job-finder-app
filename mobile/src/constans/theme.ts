@@ -9,7 +9,7 @@ export const themeLight = {
     ...LightTheme.colors,
     primary: "#337EFF",
     onPrimary: "#ffffffff",
-    primaryContainer: "#337EFF",
+    primaryContainer: "#005effff",
     onPrimaryContainer: "#ffffffff",
     secondary: "#1B6EFF",
     onSecondary: "#1145a0ff",
@@ -18,6 +18,7 @@ export const themeLight = {
     onSurface: "#000000",
     error: "#B00020",
     onError: "#ffffffff",
+    onTertiary: "#6ea1f9ff",
   },
 };
 export const themeDark = {
@@ -35,6 +36,7 @@ export const themeDark = {
     onSurface: "#ffffffff",
     error: "#CF6679",
     onError: "#000000",
+    onTertiary: "#cdaaf8ff",
   },
 };
 export default themeLight;
