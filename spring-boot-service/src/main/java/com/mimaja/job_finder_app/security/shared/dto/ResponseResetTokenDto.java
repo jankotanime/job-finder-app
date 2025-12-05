@@ -1,5 +1,5 @@
 package com.mimaja.job_finder_app.security.shared.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
-public record ResponseResetTokenDto(@NotNull String resetToken, @NotNull String resetTokenId) {}
+public record ResponseResetTokenDto(@NotBlank String resetToken, @NotBlank String resetTokenId) {}

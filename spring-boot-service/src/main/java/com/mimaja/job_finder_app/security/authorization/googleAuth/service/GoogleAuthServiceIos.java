@@ -9,9 +9,14 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.authorization.googleAuth.utils.GoogleAuthDataManager;
-import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthDto;
+import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthCheckExistenceDto;
+import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthLoginDto;
+import com.mimaja.job_finder_app.security.shared.dto.RequestGoogleAuthRegisterDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseGoogleAuthLoginDto;
+import com.mimaja.job_finder_app.security.shared.dto.ResponseGoogleIdExistDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseRefreshTokenDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.security.shared.enums.GoogleIdExistence;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 import com.mimaja.job_finder_app.security.tokens.refreshTokens.service.RefreshTokenServiceDefault;
 import java.io.IOException;
@@ -48,9 +53,10 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
     }
 
     @Override
-    public ResponseTokenDto tryToLoginViaGoogle(RequestGoogleAuthDto reqData) {
-        String username = reqData.username();
-        String googleIdToken = reqData.googleId();
+    public ResponseGoogleAuthLoginDto tryToLoginViaGoogle(RequestGoogleAuthLoginDto reqData) {
+        String googleIdToken = reqData.googleToken();
+
+        Boolean changedEmail = false;
 
         GoogleIdToken verifiedToken;
         try {
@@ -71,11 +77,96 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
 
         User user;
         if (userOptional.isEmpty()) {
-            user = googleAuthDataManager.registerUser(username, email, googleId);
+            userOptional = userRepository.findByEmail(email);
+            if (userOptional.isEmpty()) {
+                throw new BusinessException(BusinessExceptionReason.WRONG_GOOGLE_ID);
+            }
+            // TODO: update sms code validation
+            int smsCode = reqData.smsCode();
+            if (smsCode != 123456) {
+                throw new BusinessException(BusinessExceptionReason.INVALID_SMS_CODE);
+            }
+            user = userOptional.get();
+            user.setGoogleId(googleId);
+            userRepository.save(user);
         } else {
             user = userOptional.get();
-            user = googleAuthDataManager.loginUser(user, googleId);
         }
+
+        if (user.getEmail() != email) {
+            user.setEmail(email);
+            changedEmail = true;
+        }
+
+        UUID userId = user.getId();
+        String username = user.getUsername();
+
+        String accessToken = jwtConfiguration.createToken(userId, username);
+
+        ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(user.getId());
+        ResponseTokenDto tokens =
+                new ResponseTokenDto(
+                        accessToken, refreshToken.refreshToken(), refreshToken.refreshTokenId());
+        ResponseGoogleAuthLoginDto response = new ResponseGoogleAuthLoginDto(tokens, changedEmail);
+        return response;
+    }
+
+    @Override
+    public ResponseGoogleIdExistDto checkUserExistence(RequestGoogleAuthCheckExistenceDto reqData) {
+        String googleIdToken = reqData.googleToken();
+
+        GoogleIdToken verifiedToken;
+        try {
+            verifiedToken = verifier.verify(googleIdToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
+        }
+
+        if (verifiedToken == null) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
+        }
+
+        GoogleIdToken.Payload payload = verifiedToken.getPayload();
+        String googleId = payload.getSubject();
+
+        Optional<User> userOptional = userRepository.findByGoogleId(googleId);
+
+        if (userOptional.isPresent()) {
+            return new ResponseGoogleIdExistDto(GoogleIdExistence.USER_EXIST);
+        }
+
+        String email = payload.getEmail();
+        Optional<User> userWithSameEmail = userRepository.findByEmail(email);
+
+        if (userWithSameEmail.isPresent()) {
+            return new ResponseGoogleIdExistDto(GoogleIdExistence.USER_EXIST_WITH_EMAIL);
+        }
+
+        return new ResponseGoogleIdExistDto(GoogleIdExistence.USER_NOT_EXIST);
+    }
+
+    @Override
+    public ResponseTokenDto tryToRegisterViaGoogle(RequestGoogleAuthRegisterDto reqData) {
+        String googleIdToken = reqData.googleToken();
+        String username = reqData.username();
+        int phoneNumber = reqData.phoneNumber();
+
+        GoogleIdToken verifiedToken;
+        try {
+            verifiedToken = verifier.verify(googleIdToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
+        }
+
+        if (verifiedToken == null) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
+        }
+
+        GoogleIdToken.Payload payload = verifiedToken.getPayload();
+        String googleId = payload.getSubject();
+        String email = payload.getEmail();
+
+        User user = googleAuthDataManager.registerUser(username, email, googleId, phoneNumber);
 
         UUID userId = user.getId();
 
@@ -85,7 +176,6 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
         ResponseTokenDto tokens =
                 new ResponseTokenDto(
                         accessToken, refreshToken.refreshToken(), refreshToken.refreshTokenId());
-
         return tokens;
     }
 }
