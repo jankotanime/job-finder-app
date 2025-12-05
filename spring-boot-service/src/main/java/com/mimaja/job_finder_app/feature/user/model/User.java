@@ -1,11 +1,15 @@
 package com.mimaja.job_finder_app.feature.user.model;
 
+import com.mimaja.job_finder_app.feature.user.profilephoto.model.ProfilePhoto;
 import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -38,6 +42,9 @@ public class User {
     private int phoneNumber;
 
     @Nullable private String googleId;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Nullable private ProfilePhoto profilePhoto;
 
     @Column(columnDefinition = "TEXT", length = 500)
     private String profileDescription;
