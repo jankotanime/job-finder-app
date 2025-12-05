@@ -14,7 +14,7 @@ import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.offer.tag.service.TagService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
-import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
+import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,7 +41,7 @@ public class OfferServiceDefault implements OfferService {
     @Override
     public OfferBaseResponseDto getOfferById(JwtPrincipal jwt, UUID offerId) {
         Offer offer = getOrThrow(offerId);
-        UUID userId = jwt.getId();
+        UUID userId = jwt.id();
         if (checkIfUserIsOwner(userId, offerId)) {
             return offerMapper.toOfferUserIsOwnerResponseDto(offer);
         }

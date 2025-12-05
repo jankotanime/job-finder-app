@@ -6,7 +6,7 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
-import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
+import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import jakarta.validation.Valid;

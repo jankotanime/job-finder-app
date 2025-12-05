@@ -46,8 +46,8 @@ public class LoginServiceDefault implements LoginService {
         ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(userId);
 
         ResponseTokenDto tokens =
-            new ResponseTokenDto(
-                accessToken, refreshToken.refreshToken(), refreshToken.refreshTokenId());
+                new ResponseTokenDto(
+                        accessToken, refreshToken.refreshToken(), refreshToken.refreshTokenId());
 
         return tokens;
     }

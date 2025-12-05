@@ -28,6 +28,8 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     INVALID_RESET_TOKEN("Invalid reset token", HttpStatus.UNAUTHORIZED, null),
     INVALID_USERNAME_PATTERN("Invalid username", HttpStatus.UNAUTHORIZED, null),
     JOB_NOT_FOUND("Job not found", HttpStatus.NOT_FOUND, null),
+    LACK_OF_GOOGLE_ID("Lack of google id", HttpStatus.UNAUTHORIZED, null),
+    LACK_OF_PASSWORD("Lack of password", HttpStatus.UNAUTHORIZED, null),
     OFFER_NOT_FOUND("Offer not found", HttpStatus.NOT_FOUND, null),
     PHONE_NUMBER_ALREADY_TAKEN("User with this phone number exists", HttpStatus.UNAUTHORIZED, null),
     PROFILE_INCOMPLETE("User profile needs to be completed", HttpStatus.UNAUTHORIZED, null),

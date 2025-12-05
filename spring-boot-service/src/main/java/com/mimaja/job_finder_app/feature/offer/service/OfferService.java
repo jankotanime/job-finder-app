@@ -5,7 +5,7 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
-import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
+import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

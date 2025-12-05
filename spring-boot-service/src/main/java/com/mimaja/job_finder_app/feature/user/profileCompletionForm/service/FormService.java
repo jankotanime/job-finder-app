@@ -5,5 +5,6 @@ import com.mimaja.job_finder_app.feature.user.profileCompletionForm.shared.Profi
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 
 public interface FormService {
-  public ProfileCompletionFormResponseDto sendForm(ProfileCompletionFormRequestDto reqData, JwtPrincipal principal);
+    ProfileCompletionFormResponseDto sendForm(
+            ProfileCompletionFormRequestDto reqData, JwtPrincipal principal);
 }

@@ -16,10 +16,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.security.profile", havingValue = "dev")
 public class SecurityFilterChainDevConfiguration {
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-
         httpSecurity
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .exceptionHandling(
