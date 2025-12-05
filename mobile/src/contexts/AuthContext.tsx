@@ -12,10 +12,7 @@ import { login } from "../utils/auth/login";
 import { register } from "../utils/auth/register";
 import { extractTokens } from "../utils/auth/tokens/extractTokens";
 import { useTranslation } from "react-i18next";
-import {
-  handleGoogleLogin,
-  handleGoogleRegister,
-} from "../utils/auth/handleGoogleAuth";
+import { handleGoogleAuth } from "../utils/auth/googleAuth/handleGoogleAuth";
 
 type AuthContextType = {
   user: string;
@@ -29,15 +26,9 @@ type AuthContextType = {
     formState: FormStateRegisterProps,
   ) => Promise<{ ok: boolean; error?: string }>;
   refreshAuth: () => Promise<void>;
-  signInGoogle: (
+  signWithGoogle: (
     formState: GoogleLoginProps,
   ) => Promise<{ ok: boolean; error?: string }>;
-  signUpGoogle: (
-    formState: GoogleLoginProps,
-  ) => Promise<{ ok: boolean; error?: string }>;
-  // signWithGoogle: (
-  //   formState: GoogleLoginProps,
-  // ) => Promise<{ ok: boolean; error?: string }>;
 };
 interface FormStateLoginProps {
   loginData: string;
@@ -61,9 +52,7 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   signUp: async () => ({ ok: false, error: "not-initialized" }),
   refreshAuth: async () => {},
-  signInGoogle: async () => ({ ok: false, error: "not-initialized" }),
-  signUpGoogle: async () => ({ ok: false, error: "not-initialized" }),
-  // signWithGoogle: async () => ({ ok: false, error: "not-initialized" }),
+  signWithGoogle: async () => ({ ok: false, error: "not-initialized" }),
 });
 export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -147,11 +136,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(formState.username);
     return { ok: true };
   };
-  const signInGoogle = async (formState: GoogleLoginProps) => {
-    const dataResponse = await handleGoogleLogin(formState);
+
+  const signWithGoogle = async (formState: GoogleLoginProps) => {
+    const dataResponse = await handleGoogleAuth(formState);
     const data = dataResponse?.data;
     if (!dataResponse?.ok)
-      return { ok: false, error: dataResponse?.error?.message };
+      return { ok: false, error: dataResponse?.error.message };
     if (data?.error) return { ok: false, error: data.code };
     const { accessToken, refreshToken, refreshTokenId } = extractTokens(
       data.data,
@@ -174,62 +164,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(dataResponse?.name ?? "");
     return { ok: true };
   };
-
-  const signUpGoogle = async (formState: GoogleLoginProps) => {
-    const dataResponse = await handleGoogleRegister(formState);
-    const data = dataResponse?.data;
-    if (!dataResponse.ok)
-      return { ok: false, error: dataResponse.error.message };
-    if (data?.error) return { ok: false, error: data.code };
-    const { accessToken, refreshToken, refreshTokenId } = extractTokens(
-      data.data,
-    );
-
-    if (!accessToken || typeof accessToken !== "string") {
-      return { ok: false, error: t("errors.no_access_token") };
-    }
-
-    await EncryptedStorage.setItem(
-      "auth",
-      JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
-    );
-    setTokens({
-      accessToken: accessToken || "",
-      refreshToken: refreshToken || "",
-      refreshTokenId: refreshTokenId || "",
-    });
-    setIsAuthenticated(true);
-    setUser(dataResponse?.name ?? "");
-    return { ok: true };
-  };
-
-  // const signWithGoogle = async (formState: GoogleLoginProps) => {
-  //   const dataResponse = await checkUserExistence(formState);
-  //   const data = dataResponse?.data;
-  //   if (!dataResponse.ok)
-  //     return { ok: false, error: dataResponse.error.message };
-  //   if (data?.error) return { ok: false, error: data.code };
-  //   const { accessToken, refreshToken, refreshTokenId } = extractTokens(
-  //     data.data,
-  //   );
-
-  //   if (!accessToken || typeof accessToken !== "string") {
-  //     return { ok: false, error: t("errors.no_access_token") };
-  //   }
-
-  //   await EncryptedStorage.setItem(
-  //     "auth",
-  //     JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
-  //   );
-  //   setTokens({
-  //     accessToken: accessToken || "",
-  //     refreshToken: refreshToken || "",
-  //     refreshTokenId: refreshTokenId || "",
-  //   });
-  //   setIsAuthenticated(true);
-  //   setUser(dataResponse?.name ?? "");
-  //   return { ok: true };
-  // };
 
   return (
     <AuthContext.Provider
@@ -241,9 +175,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signOut,
         signUp,
         refreshAuth: loadTokens,
-        signInGoogle,
-        signUpGoogle,
-        // signWithGoogle,
+        signWithGoogle,
       }}
     >
       {children}

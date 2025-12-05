@@ -72,7 +72,7 @@ const HomeScreen = () => {
       >
         {t("pre-login-home.sign_up_with_email")}
       </Button>
-      <GoogleButton screen="LOGIN" setError={setError} />
+      <GoogleButton screen="REGISTER" setError={setError} />
       <View style={styles.main}>
         <Text style={{ color: colors.onPrimary }}>
           {t("pre-login-home.already_have_an_account")}

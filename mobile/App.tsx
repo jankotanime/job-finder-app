@@ -15,8 +15,9 @@ import LanguageMenu from "./src/screens/main/LanguageMenu";
 import ProfileCompletionFormScreen from "./src/screens/pre-login/ProfileCompletionFormScreen";
 import ProfileCompletionGoogle from "./src/screens/pre-login/ProfileCompletionGoogle";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { RootStackParamList } from "./src/types/RootStackParamList";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
   useEffect(() => {
     GoogleSignin.configure({

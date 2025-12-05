@@ -26,6 +26,7 @@ import {
 } from "../../utils/pickerUtils";
 import { Ionicons } from "@expo/vector-icons";
 import PDFPreview from "../../components/pre-login/PdfPreview";
+import { useNavigation } from "@react-navigation/native";
 
 interface FormState {
   firstName: string;
@@ -54,6 +55,7 @@ const ProfileCompletionFormScreen = () => {
   const [isCvAvailable, setIsCvAvailable] = useState<boolean>(false);
   const [cvName, setCvName] = useState("");
   const [pdfModalVisible, setPdfModalVisible] = useState<boolean>(false);
+  const navigation = useNavigation<any>();
 
   const handlePickCamera = async () => {
     try {
@@ -210,6 +212,7 @@ const ProfileCompletionFormScreen = () => {
                   //     navigation,
                   //     t,
                   // });
+                  navigation.navigate("Main");
                 }}
                 disabled={
                   isLoading ||
