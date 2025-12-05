@@ -5,15 +5,15 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
+import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 public interface OfferService {
     Page<OfferSummaryResponseDto> getAllOffers(Pageable pageable);
 
-    OfferBaseResponseDto getOfferById(Jwt jwt, UUID offerId);
+    OfferBaseResponseDto getOfferById(JwtPrincipal jwt, UUID offerId);
 
     OfferUserIsOwnerResponseDto createOffer(OfferCreateRequestDto offerCreateRequestDto);
 

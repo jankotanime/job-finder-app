@@ -6,6 +6,7 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
+import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import jakarta.validation.Valid;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +48,7 @@ public class OfferController {
 
     @GetMapping(ID)
     public ResponseDto<OfferBaseResponseDto> getOfferById(
-            @PathVariable UUID offerId, @AuthenticationPrincipal Jwt jwt) {
+            @PathVariable UUID offerId, @AuthenticationPrincipal JwtPrincipal jwt) {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched offer with id: " + offerId,
