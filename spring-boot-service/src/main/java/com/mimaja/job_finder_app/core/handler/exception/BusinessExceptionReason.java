@@ -30,6 +30,7 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     JOB_NOT_FOUND("Job not found", HttpStatus.NOT_FOUND, null),
     OFFER_NOT_FOUND("Offer not found", HttpStatus.NOT_FOUND, null),
     PHONE_NUMBER_ALREADY_TAKEN("User with this phone number exists", HttpStatus.UNAUTHORIZED, null),
+    PROFILE_INCOMPLETE("User profile needs to be completed", HttpStatus.UNAUTHORIZED, null),
     TAG_ALREADY_EXISTS("Tag already exists", HttpStatus.CONFLICT, null),
     TAG_NOT_FOUND("Tag not found", HttpStatus.NOT_FOUND, null),
     INVALID_SMS_CODE("Invalid sms code", HttpStatus.UNAUTHORIZED, null),

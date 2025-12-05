@@ -17,13 +17,13 @@ import com.mimaja.job_finder_app.security.shared.dto.ResponseGoogleIdExistDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseRefreshTokenDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.security.shared.enums.GoogleIdExistence;
+import com.mimaja.job_finder_app.security.smsCode.service.SmsCodeServiceDefault;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 import com.mimaja.job_finder_app.security.tokens.refreshTokens.service.RefreshTokenServiceDefault;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -34,17 +34,20 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
     private final JwtConfiguration jwtConfiguration;
     private final RefreshTokenServiceDefault refreshTokenServiceDefault;
     private final GoogleIdTokenVerifier verifier;
+    private final SmsCodeServiceDefault smsCodeServiceDefault;
 
     public GoogleAuthServiceIos(
             UserRepository userRepository,
             GoogleAuthDataManager googleAuthDataManager,
             JwtConfiguration jwtConfiguration,
             RefreshTokenServiceDefault refreshTokenServiceDefault,
-            @Value("${google.id.ios}") String googleIdIos) {
+            @Value("${google.id.ios}") String googleIdIos,
+            SmsCodeServiceDefault smsCodeServiceDefault) {
         this.userRepository = userRepository;
         this.googleAuthDataManager = googleAuthDataManager;
         this.jwtConfiguration = jwtConfiguration;
         this.refreshTokenServiceDefault = refreshTokenServiceDefault;
+        this.smsCodeServiceDefault = smsCodeServiceDefault;
 
         this.verifier =
                 new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
@@ -81,12 +84,16 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
             if (userOptional.isEmpty()) {
                 throw new BusinessException(BusinessExceptionReason.WRONG_GOOGLE_ID);
             }
-            // TODO: update sms code validation
-            int smsCode = reqData.smsCode();
-            if (smsCode != 123456) {
-                throw new BusinessException(BusinessExceptionReason.INVALID_SMS_CODE);
-            }
             user = userOptional.get();
+
+            int smsCode = reqData.smsCode();
+
+            if (smsCode == 0) {
+                throw new BusinessException(BusinessExceptionReason.LACK_OF_GOOGLE_ID);
+            }
+
+            smsCodeServiceDefault.validateCode(user.getId(), smsCode);
+
             user.setGoogleId(googleId);
             userRepository.save(user);
         } else {
@@ -98,10 +105,7 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
             changedEmail = true;
         }
 
-        UUID userId = user.getId();
-        String username = user.getUsername();
-
-        String accessToken = jwtConfiguration.createToken(userId, username);
+        String accessToken = jwtConfiguration.createToken(user);
 
         ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(user.getId());
         ResponseTokenDto tokens =
@@ -139,6 +143,7 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
         Optional<User> userWithSameEmail = userRepository.findByEmail(email);
 
         if (userWithSameEmail.isPresent()) {
+            smsCodeServiceDefault.createCode(userWithSameEmail.get().getId());
             return new ResponseGoogleIdExistDto(GoogleIdExistence.USER_EXIST_WITH_EMAIL);
         }
 
@@ -155,6 +160,7 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
         try {
             verifiedToken = verifier.verify(googleIdToken);
         } catch (GeneralSecurityException | IOException e) {
+            System.out.println(e);
             throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
         }
 
@@ -168,9 +174,7 @@ public class GoogleAuthServiceIos implements GoogleAuthService {
 
         User user = googleAuthDataManager.registerUser(username, email, googleId, phoneNumber);
 
-        UUID userId = user.getId();
-
-        String accessToken = jwtConfiguration.createToken(userId, username);
+        String accessToken = jwtConfiguration.createToken(user);
 
         ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(user.getId());
         ResponseTokenDto tokens =

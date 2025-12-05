@@ -1,5 +1,5 @@
-import { tryCatch } from "./try-catch";
-import { getErrorMessage } from "../constans/errorMessages";
+import { tryCatch } from "../../try-catch";
+import { getErrorMessage } from "../../../constans/errorMessages";
 
 export interface RotateTokensProps {
   refreshToken: string;

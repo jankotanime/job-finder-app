@@ -13,6 +13,14 @@ public class GoogleAuthDataManager {
     private final UserRepository userRepository;
 
     public User registerUser(String username, String email, String googleId, int phoneNumber) {
+        if (username.length() < 4 || username.length() > 25) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_LENGTH);
+        }
+
+        if (String.valueOf(phoneNumber).length() != 9) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_PHONE_NUMBER_LENGTH);
+        }
+
         if (userRepository.findByUsername(username).isPresent()) {
             throw new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN);
         }

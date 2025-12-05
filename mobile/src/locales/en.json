@@ -14,7 +14,8 @@
     "welcome_back": "Welcome back",
     "sign_up_question": "Don't have an account?",
     "forgot_password": "Forgot password?",
-    "signing_in": "Signing in..."
+    "signing_in": "Signing in...",
+    "or": "Or"
   },
   "register": {
     "get_started": "Get started",
@@ -42,6 +43,14 @@
     "invalid_refresh_token": "Invalid refresh token",
     "token_expired": "Session expired, log in again"
   },
+  "pickerErrors": {
+    "camera_no_permission": "No camera permissions",
+    "gallery_no_permission": "No gallery permissions",
+    "no_photo_uri_camera": "Could not get photo from camera.",
+    "no_photo_uri_gallery": "Could not get photo from gallery.",
+    "camera_error": "Camera error",
+    "gallery_error": "Gallery error"
+  },
   "main": {
     "card": {
       "details_check": "Press, to check details"
@@ -60,5 +69,23 @@
     "contactUs": "Contact Us",
     "logout": "Logout",
     "saved_jobs": "Saved jobs"
+  },
+  "profileCompletion": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "location": "Location",
+    "profilePicture": "Profile picture",
+    "cv": "Upload CV",
+    "description": "Description",
+    "choosePicture": "Choose your profile picture",
+    "photoPicker": {
+      "title": "Choose photo source",
+      "camera": "Camera",
+      "gallery": "Photos",
+      "cancel": "Cancel"
+    },
+    "moving_forward": "Moving forward...",
+    "move_forward": "Move forward",
+    "exit": "Exit"
   }
 }

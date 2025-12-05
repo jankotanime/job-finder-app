@@ -32,10 +32,6 @@ public class DefaultRegisterDataManager {
             throw new BusinessException(BusinessExceptionReason.INVALID_PHONE_NUMBER_LENGTH);
         }
 
-        if (phoneNumberString.length() != 9) {
-            throw new BusinessException(BusinessExceptionReason.INVALID_PHONE_NUMBER_PATTERN);
-        }
-
         if (password.length() < 8 || password.length() > 128) {
             throw new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_LENGTH);
         }

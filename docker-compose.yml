@@ -45,6 +45,7 @@ services:
       JWT_SECRET_FILE: /run/secrets/spring-boot-jwt-secret
       REFRESH_TOKEN_SECRET_FILE: /run/secrets/spring-boot-refresh-token-secret
       RESET_TOKEN_SECRET_FILE: /run/secrets/spring-boot-reset-token-secret
+      SMS_CODE_SECRET_FILE: /run/secrets/spring-boot-sms-code-secret
       REDIS_HOST: redis
       REDIS_PORT: 6379
       APP_SECURITY_PROFILE: prod
@@ -55,6 +56,7 @@ services:
       - spring-boot-jwt-secret
       - spring-boot-refresh-token-secret
       - spring-boot-reset-token-secret
+      - spring-boot-sms-code-secret
     networks:
       - job-finder-app
     develop:
@@ -126,6 +128,8 @@ secrets:
     file: ./secrets/spring-boot-refresh-token
   spring-boot-reset-token-secret:
     file: ./secrets/spring-boot-reset-token
+  spring-boot-sms-code-secret:
+    file: ./secrets/spring-boot-sms-code
 
 volumes:
   db-volume:

@@ -1,15 +1,22 @@
-import { tryCatch } from "./try-catch";
+import { tryCatch } from "../try-catch";
 
-interface LoginProps {
-  loginData: string;
+interface RegisterProps {
+  username: string;
+  email: string;
   password: string;
+  phoneNumber: string;
 }
-export const login = async ({ loginData, password }: LoginProps) => {
+export const register = async ({
+  username,
+  email,
+  password,
+  phoneNumber,
+}: RegisterProps) => {
   const [response, error] = await tryCatch(
-    fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/login`, {
+    fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ loginData, password }),
+      body: JSON.stringify({ username, email, password, phoneNumber }),
       credentials: "include",
     }),
   );
