@@ -33,6 +33,8 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     EMAIL_ALREADY_TAKEN("User with this email exists", HttpStatus.UNAUTHORIZED, null),
     PHONE_NUMBER_ALREADY_TAKEN("User with this phone number exists", HttpStatus.UNAUTHORIZED, null),
 
+    PROFILE_INCOMPLETE("User profile needs to be completed", HttpStatus.UNAUTHORIZED, null),
+
     INVALID_REFRESH_TOKEN("Invalid refresh token", HttpStatus.UNAUTHORIZED, null),
     INVALID_RESET_TOKEN("Invalid reset token", HttpStatus.UNAUTHORIZED, null),
     INVALID_SMS_CODE("Invalid sms code", HttpStatus.UNAUTHORIZED, null),
