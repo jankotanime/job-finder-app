@@ -31,20 +31,23 @@ public class LoginServiceDefault implements LoginService {
 
         User user = defaultLoginValidation.userValidation(loginData);
 
-        String username = user.getUsername();
         UUID userId = user.getId();
+
+        if (user.getPasswordHash() == null) {
+            throw new BusinessException(BusinessExceptionReason.LACK_OF_PASSWORD);
+        }
 
         if (!passwordConfiguration.verifyPassword(password, user.getPasswordHash())) {
             throw new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA);
         }
 
-        String accessToken = jwtConfiguration.createToken(userId, username);
+        String accessToken = jwtConfiguration.createToken(user);
 
         ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(userId);
 
         ResponseTokenDto tokens =
-                new ResponseTokenDto(
-                        accessToken, refreshToken.refreshToken(), refreshToken.refreshTokenId());
+            new ResponseTokenDto(
+                accessToken, refreshToken.refreshToken(), refreshToken.refreshTokenId());
 
         return tokens;
     }

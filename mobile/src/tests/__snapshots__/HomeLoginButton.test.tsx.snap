@@ -139,6 +139,7 @@ exports[`HomeLoginButton component renders correctly with good props 1`] = `
                   },
                   {
                     "fontSize": 20,
+                    "fontWeight": "600",
                   },
                 ],
               ],

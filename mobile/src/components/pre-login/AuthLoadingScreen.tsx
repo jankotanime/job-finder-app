@@ -3,8 +3,8 @@ import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
-import { rotateTokens } from "../../utils/rotateTokens";
-import { getTokens } from "../../utils/getTokens";
+import { rotateTokens } from "../../utils/auth/tokens/rotateTokens";
+import { getTokens } from "../../utils/auth/tokens/getTokens";
 import EncryptedStorage from "react-native-encrypted-storage";
 import { useTranslation } from "react-i18next";
 import { tryCatch } from "../../utils/try-catch";
@@ -110,7 +110,7 @@ const AuthLoadingScreen = () => {
   }, [user, loading, isAuthenticated, error]);
   if (error) console.error("error: ", error);
   return (
-    <View style={styles.main}>
+    <View style={[styles.main, { backgroundColor: colors.background }]}>
       <ActivityIndicator size="large" color={colors.primary} />
     </View>
   );

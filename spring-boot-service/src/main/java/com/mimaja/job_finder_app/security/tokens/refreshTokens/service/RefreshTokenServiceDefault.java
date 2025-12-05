@@ -76,7 +76,6 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
 
         RefreshToken tokenData =
                 new RefreshToken(refreshTokenId, hashOps.entries("RefreshToken-" + refreshTokenId));
-        System.out.println(tokenData.getHashedToken());
 
         if (!refreshTokenEncoder.verifyToken(refreshToken, tokenData.getHashedToken())) {
             throw new BusinessException(BusinessExceptionReason.INVALID_REFRESH_TOKEN);
@@ -93,7 +92,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
 
         User user = userOptional.get();
 
-        String accessToken = jwtConfiguration.createToken(userId, user.getUsername());
+        String accessToken = jwtConfiguration.createToken(user);
         ResponseRefreshTokenDto newRefreshToken = createToken(userId);
 
         ResponseTokenDto response =
