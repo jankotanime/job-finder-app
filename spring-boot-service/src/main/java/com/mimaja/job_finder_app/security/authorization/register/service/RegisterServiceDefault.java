@@ -9,7 +9,6 @@ import com.mimaja.job_finder_app.security.shared.dto.ResponseRefreshTokenDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
 import com.mimaja.job_finder_app.security.tokens.refreshTokens.service.RefreshTokenServiceDefault;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,9 +42,7 @@ public class RegisterServiceDefault implements RegisterService {
         User user = new User(username, email, hashedPassword, null, phoneNumber);
         userRepository.save(user);
 
-        UUID userId = user.getId();
-
-        String accessToken = jwtConfiguration.createToken(userId, username);
+        String accessToken = jwtConfiguration.createToken(user);
 
         ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(user.getId());
         ResponseTokenDto tokens =

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -104,10 +103,7 @@ public class GoogleAuthServiceAndroid implements GoogleAuthService {
             changedEmail = true;
         }
 
-        UUID userId = user.getId();
-        String username = user.getUsername();
-
-        String accessToken = jwtConfiguration.createToken(userId, username);
+        String accessToken = jwtConfiguration.createToken(user);
 
         ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(user.getId());
         ResponseTokenDto tokens =
@@ -175,9 +171,7 @@ public class GoogleAuthServiceAndroid implements GoogleAuthService {
 
         User user = googleAuthDataManager.registerUser(username, email, googleId, phoneNumber);
 
-        UUID userId = user.getId();
-
-        String accessToken = jwtConfiguration.createToken(userId, username);
+        String accessToken = jwtConfiguration.createToken(user);
 
         ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(user.getId());
         ResponseTokenDto tokens =
