@@ -5,7 +5,6 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
-
 import java.util.Optional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

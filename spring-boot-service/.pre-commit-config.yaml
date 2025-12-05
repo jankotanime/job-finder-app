@@ -1,4 +1,4 @@
-default_install_hook_types: [pre-commit, pre-push]
+default_install_hook_types: [pre-commit]
 repos:
   - repo: local
     hooks:
@@ -7,18 +7,18 @@ repos:
         entry: python3 spring-boot-service/scripts/run_gradle.py spotlessApply && git add -A
         language: system
         pass_filenames: false
-        stages: [pre-commit, pre-push]
+        stages: [pre-commit]
 
       - id: spotless-check
         name: spotlessCheck (fail if not formatted)
         entry: python3 spring-boot-service/scripts/run_gradle.py spotlessCheck
         language: system
         pass_filenames: false
-        stages: [pre-commit, pre-push]
+        stages: [pre-commit]
 
       - id: pmdLinting
         name: pmdMain(lint)
         entry: python3 spring-boot-service/scripts/run_gradle.py --info --stacktrace pmdMain
         language: system
         pass_filenames: false
-        stages: [pre-commit, pre-push]
+        stages: [pre-commit]

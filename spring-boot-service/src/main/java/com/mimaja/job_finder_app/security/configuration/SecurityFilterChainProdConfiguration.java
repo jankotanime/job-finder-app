@@ -26,46 +26,46 @@ public class SecurityFilterChainProdConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         String secretKey = jwtSecretKeyConfiguration.getSecretKey();
         httpSecurity
-            .authorizeHttpRequests(
-                auth ->
-                    auth.requestMatchers(HttpMethod.GET, "/health-check")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/example-error")
-                        .permitAll()
-                        .requestMatchers(
-                            HttpMethod.POST,
-                            "/auth/**",
-                            "/refresh-token/rotate",
-                            "/password/website/send-email")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/password/website/update")
-                        .permitAll()
-                        .requestMatchers("/api-docs/**")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
-            .exceptionHandling(
-                eh ->
-                    eh.authenticationEntryPoint(
-                        (request, response, authException) -> {
-                            response.setContentType("application/json");
-                            response.setCharacterEncoding("UTF-8");
-                            response.setStatus(401);
-                            response.getWriter().flush();
-                        }))
-            .csrf(
-                csrf ->
-                    csrf.requireCsrfProtectionMatcher(
-                        request ->
-                            request.getServletPath() != null
-                                && request.getServletPath()
-                                    .startsWith("/web")))
-            .logout(logout -> logout.disable())
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .addFilterBefore(
-                new JwtAuthorizationFilter(secretKey, userRepository),
-                UsernamePasswordAuthenticationFilter.class);
+                .authorizeHttpRequests(
+                        auth ->
+                                auth.requestMatchers(HttpMethod.GET, "/health-check")
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/example-error")
+                                        .permitAll()
+                                        .requestMatchers(
+                                                HttpMethod.POST,
+                                                "/auth/**",
+                                                "/refresh-token/rotate",
+                                                "/password/website/send-email")
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.PUT, "/password/website/update")
+                                        .permitAll()
+                                        .requestMatchers("/api-docs/**")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
+                .exceptionHandling(
+                        eh ->
+                                eh.authenticationEntryPoint(
+                                        (request, response, authException) -> {
+                                            response.setContentType("application/json");
+                                            response.setCharacterEncoding("UTF-8");
+                                            response.setStatus(401);
+                                            response.getWriter().flush();
+                                        }))
+                .csrf(
+                        csrf ->
+                                csrf.requireCsrfProtectionMatcher(
+                                        request ->
+                                                request.getServletPath() != null
+                                                        && request.getServletPath()
+                                                                .startsWith("/web")))
+                .logout(logout -> logout.disable())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .addFilterBefore(
+                        new JwtAuthorizationFilter(secretKey, userRepository),
+                        UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 }
