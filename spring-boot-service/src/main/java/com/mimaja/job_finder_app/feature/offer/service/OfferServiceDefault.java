@@ -4,9 +4,11 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferBaseResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
+import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
+import com.mimaja.job_finder_app.feature.offer.filterspecification.OfferFilterSpecification;
 import com.mimaja.job_finder_app.feature.offer.mapper.OfferMapper;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.repository.OfferRepository;
@@ -92,6 +94,14 @@ public class OfferServiceDefault implements OfferService {
     public boolean checkIfUserIsOwner(UUID userId, UUID offerId) {
         Offer offer = getOrThrow(offerId);
         return (offer.getOwner().getId()).equals(userId);
+    }
+
+    @Override
+    public Page<OfferSummaryResponseDto> getFilteredOffers(
+            OfferFilterRequestDto dto, Pageable pageable) {
+        Page<Offer> offers =
+                offerRepository.findAll(OfferFilterSpecification.filter(dto), pageable);
+        return offers.map(offerMapper::toOfferSummaryResponseDto);
     }
 
     private Offer getOrThrow(UUID offerId) {

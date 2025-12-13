@@ -2,6 +2,7 @@ package com.mimaja.job_finder_app.feature.offer.controller;
 
 import com.mimaja.job_finder_app.feature.offer.dto.OfferBaseResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
+import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
@@ -92,5 +93,16 @@ public class OfferController {
                 SuccessCode.RESOURCE_DELETED,
                 "Successfully deleted offer with id: " + offerId,
                 null);
+    }
+
+    @GetMapping("/filter")
+    public ResponseDto<Page<OfferSummaryResponseDto>> getFilteredOffers(
+            @Valid @RequestBody OfferFilterRequestDto offerFilterRequestDto,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                    Pageable pageable) {
+        return new ResponseDto<>(
+                SuccessCode.RESPONSE_SUCCESSFUL,
+                "Successfully fetched offers",
+                offerService.getFilteredOffers(offerFilterRequestDto, pageable));
     }
 }
