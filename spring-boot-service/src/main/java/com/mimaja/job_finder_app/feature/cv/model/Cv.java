@@ -1,0 +1,42 @@
+package com.mimaja.job_finder_app.feature.cv.model;
+
+import com.mimaja.job_finder_app.feature.user.model.User;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "cvs")
+public class Cv {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    private String fileName;
+
+    private MimeType mimeType;
+
+    private BigInteger fileSize;
+
+    private String storageKey;
+
+    @ManyToOne private User user;
+
+    @CreationTimestamp private LocalDateTime createdAt;
+
+    @UpdateTimestamp private LocalDateTime updatedAt;
+}

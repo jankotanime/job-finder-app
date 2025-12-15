@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     CATEGORY_ALREADY_EXISTS("Category already exists", HttpStatus.CONFLICT, null),
     CATEGORY_NOT_FOUND("Category not found", HttpStatus.NOT_FOUND, null),
+    CV_NOT_FOUND("Cv not found", HttpStatus.NOT_FOUND, null),
     EMAIL_ALREADY_TAKEN("User with this email exists", HttpStatus.UNAUTHORIZED, null),
     GOOGLEID_ALREADY_TAKEN("User with this google id exists", HttpStatus.UNAUTHORIZED, null),
     INVALID_ACCESS_TOKEN("Invalid access token", HttpStatus.UNAUTHORIZED, null),
