@@ -48,7 +48,7 @@ services:
       SMS_CODE_SECRET_FILE: /run/secrets/spring-boot-sms-code-secret
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      APP_SECURITY_PROFILE: prod
+      APP_SECURITY_PROFILE: dev
       API_SSR_URL: ${API_SSR_URL}
       GOOGLE_ID_IOS: ${API_GOOGLE_ID_WEB}
       GOOGLE_ID_ANDROID: ${API_GOOGLE_ID_WEB}
