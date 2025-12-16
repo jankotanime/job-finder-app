@@ -32,4 +32,15 @@ public class CheckDataValidity {
             throw new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN);
         }
     }
+
+    public void checkEmail(String email) {
+        if (!patternMatches(email, "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_EMAIL_PATTERN);
+        }
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.EMAIL_ALREADY_TAKEN);
+        }
+    }
 }
