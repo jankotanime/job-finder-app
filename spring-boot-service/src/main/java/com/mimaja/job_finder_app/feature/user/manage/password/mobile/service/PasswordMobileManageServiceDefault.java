@@ -1,11 +1,11 @@
-package com.mimaja.job_finder_app.security.manage.password.mobile.service;
+package com.mimaja.job_finder_app.feature.user.manage.password.mobile.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.user.manage.password.utils.PasswordManageDataManager;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.manage.password.utils.PasswordManageDataManager;
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordDto;
 import com.mimaja.job_finder_app.security.tokens.jwt.utils.JwtAuthenticationManager;
 import lombok.RequiredArgsConstructor;

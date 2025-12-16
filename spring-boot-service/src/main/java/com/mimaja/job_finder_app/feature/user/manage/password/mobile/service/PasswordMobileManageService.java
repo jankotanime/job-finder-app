@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.security.manage.password.mobile.service;
+package com.mimaja.job_finder_app.feature.user.manage.password.mobile.service;
 
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordDto;
 
