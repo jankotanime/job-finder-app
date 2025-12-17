@@ -2,8 +2,8 @@ package com.mimaja.job_finder_app.feature.user.manage.userData.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.user.manage.userData.shared.request.UpdateUserDataRequestDto;
-import com.mimaja.job_finder_app.feature.user.manage.userData.shared.response.UpdateUserDataResponseDto;
+import com.mimaja.job_finder_app.feature.user.manage.userData.shared.requestDto.UpdateUserDataRequestDto;
+import com.mimaja.job_finder_app.feature.user.manage.userData.shared.responseDto.UpdateUserDataResponseDto;
 import com.mimaja.job_finder_app.feature.user.manage.utils.CheckDataValidity;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;

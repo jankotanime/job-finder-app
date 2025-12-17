@@ -47,6 +47,19 @@ public class CheckDataValidity {
         }
     }
 
+    public void checkPhoneNumber(UUID userId, int phoneNumber) {
+        if (String.valueOf(phoneNumber).length() != 9) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_PHONE_NUMBER_LENGTH);
+        }
+
+        Optional<User> userOptional = userRepository.findByPhoneNumber(phoneNumber);
+        if (userOptional.isPresent()) {
+            if (!userId.equals(userOptional.get().getId())) {
+                throw new BusinessException(BusinessExceptionReason.PHONE_NUMBER_ALREADY_TAKEN);
+            }
+        }
+    }
+
     public void checkRestData(String data) {
         if (data.length() < 1) {
             throw new BusinessException(BusinessExceptionReason.INVALID_DATA_LENGTH);

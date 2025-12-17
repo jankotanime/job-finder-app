@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.feature.user.manage.userData.shared.request;
+package com.mimaja.job_finder_app.feature.user.manage.userData.shared.requestDto;
 
 import jakarta.validation.constraints.NotBlank;
 

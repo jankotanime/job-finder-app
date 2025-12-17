@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/manage/email")
+@RequestMapping("/update/email")
 public class UpdateEmailController {
     private final UpdateEmailServiceDefault updateEmailServiceDefault;
 
