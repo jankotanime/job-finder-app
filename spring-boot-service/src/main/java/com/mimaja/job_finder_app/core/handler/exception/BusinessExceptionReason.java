@@ -15,6 +15,8 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     EMAIL_ALREADY_TAKEN("User with this email exists", HttpStatus.UNAUTHORIZED, null),
     GOOGLEID_ALREADY_TAKEN("User with this google id exists", HttpStatus.UNAUTHORIZED, null),
     INVALID_ACCESS_TOKEN("Invalid access token", HttpStatus.UNAUTHORIZED, null),
+    INVALID_DATA_LENGTH("Invalid data length", HttpStatus.FORBIDDEN, null),
+    INVALID_DATA_PATTERN("Invalid data pattern", HttpStatus.FORBIDDEN, null),
     INVALID_EMAIL_PATTERN("Invalid email", HttpStatus.UNAUTHORIZED, null),
     INVALID_GOOGLE_ID("Invalid google id", HttpStatus.UNAUTHORIZED, null),
     INVALID_USERNAME_LENGTH(

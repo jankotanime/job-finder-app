@@ -5,6 +5,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ public class CheckDataValidity {
         return Pattern.compile(regexPattern).matcher(data).matches();
     }
 
-    public void checkUsername(String username) {
+    public void checkUsername(UUID userId, String username) {
         if (username.length() < 4 || username.length() > 25) {
             throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_LENGTH);
         }
@@ -29,7 +30,9 @@ public class CheckDataValidity {
 
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
-            throw new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN);
+            if (!userId.equals(userOptional.get().getId())) {
+                throw new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN);
+            }
         }
     }
 
@@ -41,6 +44,15 @@ public class CheckDataValidity {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             throw new BusinessException(BusinessExceptionReason.EMAIL_ALREADY_TAKEN);
+        }
+    }
+
+    public void checkRestData(String data) {
+        if (data.length() < 1) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_DATA_LENGTH);
+        }
+        if (!patternMatches(data, "^(?=.*[a-zA-Z]).+$")) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_DATA_PATTERN);
         }
     }
 }
