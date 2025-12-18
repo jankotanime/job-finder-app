@@ -1,10 +1,13 @@
 package com.mimaja.job_finder_app.feature.cv.controller;
 
+import com.mimaja.job_finder_app.feature.cv.dto.CvResponseDto;
 import com.mimaja.job_finder_app.feature.cv.service.CvService;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,11 +22,11 @@ public class CvController {
     private static final String ID = "/{cvId}";
 
     // Example upload
-    @PostMapping("/upload")
-    public ResponseEntity<ResponseDto<String>> uploadImage(
-            @RequestParam("file") MultipartFile file) {
-        String key = cvService.uploadFile(file);
+    @PostMapping("/upload/{userId}")
+    public ResponseEntity<ResponseDto<CvResponseDto>> uploadImage(
+            @RequestParam("file") MultipartFile file, @PathVariable UUID userId) {
+        CvResponseDto cv = cvService.uploadCv(file, userId);
         return ResponseEntity.ok(
-                new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfully uploaded CV", key));
+                new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfully uploaded CV", cv));
     }
 }

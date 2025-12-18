@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.cv.mapper;
 
+import com.mimaja.job_finder_app.feature.cv.dto.CvResponseDto;
 import com.mimaja.job_finder_app.feature.cv.dto.CvUploadRequestDto;
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
 import org.mapstruct.Mapper;
@@ -10,4 +11,6 @@ import org.mapstruct.ReportingPolicy;
 public interface CvMapper {
     @Mapping(target = "user", ignore = true)
     Cv toEntity(CvUploadRequestDto dto);
+
+    CvResponseDto toResponseDto(Cv cv);
 }

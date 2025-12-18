@@ -1,7 +1,11 @@
 package com.mimaja.job_finder_app.feature.cv.model;
 
+import com.mimaja.job_finder_app.feature.cv.dto.CvUploadRequestDto;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,15 +32,27 @@ public class Cv {
 
     private String fileName;
 
+    @Enumerated(EnumType.STRING)
     private MimeType mimeType;
 
     private BigInteger fileSize;
 
     private String storageKey;
 
-    @ManyToOne private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 
     @CreationTimestamp private LocalDateTime createdAt;
 
     @UpdateTimestamp private LocalDateTime updatedAt;
+
+    public static Cv from(CvUploadRequestDto dto) {
+        Cv cv = new Cv();
+        cv.fileName = dto.fileName();
+        cv.mimeType = dto.mimeType();
+        cv.fileSize = dto.fileSize();
+        cv.storageKey = dto.storageKey();
+        cv.user = dto.user();
+        return cv;
+    }
 }

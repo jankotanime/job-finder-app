@@ -4,13 +4,16 @@ import com.mimaja.job_finder_app.core.handler.exception.ApplicationException;
 import com.mimaja.job_finder_app.core.handler.exception.ApplicationExceptionReason;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.cv.dto.CvResponseDto;
 import com.mimaja.job_finder_app.feature.cv.dto.CvUploadRequestDto;
 import com.mimaja.job_finder_app.feature.cv.mapper.CvMapper;
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
+import com.mimaja.job_finder_app.feature.cv.model.MimeType;
 import com.mimaja.job_finder_app.feature.cv.repository.CvRepository;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,10 +36,9 @@ public class CvServiceDefault implements CvService {
     @Value("${cloudflare.r2.bucket}")
     private String bucket;
 
-    // Example upload
-    public String uploadFile(MultipartFile file) {
-        // 1. Resolve filename and content type
-        String original =
+    @Override
+    public CvResponseDto uploadCv(MultipartFile file, UUID userId) {
+        String fileName =
                 Optional.ofNullable(file.getOriginalFilename())
                         .orElseThrow(
                                 () ->
@@ -50,50 +52,29 @@ public class CvServiceDefault implements CvService {
                                         new ApplicationException(
                                                 ApplicationExceptionReason.CONTENT_TYPE_UNKNOWN));
 
-        // 2. Decide folder by extension
-        String ext = getFileExtension(original);
+        MimeType ext = getFileExtension(fileName);
         String folder =
                 switch (ext) {
-                    case "jpg", "jpeg", "png", "gif" -> "images";
-                    case "mp4", "mov" -> "videos";
-                    case "pdf", "doc", "docx", "txt" -> "documents";
-                    default ->
-                            throw new ApplicationException(
-                                    ApplicationExceptionReason.UNSUPPORTED_FILE_TYPE);
+                    case MimeType.GIF, MimeType.JPG, MimeType.JPEG, MimeType.PNG -> "images";
+                    case MimeType.DOCX, MimeType.PDF -> "documents";
                 };
 
-        // 3. Build object key
-        String key = String.format("%s/%s-%s", folder, UUID.randomUUID(), original);
+        String key = String.format("%s/%s-%s", folder, UUID.randomUUID(), fileName);
 
-        // 4. Prepare S3 Put request
         PutObjectRequest req =
                 PutObjectRequest.builder().bucket(bucket).key(key).contentType(contentType).build();
 
-        // 5. Perform upload
         try {
             s3Client.putObject(req, RequestBody.fromBytes(file.getBytes()));
         } catch (IOException e) {
             throw new ApplicationException(ApplicationExceptionReason.FILE_UPLOAD_EXCEPTION);
         }
 
-        return key;
-    }
-
-    private String getFileExtension(String filename) {
-        int idx = filename.lastIndexOf('.');
-        if (idx < 0 || idx == filename.length() - 1) {
-            throw new IllegalArgumentException("Invalid file extension in filename: " + filename);
-        }
-        return filename.substring(idx + 1);
-    }
-
-    @Override
-    public Cv uploadCv(CvUploadRequestDto dto, UUID userId) {
         User user = userService.getUserById(userId);
-        Cv cv = cvMapper.toEntity(dto);
-        cv.setUser(user);
-        cv.setStorageKey(UUID.randomUUID().toString()); // generated key from Cloudflare R2 Storage
-        return cvRepository.save(cv);
+        BigInteger fileSize = BigInteger.valueOf(file.getSize());
+        CvUploadRequestDto dto = new CvUploadRequestDto(fileName, ext, fileSize, key, user);
+        Cv cv = Cv.from(dto);
+        return cvMapper.toResponseDto(cvRepository.save(cv));
     }
 
     @Override
@@ -124,5 +105,13 @@ public class CvServiceDefault implements CvService {
         return cvRepository
                 .findById(cvId)
                 .orElseThrow(() -> new BusinessException(BusinessExceptionReason.CV_NOT_FOUND));
+    }
+
+    private MimeType getFileExtension(String filename) {
+        int idx = filename.lastIndexOf('.');
+        if (idx < 0 || idx == filename.length() - 1) {
+            throw new IllegalArgumentException("Invalid file extension in filename: " + filename);
+        }
+        return MimeType.valueOf(filename.substring(idx + 1).toUpperCase());
     }
 }
