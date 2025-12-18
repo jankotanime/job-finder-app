@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.cv.model;
 
+import com.mimaja.job_finder_app.feature.cv.dto.CvUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.cv.dto.CvUploadRequestDto;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import jakarta.persistence.Entity;
@@ -54,5 +55,12 @@ public class Cv {
         cv.storageKey = dto.storageKey();
         cv.user = dto.user();
         return cv;
+    }
+
+    public void update(CvUpdateRequestDto dto) {
+        this.fileName = dto.fileName();
+        this.mimeType = dto.mimeType();
+        this.fileSize = dto.fileSize();
+        this.storageKey = dto.storageKey();
     }
 }
