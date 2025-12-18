@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -93,7 +92,7 @@ public class CvServiceDefault implements CvService {
     public List<CvResponseDto> getCvsByUserId(UUID userId) {
         return cvRepository.findAllCvsByUserId(userId).stream()
                 .map(cvMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -185,11 +184,10 @@ public class CvServiceDefault implements CvService {
         String fileName = getFileName(file);
         String contentType = getContentType(file);
         MimeType ext = getFileExtension(fileName);
-        String folder =
-                switch (ext) {
-                    case MimeType.GIF, MimeType.JPG, MimeType.JPEG, MimeType.PNG -> "images";
-                    case MimeType.DOCX, MimeType.PDF -> "documents";
-                };
+        if (!ext.equals(MimeType.DOCX) && !ext.equals(MimeType.PDF)) {
+            throw new BusinessException(BusinessExceptionReason.WRONG_CV_FILE_FORMAT);
+        }
+        String folder = "documents";
 
         String key = String.format("%s/%s-%s", folder, UUID.randomUUID(), fileName);
         return new ProcessedFileDetails(fileName, contentType, ext, key);

@@ -39,6 +39,7 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     INVALID_SMS_CODE("Invalid sms code", HttpStatus.UNAUTHORIZED, null),
     USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND, null),
     USERNAME_ALREADY_TAKEN("User with this username exists", HttpStatus.UNAUTHORIZED, null),
+    WRONG_CV_FILE_FORMAT("Wrong cv file format", HttpStatus.BAD_REQUEST, null),
     WRONG_GOOGLE_ID("User with this google id does not exist", HttpStatus.UNAUTHORIZED, null),
     WRONG_LOGIN_DATA("User with this login data does not exist", HttpStatus.UNAUTHORIZED, null),
     WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED, null);
