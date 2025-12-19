@@ -2,6 +2,7 @@ package com.mimaja.job_finder_app.feature.offer.service;
 
 import com.mimaja.job_finder_app.feature.offer.dto.OfferBaseResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
+import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
@@ -23,4 +24,7 @@ public interface OfferService {
     void deleteOffer(UUID offerId);
 
     boolean checkIfUserIsOwner(UUID userId, UUID offerId);
+
+    Page<OfferSummaryResponseDto> getFilteredOffers(
+            OfferFilterRequestDto offerFilterRequestDto, Pageable pageable);
 }
