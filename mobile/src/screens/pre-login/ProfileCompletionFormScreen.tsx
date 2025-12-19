@@ -27,6 +27,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import PDFPreview from "../../components/pre-login/PdfPreview";
 import { useNavigation } from "@react-navigation/native";
+import { handleProfileCompletionSubmit } from "../../auth/profileCompletionForm/handleProfileCompletionSubmit";
 
 interface FormState {
   firstName: string;
@@ -205,13 +206,11 @@ const ProfileCompletionFormScreen = () => {
                 style={styles.completeButton}
                 contentStyle={{ height: 48 }}
                 onPress={() => {
-                  // handleProfileCompletionSubmit({
-                  //     formState,
-                  //     setError,
-                  //     setIsLoading,
-                  //     navigation,
-                  //     t,
-                  // });
+                  handleProfileCompletionSubmit({
+                    formState,
+                    setError,
+                    t,
+                  });
                   navigation.navigate("Main");
                 }}
                 disabled={
