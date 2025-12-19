@@ -3,8 +3,8 @@ import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
-import { rotateTokens } from "../../utils/auth/tokens/rotateTokens";
-import { getTokens } from "../../utils/auth/tokens/getTokens";
+import { rotateTokens } from "../../auth/tokens/rotateTokens";
+import { getTokens } from "../../auth/tokens/getTokens";
 import EncryptedStorage from "react-native-encrypted-storage";
 import { useTranslation } from "react-i18next";
 import { tryCatch } from "../../utils/try-catch";
@@ -96,6 +96,8 @@ const AuthLoadingScreen = () => {
   }, []);
 
   useEffect(() => {
+    console.log("isAuthenticated?: ", isAuthenticated);
+    console.log("user?: ", user);
     const checkAuthStatus = async () => {
       if (hasNavigated.current || loading) return;
       hasNavigated.current = true;

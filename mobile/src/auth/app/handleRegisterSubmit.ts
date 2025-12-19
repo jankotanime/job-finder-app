@@ -1,4 +1,4 @@
-import { tryCatch } from "../try-catch";
+import { tryCatch } from "../../utils/try-catch";
 import { getErrorMessage } from "../../constans/errorMessages";
 
 export interface FormState {

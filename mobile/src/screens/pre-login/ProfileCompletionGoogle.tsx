@@ -13,6 +13,8 @@ import { fieldsProfileCompletionGoogle } from "../../constans/formFields";
 import { useTranslation } from "react-i18next";
 import { Button } from "react-native-paper";
 import { RouteProp } from "@react-navigation/native";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 interface FormState {
   phoneNumber: string;
@@ -29,19 +31,29 @@ type ProfileCompletionGoogleProps = {
 const { width, height } = Dimensions.get("window");
 const ProfileCompletionGoogle = ({ route }: ProfileCompletionGoogleProps) => {
   const { t } = useTranslation();
+  const navigation = useNavigation<any>();
   const [formState, setFormState] = useState<FormState>({
     phoneNumber: "",
     username: "",
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const { onRegisterSuccess } = route.params;
+  const { pendingGoogleIdToken, completeGoogleRegistration } = useAuth();
 
   const onFinish = async () => {
     setIsLoading(true);
-    try {
-      await onRegisterSuccess(formState.username, formState.phoneNumber);
-    } finally {
+    if (!pendingGoogleIdToken) return;
+    console.log("pendingGoogleIdToken: ", pendingGoogleIdToken);
+    const result = await completeGoogleRegistration(
+      pendingGoogleIdToken,
+      formState.username,
+      formState.phoneNumber,
+    );
+    console.log("result: ", result);
+    if (result.status === "REGISTERED") {
+      navigation.replace("ProfileCompletion");
+      setIsLoading(false);
+    } else {
+      console.error("error: ", result.status);
       setIsLoading(false);
     }
   };

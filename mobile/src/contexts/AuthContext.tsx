@@ -6,18 +6,23 @@ import React, {
   ReactNode,
 } from "react";
 import EncryptedStorage from "react-native-encrypted-storage";
-import getUsernameFromAccessToken from "../utils/getUsernameFromAccessToken";
+import getUsernameFromAccessToken from "../auth/tokens/getUsernameFromAccessToken";
 import { tryCatch } from "../utils/try-catch";
-import { login } from "../utils/auth/login";
-import { register } from "../utils/auth/register";
-import { extractTokens } from "../utils/auth/tokens/extractTokens";
+import { login } from "../auth/app/login";
+import { register } from "../auth/app/register";
+import { extractTokens } from "../auth/tokens/extractTokens";
 import { useTranslation } from "react-i18next";
-import { handleGoogleAuth } from "../utils/auth/googleAuth/handleGoogleAuth";
+import { handleGoogleAuth } from "../auth/google/handleGoogleAuth";
+import { SignWithGoogleResult } from "../types/SignWithGoogleResult";
+import { checkUserExistence } from "../auth/google/checkUserExistence";
+import { loginWithGoogle } from "../auth/google/loginWithGoogle";
+import { registerWithGoogle } from "../auth/google/registerWithGoogle";
 
 type AuthContextType = {
   user: string;
   loading: boolean;
   isAuthenticated: boolean;
+  pendingGoogleIdToken: string | null;
   signIn: (
     formState: FormStateLoginProps,
   ) => Promise<{ ok: boolean; error?: string }>;
@@ -28,7 +33,21 @@ type AuthContextType = {
   refreshAuth: () => Promise<void>;
   signWithGoogle: (
     formState: GoogleLoginProps,
-  ) => Promise<{ ok: boolean; error?: string }>;
+  ) => Promise<SignWithGoogleResult>;
+  completeGoogleRegistration: (
+    idToken: string,
+    username: string,
+    phoneNumber: string,
+  ) => Promise<
+    | {
+        status: string;
+        error: any;
+      }
+    | {
+        status: string;
+        error?: undefined;
+      }
+  >;
 };
 interface FormStateLoginProps {
   loginData: string;
@@ -48,11 +67,16 @@ const AuthContext = createContext<AuthContextType>({
   user: "",
   loading: true,
   isAuthenticated: false,
+  pendingGoogleIdToken: "",
   signIn: async () => ({ ok: false, error: "not-initialized" }),
   signOut: async () => {},
   signUp: async () => ({ ok: false, error: "not-initialized" }),
   refreshAuth: async () => {},
-  signWithGoogle: async () => ({ ok: false, error: "not-initialized" }),
+  signWithGoogle: async () => ({ status: "ERROR", error: "not-initialized" }),
+  completeGoogleRegistration: async () => ({
+    status: "ERROR",
+    error: "not-initialized",
+  }),
 });
 export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -64,6 +88,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     refreshToken: string;
     refreshTokenId: string;
   } | null>(null);
+  const [pendingGoogleIdToken, setPendingGoogleIdToken] = useState<
+    string | null
+  >("");
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -107,6 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { ok: true };
   };
   const signOut = async () => {
+    console.log("doszlo");
     await EncryptedStorage.removeItem("auth");
     setTokens(null);
     setUser("");
@@ -137,32 +165,97 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { ok: true };
   };
 
-  const signWithGoogle = async (formState: GoogleLoginProps) => {
-    const dataResponse = await handleGoogleAuth(formState);
-    const data = dataResponse?.data;
-    if (!dataResponse?.ok)
-      return { ok: false, error: dataResponse?.error.message };
-    if (data?.error) return { ok: false, error: data.code };
-    const { accessToken, refreshToken, refreshTokenId } = extractTokens(
-      data.data,
-    );
-
-    if (!accessToken || typeof accessToken !== "string") {
-      return { ok: false, error: t("errors.no_access_token") };
+  const signWithGoogle = async ({
+    setIsSubmiting,
+    navigation,
+  }: GoogleLoginProps): Promise<SignWithGoogleResult> => {
+    setIsSubmiting(true);
+    const googleResult = await handleGoogleAuth();
+    if (googleResult.error) {
+      setIsSubmiting(false);
+      return { status: "ERROR", error: googleResult.error.message };
     }
+    const { idToken, user, name } = googleResult;
+    if (!idToken) {
+      setIsSubmiting(false);
+      return { status: "ERROR", error: "No ID token received" };
+    }
+    const userStatus = await checkUserExistence(idToken);
+    if (userStatus === "USER_EXIST") {
+      const loginResult = await loginWithGoogle({ idToken, name });
+      console.log("AuthContextLoginUserExist: ", loginResult.data);
+      if (loginResult.error) {
+        setIsSubmiting(false);
+        return { status: "ERROR", error: loginResult.error.message };
+      }
+      const { accessToken, refreshToken, refreshTokenId } = extractTokens(
+        loginResult.data.tokens,
+      );
+      await EncryptedStorage.setItem(
+        "auth",
+        JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
+      );
+      setTokens({
+        accessToken: accessToken || "",
+        refreshToken: refreshToken || "",
+        refreshTokenId: refreshTokenId || "",
+      });
+      console.log("userName: ", user.name);
+      setIsAuthenticated(true);
+      setIsSubmiting(false);
+      navigation.replace("Main");
+      return { status: "LOGGED_IN" };
+    }
+    if (userStatus === "USER_NOT_EXIST") {
+      setIsSubmiting(false);
+      setPendingGoogleIdToken(idToken);
+      navigation.navigate("ProfileCompletionGoogle");
+      return { status: "REGISTER_REQUIRED" };
+    }
+    if (userStatus === "USER_EXIST_WITH_EMAIL") {
+      setIsSubmiting(false);
+      return { status: "REGISTER_REQUIRED" };
+    }
+    setIsSubmiting(false);
+    return { status: "ERROR", error: "Unknown user status" };
+  };
+
+  const completeGoogleRegistration = async (
+    idToken: string,
+    username: string,
+    phoneNumber: string,
+  ) => {
+    const registerResult = await registerWithGoogle({
+      idToken,
+      username,
+      phoneNumber,
+    });
+    if (!registerResult.ok) {
+      return { status: "ERROR", error: registerResult.error };
+    }
+    console.log(
+      "registerResultCompleteGoogleRegistrationData: ",
+      registerResult.data,
+    );
+    const { accessToken, refreshToken, refreshTokenId } = extractTokens(
+      registerResult.data,
+    );
 
     await EncryptedStorage.setItem(
       "auth",
       JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
     );
+
     setTokens({
       accessToken: accessToken || "",
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
     });
+
+    setUser(username);
     setIsAuthenticated(true);
-    setUser(dataResponse?.name ?? "");
-    return { ok: true };
+
+    return { status: "REGISTER_REQUIRED" };
   };
 
   return (
@@ -171,11 +264,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         loading,
         isAuthenticated,
+        pendingGoogleIdToken,
         signIn,
         signOut,
         signUp,
         refreshAuth: loadTokens,
         signWithGoogle,
+        completeGoogleRegistration,
       }}
     >
       {children}

@@ -26,8 +26,10 @@ const GoogleButton = ({ screen, setError }: GoogleLoginProps) => {
   const { signWithGoogle } = useAuth();
 
   const handleGoogleAuth = async () => {
-    const { ok, error } = await signWithGoogle({ setIsSubmiting, navigation });
-    if (error) setError(getErrorMessage(error, t) || error);
+    const result = await signWithGoogle({ setIsSubmiting, navigation });
+    if ("error" in result && result.error) {
+      setError(getErrorMessage(result.error, t) || result.error);
+    }
   };
 
   return (

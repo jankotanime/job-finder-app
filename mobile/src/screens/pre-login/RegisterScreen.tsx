@@ -16,7 +16,7 @@ import { useTheme, Button } from "react-native-paper";
 import Input from "../../components/reusable/Input";
 import { fieldsRegister } from "../../constans/formFields";
 import { useNavigation } from "@react-navigation/native";
-import { handleRegisterSubmit } from "../../utils/auth/handleRegisterSubmit";
+import { handleRegisterSubmit } from "../../auth/app/handleRegisterSubmit";
 import { useAuth } from "../../contexts/AuthContext";
 import Error from "../../components/reusable/Error";
 import GoogleLoginButton from "../../components/pre-login/GoogleLoginButton";
