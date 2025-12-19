@@ -1,0 +1,10 @@
+package com.mimaja.job_finder_app.feature.user.update.shared.requestDto;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record UpdateUserDataRequestDto(
+        @NotBlank String newUsername,
+        @NotBlank String newFirstName,
+        @NotBlank String newLastName,
+        @NotBlank String newProfileDescription,
+        @NotBlank String password) {}

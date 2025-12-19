@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.security.manage.password.utils;
+package com.mimaja.job_finder_app.feature.user.update.password.utils;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;

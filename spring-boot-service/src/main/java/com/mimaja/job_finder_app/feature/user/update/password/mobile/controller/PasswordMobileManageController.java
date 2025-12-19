@@ -1,6 +1,6 @@
-package com.mimaja.job_finder_app.security.manage.password.mobile.controller;
+package com.mimaja.job_finder_app.feature.user.update.password.mobile.controller;
 
-import com.mimaja.job_finder_app.security.manage.password.mobile.service.PasswordMobileManageService;
+import com.mimaja.job_finder_app.feature.user.update.password.mobile.service.PasswordMobileManageService;
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;

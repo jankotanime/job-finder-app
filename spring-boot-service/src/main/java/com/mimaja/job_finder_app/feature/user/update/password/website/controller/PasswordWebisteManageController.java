@@ -1,6 +1,6 @@
-package com.mimaja.job_finder_app.security.manage.password.website.controller;
+package com.mimaja.job_finder_app.feature.user.update.password.website.controller;
 
-import com.mimaja.job_finder_app.security.manage.password.website.service.PasswordWebsiteManageServiceDefault;
+import com.mimaja.job_finder_app.feature.user.update.password.website.service.PasswordWebsiteManageServiceDefault;
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateByEmailDto;
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateEmailRequestDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponsePasswordUpdateEmailRequestDto;

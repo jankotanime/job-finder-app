@@ -1,10 +1,10 @@
-package com.mimaja.job_finder_app.security.manage.password.website.service;
+package com.mimaja.job_finder_app.feature.user.update.password.website.service;
 
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
+import com.mimaja.job_finder_app.feature.user.update.password.utils.PasswordManageDataManager;
+import com.mimaja.job_finder_app.feature.user.update.password.utils.PasswordWebsiteManager;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.manage.password.utils.PasswordManageDataManager;
-import com.mimaja.job_finder_app.security.manage.password.utils.PasswordWebsiteManager;
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateByEmailDto;
 import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateEmailRequestDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponsePasswordUpdateEmailRequestDto;
