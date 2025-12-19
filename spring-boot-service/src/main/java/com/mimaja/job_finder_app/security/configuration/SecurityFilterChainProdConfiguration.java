@@ -1,9 +1,8 @@
 package com.mimaja.job_finder_app.security.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtAuthorizationFilter;
 import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtSecretKeyConfiguration;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @ConditionalOnProperty(name = "app.security.profile", havingValue = "prod", matchIfMissing = true)
 public class SecurityFilterChainProdConfiguration {
     private final JwtSecretKeyConfiguration jwtSecretKeyConfiguration;
+    private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -48,13 +48,9 @@ public class SecurityFilterChainProdConfiguration {
                         eh ->
                                 eh.authenticationEntryPoint(
                                         (request, response, authException) -> {
-                                            response.setStatus(401);
                                             response.setContentType("application/json");
                                             response.setCharacterEncoding("UTF-8");
-                                            Map<String, Object> errorBody =
-                                                    Map.of("err", "Token error");
-                                            new ObjectMapper()
-                                                    .writeValue(response.getWriter(), errorBody);
+                                            response.setStatus(401);
                                             response.getWriter().flush();
                                         }))
                 .csrf(
@@ -68,7 +64,7 @@ public class SecurityFilterChainProdConfiguration {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(
-                        new JwtAuthorizationFilter(secretKey),
+                        new JwtAuthorizationFilter(secretKey, userRepository),
                         UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }

@@ -3,24 +3,28 @@ package com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.user.model.User;
+import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
+import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@AllArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final String secretKey;
-
-    public JwtAuthorizationFilter(String secretKey) {
-        this.secretKey = secretKey;
-    }
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -37,15 +41,52 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                                 .verify(accessToken);
                 String idString = jwt.getSubject();
                 String username = jwt.getClaim("username").asString();
-                if (idString != null && username != null) {
+                String email = jwt.getClaim("email").asString();
+                int phoneNumber = jwt.getClaim("phoneNumber").asInt();
+
+                if (idString != null && username != null && email != null && phoneNumber != 0) {
+                    // TODO: Check if not too plain
+                    if ((request.getServletPath().equals("/profile-completion-form")
+                                    || (request.getServletPath().equals("/refresh-token/rotate")))
+                            && request.getMethod().equals("POST")) {
+                        UUID id = UUID.fromString(idString);
+                        User user = userRepository.findById(id).get();
+
+                        JwtPrincipal principal =
+                                new JwtPrincipal(
+                                        user, id, username, email, phoneNumber, null, null);
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(principal, null, null);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+                    String firstName = jwt.getClaim("firstName").asString();
+                    String lastName = jwt.getClaim("lastName").asString();
+                    if (firstName == null || lastName == null) {
+                        // TODO: To Business exception
+                        Map<String, Object> errorBody = new HashMap<>();
+                        errorBody.put("code", BusinessExceptionReason.PROFILE_INCOMPLETE.getCode());
+                        errorBody.put(
+                                "message", BusinessExceptionReason.PROFILE_INCOMPLETE.getMessage());
+                        new ObjectMapper().writeValue(response.getWriter(), errorBody);
+                    }
                     UUID id = UUID.fromString(idString);
-                    JwtPrincipal principal = new JwtPrincipal(id, username);
+                    User user = userRepository.findById(id).get();
+
+                    JwtPrincipal principal =
+                            new JwtPrincipal(
+                                    user, id, username, email, phoneNumber, firstName, lastName);
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(principal, null, null);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (JWTVerificationException e) {
-                throw new BusinessException(BusinessExceptionReason.INVALID_ACCESS_TOKEN);
+                // TODO: To Business exception
+                Map<String, Object> errorBody = new HashMap<>();
+                errorBody.put("code", BusinessExceptionReason.INVALID_ACCESS_TOKEN.getCode());
+                errorBody.put("message", BusinessExceptionReason.INVALID_ACCESS_TOKEN.getMessage());
+                new ObjectMapper().writeValue(response.getWriter(), errorBody);
             }
         }
         filterChain.doFilter(request, response);

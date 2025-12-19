@@ -1,8 +1,6 @@
 package com.mimaja.job_finder_app.security.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtAuthorizationFilter;
-import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtSecretKeyConfiguration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,19 +10,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.security.profile", havingValue = "dev")
 public class SecurityFilterChainDevConfiguration {
-    private final JwtSecretKeyConfiguration jwtSecretKeyConfiguration;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        String secretKey = jwtSecretKeyConfiguration.getSecretKey();
-
         httpSecurity
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .exceptionHandling(
@@ -49,10 +42,7 @@ public class SecurityFilterChainDevConfiguration {
                                                                 .startsWith("/web")))
                 .logout(logout -> logout.disable())
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .addFilterBefore(
-                        new JwtAuthorizationFilter(secretKey),
-                        UsernamePasswordAuthenticationFilter.class);
+                .httpBasic(AbstractHttpConfigurer::disable);
         return httpSecurity.build();
     }
 }

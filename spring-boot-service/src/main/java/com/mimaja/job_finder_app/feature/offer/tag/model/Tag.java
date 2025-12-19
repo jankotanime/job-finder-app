@@ -1,17 +1,19 @@
 package com.mimaja.job_finder_app.feature.offer.tag.model;
 
-import jakarta.persistence.Column;
+import com.mimaja.job_finder_app.feature.offer.tag.category.model.Category;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Getter
@@ -25,9 +27,9 @@ public class Tag {
 
     private String name;
 
-    private TagColor color;
+    @ManyToOne private Category category;
 
-    @Column(updatable = false)
-    @CreationTimestamp
-    private LocalDate createdAt;
+    @CreationTimestamp private LocalDateTime createdAt;
+
+    @UpdateTimestamp private LocalDateTime updatedAt;
 }

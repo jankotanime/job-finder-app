@@ -4,7 +4,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
-import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
+import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -24,7 +24,7 @@ public class JwtAuthenticationManager {
         }
 
         JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
-        UUID id = principal.getId();
+        UUID id = principal.id();
         Optional<User> userOptional = userRepository.findById(id);
 
         if (userOptional.isEmpty()) {
@@ -42,6 +42,6 @@ public class JwtAuthenticationManager {
         }
 
         JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
-        return principal.getUsername();
+        return principal.username();
     }
 }

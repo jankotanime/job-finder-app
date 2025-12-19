@@ -92,7 +92,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
 
         User user = userOptional.get();
 
-        String accessToken = jwtConfiguration.createToken(userId, user.getUsername());
+        String accessToken = jwtConfiguration.createToken(user);
         ResponseRefreshTokenDto newRefreshToken = createToken(userId);
 
         ResponseTokenDto response =

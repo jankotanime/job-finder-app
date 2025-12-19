@@ -2,12 +2,10 @@ package com.mimaja.job_finder_app.security.tokens.jwt.configuration;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtPrincipal;
+import com.mimaja.job_finder_app.feature.user.model.User;
 import java.util.Date;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @Configuration
 @RequiredArgsConstructor
@@ -15,11 +13,17 @@ public class JwtConfiguration {
     private final int lifetimeInMinutes = 5;
     private final JwtSecretKeyConfiguration jwtSecretKeyConfiguration;
 
-    public String createToken(UUID id, String username) {
+    public String createToken(User user) {
         String token =
                 JWT.create()
-                        .withSubject(id.toString())
-                        .withClaim("username", username)
+                        .withSubject(user.getId().toString())
+                        .withClaim("username", user.getUsername())
+                        .withClaim("email", user.getEmail())
+                        .withClaim("phoneNumber", user.getPhoneNumber())
+                        .withClaim("firstName", user.getFirstName())
+                        .withClaim("lastName", user.getLastName())
+                        .withClaim("profileDescription", user.getProfileDescription())
+                        .withIssuedAt(new Date())
                         .withExpiresAt(
                                 new Date(
                                         System.currentTimeMillis()
@@ -27,25 +31,5 @@ public class JwtConfiguration {
                         .sign(Algorithm.HMAC256(jwtSecretKeyConfiguration.getSecretKey()));
 
         return token;
-    }
-
-    public String getUsernameFromJWT() {
-        String username =
-                ((JwtPrincipal)
-                                SecurityContextHolder.getContext()
-                                        .getAuthentication()
-                                        .getPrincipal())
-                        .getUsername();
-        return username;
-    }
-
-    public UUID getIdFromJWT() {
-        UUID id =
-                ((JwtPrincipal)
-                                SecurityContextHolder.getContext()
-                                        .getAuthentication()
-                                        .getPrincipal())
-                        .getId();
-        return id;
     }
 }

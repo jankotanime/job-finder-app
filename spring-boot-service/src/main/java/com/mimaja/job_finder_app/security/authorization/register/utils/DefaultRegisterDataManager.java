@@ -24,8 +24,8 @@ public class DefaultRegisterDataManager {
             throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_LENGTH);
         }
 
-        if (!patternMatches(username, "^(?=.*[a-zA-Z])[^@]+$")) {
-            throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_PATTERN);
+        if (!patternMatches(email, "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_EMAIL_PATTERN);
         }
 
         if (phoneNumberString.length() != 9) {
@@ -34,10 +34,6 @@ public class DefaultRegisterDataManager {
 
         if (password.length() < 8 || password.length() > 128) {
             throw new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_LENGTH);
-        }
-
-        if (!patternMatches(password, "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")) {
-            throw new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_PATTERN);
         }
 
         if (!patternMatches(password, "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$")) {
