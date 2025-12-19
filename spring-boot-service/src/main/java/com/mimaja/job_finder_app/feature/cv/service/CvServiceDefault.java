@@ -4,10 +4,8 @@ import com.mimaja.job_finder_app.core.handler.exception.ApplicationException;
 import com.mimaja.job_finder_app.core.handler.exception.ApplicationExceptionReason;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.cv.dto.CvResponseDto;
 import com.mimaja.job_finder_app.feature.cv.dto.CvUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.cv.dto.CvUploadRequestDto;
-import com.mimaja.job_finder_app.feature.cv.mapper.CvMapper;
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
 import com.mimaja.job_finder_app.feature.cv.model.MimeType;
 import com.mimaja.job_finder_app.feature.cv.repository.CvRepository;
@@ -35,7 +33,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 @RequiredArgsConstructor
 public class CvServiceDefault implements CvService {
     private final CvRepository cvRepository;
-    private final CvMapper cvMapper;
     private final UserService userService;
     private final S3Client s3Client;
 
@@ -54,7 +51,7 @@ public class CvServiceDefault implements CvService {
     }
 
     @Override
-    public CvResponseDto uploadCv(MultipartFile file, UUID userId) {
+    public Cv uploadCv(MultipartFile file, UUID userId) {
         ProcessedFileDetails fileDetails = processFileDetails(file);
 
         PutObjectRequest req =
@@ -80,23 +77,21 @@ public class CvServiceDefault implements CvService {
                         fileDetails.storageKey,
                         user);
         Cv cv = Cv.from(dto);
-        return cvMapper.toResponseDto(cvRepository.save(cv));
+        return cvRepository.save(cv);
     }
 
     @Override
-    public CvResponseDto getCvById(UUID cvId) {
-        return cvMapper.toResponseDto(getOrThrow(cvId));
+    public Cv getCvById(UUID cvId) {
+        return getOrThrow(cvId);
     }
 
     @Override
-    public List<CvResponseDto> getCvsByUserId(UUID userId) {
-        return cvRepository.findAllCvsByUserId(userId).stream()
-                .map(cvMapper::toResponseDto)
-                .toList();
+    public List<Cv> getCvsByUserId(UUID userId) {
+        return cvRepository.findAllCvsByUserId(userId);
     }
 
     @Override
-    public CvResponseDto updateCv(MultipartFile file, UUID cvId) {
+    public Cv updateCv(MultipartFile file, UUID cvId) {
         Cv cv = getOrThrow(cvId);
         ProcessedFileDetails fileDetails = processFileDetails(file);
 
@@ -125,7 +120,7 @@ public class CvServiceDefault implements CvService {
                         fileSize,
                         fileDetails.storageKey);
         cv.update(dto);
-        return cvMapper.toResponseDto(cvRepository.save(cv));
+        return cvRepository.save(cv);
     }
 
     @Override

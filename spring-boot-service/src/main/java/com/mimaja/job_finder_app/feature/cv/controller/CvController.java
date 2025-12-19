@@ -1,7 +1,8 @@
 package com.mimaja.job_finder_app.feature.cv.controller;
 
 import com.mimaja.job_finder_app.feature.cv.dto.CvResponseDto;
-import com.mimaja.job_finder_app.feature.cv.service.CvService;
+import com.mimaja.job_finder_app.feature.cv.service.CvUserService;
+import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import java.net.URI;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,14 +26,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequiredArgsConstructor
 @RequestMapping("/cv")
 public class CvController {
-    private final CvService cvService;
+    private final CvUserService cvUserService;
     private static final String ID = "/{cvId}";
-    private static final String USER_ID = "/{userId}";
 
-    @PostMapping("/upload/{userId}")
+    @PostMapping("/upload")
     public ResponseEntity<ResponseDto<CvResponseDto>> uploadImage(
-            @RequestParam("file") MultipartFile file, @PathVariable UUID userId) {
-        CvResponseDto cv = cvService.uploadCv(file, userId);
+            @RequestParam("file") MultipartFile file, @AuthenticationPrincipal JwtPrincipal jwt) {
+        CvResponseDto cv = cvUserService.uploadCv(file, jwt);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path(ID)
@@ -48,38 +49,43 @@ public class CvController {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched CV with id: " + cvId,
-                cvService.getCvById(cvId));
+                cvUserService.getCvById(cvId));
     }
 
-    @GetMapping("/user" + USER_ID)
-    public ResponseDto<List<CvResponseDto>> getCvsByUserId(@PathVariable UUID userId) {
+    @GetMapping("/user")
+    public ResponseDto<List<CvResponseDto>> getCvsByUserId(
+            @AuthenticationPrincipal JwtPrincipal jwt) {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
-                "Successfully fetched Cvs for user with id: " + userId,
-                cvService.getCvsByUserId(userId));
+                "Successfully fetched Cvs for user with id: " + jwt.id(),
+                cvUserService.getCvsByUserId(jwt.id()));
     }
 
     @PutMapping(ID)
-    public ResponseDto<CvResponseDto> updateCv(MultipartFile file, @PathVariable UUID cvId) {
+    public ResponseDto<CvResponseDto> updateCv(
+            MultipartFile file,
+            @PathVariable UUID cvId,
+            @AuthenticationPrincipal JwtPrincipal jwt) {
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_UPDATED,
                 "Successfully updated CV with id: " + cvId,
-                cvService.updateCv(file, cvId));
+                cvUserService.updateCv(file, jwt, cvId));
     }
 
     @DeleteMapping(ID)
-    public ResponseDto<Void> deleteCv(@PathVariable UUID cvId) {
-        cvService.deleteCv(cvId);
+    public ResponseDto<Void> deleteCv(
+            @PathVariable UUID cvId, @AuthenticationPrincipal JwtPrincipal jwt) {
+        cvUserService.deleteCv(jwt, cvId);
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_DELETED, "Successfully deleted CV with id: " + cvId, null);
     }
 
-    @DeleteMapping("/user" + USER_ID)
-    public ResponseDto<Void> deleteCvsByUserId(@PathVariable UUID userId) {
-        cvService.deleteAllCvsForUser(userId);
+    @DeleteMapping("/user")
+    public ResponseDto<Void> deleteCvsByUserId(@AuthenticationPrincipal JwtPrincipal jwt) {
+        cvUserService.deleteAllCvsForUser(jwt);
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_DELETED,
-                "Successfully deleted Cvs for user with id: " + userId,
+                "Successfully deleted Cvs for user with id: " + jwt.id(),
                 null);
     }
 }
