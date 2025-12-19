@@ -1,6 +1,6 @@
 package com.mimaja.job_finder_app.feature.user.manage.userData.controller;
 
-import com.mimaja.job_finder_app.feature.user.manage.userData.service.UpdateUserDataServiceDefault;
+import com.mimaja.job_finder_app.feature.user.manage.userData.service.UpdateUserDataService;
 import com.mimaja.job_finder_app.feature.user.manage.userData.shared.requestDto.UpdateUserDataRequestDto;
 import com.mimaja.job_finder_app.feature.user.manage.userData.shared.responseDto.UpdateUserDataResponseDto;
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/update/user-data")
 @RequiredArgsConstructor
 public class UpdateUserDataController {
-    private final UpdateUserDataServiceDefault updateUserDataServiceDefault;
+    private final UpdateUserDataService updateUserDataService;
 
     @PatchMapping
     ResponseDto<UpdateUserDataResponseDto> updateUserdata(
             @RequestBody UpdateUserDataRequestDto reqData,
             @AuthenticationPrincipal JwtPrincipal principal) {
         UpdateUserDataResponseDto response =
-                updateUserDataServiceDefault.updateUserdata(reqData, principal);
+                updateUserDataService.updateUserdata(reqData, principal);
 
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_UPDATED, "User data successfuly updated", response);

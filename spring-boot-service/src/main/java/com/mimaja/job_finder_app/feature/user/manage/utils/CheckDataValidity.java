@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class CheckDataValidity {
+    private final String usernamePattern = "^(?=.*[a-zA-Z])[^@]+$";
+    private final String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    private final String restDataPattern = "^(?=.*[a-zA-Z]).+$";
+
     private final UserRepository userRepository;
 
     private boolean patternMatches(String data, String regexPattern) {
@@ -24,7 +28,7 @@ public class CheckDataValidity {
             throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_LENGTH);
         }
 
-        if (!patternMatches(username, "^(?=.*[a-zA-Z])[^@]+$")) {
+        if (!patternMatches(username, usernamePattern)) {
             throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_PATTERN);
         }
 
@@ -37,7 +41,7 @@ public class CheckDataValidity {
     }
 
     public void checkEmail(String email) {
-        if (!patternMatches(email, "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+        if (!patternMatches(email, emailPattern)) {
             throw new BusinessException(BusinessExceptionReason.INVALID_EMAIL_PATTERN);
         }
 
@@ -64,7 +68,7 @@ public class CheckDataValidity {
         if (data.length() < 1) {
             throw new BusinessException(BusinessExceptionReason.INVALID_DATA_LENGTH);
         }
-        if (!patternMatches(data, "^(?=.*[a-zA-Z]).+$")) {
+        if (!patternMatches(data, restDataPattern)) {
             throw new BusinessException(BusinessExceptionReason.INVALID_DATA_PATTERN);
         }
     }

@@ -1,6 +1,6 @@
 package com.mimaja.job_finder_app.feature.user.manage.phoneNumber.controller;
 
-import com.mimaja.job_finder_app.feature.user.manage.phoneNumber.service.UpdatePhoneNumberServiceDefault;
+import com.mimaja.job_finder_app.feature.user.manage.phoneNumber.service.UpdatePhoneNumberService;
 import com.mimaja.job_finder_app.feature.user.manage.phoneNumber.shared.requestDto.UpdatePhoneNumberRequestDto;
 import com.mimaja.job_finder_app.feature.user.manage.phoneNumber.shared.responseDto.UpdatePhoneNumberResponseDto;
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/update/phone-number")
 @RequiredArgsConstructor
 public class UpdatePhoneNumberController {
-    private final UpdatePhoneNumberServiceDefault updatePhoneNumberServiceDefault;
+    private final UpdatePhoneNumberService updatePhoneNumberService;
 
     @PatchMapping
     public ResponseDto<UpdatePhoneNumberResponseDto> updatePhoneNumber(
             @RequestBody UpdatePhoneNumberRequestDto reqData,
             @AuthenticationPrincipal JwtPrincipal principal) {
         UpdatePhoneNumberResponseDto response =
-                updatePhoneNumberServiceDefault.updatePhoneNumber(reqData, principal);
+                updatePhoneNumberService.updatePhoneNumber(reqData, principal);
 
         return new ResponseDto<UpdatePhoneNumberResponseDto>(
                 SuccessCode.RESOURCE_UPDATED, "Phone number successfuly updated", response);

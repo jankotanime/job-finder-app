@@ -1,6 +1,6 @@
 package com.mimaja.job_finder_app.feature.user.manage.email.controller;
 
-import com.mimaja.job_finder_app.feature.user.manage.email.service.UpdateEmailServiceDefault;
+import com.mimaja.job_finder_app.feature.user.manage.email.service.UpdateEmailService;
 import com.mimaja.job_finder_app.feature.user.manage.email.shared.requestDto.UpdateEmailRequestDto;
 import com.mimaja.job_finder_app.feature.user.manage.email.shared.responseDto.UpdateEmailResponseDto;
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/update/email")
 public class UpdateEmailController {
-    private final UpdateEmailServiceDefault updateEmailServiceDefault;
+    private final UpdateEmailService updateEmailService;
 
     @PatchMapping
     public ResponseDto<UpdateEmailResponseDto> updateEmail(
             @RequestBody UpdateEmailRequestDto reqBody,
             @AuthenticationPrincipal JwtPrincipal principal) {
-        UpdateEmailResponseDto response = updateEmailServiceDefault.updateEmail(reqBody, principal);
+        UpdateEmailResponseDto response = updateEmailService.updateEmail(reqBody, principal);
 
         return new ResponseDto<UpdateEmailResponseDto>(
                 SuccessCode.RESOURCE_UPDATED, "Email updated", response);
