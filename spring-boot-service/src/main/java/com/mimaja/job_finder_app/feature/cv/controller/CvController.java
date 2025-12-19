@@ -29,8 +29,8 @@ public class CvController {
     private final CvUserService cvUserService;
     private static final String ID = "/{cvId}";
 
-    @PostMapping("/upload")
-    public ResponseEntity<ResponseDto<CvResponseDto>> uploadImage(
+    @PostMapping
+    public ResponseEntity<ResponseDto<CvResponseDto>> uploadCv(
             @RequestParam("file") MultipartFile file, @AuthenticationPrincipal JwtPrincipal jwt) {
         CvResponseDto cv = cvUserService.uploadCv(file, jwt);
         URI location =
@@ -52,7 +52,7 @@ public class CvController {
                 cvUserService.getCvById(cvId));
     }
 
-    @GetMapping("/user")
+    @GetMapping
     public ResponseDto<List<CvResponseDto>> getCvsByUserId(
             @AuthenticationPrincipal JwtPrincipal jwt) {
         return new ResponseDto<>(
@@ -80,7 +80,7 @@ public class CvController {
                 SuccessCode.RESOURCE_DELETED, "Successfully deleted CV with id: " + cvId, null);
     }
 
-    @DeleteMapping("/user")
+    @DeleteMapping
     public ResponseDto<Void> deleteCvsByUserId(@AuthenticationPrincipal JwtPrincipal jwt) {
         cvUserService.deleteAllCvsForUser(jwt);
         return new ResponseDto<>(
