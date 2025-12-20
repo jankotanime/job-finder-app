@@ -21,7 +21,6 @@ export const register = async ({
     }),
   );
   const data = await response?.json();
-  console.log("data: ", data);
   if (error || !response) return { error: error?.message || String(error) };
   if (!response.ok) {
     return {

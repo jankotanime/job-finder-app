@@ -35,6 +35,5 @@ export async function handleProfileCompletionSubmit({
   if (jsonError || !response.ok) {
     return { ok: false, error: data };
   }
-  console.log("profileCompletionForm: ", data);
   return { ok: true, data: data };
 }

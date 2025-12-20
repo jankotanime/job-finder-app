@@ -18,6 +18,5 @@ export async function loginWithGoogle({ idToken, name }: LoginProps) {
   if (jsonError || !responseLogin.ok) {
     return { ok: false, error: dataLogin };
   }
-  console.log("loginWithGoogle1: ", dataLogin);
   return { ok: true, data: dataLogin, name };
 }

@@ -109,9 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [saved, error] = await tryCatch(EncryptedStorage.getItem("auth"));
     if (saved) {
       const parsed = JSON.parse(saved);
-      console.log("parsedToken: ", parsed);
       const username = getUsernameFromAccessToken(parsed?.accessToken);
-      console.log("usernameParsedToken: ", username);
       if (username) setUser(username);
       setTokens(parsed);
       setIsAuthenticated(true);

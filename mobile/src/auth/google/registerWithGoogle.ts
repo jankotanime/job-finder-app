@@ -23,6 +23,5 @@ export async function registerWithGoogle({
   if (!data) {
     return { ok: false, error: data };
   }
-  console.log("datajson: ", data);
   return { ok: true, data: data.data, name: username };
 }

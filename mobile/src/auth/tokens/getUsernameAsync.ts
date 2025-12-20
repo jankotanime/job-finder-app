@@ -6,7 +6,6 @@ export const getUsernameAsync = async (): Promise<string | null> => {
     const authRaw = await EncryptedStorage.getItem("auth");
     if (!authRaw) return null;
     const authData = JSON.parse(authRaw);
-    console.log("authData: ", authData);
     if (!authData.accessToken) return null;
 
     const username = getUsernameFromAccessToken(authData.accessToken);
