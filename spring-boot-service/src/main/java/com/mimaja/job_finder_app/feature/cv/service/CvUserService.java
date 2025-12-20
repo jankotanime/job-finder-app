@@ -34,12 +34,12 @@ public class CvUserService {
     }
 
     public CvResponseDto updateCv(MultipartFile file, JwtPrincipal jwt, UUID cvId) {
-        throwErrorIfUserIsNotOwner(cvService.getCvById(jwt.id()).getUser().getId(), cvId);
+        throwErrorIfUserIsNotOwner(jwt.id(), cvId);
         return cvMapper.toResponseDto(cvService.updateCv(file, cvId));
     }
 
     public void deleteCv(JwtPrincipal jwt, UUID cvId) {
-        throwErrorIfUserIsNotOwner(cvService.getCvById(jwt.id()).getUser().getId(), cvId);
+        throwErrorIfUserIsNotOwner(jwt.id(), cvId);
         cvService.deleteCv(cvId);
     }
 
