@@ -12,4 +12,5 @@ export type RootStackParamList = {
     idToken: string;
     onRegisterSuccess: (username: string, phoneNumber: string) => Promise<void>;
   };
+  SmsGoogleCode: undefined;
 };

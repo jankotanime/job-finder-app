@@ -46,3 +46,6 @@ export const fieldsProfileCompletionGoogle = (t: (text: string) => string) => [
     secure: false,
   },
 ];
+export const fieldsSmsGoogleCode = (t: (text: string) => string) => [
+  { key: "smsCode", placeholder: t("google.sms_code"), secure: false },
+];

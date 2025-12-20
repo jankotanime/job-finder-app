@@ -16,6 +16,7 @@ import ProfileCompletionFormScreen from "./src/screens/pre-login/ProfileCompleti
 import ProfileCompletionGoogle from "./src/screens/pre-login/ProfileCompletionGoogle";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { RootStackParamList } from "./src/types/RootStackParamList";
+import SmsGoogleCodeScreen from "./src/screens/pre-login/SmsGoogleCodeScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -48,6 +49,10 @@ export default function App() {
             <Stack.Screen
               name="ProfileCompletionGoogle"
               component={ProfileCompletionGoogle}
+            />
+            <Stack.Screen
+              name="SmsGoogleCode"
+              component={SmsGoogleCodeScreen}
             />
           </Stack.Navigator>
         </NavigationContainer>

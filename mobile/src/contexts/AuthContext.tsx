@@ -248,6 +248,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     if (userStatus === AuthStatus.USER_EXIST_WITH_EMAIL) {
       setIsSubmiting(false);
+      navigation.navigate("SmsGoogleCode");
       return { status: AuthStatus.REGISTER_REQUIRED };
     }
     setIsSubmiting(false);

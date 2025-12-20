@@ -92,5 +92,8 @@
     "moving_forward": "Moving forward...",
     "move_forward": "Move forward",
     "exit": "Exit"
+  },
+  "google": {
+    "sms_code": "Sms code"
   }
 }

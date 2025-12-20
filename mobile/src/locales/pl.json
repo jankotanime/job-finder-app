@@ -92,5 +92,8 @@
     "moving_forward": "Przechodzenie dalej...",
     "move_forward": "Przejdź dalej",
     "exit": "Zamknij"
+  },
+  "google": {
+    "sms_code": "Kod sms"
   }
 }
