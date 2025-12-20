@@ -2,7 +2,6 @@ package com.mimaja.job_finder_app.feature.offer.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.offer.dto.OfferBaseResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
@@ -16,7 +15,6 @@ import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.offer.tag.service.TagService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,13 +39,8 @@ public class OfferServiceDefault implements OfferService {
     }
 
     @Override
-    public OfferBaseResponseDto getOfferById(JwtPrincipal jwt, UUID offerId) {
-        Offer offer = getOrThrow(offerId);
-        UUID userId = jwt.id();
-        if (checkIfUserIsOwner(userId, offerId)) {
-            return offerMapper.toOfferUserIsOwnerResponseDto(offer);
-        }
-        return offerMapper.toOfferSummaryResponseDto(offer);
+    public Offer getOfferById(UUID offerId) {
+        return getOrThrow(offerId);
     }
 
     @Override
@@ -88,12 +81,6 @@ public class OfferServiceDefault implements OfferService {
     public void deleteOffer(UUID offerId) {
         Offer offer = getOrThrow(offerId);
         offerRepository.delete(offer);
-    }
-
-    @Override
-    public boolean checkIfUserIsOwner(UUID userId, UUID offerId) {
-        Offer offer = getOrThrow(offerId);
-        return (offer.getOwner().getId()).equals(userId);
     }
 
     @Override

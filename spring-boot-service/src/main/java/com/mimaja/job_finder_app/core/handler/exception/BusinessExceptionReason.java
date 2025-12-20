@@ -39,6 +39,8 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     TAG_ALREADY_EXISTS("Tag already exists", HttpStatus.CONFLICT, null),
     TAG_NOT_FOUND("Tag not found", HttpStatus.NOT_FOUND, null),
     INVALID_SMS_CODE("Invalid sms code", HttpStatus.UNAUTHORIZED, null),
+    USER_NOT_CONTRACTOR_OR_OWNER(
+            "User is neither contractor or owner of job", HttpStatus.FORBIDDEN, null),
     USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND, null),
     USER_NOT_OWNER("User is not owner", HttpStatus.FORBIDDEN, null),
     USERNAME_ALREADY_TAKEN("User with this username exists", HttpStatus.UNAUTHORIZED, null),

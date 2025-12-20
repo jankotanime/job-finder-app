@@ -7,6 +7,7 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
+import com.mimaja.job_finder_app.feature.offer.service.OfferUserService;
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
@@ -35,6 +36,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/offer")
 public class OfferController {
     private final OfferService offerService;
+    private final OfferUserService offerUserService;
     private static final String ID = "/{offerId}";
 
     @GetMapping
@@ -53,7 +55,7 @@ public class OfferController {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched offer with id: " + offerId,
-                offerService.getOfferById(jwt, offerId));
+                offerUserService.getOfferById(jwt, offerId));
     }
 
     @PostMapping
