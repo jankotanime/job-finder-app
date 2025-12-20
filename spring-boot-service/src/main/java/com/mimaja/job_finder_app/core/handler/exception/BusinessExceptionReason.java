@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     CATEGORY_ALREADY_EXISTS("Category already exists", HttpStatus.CONFLICT, null),
     CATEGORY_NOT_FOUND("Category not found", HttpStatus.NOT_FOUND, null),
+    CV_NOT_FOUND("Cv not found", HttpStatus.NOT_FOUND, null),
     EMAIL_ALREADY_TAKEN("User with this email exists", HttpStatus.UNAUTHORIZED, null),
     GOOGLEID_ALREADY_TAKEN("User with this google id exists", HttpStatus.UNAUTHORIZED, null),
     INVALID_ACCESS_TOKEN("Invalid access token", HttpStatus.UNAUTHORIZED, null),
@@ -39,7 +40,9 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     TAG_NOT_FOUND("Tag not found", HttpStatus.NOT_FOUND, null),
     INVALID_SMS_CODE("Invalid sms code", HttpStatus.UNAUTHORIZED, null),
     USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND, null),
+    USER_NOT_OWNER("User is not owner", HttpStatus.FORBIDDEN, null),
     USERNAME_ALREADY_TAKEN("User with this username exists", HttpStatus.UNAUTHORIZED, null),
+    WRONG_CV_FILE_FORMAT("Wrong cv file format", HttpStatus.BAD_REQUEST, null),
     WRONG_GOOGLE_ID("User with this google id does not exist", HttpStatus.UNAUTHORIZED, null),
     WRONG_LOGIN_DATA("User with this login data does not exist", HttpStatus.UNAUTHORIZED, null),
     WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED, null);
