@@ -26,7 +26,8 @@ type AuthContextType = {
   pendingGoogleIdToken: string | null;
   signIn: (
     formState: FormStateLoginProps,
-  ) => Promise<{ ok: boolean; error?: string; status?: string }>;
+    navigation: any,
+  ) => Promise<{ ok: boolean; error?: string; status?: AuthStatus }>;
   signOut: () => Promise<void>;
   signUp: (
     formState: FormStateRegisterProps,
@@ -120,7 +121,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const signIn = async (
     formState: FormStateLoginProps,
-  ): Promise<{ ok: boolean; error?: string; status?: string }> => {
+    _navigation: any,
+  ): Promise<{ ok: boolean; error?: string; status?: AuthStatus }> => {
     const [data, error] = await tryCatch(login(formState));
     if (error) return { ok: false, error: error?.message || String(error) };
     if (data?.error) return { ok: false, error: data.error };
@@ -143,21 +145,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userRegisterStatus = await EncryptedStorage.getItem(
       `auth:${username}`,
     );
-    console.log("doszlo tu: ", userRegisterStatus);
     const userRegisterStatusParsed = userRegisterStatus
       ? JSON.parse(userRegisterStatus)
       : null;
     const status = userRegisterStatusParsed?.status;
-    console.log("doszlo tu: ", status);
     if (status === AuthStatus.REGISTER_REQUIRED) {
       return { ok: true, status: AuthStatus.REGISTER_REQUIRED };
     }
     setIsAuthenticated(true);
     setUser(formState.loginData);
-    return { ok: true };
+    return { ok: true, status: AuthStatus.LOGGED_IN };
   };
   const signOut = async () => {
-    console.log("doszlo");
     await EncryptedStorage.removeItem("auth");
     setTokens(null);
     setUser("");
@@ -270,10 +269,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!registerResult.ok) {
       return { status: AuthStatus.ERROR, error: registerResult.error };
     }
-    console.log(
-      "registerResultCompleteGoogleRegistrationData: ",
-      registerResult.data,
-    );
     const { accessToken, refreshToken, refreshTokenId } = extractTokens(
       registerResult.data,
     );
