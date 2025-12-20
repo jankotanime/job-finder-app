@@ -17,6 +17,7 @@ import { SignWithGoogleResult } from "../types/SignWithGoogleResult";
 import { checkUserExistence } from "../auth/google/checkUserExistence";
 import { loginWithGoogle } from "../auth/google/loginWithGoogle";
 import { registerWithGoogle } from "../auth/google/registerWithGoogle";
+import { AuthStatus } from "../enums/authStatus";
 
 type AuthContextType = {
   user: string;
@@ -25,7 +26,7 @@ type AuthContextType = {
   pendingGoogleIdToken: string | null;
   signIn: (
     formState: FormStateLoginProps,
-  ) => Promise<{ ok: boolean; error?: string }>;
+  ) => Promise<{ ok: boolean; error?: string; status?: string }>;
   signOut: () => Promise<void>;
   signUp: (
     formState: FormStateRegisterProps,
@@ -68,13 +69,20 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   isAuthenticated: false,
   pendingGoogleIdToken: "",
-  signIn: async () => ({ ok: false, error: "not-initialized" }),
+  signIn: async () => ({
+    ok: false,
+    error: "not-initialized",
+    status: AuthStatus.ERROR,
+  }),
   signOut: async () => {},
   signUp: async () => ({ ok: false, error: "not-initialized" }),
   refreshAuth: async () => {},
-  signWithGoogle: async () => ({ status: "ERROR", error: "not-initialized" }),
+  signWithGoogle: async () => ({
+    status: AuthStatus.ERROR,
+    error: "not-initialized",
+  }),
   completeGoogleRegistration: async () => ({
-    status: "ERROR",
+    status: AuthStatus.ERROR,
     error: "not-initialized",
   }),
 });
@@ -100,7 +108,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [saved, error] = await tryCatch(EncryptedStorage.getItem("auth"));
     if (saved) {
       const parsed = JSON.parse(saved);
+      console.log("parsedToken: ", parsed);
       const username = getUsernameFromAccessToken(parsed?.accessToken);
+      console.log("usernameParsedToken: ", username);
       if (username) setUser(username);
       setTokens(parsed);
       setIsAuthenticated(true);
@@ -110,7 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const signIn = async (
     formState: FormStateLoginProps,
-  ): Promise<{ ok: boolean; error?: string }> => {
+  ): Promise<{ ok: boolean; error?: string; status?: string }> => {
     const [data, error] = await tryCatch(login(formState));
     if (error) return { ok: false, error: error?.message || String(error) };
     if (data?.error) return { ok: false, error: data.error };
@@ -129,6 +139,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
     });
+    const username = getUsernameFromAccessToken(accessToken);
+    const userRegisterStatus = await EncryptedStorage.getItem(
+      `auth:${username}`,
+    );
+    console.log("doszlo tu: ", userRegisterStatus);
+    const userRegisterStatusParsed = userRegisterStatus
+      ? JSON.parse(userRegisterStatus)
+      : null;
+    const status = userRegisterStatusParsed?.status;
+    console.log("doszlo tu: ", status);
+    if (status === AuthStatus.REGISTER_REQUIRED) {
+      return { ok: true, status: AuthStatus.REGISTER_REQUIRED };
+    }
     setIsAuthenticated(true);
     setUser(formState.loginData);
     return { ok: true };
@@ -144,9 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [data, error] = await tryCatch(register(formState));
     if (error) return { ok: false, error: error?.message || String(error) };
     if (data?.error) return { ok: false, error: data.error };
-    const { accessToken, refreshToken, refreshTokenId } = extractTokens(
-      data.tokens,
-    );
+    const { accessToken, refreshToken, refreshTokenId } = data.data;
     if (!accessToken || typeof accessToken !== "string") {
       return { ok: false, error: t("errors.no_access_token") };
     }
@@ -154,6 +175,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await EncryptedStorage.setItem(
       "auth",
       JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
+    );
+    await EncryptedStorage.setItem(
+      `auth:${formState.username}`,
+      JSON.stringify({
+        status: AuthStatus.REGISTER_REQUIRED,
+      }),
     );
     setTokens({
       accessToken: accessToken || "",
@@ -173,24 +200,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const googleResult = await handleGoogleAuth();
     if (googleResult.error) {
       setIsSubmiting(false);
-      return { status: "ERROR", error: googleResult.error.message };
+      return { status: AuthStatus.ERROR, error: googleResult.error.message };
     }
     const { idToken, user, name } = googleResult;
     if (!idToken) {
       setIsSubmiting(false);
-      return { status: "ERROR", error: "No ID token received" };
+      return { status: AuthStatus.ERROR, error: "No ID token received" };
     }
     const userStatus = await checkUserExistence(idToken);
-    if (userStatus === "USER_EXIST") {
+    if (userStatus === AuthStatus.USER_EXIST) {
       const loginResult = await loginWithGoogle({ idToken, name });
-      console.log("AuthContextLoginUserExist: ", loginResult.data);
       if (loginResult.error) {
         setIsSubmiting(false);
-        return { status: "ERROR", error: loginResult.error.message };
+        return { status: AuthStatus.ERROR, error: loginResult.error.message };
       }
-      const { accessToken, refreshToken, refreshTokenId } = extractTokens(
-        loginResult.data.tokens,
-      );
+      const { accessToken, refreshToken, refreshTokenId } =
+        loginResult.data.data.tokens;
       await EncryptedStorage.setItem(
         "auth",
         JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
@@ -200,24 +225,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         refreshToken: refreshToken || "",
         refreshTokenId: refreshTokenId || "",
       });
-      console.log("userName: ", user.name);
+      const username = getUsernameFromAccessToken(accessToken);
+      const userRegisterStatus = await EncryptedStorage.getItem(
+        `auth:${username}`,
+      );
+      const userRegisterStatusParsed = userRegisterStatus
+        ? JSON.parse(userRegisterStatus)
+        : null;
+      const status = userRegisterStatusParsed?.status;
+      if (status === AuthStatus.REGISTER_REQUIRED) {
+        setIsSubmiting(false);
+        navigation.navigate("ProfileCompletion");
+        return { status: AuthStatus.REGISTER_REQUIRED };
+      }
       setIsAuthenticated(true);
       setIsSubmiting(false);
       navigation.replace("Main");
-      return { status: "LOGGED_IN" };
+      return { status: AuthStatus.LOGGED_IN };
     }
-    if (userStatus === "USER_NOT_EXIST") {
+    if (userStatus === AuthStatus.USER_NOT_EXIST) {
       setIsSubmiting(false);
       setPendingGoogleIdToken(idToken);
       navigation.navigate("ProfileCompletionGoogle");
-      return { status: "REGISTER_REQUIRED" };
+      return { status: AuthStatus.REGISTER_REQUIRED };
     }
-    if (userStatus === "USER_EXIST_WITH_EMAIL") {
+    if (userStatus === AuthStatus.USER_EXIST_WITH_EMAIL) {
       setIsSubmiting(false);
-      return { status: "REGISTER_REQUIRED" };
+      return { status: AuthStatus.REGISTER_REQUIRED };
     }
     setIsSubmiting(false);
-    return { status: "ERROR", error: "Unknown user status" };
+    return { status: AuthStatus.ERROR, error: "Unknown user status" };
   };
 
   const completeGoogleRegistration = async (
@@ -231,7 +268,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       phoneNumber,
     });
     if (!registerResult.ok) {
-      return { status: "ERROR", error: registerResult.error };
+      return { status: AuthStatus.ERROR, error: registerResult.error };
     }
     console.log(
       "registerResultCompleteGoogleRegistrationData: ",
@@ -245,7 +282,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       "auth",
       JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
     );
-
+    await EncryptedStorage.setItem(
+      `auth:${username}`,
+      JSON.stringify({
+        status: AuthStatus.REGISTER_REQUIRED,
+      }),
+    );
     setTokens({
       accessToken: accessToken || "",
       refreshToken: refreshToken || "",
@@ -255,7 +297,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(username);
     setIsAuthenticated(true);
 
-    return { status: "REGISTER_REQUIRED" };
+    return { status: AuthStatus.REGISTER_REQUIRED };
   };
 
   return (

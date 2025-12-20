@@ -15,6 +15,7 @@ import { Button } from "react-native-paper";
 import { RouteProp } from "@react-navigation/native";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
+import { AuthStatus } from "../../enums/authStatus";
 
 interface FormState {
   phoneNumber: string;
@@ -42,14 +43,12 @@ const ProfileCompletionGoogle = ({ route }: ProfileCompletionGoogleProps) => {
   const onFinish = async () => {
     setIsLoading(true);
     if (!pendingGoogleIdToken) return;
-    console.log("pendingGoogleIdToken: ", pendingGoogleIdToken);
     const result = await completeGoogleRegistration(
       pendingGoogleIdToken,
       formState.username,
       formState.phoneNumber,
     );
-    console.log("result: ", result);
-    if (result.status === "REGISTERED") {
+    if (result.status === AuthStatus.REGISTER_REQUIRED) {
       navigation.replace("ProfileCompletion");
       setIsLoading(false);
     } else {

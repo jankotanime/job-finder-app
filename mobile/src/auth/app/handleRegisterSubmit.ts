@@ -38,6 +38,6 @@ export async function handleRegisterSubmit({
     setError(
       getErrorMessage(result?.error ?? "", t) || t("errors.register_failed"),
     );
-  else navigation?.reset({ index: 0, routes: [{ name: "Main" }] });
+  else navigation.navigate("ProfileCompletion");
   setIsLoading(false);
 }

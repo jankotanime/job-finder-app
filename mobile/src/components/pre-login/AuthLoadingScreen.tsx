@@ -9,6 +9,9 @@ import EncryptedStorage from "react-native-encrypted-storage";
 import { useTranslation } from "react-i18next";
 import { tryCatch } from "../../utils/try-catch";
 import { getErrorMessage } from "../../constans/errorMessages";
+import getUsernameFromAccessToken from "../../auth/tokens/getUsernameFromAccessToken";
+import { AuthStatus } from "../../enums/authStatus";
+import { getUsernameAsync } from "../../auth/tokens/getUsernameAsync";
 
 const AuthLoadingScreen = () => {
   const { colors } = useTheme();
@@ -17,6 +20,7 @@ const AuthLoadingScreen = () => {
   const navigation = useNavigation<any>();
   const [error, setError] = useState<string>("");
   const { t } = useTranslation();
+  const [username, setUsername] = useState<string | null>("");
 
   useEffect(() => {
     const doRotate = async () => {
@@ -76,6 +80,7 @@ const AuthLoadingScreen = () => {
             }),
           ),
         );
+        setUsername(getUsernameFromAccessToken(tokens.accessToken));
         if (setItemErr) {
           const msg =
             getErrorMessage(setItemErr?.message, t) || String(setItemErr);
@@ -96,12 +101,21 @@ const AuthLoadingScreen = () => {
   }, []);
 
   useEffect(() => {
-    console.log("isAuthenticated?: ", isAuthenticated);
-    console.log("user?: ", user);
     const checkAuthStatus = async () => {
-      if (hasNavigated.current || loading) return;
+      const usernameFromStorage = await getUsernameAsync();
+      const userRegisterStatusRaw = await EncryptedStorage.getItem(
+        `auth:${usernameFromStorage}`,
+      );
+      const parsedStatus = userRegisterStatusRaw
+        ? JSON.parse(userRegisterStatusRaw)
+        : null;
+      const status = parsedStatus?.status;
       hasNavigated.current = true;
-      if (isAuthenticated && user) {
+      if (
+        isAuthenticated &&
+        status !== AuthStatus.REGISTER_REQUIRED &&
+        usernameFromStorage != null
+      ) {
         navigation.replace("Main");
       } else {
         hasNavigated.current = true;
@@ -109,7 +123,7 @@ const AuthLoadingScreen = () => {
       }
     };
     checkAuthStatus();
-  }, [user, loading, isAuthenticated, error]);
+  }, [user, loading, isAuthenticated, error, username]);
   if (error) console.error("error: ", error);
   return (
     <View style={[styles.main, { backgroundColor: colors.background }]}>
