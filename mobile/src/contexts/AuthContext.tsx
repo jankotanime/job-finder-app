@@ -50,6 +50,12 @@ type AuthContextType = {
         error?: undefined;
       }
   >;
+  completeFinalRegistration: (
+    accessToken: string,
+    refreshToken: string,
+    refreshTokenId: string,
+    username: string | null,
+  ) => Promise<{ ok: boolean; status: AuthStatus }>;
 };
 interface FormStateLoginProps {
   loginData: string;
@@ -85,6 +91,10 @@ const AuthContext = createContext<AuthContextType>({
   completeGoogleRegistration: async () => ({
     status: AuthStatus.ERROR,
     error: "not-initialized",
+  }),
+  completeFinalRegistration: async () => ({
+    ok: false,
+    status: AuthStatus.ERROR,
   }),
 });
 export const useAuth = () => useContext(AuthContext);
@@ -294,6 +304,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { status: AuthStatus.REGISTER_REQUIRED };
   };
 
+  const completeFinalRegistration = async (
+    accessToken: string,
+    refreshToken: string,
+    refreshTokenId: string,
+    username: string | null,
+  ) => {
+    if (!accessToken || !refreshToken || !refreshTokenId)
+      return { ok: false, status: AuthStatus.REGISTER_REQUIRED };
+    await EncryptedStorage.setItem(
+      "auth",
+      JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
+    );
+    await EncryptedStorage.setItem(
+      `auth:${username}`,
+      JSON.stringify({
+        status: AuthStatus.REGISTERED,
+      }),
+    );
+    return { ok: true, status: AuthStatus.REGISTERED };
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -307,6 +338,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         refreshAuth: loadTokens,
         signWithGoogle,
         completeGoogleRegistration,
+        completeFinalRegistration,
       }}
     >
       {children}

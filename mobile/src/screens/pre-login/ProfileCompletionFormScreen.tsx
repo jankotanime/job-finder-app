@@ -28,24 +28,23 @@ import { Ionicons } from "@expo/vector-icons";
 import PDFPreview from "../../components/pre-login/PdfPreview";
 import { useNavigation } from "@react-navigation/native";
 import { handleProfileCompletionSubmit } from "../../auth/profileCompletionForm/handleProfileCompletionSubmit";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface FormState {
   firstName: string;
   lastName: string;
-  location: string;
+  // location: string;
   description: string;
   profilePhoto: string;
-  cv: string;
 }
 const { height, width } = Dimensions.get("window");
 const ProfileCompletionFormScreen = () => {
   const [formState, setFormState] = useState<FormState>({
     firstName: "",
     lastName: "",
-    location: "",
+    // location: "",
     description: "",
     profilePhoto: "",
-    cv: "",
   });
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -57,6 +56,7 @@ const ProfileCompletionFormScreen = () => {
   const [cvName, setCvName] = useState("");
   const [pdfModalVisible, setPdfModalVisible] = useState<boolean>(false);
   const navigation = useNavigation<any>();
+  const { completeFinalRegistration } = useAuth();
 
   const handlePickCamera = async () => {
     try {
@@ -90,6 +90,18 @@ const ProfileCompletionFormScreen = () => {
       setCvName(pdf.name);
       setIsCvAvailable(true);
     }
+  };
+  const handleMoveForward = async () => {
+    const response = await handleProfileCompletionSubmit({
+      formState,
+      setError,
+      t,
+      completeFinalRegistration,
+    });
+    if (!response?.ok) {
+      console.error("something went wrong: ", response?.data.message);
+    }
+    navigation.navigate("Main");
   };
   return (
     <>
@@ -205,17 +217,12 @@ const ProfileCompletionFormScreen = () => {
                 mode="contained"
                 style={styles.completeButton}
                 contentStyle={{ height: 48 }}
-                onPress={() => {
-                  handleProfileCompletionSubmit({
-                    formState,
-                    setError,
-                    t,
-                  });
-                  navigation.navigate("Main");
-                }}
+                onPress={handleMoveForward}
                 disabled={
                   isLoading ||
-                  Object.values(formState).some((value) => value.trim() === "")
+                  Object.entries(formState)
+                    .filter(([key]) => key !== "profilePhoto")
+                    .some(([, value]) => value.trim() === "")
                 }
                 loading={isLoading}
               >
@@ -226,7 +233,7 @@ const ProfileCompletionFormScreen = () => {
             </ScrollView>
           </KeyboardAvoidingView>
         </WhiteCard>
-        {pdfModalVisible && (
+        {/* {pdfModalVisible && (
           <Modal visible={pdfModalVisible} animationType="slide">
             <PDFPreview uri={formState.cv} />
             <Button
@@ -237,7 +244,7 @@ const ProfileCompletionFormScreen = () => {
               {t("profileCompletion.exit")}
             </Button>
           </Modal>
-        )}
+        )} */}
       </View>
     </>
   );

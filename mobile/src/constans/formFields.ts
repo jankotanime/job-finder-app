@@ -26,17 +26,17 @@ export const fieldsProfileCompletion = (t: (text: string) => string) => [
     placeholder: t("profileCompletion.lastName"),
     secure: false,
   },
-  {
-    key: "location",
-    placeholder: t("profileCompletion.location"),
-    secure: false,
-  },
+  //! Do zaimplementowania w MVP3
+  // {
+  //   key: "location",
+  //   placeholder: t("profileCompletion.location"),
+  //   secure: false,
+  // },
   {
     key: "description",
     placeholder: t("profileCompletion.description"),
     secure: false,
   },
-  { key: "cv", placeholder: t("profileCompletion.cv") },
 ];
 export const fieldsProfileCompletionGoogle = (t: (text: string) => string) => [
   { key: "username", placeholder: t("register.username"), secure: false },
