@@ -6,7 +6,6 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
-import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.feature.offer.service.OfferUserService;
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
@@ -35,7 +34,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequiredArgsConstructor
 @RequestMapping("/offer")
 public class OfferController {
-    private final OfferService offerService;
     private final OfferUserService offerUserService;
     private static final String ID = "/{offerId}";
 
@@ -46,7 +44,7 @@ public class OfferController {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched all offers",
-                offerService.getAllOffers(pageable));
+                offerUserService.getAllOffers(pageable));
     }
 
     @GetMapping(ID)
@@ -60,9 +58,10 @@ public class OfferController {
 
     @PostMapping
     public ResponseEntity<ResponseDto<OfferUserIsOwnerResponseDto>> createOffer(
-            @Valid @RequestBody OfferCreateRequestDto offerCreateRequestDto) {
+            @Valid @RequestBody OfferCreateRequestDto offerCreateRequestDto,
+            @AuthenticationPrincipal JwtPrincipal jwt) {
         OfferUserIsOwnerResponseDto offerResponseDto =
-                offerService.createOffer(offerCreateRequestDto);
+                offerUserService.createOffer(offerCreateRequestDto, jwt);
 
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -81,16 +80,18 @@ public class OfferController {
     @PutMapping(ID)
     public ResponseDto<OfferUserIsOwnerResponseDto> updateOffer(
             @PathVariable UUID offerId,
-            @Valid @RequestBody OfferUpdateRequestDto offerUpdateRequestDto) {
+            @Valid @RequestBody OfferUpdateRequestDto offerUpdateRequestDto,
+            @AuthenticationPrincipal JwtPrincipal jwt) {
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_UPDATED,
                 "Successfully updated offer with id: " + offerId,
-                offerService.updateOffer(offerId, offerUpdateRequestDto));
+                offerUserService.updateOffer(offerId, offerUpdateRequestDto, jwt));
     }
 
     @DeleteMapping(ID)
-    public ResponseDto<Void> deleteOffer(@PathVariable UUID offerId) {
-        offerService.deleteOffer(offerId);
+    public ResponseDto<Void> deleteOffer(
+            @PathVariable UUID offerId, @AuthenticationPrincipal JwtPrincipal jwt) {
+        offerUserService.deleteOffer(offerId, jwt);
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_DELETED,
                 "Successfully deleted offer with id: " + offerId,
@@ -105,6 +106,6 @@ public class OfferController {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched offers",
-                offerService.getFilteredOffers(offerFilterRequestDto, pageable));
+                offerUserService.getFilteredOffers(offerFilterRequestDto, pageable));
     }
 }
