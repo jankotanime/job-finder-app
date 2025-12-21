@@ -51,7 +51,7 @@ const CardContent = ({
 
   return (
     <View style={styles.container}>
-      {/* {item.offerPhoto ? (
+      {item.offerPhoto ? (
         <View style={[styles.logoWrapper, { borderColor: colors.primary }]}>
           <Image
             source={{ uri: String(item.offerPhoto) }}
@@ -69,16 +69,7 @@ const CardContent = ({
         >
           <Icon source="camera" size={50} />
         </View>
-      )} */}
-      {(() => {
-        const ownerName =
-          typeof item.ownerId === "string" ? item.ownerId : item.ownerId;
-        return ownerName ? (
-          <Text style={[styles.owner, { color: colors.onSurface }]}>
-            {ownerName}
-          </Text>
-        ) : null;
-      })()}
+      )}
       {/* {item.location && (
         <Text style={[styles.meta, { color: colors.onSurface }]}>
           {item.location}
@@ -102,7 +93,7 @@ const CardContent = ({
             const bg = palette[idx % palette.length];
             return (
               <View
-                key={`${tag.name}-${idx}`}
+                key={tag.id ?? `${tag.name}-${idx}`}
                 style={[styles.tag, { backgroundColor: bg }]}
               >
                 <Text style={styles.tagText}>{tag.name}</Text>

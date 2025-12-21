@@ -3,7 +3,8 @@ import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import useOfferStorage from "../../hooks/useOfferStorage";
-import { data } from "../../constans/offersDataTest";
+import { useAuth } from "../../contexts/AuthContext";
+import { getAllOffers } from "../../api/offers/handleOffersApi";
 import { useTheme } from "react-native-paper";
 import { Offer } from "../../types/Offer";
 import OfferCard from "../../components/main/RenderCard";
@@ -15,6 +16,7 @@ import OnSwipeLeft from "../../components/main/swipe/OnSwipeLeft";
 import OnSwipeBottom from "../../components/main/swipe/OnSwipeBottom";
 import Filter from "../../components/main/Filter";
 import AddOfferButton from "../../components/main/AddOfferButton";
+import { ActivityIndicator } from "react-native-paper";
 
 const { width, height } = Dimensions.get("window");
 
@@ -32,12 +34,13 @@ const MainScreen = () => {
     addStorageOffer,
     removeStorageOffer,
   } = useOfferStorage();
+  const { tokens, loading } = useAuth();
   const [offersData, setOffersData] = useState<Offer[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
   const expandAnim = useRef(new Animated.Value(0)).current;
-  const [finalizeHideForId, setFinalizeHideForId] = useState<
-    string | number | null
+  const [finalizeHideForIndex, setFinalizeHideForIndex] = useState<
+    number | null
   >(null);
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
@@ -52,8 +55,27 @@ const MainScreen = () => {
   });
 
   useEffect(() => {
-    setOffersData(data);
-  }, []);
+    let mounted = true;
+    const load = async () => {
+      try {
+        if (!tokens || loading) return;
+        const page = await getAllOffers();
+        const items = Array.isArray(page?.content)
+          ? page.content
+          : Array.isArray(page)
+            ? page
+            : [];
+        if (!mounted) return;
+        setOffersData(items as unknown as Offer[]);
+      } catch (e) {
+        console.error("Failed to load offers", e);
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [tokens, loading]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -62,6 +84,14 @@ const MainScreen = () => {
       >
         <Filter />
         <Menu />
+        {(loading || !offersData || offersData.length === 0) && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={{ color: colors.onSurfaceVariant, marginTop: 10 }}>
+              Ładowanie ofert...
+            </Text>
+          </View>
+        )}
         <View style={styles.subContainer}>
           <Swiper
             ref={swiperRef}
@@ -76,12 +106,12 @@ const MainScreen = () => {
                 onDescriptionHidden={() => {
                   if (!isAnimatingRef.current) isAnimatingRef.current = true;
                   createAnimation(expandAnim, 0, 300).start(() => {
-                    setFinalizeHideForId(item.id);
-                    setTimeout(() => setFinalizeHideForId(null), 120);
+                    setFinalizeHideForIndex(currentIndex);
+                    setTimeout(() => setFinalizeHideForIndex(null), 120);
                     isAnimatingRef.current = false;
                   });
                 }}
-                finalizeHide={finalizeHideForId === item.id}
+                finalizeHide={finalizeHideForIndex === currentIndex}
               />
             )}
             onIndexChange={(index) => {
@@ -156,5 +186,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 65,
     right: 200,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
   },
 });

@@ -27,6 +27,7 @@ import { fieldsAddOffer } from "../../constans/formFields";
 import CardContent from "../../components/main/CardContent";
 import { useAuth } from "../../contexts/AuthContext";
 import { createOffer } from "../../api/offers/handleOffersApi";
+import { getAllTags } from "../../api/filter/handleTags";
 
 const { width, height } = Dimensions.get("window");
 interface FormState {
@@ -35,7 +36,8 @@ interface FormState {
   salary: string;
   maxParticipants: string;
   owner: string | null;
-  tags: Tag[];
+  tags: string[];
+  tagInput: string;
 }
 const AddOfferScreen = () => {
   const { colors } = useTheme();
@@ -44,6 +46,12 @@ const AddOfferScreen = () => {
   const { addStorageOffer } = useOfferStorage();
   const { userInfo } = useAuth();
   console.log(userInfo);
+  const mockAvailableTags: Tag[] = [
+    { id: "tag-edu", name: "Edukacja" },
+    { id: "tag-it", name: "IT" },
+    { id: "tag-health", name: "Zdrowie" },
+    { id: "tag-event", name: "Eventy" },
+  ];
   const [form, setForm] = useState<FormState>({
     title: "",
     description: "",
@@ -51,13 +59,8 @@ const AddOfferScreen = () => {
     maxParticipants: "",
     owner: userInfo?.userId ?? null,
     tags: [],
+    tagInput: "",
   });
-  const updateForm = <K extends keyof FormState>(
-    key: K,
-    value: FormState[K],
-  ) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
 
   const [showPreview, setShowPreview] = useState(false);
 
@@ -74,32 +77,57 @@ const AddOfferScreen = () => {
   }, [form, t]);
 
   const previewItem: Offer = useMemo(() => {
+    const resolvedTags = mockAvailableTags.filter((t) =>
+      form.tags.includes(t.id),
+    );
     return {
       title: form.title.trim(),
       description: form.description.trim(),
       salary: Number(form.salary) || 0,
       maxParticipants: Number(form.maxParticipants) || 0,
       owner: form.owner ?? "",
-      tags: form.tags,
+      tags: resolvedTags,
     } as unknown as Offer;
   }, [form]);
 
-  // const onAddTag = () => {
-  //     const name = form.tagInput.trim();
-  //     if (!name) return;
-  //     if (form.tags.some((t) => t.name.toLowerCase() === name.toLowerCase())) {
-  //       updateForm("tagInput", "");
-  //       return;
-  //     }
-  //     updateForm("tags", [...form.tags, { name }]);
-  //     updateForm("tagInput", "");
-  // };
-
-  const onRemoveTag = (name: string) => {
-    updateForm(
-      "tags",
-      form.tags.filter((t) => t.name !== name),
+  const filteredTags = useMemo(() => {
+    const q = form.tagInput?.trim().toLowerCase();
+    if (!q) return [] as Tag[];
+    return mockAvailableTags.filter(
+      (t) => t.name.toLowerCase().includes(q) && !form.tags.includes(t.id),
     );
+  }, [form.tagInput, form.tags]);
+
+  const onAddTag = () => {
+    const name = form.tagInput.trim();
+    if (!name) return;
+    const found = mockAvailableTags.find(
+      (t) => t.name.toLowerCase() === name.toLowerCase(),
+    );
+    const idToAdd =
+      found?.id ?? `tmp-${Math.random().toString(36).slice(2, 8)}`;
+    if (form.tags.includes(idToAdd)) {
+      setForm((prev) => ({ ...prev, tagInput: "" }));
+      return;
+    }
+    setForm((prev) => ({
+      ...prev,
+      tags: [...prev.tags, idToAdd],
+      tagInput: "",
+    }));
+  };
+
+  const onAddTagById = (id: string) => {
+    if (!id) return;
+    if (form.tags.includes(id)) return;
+    setForm((prev) => ({ ...prev, tags: [...prev.tags, id] }));
+  };
+
+  const onRemoveTag = (id: string) => {
+    setForm((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tId) => tId !== id),
+    }));
   };
 
   const onSubmit = async () => {
@@ -110,10 +138,18 @@ const AddOfferScreen = () => {
       salary: Number(form.salary) || 0,
       maxParticipants: Number(form.maxParticipants) || 0,
       owner: form.owner ?? "",
-      tags: form.tags,
+      tags: mockAvailableTags.filter((t) => form.tags.includes(t.id)),
     } as unknown as Offer;
     addStorageOffer(offer);
-    const response = await createOffer(offer);
+    const createPayload = {
+      title: form.title.trim(),
+      description: form.description.trim(),
+      salary: Number(form.salary) || 0,
+      maxParticipants: Number(form.maxParticipants) || 0,
+      ownerId: form.owner ?? "",
+      tags: form.tags,
+    };
+    const response = await createOffer(createPayload as any);
     console.log(response);
     navigation.goBack();
   };
@@ -154,7 +190,9 @@ const AddOfferScreen = () => {
                     <Input
                       {...commonProps}
                       value={form.title}
-                      onChangeText={(v) => updateForm("title", v)}
+                      onChangeText={(v) =>
+                        setForm((prev) => ({ ...prev, title: v }))
+                      }
                       style={styles.inputStyle}
                     />
                     <HelperText type="error" visible={!!errors.title}>
@@ -168,7 +206,9 @@ const AddOfferScreen = () => {
                     <Input
                       {...commonProps}
                       value={form.description}
-                      onChangeText={(v) => updateForm("description", v)}
+                      onChangeText={(v) =>
+                        setForm((prev) => ({ ...prev, description: v }))
+                      }
                       multiline
                       numberOfLines={5}
                       style={styles.inputStyle}
@@ -184,7 +224,9 @@ const AddOfferScreen = () => {
                     <Input
                       {...commonProps}
                       value={form.salary}
-                      onChangeText={(v) => updateForm("salary", v)}
+                      onChangeText={(v) =>
+                        setForm((prev) => ({ ...prev, salary: v }))
+                      }
                       style={styles.inputStyle}
                       keyboardType="numeric"
                     />
@@ -199,7 +241,9 @@ const AddOfferScreen = () => {
                     <Input
                       {...commonProps}
                       value={form.maxParticipants}
-                      onChangeText={(v) => updateForm("maxParticipants", v)}
+                      onChangeText={(v) =>
+                        setForm((prev) => ({ ...prev, maxParticipants: v }))
+                      }
                       style={styles.inputStyle}
                       keyboardType="numeric"
                     />
@@ -227,28 +271,62 @@ const AddOfferScreen = () => {
           })}
           <View style={styles.row}>
             <View style={styles.flexItem}>
-              {/* <Input
-                    placeholder={t("offer.addTag")}
-                    value={form.tagInput}
-                    onChangeText={(v) => updateForm("tagInput", v)}
-                    mode="outlined"
-                    style={styles.inputStyle}
-                /> */}
+              <Input
+                placeholder={t("offer.addTag")}
+                value={form.tagInput}
+                onChangeText={(v) =>
+                  setForm((prev) => ({ ...prev, tagInput: v }))
+                }
+                mode="outlined"
+                style={styles.inputStyle}
+              />
+              {filteredTags.length > 0 && (
+                <View
+                  style={[
+                    styles.dropdown,
+                    {
+                      borderColor: colors.primary,
+                      backgroundColor: colors.surface,
+                    },
+                  ]}
+                >
+                  {filteredTags.map((tag) => (
+                    <Chip
+                      key={tag.id}
+                      onPress={() => {
+                        onAddTagById(tag.id);
+                        setForm((prev) => ({ ...prev, tagInput: "" }));
+                      }}
+                      style={styles.dropdownChip}
+                    >
+                      {tag.name}
+                    </Chip>
+                  ))}
+                </View>
+              )}
             </View>
-            {/* <Button style={{ marginTop: height * 0.015 }} mode="contained" onPress={onAddTag}>
-                    {t("offer.addTag")}
-                </Button> */}
+            <Button
+              style={{ marginTop: height * 0.015 }}
+              mode="contained"
+              onPress={onAddTag}
+            >
+              {t("offer.addTag")}
+            </Button>
           </View>
           <View style={styles.chipsWrap}>
-            {form.tags.map((tag, idx) => (
-              <Chip
-                key={`${tag.name}-${idx}`}
-                onClose={() => onRemoveTag(tag.name)}
-                style={styles.chip}
-              >
-                {tag.name}
-              </Chip>
-            ))}
+            {form.tags.map((id) => {
+              const name =
+                mockAvailableTags.find((t) => t.id === id)?.name ?? id;
+              return (
+                <Chip
+                  key={id}
+                  onClose={() => onRemoveTag(id)}
+                  style={styles.chip}
+                >
+                  {name}
+                </Chip>
+              );
+            })}
           </View>
           <View style={[styles.row, { justifyContent: "space-between" }]}>
             <Button
@@ -331,6 +409,20 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "stretch",
     top: 0,
+  },
+  dropdown: {
+    marginTop: 6,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  dropdownChip: {
+    marginRight: 6,
+    marginBottom: 6,
   },
 });
 

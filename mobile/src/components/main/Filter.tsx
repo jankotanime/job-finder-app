@@ -14,6 +14,7 @@ import { createAnimation } from "../../utils/animationHelper";
 import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAllOffers } from "../../api/offers/handleOffersApi";
+import { getAllTags } from "../../api/filter/handleTags";
 
 const { width, height } = Dimensions.get("window");
 const Filter = () => {
@@ -68,6 +69,11 @@ const Filter = () => {
   const getOffers = async () => {
     if (!tokens) return;
     const response = await getAllOffers();
+    console.log(response);
+  };
+  const getTags = async () => {
+    if (!tokens) return;
+    const response = await getAllTags();
     console.log(response);
   };
 
@@ -130,6 +136,9 @@ const Filter = () => {
             <Text style={{ color: colors.primary, fontSize: 16 }}>
               getOffers
             </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={getTags}>
+            <Text style={{ color: colors.primary, fontSize: 16 }}>getTags</Text>
           </TouchableOpacity>
         </View>
       )}

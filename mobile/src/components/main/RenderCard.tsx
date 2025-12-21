@@ -23,7 +23,7 @@ const OfferCard = ({
   const { colors } = useTheme();
   const { t } = useTranslation();
   return (
-    <Card key={item.id} expandAnim={expandAnim}>
+    <Card key={item.title} expandAnim={expandAnim}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}

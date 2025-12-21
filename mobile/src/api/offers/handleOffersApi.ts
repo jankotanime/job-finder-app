@@ -11,7 +11,8 @@ export const getAllOffers = async () => {
   );
   if (error) console.error("get error:", error);
   if (!response) throw new Error("No response received");
-  return response.json();
+  const data = await response.json();
+  return data.data;
 };
 export const getOfferById = async (id: string) => {
   const [response, error] = await tryCatch(
@@ -21,7 +22,8 @@ export const getOfferById = async (id: string) => {
   );
   if (error) console.error("get id error:", error);
   if (!response) throw new Error("No response received");
-  return response.json();
+  const data = await response.json();
+  return data.data;
 };
 export const createOffer = async (formState: Offer) => {
   const [response, error] = await tryCatch(
@@ -30,9 +32,9 @@ export const createOffer = async (formState: Offer) => {
       body: JSON.stringify({
         title: formState.title,
         description: formState.description,
+        dateAndTime: formState.dateAndTime,
         salary: formState.salary,
         maxParticipants: formState.maxParticipants,
-        ownerId: formState.ownerId,
         tags: formState.tags,
       }),
     }),

@@ -10,6 +10,7 @@ export type Offer = {
   description: string;
   salary: number;
   maxParticipants: number;
-  ownerId: string;
   tags: Tag[];
+  offerPhoto?: string;
+  dateAndTime: string;
 };
