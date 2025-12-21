@@ -1,6 +1,7 @@
 import { tryCatch } from "../../utils/try-catch";
 import { apiFetch } from "../client";
 import { CreateOffer, UpdateOffer } from "../interfaces/OffersInterfaces";
+import { Offer } from "../../types/Offer";
 
 export const getAllOffers = async () => {
   const [response, error] = await tryCatch(
@@ -22,7 +23,7 @@ export const getOfferById = async (id: string) => {
   if (!response) throw new Error("No response received");
   return response.json();
 };
-export const createOffer = async (formState: CreateOffer) => {
+export const createOffer = async (formState: Offer) => {
   const [response, error] = await tryCatch(
     apiFetch(`/offer`, {
       method: "POST",

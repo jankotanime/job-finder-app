@@ -1,13 +1,11 @@
 import { Tag } from "./Tag";
 type JobStatus = "accepted" | "declined" | "pending";
 type ApprovalPhoto = {
-  id: string;
   name: string;
   mimeType: string;
   data: string;
 };
 type JobDispatcher = {
-  id: string;
   isAnyIssueOwner: boolean;
   isAnyIssueContractor: boolean;
   ownerApprovalPhoto: ApprovalPhoto;
@@ -17,13 +15,11 @@ type JobDispatcher = {
   updatedAt: string;
 };
 type JobPhoto = {
-  id: string;
   name: string;
   mimeType: string;
   data: string;
 };
 export type Job = {
-  id: string;
   title: string;
   description: string;
   dateAndTime: string;
