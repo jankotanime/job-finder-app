@@ -1,5 +1,6 @@
-package com.mimaja.job_finder_app.feature.offer.model;
+package com.mimaja.job_finder_app.feature.job.model;
 
+import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import jakarta.persistence.Entity;
@@ -26,10 +27,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "offers")
-public class Offer {
-    @Id
+@Table(name = "jobs")
+public class Job {
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
     private UUID id;
 
     private String title;
@@ -41,19 +42,15 @@ public class Offer {
     private Double salary;
 
     @Enumerated(EnumType.STRING)
-    private OfferStatus status = OfferStatus.OPEN;
-
-    private int maxParticipants;
+    private JobStatus status = JobStatus.READY;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
 
     @ManyToOne
-    @JoinColumn(name = "chosen_candidate_id")
-    private User chosenCandidate;
-
-    @ManyToMany private Set<User> candidates = new HashSet<>();
+    @JoinColumn(name = "contractor_id")
+    private User contractor;
 
     @ManyToMany private Set<Tag> tags = new HashSet<>();
 
@@ -61,12 +58,15 @@ public class Offer {
 
     @UpdateTimestamp private LocalDateTime updatedAt;
 
-    public void update(Offer updatedOffer, Set<Tag> tags) {
-        this.title = updatedOffer.getTitle();
-        this.description = updatedOffer.getDescription();
-        this.dateAndTime = updatedOffer.getDateAndTime();
-        this.salary = updatedOffer.getSalary();
-        this.maxParticipants = updatedOffer.getMaxParticipants();
-        this.tags = tags;
+    public static Job from(Offer offer) {
+        Job job = new Job();
+        job.title = offer.getTitle();
+        job.description = offer.getDescription();
+        job.dateAndTime = offer.getDateAndTime();
+        job.salary = offer.getSalary();
+        job.owner = offer.getOwner();
+        job.contractor = offer.getChosenCandidate();
+        job.tags = offer.getTags() == null ? new HashSet<>() : new HashSet<>(offer.getTags());
+        return job;
     }
 }
