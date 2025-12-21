@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum BusinessExceptionReason implements BusinessExceptionPolicy {
+    CANDIDATE_NEED_TO_BE_CHOSEN(
+            "Offer doesn't have any chosen candidate", HttpStatus.BAD_REQUEST, null),
     CATEGORY_ALREADY_EXISTS("Category already exists", HttpStatus.CONFLICT, null),
     CATEGORY_NOT_FOUND("Category not found", HttpStatus.NOT_FOUND, null),
     CV_NOT_FOUND("Cv not found", HttpStatus.NOT_FOUND, null),

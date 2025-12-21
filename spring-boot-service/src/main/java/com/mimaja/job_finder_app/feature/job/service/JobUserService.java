@@ -42,7 +42,7 @@ public class JobUserService {
     }
 
     public void deleteJob(JwtPrincipal jwt, UUID jobId) {
-        throwErrorIfNotOfferOwner(jwt.id(), jobId);
+        throwErrorIfNotJobOwner(jwt.id(), jobId);
         jobService.deleteJob(jobId);
     }
 
@@ -56,6 +56,13 @@ public class JobUserService {
     private void throwErrorIfNotOfferOwner(UUID userId, UUID offerId) {
         Offer offer = offerService.getOfferById(offerId);
         if (!offer.getOwner().getId().equals(userId)) {
+            throw new BusinessException(BusinessExceptionReason.USER_NOT_OWNER);
+        }
+    }
+
+    private void throwErrorIfNotJobOwner(UUID userId, UUID jobId) {
+        Job job = jobService.getJobById(jobId);
+        if (!job.getOwner().getId().equals(userId)) {
             throw new BusinessException(BusinessExceptionReason.USER_NOT_OWNER);
         }
     }

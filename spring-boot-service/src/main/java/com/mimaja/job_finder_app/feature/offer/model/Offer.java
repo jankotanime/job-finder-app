@@ -41,7 +41,7 @@ public class Offer {
     private Double salary;
 
     @Enumerated(EnumType.STRING)
-    private OfferStatus status;
+    private OfferStatus status = OfferStatus.OPEN;
 
     private int maxParticipants;
 

@@ -5,6 +5,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.job.repository.JobRepository;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
+import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JobServiceDefault implements JobService {
     private final JobRepository jobRepository;
+    private final OfferService offerService;
 
     @Override
     public Job getJobById(UUID jobId) {
@@ -32,7 +34,11 @@ public class JobServiceDefault implements JobService {
 
     @Override
     public Job createJob(Offer offer) {
+        if (offer.getChosenCandidate() == null) {
+            throw new BusinessException(BusinessExceptionReason.CANDIDATE_NEED_TO_BE_CHOSEN);
+        }
         Job job = Job.from(offer);
+        offerService.deleteOffer(offer.getId());
         return jobRepository.save(job);
     }
 

@@ -60,14 +60,13 @@ public class Job {
 
     public static Job from(Offer offer) {
         Job job = new Job();
-        job.id = offer.getId();
         job.title = offer.getTitle();
         job.description = offer.getDescription();
         job.dateAndTime = offer.getDateAndTime();
         job.salary = offer.getSalary();
         job.owner = offer.getOwner();
         job.contractor = offer.getChosenCandidate();
-        job.tags = offer.getTags();
+        job.tags = offer.getTags() == null ? new HashSet<>() : new HashSet<>(offer.getTags());
         return job;
     }
 }
