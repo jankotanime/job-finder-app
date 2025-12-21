@@ -5,11 +5,15 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated,
+  Text,
 } from "react-native";
 import { useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { createAnimation } from "../../utils/animationHelper";
+import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
+import { useAuth } from "../../contexts/AuthContext";
+import { getAllOffers } from "../../api/offers/handleOffersApi";
 
 const { width, height } = Dimensions.get("window");
 const Filter = () => {
@@ -25,6 +29,7 @@ const Filter = () => {
   const { t } = useTranslation();
   const widthAnim = useRef(new Animated.Value(10)).current;
   const hasPressed = useRef(false);
+  const { tokens } = useAuth();
 
   const turnLeft = firstBarRotation.interpolate({
     inputRange: [0, 1],
@@ -53,6 +58,17 @@ const Filter = () => {
       });
       return next;
     });
+  };
+
+  const filterOffers = async () => {
+    if (!tokens) return;
+    const response = await handleFilterOffers();
+    console.log(response);
+  };
+  const getOffers = async () => {
+    if (!tokens) return;
+    const response = await getAllOffers();
+    console.log(response);
   };
 
   return (
@@ -105,7 +121,18 @@ const Filter = () => {
           },
         ]}
       />
-      {isActive && <TouchableOpacity style={styles.exitBox} />}
+      {isActive && (
+        <View style={styles.exitBox}>
+          <TouchableOpacity onPress={filterOffers}>
+            <Text style={{ color: colors.primary, fontSize: 16 }}>filtruj</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={getOffers}>
+            <Text style={{ color: colors.primary, fontSize: 16 }}>
+              getOffers
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </>
   );
 };
@@ -137,6 +164,8 @@ const styles = StyleSheet.create({
     zIndex: 15,
     width: width,
     height: height,
+    alignItems: "center",
+    justifyContent: "center",
   },
   bar_1: {
     width: 30,

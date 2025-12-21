@@ -18,12 +18,18 @@ import { checkUserExistence } from "../auth/google/checkUserExistence";
 import { loginWithGoogle } from "../auth/google/loginWithGoogle";
 import { registerWithGoogle } from "../auth/google/registerWithGoogle";
 import { AuthStatus } from "../enums/authStatus";
+import { setAccessToken } from "../api/client";
 
 type AuthContextType = {
   user: string;
   loading: boolean;
   isAuthenticated: boolean;
   pendingGoogleIdToken: string | null;
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+    refreshTokenId: string;
+  } | null;
   signIn: (
     formState: FormStateLoginProps,
     navigation: any,
@@ -76,6 +82,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   isAuthenticated: false,
   pendingGoogleIdToken: "",
+  tokens: null,
   signIn: async () => ({
     ok: false,
     error: "not-initialized",
@@ -111,6 +118,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     string | null
   >("");
   const { t } = useTranslation();
+
+  useEffect(() => {
+    setAccessToken(tokens?.accessToken ?? null);
+  }, [tokens]);
 
   useEffect(() => {
     loadTokens();
@@ -332,6 +343,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         isAuthenticated,
         pendingGoogleIdToken,
+        tokens,
         signIn,
         signOut,
         signUp,
