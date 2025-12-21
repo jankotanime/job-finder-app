@@ -2,12 +2,9 @@ package com.mimaja.job_finder_app.feature.offer.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.offer.dto.OfferBaseResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
-import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
-import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
 import com.mimaja.job_finder_app.feature.offer.filterspecification.OfferFilterSpecification;
 import com.mimaja.job_finder_app.feature.offer.mapper.OfferMapper;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
@@ -16,7 +13,6 @@ import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.offer.tag.service.TagService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -36,24 +32,19 @@ public class OfferServiceDefault implements OfferService {
     private final TagService tagService;
 
     @Override
-    public Page<OfferSummaryResponseDto> getAllOffers(Pageable pageable) {
-        return offerRepository.findAll(pageable).map(offerMapper::toOfferSummaryResponseDto);
+    public Page<Offer> getAllOffers(Pageable pageable) {
+        return offerRepository.findAll(pageable);
     }
 
     @Override
-    public OfferBaseResponseDto getOfferById(JwtPrincipal jwt, UUID offerId) {
-        Offer offer = getOrThrow(offerId);
-        UUID userId = jwt.id();
-        if (checkIfUserIsOwner(userId, offerId)) {
-            return offerMapper.toOfferUserIsOwnerResponseDto(offer);
-        }
-        return offerMapper.toOfferSummaryResponseDto(offer);
+    public Offer getOfferById(UUID offerId) {
+        return getOrThrow(offerId);
     }
 
     @Override
     @Transactional
-    public OfferUserIsOwnerResponseDto createOffer(OfferCreateRequestDto offerCreateRequestDto) {
-        User owner = userService.getUserById(offerCreateRequestDto.ownerId());
+    public Offer createOffer(OfferCreateRequestDto offerCreateRequestDto, UUID userId) {
+        User owner = userService.getUserById(userId);
         Set<Tag> tags =
                 offerCreateRequestDto.tags().stream()
                         .map(tagService::getTagById)
@@ -62,15 +53,12 @@ public class OfferServiceDefault implements OfferService {
         Offer offer = offerMapper.toEntity(offerCreateRequestDto);
         offer.setOwner(owner);
         offer.setTags(tags);
-        offerRepository.save(offer);
-
-        return offerMapper.toOfferUserIsOwnerResponseDto(offer);
+        return offerRepository.save(offer);
     }
 
     @Override
     @Transactional
-    public OfferUserIsOwnerResponseDto updateOffer(
-            UUID offerId, OfferUpdateRequestDto offerUpdateRequestDto) {
+    public Offer updateOffer(UUID offerId, OfferUpdateRequestDto offerUpdateRequestDto) {
         Offer offer = getOrThrow(offerId);
         Set<Tag> tags =
                 offerUpdateRequestDto.tags().stream()
@@ -78,9 +66,7 @@ public class OfferServiceDefault implements OfferService {
                         .collect(Collectors.toSet());
 
         offer.update(offerMapper.toEntityFromUpdate(offerUpdateRequestDto), tags);
-        Offer updatedOffer = offerRepository.save(offer);
-
-        return offerMapper.toOfferUserIsOwnerResponseDto(updatedOffer);
+        return offerRepository.save(offer);
     }
 
     @Override
@@ -91,17 +77,8 @@ public class OfferServiceDefault implements OfferService {
     }
 
     @Override
-    public boolean checkIfUserIsOwner(UUID userId, UUID offerId) {
-        Offer offer = getOrThrow(offerId);
-        return (offer.getOwner().getId()).equals(userId);
-    }
-
-    @Override
-    public Page<OfferSummaryResponseDto> getFilteredOffers(
-            OfferFilterRequestDto dto, Pageable pageable) {
-        Page<Offer> offers =
-                offerRepository.findAll(OfferFilterSpecification.filter(dto), pageable);
-        return offers.map(offerMapper::toOfferSummaryResponseDto);
+    public Page<Offer> getFilteredOffers(OfferFilterRequestDto dto, Pageable pageable) {
+        return offerRepository.findAll(OfferFilterSpecification.filter(dto), pageable);
     }
 
     private Offer getOrThrow(UUID offerId) {
