@@ -14,6 +14,7 @@ import OnSwipeRight from "../../components/main/swipe/OnSwipeRight";
 import OnSwipeLeft from "../../components/main/swipe/OnSwipeLeft";
 import OnSwipeBottom from "../../components/main/swipe/OnSwipeBottom";
 import Filter from "../../components/main/Filter";
+import AddOfferButton from "../../components/main/AddOfferButton";
 
 const { width, height } = Dimensions.get("window");
 
@@ -121,6 +122,7 @@ const MainScreen = () => {
             }}
           />
         </View>
+        <AddOfferButton />
       </GestureHandlerRootView>
     </View>
   );
@@ -142,7 +144,7 @@ const styles = StyleSheet.create({
   },
   cardStyle: {
     width: width,
-    height: height * 0.7,
+    height: height * 0.75,
     backgroundColor: "transparent",
   },
   signOutButton: {
