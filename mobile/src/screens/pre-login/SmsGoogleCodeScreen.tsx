@@ -12,49 +12,23 @@ import Input from "../../components/reusable/Input";
 import { fieldsProfileCompletionGoogle } from "../../constans/formFields";
 import { useTranslation } from "react-i18next";
 import { Button } from "react-native-paper";
-import { RouteProp } from "@react-navigation/native";
-import { useAuth } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
-import { AuthStatus } from "../../enums/authStatus";
 
 interface FormState {
-  phoneNumber: string;
-  username: string;
+  smsCode: string;
 }
-type ProfileCompletionGoogleRouteParams = {
-  idToken: string;
-  onRegisterSuccess: (username: string, phoneNumber: string) => Promise<void>;
-};
-
-type ProfileCompletionGoogleProps = {
-  route: RouteProp<Record<string, ProfileCompletionGoogleRouteParams>, string>;
-};
 const { width, height } = Dimensions.get("window");
-const ProfileCompletionGoogle = ({ route }: ProfileCompletionGoogleProps) => {
+const SmsGoogleCodeScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const [formState, setFormState] = useState<FormState>({
-    phoneNumber: "",
-    username: "",
+    smsCode: "",
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { pendingGoogleIdToken, completeGoogleRegistration } = useAuth();
 
   const onFinish = async () => {
-    setIsLoading(true);
-    if (!pendingGoogleIdToken) return;
-    const result = await completeGoogleRegistration(
-      pendingGoogleIdToken,
-      formState.username,
-      formState.phoneNumber,
-    );
-    if (result.status === AuthStatus.REGISTER_REQUIRED) {
-      navigation.replace("ProfileCompletion");
-      setIsLoading(false);
-    } else {
-      console.error("error: ", result.status);
-      setIsLoading(false);
-    }
+    console.error("do zaimplementowania");
+    navigation.replace("Home");
   };
 
   return (
@@ -104,7 +78,7 @@ const ProfileCompletionGoogle = ({ route }: ProfileCompletionGoogleProps) => {
   );
 };
 
-export default ProfileCompletionGoogle;
+export default SmsGoogleCodeScreen;
 
 const styles = StyleSheet.create({
   completeButton: {

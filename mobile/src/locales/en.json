@@ -1,7 +1,11 @@
 {
   "pre-login-home": {
     "welcome": "Welcome!",
-    "welcome_subtext": "Log in to explore the app!"
+    "welcome_subtext": "Log in to explore the app!",
+    "sign_up_with_email": "Sign up with email",
+    "sign_up_with_google": "Continue with Google",
+    "signing_up_with_google": "Signing in with Google...",
+    "already_have_an_account": "Already have an account?"
   },
   "signup": "Sign up",
   "signin": "Sign In",
@@ -41,7 +45,8 @@
     "email_already_taken": "User with this email already exists",
     "phone_number_already_taken": "User with this phone number already exists",
     "invalid_refresh_token": "Invalid refresh token",
-    "token_expired": "Session expired, log in again"
+    "token_expired": "Session expired, log in again",
+    "user_existence_found": "User already exists"
   },
   "pickerErrors": {
     "camera_no_permission": "No camera permissions",
@@ -87,5 +92,8 @@
     "moving_forward": "Moving forward...",
     "move_forward": "Move forward",
     "exit": "Exit"
+  },
+  "google": {
+    "sms_code": "Sms code"
   }
 }

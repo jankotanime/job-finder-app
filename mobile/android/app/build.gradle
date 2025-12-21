@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.madamski9.mobile'
+    namespace 'com.majami.jobFinderApp'
     defaultConfig {
-        applicationId 'com.madamski9.mobile'
+        applicationId 'com.majami.jobFinderApp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

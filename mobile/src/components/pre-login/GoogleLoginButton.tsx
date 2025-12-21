@@ -23,16 +23,12 @@ const GoogleLoginButton = ({ screen, setError }: GoogleLoginProps) => {
   const { t } = useTranslation();
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const navigation = useNavigation<any>();
-  const { signInGoogle, signUpGoogle } = useAuth();
+  const { signWithGoogle } = useAuth();
 
   const handleGoogleAuth = async () => {
-    if (screen == "REGISTER") {
-      const { ok, error } = await signUpGoogle({ setIsSubmiting, navigation });
-      if (error) setError(getErrorMessage(error, t) || error);
-    } else {
-      const { ok, error } = await signInGoogle({ setIsSubmiting, navigation });
-      if (error) setError(getErrorMessage(error, t) || error);
-    }
+    const result = await signWithGoogle({ setIsSubmiting, navigation });
+    if (result && "error" in result && result.error)
+      setError(getErrorMessage(result.error, t) || result.error);
   };
 
   return (

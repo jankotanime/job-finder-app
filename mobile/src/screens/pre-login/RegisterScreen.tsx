@@ -16,7 +16,7 @@ import { useTheme, Button } from "react-native-paper";
 import Input from "../../components/reusable/Input";
 import { fieldsRegister } from "../../constans/formFields";
 import { useNavigation } from "@react-navigation/native";
-import { handleRegisterSubmit } from "../../utils/auth/handleRegisterSubmit";
+import { handleRegisterSubmit } from "../../auth/app/handleRegisterSubmit";
 import { useAuth } from "../../contexts/AuthContext";
 import Error from "../../components/reusable/Error";
 import GoogleLoginButton from "../../components/pre-login/GoogleLoginButton";
@@ -52,7 +52,13 @@ const RegisterScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 230 : 30}
         >
-          <ScrollView>
+          <ScrollView
+            contentContainerStyle={
+              error
+                ? { flexGrow: 1, paddingBottom: 50 }
+                : { flexGrow: 1, paddingBottom: 20 }
+            }
+          >
             <View style={styles.header}>
               <Text
                 style={[styles.headerText, { color: theme.colors.primary }]}

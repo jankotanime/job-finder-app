@@ -1,7 +1,11 @@
 {
   "pre-login-home": {
     "welcome": "Witaj!",
-    "welcome_subtext": "Zaloguj się żeby korzystać z aplikacji!"
+    "welcome_subtext": "Zaloguj się żeby korzystać z aplikacji!",
+    "sign_up_with_email": "Zarejestruj się przez email",
+    "sign_up_with_google": "Kontynuuj z Google",
+    "signing_up_with_google": "Rejestruję przez Google...",
+    "already_have_an_account": "Masz już konto?"
   },
   "signup": "Zarejestruj się",
   "signin": "Zaloguj się",
@@ -41,7 +45,8 @@
     "email_already_taken": "Użytkownik z tym adresem e-mail już istnieje",
     "phone_number_already_taken": "Użytkownik z tym numerem telefonu już istnieje",
     "invalid_refresh_token": "Nieprawidłowy token odświeżania",
-    "token_expired": "Sesja wygasła, zaloguj się ponownie"
+    "token_expired": "Sesja wygasła, zaloguj się ponownie",
+    "user_existence_found": "Użytkownik istnieje"
   },
   "pickerErrors": {
     "camera_no_permission": "Brak uprawnień do kamery",
@@ -87,5 +92,8 @@
     "moving_forward": "Przechodzenie dalej...",
     "move_forward": "Przejdź dalej",
     "exit": "Zamknij"
+  },
+  "google": {
+    "sms_code": "Kod sms"
   }
 }
