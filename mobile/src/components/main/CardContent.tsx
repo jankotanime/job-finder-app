@@ -8,7 +8,7 @@ import {
   Animated,
 } from "react-native";
 import { useTheme, Icon } from "react-native-paper";
-import { Job } from "../../types/Job";
+import { Offer } from "../../types/Offer";
 import { palette } from "../../constans/tagPalette";
 import { createAnimation } from "../../utils/animationHelper";
 
@@ -20,7 +20,7 @@ const CardContent = ({
   onFadeOutComplete,
   finalizeHide = false,
 }: {
-  item: Job;
+  item: Offer;
   isActive?: boolean;
   onFadeOutComplete?: () => void;
   finalizeHide?: boolean;
@@ -49,10 +49,10 @@ const CardContent = ({
 
   return (
     <View style={styles.container}>
-      {item.logoUrl ? (
+      {item.offerPhoto ? (
         <View style={[styles.logoWrapper, { borderColor: colors.primary }]}>
           <Image
-            source={{ uri: item.logoUrl }}
+            source={{ uri: String(item.offerPhoto) }}
             style={styles.logo}
             resizeMode="contain"
           />

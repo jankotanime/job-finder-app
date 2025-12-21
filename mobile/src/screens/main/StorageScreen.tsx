@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useTheme } from "react-native-paper";
-import JobGrid from "../../components/main/JobGrid";
+import OfferGrid from "../../components/main/OfferGrid";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -24,10 +24,10 @@ const StorageScreen = () => {
           <Ionicons name="chevron-back" size={25} color={colors.primary} />
         </TouchableOpacity>
         <Text style={[styles.header, { color: colors.primary }]}>
-          {t("menu.saved_jobs")}
+          {t("menu.saved_offers")}
         </Text>
       </View>
-      <JobGrid />
+      <OfferGrid />
     </SafeAreaView>
   );
 };

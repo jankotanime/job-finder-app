@@ -1,13 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet, FlatList, Dimensions } from "react-native";
 import { useTheme } from "react-native-paper";
-import useJobStorage from "../../hooks/useJobStorage";
+import useOfferStorage from "../../hooks/useOfferStorage";
 
 const { width, height } = Dimensions.get("window");
 
-const JobGrid = () => {
+const OfferGrid = () => {
   const { colors } = useTheme();
-  const { storageJobs } = useJobStorage();
+  const { storageOffers } = useOfferStorage();
 
   const renderItem = ({ item }: any) => {
     return (
@@ -27,7 +27,7 @@ const JobGrid = () => {
 
   return (
     <FlatList
-      data={storageJobs}
+      data={storageOffers}
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
       numColumns={2}
@@ -40,7 +40,7 @@ const JobGrid = () => {
   );
 };
 
-export default JobGrid;
+export default OfferGrid;
 
 const styles = StyleSheet.create({
   container: {

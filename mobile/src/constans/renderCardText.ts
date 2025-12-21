@@ -1,9 +1,9 @@
-import { Job } from "../types/Job";
-export const renderCardText = (item: Job) => {
+import { Offer } from "../types/Offer";
+export const renderCardText = (item: Offer) => {
   return [
     { label: "ID", value: item.id },
     { label: "Description", value: item.description },
-    { label: "Start at", value: item.startAt },
+    { label: "Date", value: item.dateAndTime },
     { label: "Location", value: item.location },
     { label: "Salary", value: `$${item.salary}` },
     { label: "Status", value: item.status },

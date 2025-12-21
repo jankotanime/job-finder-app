@@ -34,7 +34,7 @@
     "passwords_dont_match": "Passwords don't match",
     "no_access_token": "No access token in server response",
     "network": "Network error",
-    "job_not_found": "Job not found",
+    "offer_not_found": "Offer not found",
     "wrong_login_data": "Wrong login data",
     "wrong_password": "Wrong password",
     "invalid_username": "Invalid username",
@@ -73,7 +73,7 @@
     "support": "Support",
     "contactUs": "Contact Us",
     "logout": "Logout",
-    "saved_jobs": "Saved jobs"
+    "saved_offers": "Saved offers"
   },
   "profileCompletion": {
     "firstName": "First name",

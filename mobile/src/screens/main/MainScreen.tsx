@@ -2,11 +2,11 @@ import React, { useRef, useState, useEffect } from "react";
 import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
-import useJobStorage from "../../hooks/useJobStorage";
-import { data } from "../../constans/jobsDataTest";
+import useOfferStorage from "../../hooks/useOfferStorage";
+import { data } from "../../constans/offersDataTest";
 import { useTheme } from "react-native-paper";
-import { Job } from "../../types/Job";
-import JobCard from "../../components/main/RenderCard";
+import { Offer } from "../../types/Offer";
+import OfferCard from "../../components/main/RenderCard";
 import Menu from "../../components/reusable/Menu";
 import { createAnimation } from "../../utils/animationHelper";
 import { makeExpandHandlers } from "../../utils/expandController";
@@ -22,17 +22,17 @@ const MainScreen = () => {
   const swiperRef = useRef<SwiperCardRefType | null>(null);
   const { colors } = useTheme();
   const {
-    acceptedJobs,
-    declinedJobs,
-    storageJobs,
-    addAcceptedJob,
-    removeAcceptedJob,
-    addDeclinedJob,
-    removeDeclinedJob,
-    addStorageJob,
-    removeStorageJob,
-  } = useJobStorage();
-  const [jobsData, setJobsData] = useState<Job[]>([]);
+    acceptedOffers,
+    declinedOffers,
+    storageOffers,
+    addAcceptedOffer,
+    removeAcceptedOffer,
+    addDeclinedOffer,
+    removeDeclinedOffer,
+    addStorageOffer,
+    removeStorageOffer,
+  } = useOfferStorage();
+  const [offersData, setOffersData] = useState<Offer[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
   const expandAnim = useRef(new Animated.Value(0)).current;
@@ -52,7 +52,7 @@ const MainScreen = () => {
   });
 
   useEffect(() => {
-    setJobsData(data);
+    setOffersData(data);
   }, []);
 
   return (
@@ -65,11 +65,11 @@ const MainScreen = () => {
         <View style={styles.subContainer}>
           <Swiper
             ref={swiperRef}
-            data={jobsData}
+            data={offersData}
             initialIndex={0}
             cardStyle={styles.cardStyle}
             renderCard={(item) => (
-              <JobCard
+              <OfferCard
                 item={item}
                 expandAnim={expandAnim}
                 isActive={isActivePressAnim}
@@ -117,7 +117,7 @@ const MainScreen = () => {
               collapseCard();
             }}
             onSwipeBottom={(cardIndex) => {
-              addStorageJob(jobsData[cardIndex]);
+              addStorageOffer(offersData[cardIndex]);
               collapseCard();
             }}
           />

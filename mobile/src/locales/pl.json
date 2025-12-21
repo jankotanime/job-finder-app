@@ -34,7 +34,7 @@
     "passwords_dont_match": "Hasła nie są takie same",
     "no_access_token": "Brak tokena dostępu w odpowiedzi serwera",
     "network": "Błąd sieci",
-    "job_not_found": "Nie znaleziono oferty pracy",
+    "offer_not_found": "Nie znaleziono oferty",
     "wrong_login_data": "Nieprawidłowe dane logowania",
     "wrong_password": "Nieprawidłowe hasło",
     "invalid_username": "Nieprawidłowa nazwa użytkownika",
@@ -73,7 +73,7 @@
     "support": "Wsparcie",
     "contactUs": "Skontaktuj się z nami",
     "logout": "Wyloguj",
-    "saved_jobs": "Zapisane prace"
+    "saved_offers": "Zapisane oferty"
   },
   "profileCompletion": {
     "firstName": "Imię",
