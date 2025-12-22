@@ -47,7 +47,7 @@ const LanguageMenu = () => {
             key={language.code}
             style={[
               styles.languageItem,
-              { backgroundColor: colors.surface },
+              { backgroundColor: colors.onBackground },
               currentLang === language.code && {
                 borderColor: colors.primary,
                 borderWidth: 2,
