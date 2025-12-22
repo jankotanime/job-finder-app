@@ -4,6 +4,8 @@ import React, {
   useEffect,
   useState,
   ReactNode,
+  useRef,
+  useLayoutEffect,
 } from "react";
 import EncryptedStorage from "react-native-encrypted-storage";
 import getUsernameFromAccessToken from "../auth/tokens/getUsernameFromAccessToken";
@@ -20,6 +22,7 @@ import { registerWithGoogle } from "../auth/google/registerWithGoogle";
 import { AuthStatus } from "../enums/authStatus";
 import { setAccessToken } from "../api/client";
 import getUserInfo, { User } from "../auth/tokens/getUserInfo";
+import { setTokensApiFetch } from "../api/client";
 
 type AuthContextType = {
   user: string;
@@ -123,6 +126,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   >("");
   const { t } = useTranslation();
 
+  useLayoutEffect(() => {
+    // const refreshInterceptor
+  });
+
   useEffect(() => {
     setAccessToken(tokens?.accessToken ?? null);
   }, [tokens]);
@@ -138,6 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const userProps = getUserInfo(parsed?.accessToken);
       if (username) setUser(username);
       if (userProps) setUserInfo(userProps);
+      setTokensApiFetch(parsed);
       setTokens(parsed);
       setIsAuthenticated(true);
     }
