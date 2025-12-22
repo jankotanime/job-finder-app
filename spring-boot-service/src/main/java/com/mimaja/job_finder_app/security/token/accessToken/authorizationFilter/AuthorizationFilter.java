@@ -17,11 +17,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -35,6 +33,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         String accessToken = request.getHeader("Authorization");
 
         if (accessToken != null && accessToken.startsWith("Bearer ")) {
@@ -46,13 +46,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                                 .build()
                                 .verify(accessToken);
             } catch (JWTVerificationException e) {
-                response.setStatus(401);
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
                 BusinessException ex =
                         new BusinessException(BusinessExceptionReason.INVALID_ACCESS_TOKEN);
-                objectMapper.registerModule(new JavaTimeModule());
-                objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
                 response.getWriter()
                         .write(
@@ -96,7 +91,6 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                     String firstName = jwt.getClaim("firstName").asString();
                     String lastName = jwt.getClaim("lastName").asString();
                     if (firstName == null || lastName == null) {
-                        // TODO: To Business exception
                         throw new BusinessException(BusinessExceptionReason.PROFILE_INCOMPLETE);
                     }
                     UUID id = UUID.fromString(idString);
@@ -109,13 +103,6 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (BusinessException e) {
-                // TODO: To Business exception
-                response.setStatus(401);
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-                objectMapper.registerModule(new JavaTimeModule());
-                objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
                 response.getWriter()
                         .write(
                                 objectMapper.writeValueAsString(

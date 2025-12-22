@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.token.accessToken.authorizationFilter.AuthorizationFilter;
 import com.mimaja.job_finder_app.security.token.accessToken.utils.AccessTokenSecretKeyManager;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,8 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "app.security.profile", havingValue = "prod", matchIfMissing = true)
-public class SecurityFilterChainProdConfiguration {
+public class SecurityFilterChainConfiguration {
     private final AccessTokenSecretKeyManager accessTokenSecretKeyManager;
     private final UserRepository userRepository;
 
@@ -49,9 +49,11 @@ public class SecurityFilterChainProdConfiguration {
                         eh ->
                                 eh.authenticationEntryPoint(
                                         (request, response, authException) -> {
-                                            response.setContentType("application/json");
-                                            response.setCharacterEncoding("UTF-8");
                                             response.setStatus(401);
+                                            response.setContentType(
+                                                    MediaType.APPLICATION_JSON_VALUE);
+                                            response.setCharacterEncoding(
+                                                    StandardCharsets.UTF_8.name());
                                             response.getWriter().flush();
                                         }))
                 .csrf(
