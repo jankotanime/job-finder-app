@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.tag.category.model;
 
+import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryCreateRequestDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,4 +31,9 @@ public class Category {
     @CreationTimestamp private LocalDateTime createdAt;
 
     @UpdateTimestamp private LocalDateTime updatedAt;
+
+    public void update(CategoryCreateRequestDto dto) {
+        this.name = dto.name();
+        this.color = dto.color();
+    }
 }
