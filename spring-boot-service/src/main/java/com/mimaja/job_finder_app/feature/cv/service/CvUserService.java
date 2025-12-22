@@ -7,7 +7,7 @@ import com.mimaja.job_finder_app.feature.cv.mapper.CvMapper;
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
+import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

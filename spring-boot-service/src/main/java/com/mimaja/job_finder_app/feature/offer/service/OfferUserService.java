@@ -10,7 +10,7 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
 import com.mimaja.job_finder_app.feature.offer.mapper.OfferMapper;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
+import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

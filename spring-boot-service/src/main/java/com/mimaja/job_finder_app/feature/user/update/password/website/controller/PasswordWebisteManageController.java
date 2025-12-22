@@ -1,9 +1,9 @@
 package com.mimaja.job_finder_app.feature.user.update.password.website.controller;
 
 import com.mimaja.job_finder_app.feature.user.update.password.website.service.PasswordWebsiteManageServiceDefault;
-import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateByEmailDto;
-import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateEmailRequestDto;
-import com.mimaja.job_finder_app.security.shared.dto.ResponsePasswordUpdateEmailRequestDto;
+import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.SendEmailToUpdatePasswordRequestDto;
+import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.UpdatePasswordByEmailRequestDto;
+import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.SendEmailToUpdatePasswordResponseDto;
 import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
@@ -22,7 +22,7 @@ public class PasswordWebisteManageController {
 
     @PutMapping("/update")
     public ResponseDto<ResponseTokenDto> updatePasswordPostMapping(
-            @RequestBody RequestPasswordUpdateByEmailDto reqData) {
+            @RequestBody UpdatePasswordByEmailRequestDto reqData) {
         passwordWebsiteManageServiceDefault.updatePasswordByEmail(reqData);
 
         return new ResponseDto<>(
@@ -30,9 +30,9 @@ public class PasswordWebisteManageController {
     }
 
     @PostMapping("/send-email")
-    public ResponseDto<ResponsePasswordUpdateEmailRequestDto> sendEmailPutMapping(
-            @RequestBody RequestPasswordUpdateEmailRequestDto reqData) {
-        ResponsePasswordUpdateEmailRequestDto result =
+    public ResponseDto<SendEmailToUpdatePasswordResponseDto> sendEmailPutMapping(
+            @RequestBody SendEmailToUpdatePasswordRequestDto reqData) {
+        SendEmailToUpdatePasswordResponseDto result =
                 passwordWebsiteManageServiceDefault.sendEmailWithUpdatePasswordRequest(reqData);
 
         return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Email successfuly sent", result);

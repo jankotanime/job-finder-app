@@ -41,18 +41,6 @@ public class DefaultRegisterDataManager {
         }
     }
 
-    public int convertePhoneNumberToInt(String phoneNumberString) {
-        int phoneNumber;
-
-        try {
-            phoneNumber = Integer.parseInt(phoneNumberString);
-        } catch (NumberFormatException e) {
-            throw new BusinessException(BusinessExceptionReason.INVALID_PHONE_NUMBER_PATTERN);
-        }
-
-        return phoneNumber;
-    }
-
     public void checkUserExistence(String username, String email, int phoneNumber) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {

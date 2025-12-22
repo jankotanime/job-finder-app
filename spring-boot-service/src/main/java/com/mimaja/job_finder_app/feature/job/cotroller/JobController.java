@@ -2,9 +2,9 @@ package com.mimaja.job_finder_app.feature.job.cotroller;
 
 import com.mimaja.job_finder_app.feature.job.dto.JobResponseDto;
 import com.mimaja.job_finder_app.feature.job.service.JobUserService;
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
+import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;

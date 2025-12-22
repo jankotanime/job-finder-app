@@ -1,0 +1,82 @@
+package com.mimaja.job_finder_app.security.token.resetToken.service;
+
+import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.user.model.User;
+import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
+import com.mimaja.job_finder_app.security.encoder.ResetTokenEncoder;
+import com.mimaja.job_finder_app.security.token.resetToken.dto.response.ResetTokenResponseDto;
+import com.mimaja.job_finder_app.security.token.resetToken.model.ResetToken;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+public class ResetTokenServiceDefault implements ResetTokenService {
+    private final StringRedisTemplate redisTemplate;
+    private final HashOperations<String, String, String> hashOps;
+    private final ResetTokenEncoder resetTokenEncoder;
+    private final UserRepository userRepository;
+
+    public ResetTokenServiceDefault(
+            StringRedisTemplate redisTemplate,
+            ResetTokenEncoder resetTokenEncoder,
+            UserRepository userRepository) {
+        this.redisTemplate = redisTemplate;
+        this.hashOps = redisTemplate.opsForHash();
+        this.resetTokenEncoder = resetTokenEncoder;
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public void deleteToken(String tokenId) {
+        redisTemplate.delete("ResetToken-" + tokenId);
+    }
+
+    @Override
+    public ResetTokenResponseDto createToken(UUID userId) {
+        String resetTokenId = UUID.randomUUID().toString();
+        String resetTokenKey = "ResetToken-" + resetTokenId;
+        String resetTokenValue = UUID.randomUUID().toString();
+
+        String hashedResetTokenValue = resetTokenEncoder.encodeToken(resetTokenValue);
+
+        int lifetimeMinutes = 15;
+        Instant expiresAt = Instant.now().plusSeconds(lifetimeMinutes * 60);
+
+        hashOps.put(resetTokenKey, "tokenValue", hashedResetTokenValue);
+        hashOps.put(resetTokenKey, "userId", userId.toString());
+        hashOps.put(resetTokenKey, "expiresAt", expiresAt.toString());
+        redisTemplate.expire(resetTokenKey, lifetimeMinutes, TimeUnit.MINUTES);
+
+        ResetTokenResponseDto result = new ResetTokenResponseDto(resetTokenValue, resetTokenId);
+
+        return result;
+    }
+
+    @Override
+    public User validateToken(String token, String tokenId) {
+        ResetToken tokenData = new ResetToken(tokenId, hashOps.entries("ResetToken-" + tokenId));
+
+        if (!resetTokenEncoder.verifyToken(token, tokenData.getHashedToken())) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_RESET_TOKEN);
+        }
+
+        UUID userId = UUID.fromString(tokenData.getUserId());
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_RESET_TOKEN);
+        }
+
+        deleteToken(tokenId);
+
+        return userOptional.get();
+    }
+}

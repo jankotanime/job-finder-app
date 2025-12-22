@@ -1,8 +1,8 @@
 package com.mimaja.job_finder_app.security.configuration;
 
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
-import com.mimaja.job_finder_app.security.tokens.jwt.authorizationFilter.JwtAuthorizationFilter;
-import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtSecretKeyConfiguration;
+import com.mimaja.job_finder_app.security.token.accessToken.authorizationFilter.JwtAuthorizationFilter;
+import com.mimaja.job_finder_app.security.token.accessToken.utils.AccessTokenSecretKeyManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -19,12 +19,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.security.profile", havingValue = "prod", matchIfMissing = true)
 public class SecurityFilterChainProdConfiguration {
-    private final JwtSecretKeyConfiguration jwtSecretKeyConfiguration;
+    private final AccessTokenSecretKeyManager accessTokenSecretKeyManager;
     private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        String secretKey = jwtSecretKeyConfiguration.getSecretKey();
+        String secretKey = accessTokenSecretKeyManager.getSecretKey();
         httpSecurity
                 .authorizeHttpRequests(
                         auth ->

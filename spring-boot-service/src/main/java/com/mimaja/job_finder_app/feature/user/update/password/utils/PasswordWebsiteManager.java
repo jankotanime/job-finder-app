@@ -4,8 +4,8 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseResetTokenDto;
-import com.mimaja.job_finder_app.security.tokens.resetTokens.service.ResetTokenServiceDefault;
+import com.mimaja.job_finder_app.security.token.resetToken.dto.response.ResetTokenResponseDto;
+import com.mimaja.job_finder_app.security.token.resetToken.service.ResetTokenServiceDefault;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class PasswordWebsiteManager {
     }
 
     public void sendEmail(UUID userId) {
-        ResponseResetTokenDto resetToken = respTokenServiceDefault.createToken(userId);
+        ResetTokenResponseDto resetToken = respTokenServiceDefault.createToken(userId);
         // TODO: Email needs update
         String emailContent =
                 "Hi\n"

@@ -44,20 +44,21 @@ services:
       - redis
     environment:
       JWT_SECRET_FILE: /run/secrets/spring-boot-jwt-secret
+      PASSWORD_SECRET_FILE: /run/secrets/spring-boot-password-secret
       REFRESH_TOKEN_SECRET_FILE: /run/secrets/spring-boot-refresh-token-secret
       RESET_TOKEN_SECRET_FILE: /run/secrets/spring-boot-reset-token-secret
       SMS_CODE_SECRET_FILE: /run/secrets/spring-boot-sms-code-secret
       REDIS_HOST: redis
       REDIS_PORT: 6379
       API_SSR_URL: ${API_SSR_URL}
-      GOOGLE_ID_IOS: ${API_GOOGLE_ID_WEB}
-      GOOGLE_ID_ANDROID: ${API_GOOGLE_ID_WEB}
+      GOOGLE_ID: ${API_GOOGLE_ID_WEB}
       CLOUDFLARE_ENDPOINT: ${CLOUDFLARE_ENDPOINT}
       CLOUDFLARE_ACCESS_KEY: ${CLOUDFLARE_ACCESS_KEY}
       CLOUDFLARE_SECRET_KEY: ${CLOUDFLARE_SECRET_KEY}
       CLOUDFLARE_BUCKET_NAME: ${CLOUDFLARE_BUCKET_NAME}
     secrets:
       - spring-boot-jwt-secret
+      - spring-boot-password-secret
       - spring-boot-refresh-token-secret
       - spring-boot-reset-token-secret
       - spring-boot-sms-code-secret
@@ -128,6 +129,8 @@ networks:
 secrets:
   spring-boot-jwt-secret:
     file: ./secrets/spring-boot-jwt
+  spring-boot-password-secret:
+    file: ./secrets/spring-boot-password
   spring-boot-refresh-token-secret:
     file: ./secrets/spring-boot-refresh-token
   spring-boot-reset-token-secret:
