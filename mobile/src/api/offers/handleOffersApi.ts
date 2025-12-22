@@ -11,8 +11,7 @@ export const getAllOffers = async () => {
   );
   if (error) console.error("get error:", error);
   if (!response) throw new Error("No response received");
-  const data = await response.json();
-  return data.data;
+  return response;
 };
 export const getOfferById = async (id: string) => {
   const [response, error] = await tryCatch(
@@ -22,8 +21,7 @@ export const getOfferById = async (id: string) => {
   );
   if (error) console.error("get id error:", error);
   if (!response) throw new Error("No response received");
-  const data = await response.json();
-  return data.data;
+  return response;
 };
 export const createOffer = async (formState: Offer) => {
   const [response, error] = await tryCatch(
@@ -41,7 +39,7 @@ export const createOffer = async (formState: Offer) => {
   );
   if (error) console.error("create error:", error);
   if (!response) throw new Error("No response received");
-  return response.json();
+  return response;
 };
 export const updateOffer = async (formState: UpdateOffer, id: string) => {
   const [response, error] = await tryCatch(
@@ -58,7 +56,7 @@ export const updateOffer = async (formState: UpdateOffer, id: string) => {
   );
   if (error) console.error("put error:", error);
   if (!response) throw new Error("No response received");
-  return response.json();
+  return response;
 };
 export const deleteOffer = async (id: string) => {
   const [response, error] = await tryCatch(
@@ -68,5 +66,5 @@ export const deleteOffer = async (id: string) => {
   );
   if (error) console.error("delete error:", error);
   if (!response) throw new Error("No response received");
-  return response.json();
+  return response;
 };

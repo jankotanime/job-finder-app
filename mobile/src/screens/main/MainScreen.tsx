@@ -62,8 +62,8 @@ const MainScreen = () => {
         console.log("loading: ", loading);
         if (!tokens || loading) return;
         const page = await getAllOffers();
-        const items = Array.isArray(page?.content)
-          ? page.content
+        const items = Array.isArray(page?.body.data.content)
+          ? page.body.data.content
           : Array.isArray(page)
             ? page
             : [];
@@ -197,6 +197,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 999,
+    zIndex: 10,
   },
 });

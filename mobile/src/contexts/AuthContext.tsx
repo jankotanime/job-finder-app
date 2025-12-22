@@ -126,10 +126,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   >("");
   const { t } = useTranslation();
 
-  useLayoutEffect(() => {
-    // const refreshInterceptor
-  });
-
   useEffect(() => {
     setAccessToken(tokens?.accessToken ?? null);
   }, [tokens]);

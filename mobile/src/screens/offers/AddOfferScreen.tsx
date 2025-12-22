@@ -411,18 +411,22 @@ const styles = StyleSheet.create({
     top: 0,
   },
   dropdown: {
-    marginTop: 6,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 6,
+    maxHeight: 200,
+    zIndex: 10,
   },
   dropdownChip: {
-    marginRight: 6,
     marginBottom: 6,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
 });
 

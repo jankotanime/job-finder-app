@@ -1,4 +1,6 @@
 import { rotateTokens } from "../auth/tokens/rotateTokens";
+import EncryptedStorage from "react-native-encrypted-storage";
+import { tryCatch } from "../utils/try-catch";
 
 let accessToken: string | null = null;
 let refreshTokenValue: string | null = null;
@@ -6,6 +8,7 @@ let refreshTokenId: string | null = null;
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
+let rotationTimer: ReturnType<typeof setInterval> | null = null;
 
 export const setTokensApiFetch = (tokens: {
   accessToken: string;
@@ -21,10 +24,89 @@ export const setAccessToken = (token: string | null) => {
   accessToken = token;
 };
 
+const ensureTokensFromStorage = async () => {
+  if (refreshTokenValue && refreshTokenId) return;
+  const [tokensRaw] = await tryCatch(EncryptedStorage.getItem("auth"));
+  if (!tokensRaw) return;
+  const parsed = JSON.parse(tokensRaw);
+  accessToken = parsed.accessToken ?? null;
+  refreshTokenValue = parsed.refreshToken ?? null;
+  refreshTokenId = parsed.refreshTokenId ?? null;
+};
+
+export const refreshAccessToken = async (): Promise<string | null> => {
+  await ensureTokensFromStorage();
+  if (!refreshTokenValue || !refreshTokenId) return null;
+
+  if (isRefreshing && refreshPromise) return refreshPromise;
+
+  isRefreshing = true;
+  refreshPromise = (async () => {
+    try {
+      const data = await rotateTokens({
+        tokens: {
+          refreshToken: refreshTokenValue!,
+          refreshTokenId: refreshTokenId!,
+        },
+        setError: () => {},
+        t: (x) => x,
+      });
+      if (!data || !data.data || !data.data.accessToken) {
+        return null;
+      }
+      accessToken = data.data.accessToken ?? null;
+      refreshTokenValue = data.data.refreshToken ?? refreshTokenValue;
+      refreshTokenId = data.data.refreshTokenId ?? refreshTokenId;
+
+      await EncryptedStorage.setItem(
+        "auth",
+        JSON.stringify({
+          accessToken,
+          refreshToken: refreshTokenValue,
+          refreshTokenId,
+        }),
+      );
+
+      if (accessToken && refreshTokenId && refreshTokenValue)
+        setTokensApiFetch({
+          accessToken,
+          refreshToken: refreshTokenValue,
+          refreshTokenId,
+        });
+
+      return accessToken;
+    } catch (err) {
+      accessToken = null;
+      refreshTokenValue = null;
+      refreshTokenId = null;
+      return null;
+    } finally {
+      isRefreshing = false;
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+};
+
+export const startTokenAutoRotate = (intervalMs: number = 5 * 60 * 1000) => {
+  if (rotationTimer) return;
+  rotationTimer = setInterval(() => {
+    refreshAccessToken().catch((e) => console.warn("Auto-rotate failed", e));
+  }, intervalMs);
+};
+
+export const stopTokenAutoRotate = () => {
+  if (rotationTimer) {
+    clearInterval(rotationTimer);
+    rotationTimer = null;
+  }
+};
 export const apiFetch = async (
   url: string,
   options: RequestInit = {},
-): Promise<Response> => {
+  retry: boolean = true,
+): Promise<{ response: Response; body: any }> => {
   const fetchWithToken = async (): Promise<Response> => {
     return fetch(`${process.env.EXPO_PUBLIC_API_URL}${url}`, {
       ...options,
@@ -35,45 +117,48 @@ export const apiFetch = async (
       },
     });
   };
-
-  //! fetch interceptor
-  const refreshTokenFunc = async (): Promise<string | null> => {
-    if (isRefreshing && refreshPromise) return refreshPromise;
-    if (!refreshTokenValue || !refreshTokenId) {
-      console.error("No tokens for refresh");
-      return null;
-    }
-    isRefreshing = true;
-    refreshPromise = (async () => {
-      try {
-        const data = await rotateTokens({
-          tokens: { refreshToken: refreshTokenValue, refreshTokenId },
-          setError: (err: string) => console.error(err),
-          t: (text: string) => text,
-        });
-        if (!data?.data?.accessToken) throw new Error("Refresh failed");
-        setAccessToken(data.data.accessToken);
-        return data.data.accessToken;
-      } catch (err) {
-        setAccessToken(null);
-        refreshTokenValue = null;
-        refreshTokenId = null;
-        console.error("Refresh failed", err);
-        return null;
-      } finally {
-        isRefreshing = false;
-        refreshPromise = null;
-      }
-    })();
-    return refreshPromise;
-  };
-
-  let response = await fetchWithToken();
-  if (response.status === 401) {
-    const newToken = await refreshTokenFunc();
+  let response: Response;
+  try {
+    response = await fetchWithToken();
+  } catch (e) {
+    const newToken = await refreshAccessToken();
     if (newToken) {
-      response = await fetchWithToken();
+      try {
+        response = await fetchWithToken();
+      } catch {
+        return {
+          response: { ok: false, status: 0 } as Response,
+          body: { code: "NETWORK_ERROR" },
+        };
+      }
+    } else {
+      return {
+        response: { ok: false, status: 0 } as Response,
+        body: { code: "NETWORK_ERROR" },
+      };
     }
   }
-  return response;
+  let body: any;
+  try {
+    body = await response.json();
+  } catch {
+    body = null;
+  }
+
+  if (
+    (body?.code === "INVALID_ACCESS_TOKEN" || response.status === 401) &&
+    retry
+  ) {
+    let newToken = await refreshAccessToken();
+    if (!newToken) {
+      try {
+        await new Promise((r) => setTimeout(r, 150));
+        newToken = await refreshAccessToken();
+      } catch {}
+    }
+    if (newToken) {
+      return apiFetch(url, options, false);
+    }
+  }
+  return { response, body };
 };

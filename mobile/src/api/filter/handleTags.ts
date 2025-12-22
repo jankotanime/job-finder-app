@@ -9,7 +9,6 @@ export const getAllTags = async () => {
   );
   if (error) console.error("get error:", error);
   if (!response) throw new Error("No response received");
-  const data = await response.json();
-  console.log("data tags: ", data);
-  return data;
+  console.log("data tags: ", response);
+  return response;
 };
