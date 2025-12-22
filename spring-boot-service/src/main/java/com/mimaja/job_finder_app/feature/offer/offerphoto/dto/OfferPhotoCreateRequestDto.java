@@ -1,14 +1,12 @@
-package com.mimaja.job_finder_app.feature.cv.dto;
+package com.mimaja.job_finder_app.feature.offer.offerphoto.dto;
 
-import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.shared.enums.MimeType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigInteger;
 
-public record CvUploadRequestDto(
+public record OfferPhotoCreateRequestDto(
         @NotBlank String fileName,
         @NotNull MimeType mimeType,
         @NotNull BigInteger fileSize,
-        @NotBlank String storageKey,
-        @NotNull User user) {}
+        @NotBlank String storageKey) {}

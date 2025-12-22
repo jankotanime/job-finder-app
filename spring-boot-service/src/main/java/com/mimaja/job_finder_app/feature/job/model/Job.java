@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.job.model;
 
+import com.mimaja.job_finder_app.feature.job.jobphoto.model.JobPhoto;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.user.model.User;
@@ -12,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -54,11 +56,13 @@ public class Job {
 
     @ManyToMany private Set<Tag> tags = new HashSet<>();
 
+    @OneToMany private Set<JobPhoto> photos = new HashSet<>();
+
     @CreationTimestamp private LocalDateTime createdAt;
 
     @UpdateTimestamp private LocalDateTime updatedAt;
 
-    public static Job from(Offer offer) {
+    public static Job from(Offer offer, Set<JobPhoto> photos) {
         Job job = new Job();
         job.title = offer.getTitle();
         job.description = offer.getDescription();
@@ -66,6 +70,7 @@ public class Job {
         job.salary = offer.getSalary();
         job.owner = offer.getOwner();
         job.contractor = offer.getChosenCandidate();
+        job.photos = photos;
         job.tags = offer.getTags() == null ? new HashSet<>() : new HashSet<>(offer.getTags());
         return job;
     }

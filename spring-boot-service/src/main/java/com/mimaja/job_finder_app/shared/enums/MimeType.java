@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.feature.cv.model;
+package com.mimaja.job_finder_app.shared.enums;
 
 import lombok.Getter;
 
@@ -8,6 +8,5 @@ public enum MimeType {
     DOCX,
     JPG,
     JPEG,
-    PNG,
-    GIF;
+    PNG;
 }

@@ -12,12 +12,16 @@ import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +31,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
@@ -56,12 +62,21 @@ public class OfferController {
                 offerUserService.getOfferById(jwt, offerId));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDto<OfferUserIsOwnerResponseDto>> createOffer(
-            @Valid @RequestBody OfferCreateRequestDto offerCreateRequestDto,
-            @AuthenticationPrincipal JwtPrincipal jwt) {
+            @AuthenticationPrincipal JwtPrincipal jwt,
+            @RequestParam("photos") Optional<MultipartFile[]> photos,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("dateAndTime") LocalDateTime dateAndTime,
+            @RequestParam("salary") Double salary,
+            @RequestParam("maxParticipants") int maxParticipants,
+            @RequestParam("tags") Set<UUID> tags) {
+        OfferCreateRequestDto offerCreateRequestDto =
+                new OfferCreateRequestDto(
+                        title, description, dateAndTime, salary, maxParticipants, tags);
         OfferUserIsOwnerResponseDto offerResponseDto =
-                offerUserService.createOffer(offerCreateRequestDto, jwt);
+                offerUserService.createOffer(photos, offerCreateRequestDto, jwt);
 
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -77,15 +92,24 @@ public class OfferController {
                                 offerResponseDto));
     }
 
-    @PutMapping(ID)
+    @PutMapping(value = ID, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<OfferUserIsOwnerResponseDto> updateOffer(
             @PathVariable UUID offerId,
-            @Valid @RequestBody OfferUpdateRequestDto offerUpdateRequestDto,
-            @AuthenticationPrincipal JwtPrincipal jwt) {
+            @AuthenticationPrincipal JwtPrincipal jwt,
+            @RequestParam("photos") Optional<MultipartFile[]> photos,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("dateAndTime") LocalDateTime dateAndTime,
+            @RequestParam("salary") Double salary,
+            @RequestParam("maxParticipants") int maxParticipants,
+            @RequestParam("tags") Set<UUID> tags) {
+        OfferUpdateRequestDto offerUpdateRequestDto =
+                new OfferUpdateRequestDto(
+                        title, description, dateAndTime, salary, maxParticipants, tags);
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_UPDATED,
                 "Successfully updated offer with id: " + offerId,
-                offerUserService.updateOffer(offerId, offerUpdateRequestDto, jwt));
+                offerUserService.updateOffer(offerId, photos, offerUpdateRequestDto, jwt));
     }
 
     @DeleteMapping(ID)

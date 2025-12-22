@@ -3,6 +3,7 @@ package com.mimaja.job_finder_app.feature.cv.model;
 import com.mimaja.job_finder_app.feature.cv.dto.CvUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.cv.dto.CvUploadRequestDto;
 import com.mimaja.job_finder_app.feature.user.model.User;
+import com.mimaja.job_finder_app.shared.enums.MimeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
