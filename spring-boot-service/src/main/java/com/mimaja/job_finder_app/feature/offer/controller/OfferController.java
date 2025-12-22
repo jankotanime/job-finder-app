@@ -39,7 +39,7 @@ public class OfferController {
 
     @GetMapping
     public ResponseDto<Page<OfferSummaryResponseDto>> getAllOffers(
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC)
                     Pageable pageable) {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
@@ -101,7 +101,7 @@ public class OfferController {
     @GetMapping("/filter")
     public ResponseDto<Page<OfferSummaryResponseDto>> getFilteredOffers(
             @Valid @RequestBody OfferFilterRequestDto offerFilterRequestDto,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC)
                     Pageable pageable) {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
