@@ -5,7 +5,7 @@ export const renderCardText = (item: Offer) => {
     { label: "Salary", value: `$${item.salary}` },
     {
       label: "Tags",
-      value: item.tags.map((tag) => tag.name).join(", "),
+      value: item.tags.map((tag) => tag).join(", "),
     },
   ];
 };

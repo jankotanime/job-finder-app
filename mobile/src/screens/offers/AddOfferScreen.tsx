@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   ScrollView,
@@ -19,7 +19,6 @@ import {
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-import useOfferStorage from "../../hooks/useOfferStorage";
 import { Offer } from "../../types/Offer";
 import { Tag } from "../../types/Tag";
 import Input from "../../components/reusable/Input";
@@ -28,6 +27,7 @@ import CardContent from "../../components/main/CardContent";
 import { useAuth } from "../../contexts/AuthContext";
 import { createOffer } from "../../api/offers/handleOffersApi";
 import { getAllTags } from "../../api/filter/handleTags";
+import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
 
 const { width, height } = Dimensions.get("window");
 interface FormState {
@@ -43,14 +43,9 @@ const AddOfferScreen = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
-  const { addStorageOffer } = useOfferStorage();
+  const { addStorageOffer } = useOfferStorageContext();
   const { userInfo } = useAuth();
-  const mockAvailableTags: Tag[] = [
-    { id: "tag-edu", name: "Edukacja" },
-    { id: "tag-it", name: "IT" },
-    { id: "tag-health", name: "Zdrowie" },
-    { id: "tag-event", name: "Eventy" },
-  ];
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [form, setForm] = useState<FormState>({
     title: "",
     description: "",
@@ -60,8 +55,35 @@ const AddOfferScreen = () => {
     tags: [],
     tagInput: "",
   });
-
   const [showPreview, setShowPreview] = useState(false);
+  const [date, setDate] = useState(new Date());
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const { body } = await getAllTags();
+        const content = body?.data?.content ?? [];
+        if (mounted && Array.isArray(content)) {
+          setAvailableTags(
+            content.map((t: any) => ({
+              id: String(t.id),
+              name: String(t.name),
+              categoryName: String(t.categoryName ?? t.category?.name ?? ""),
+              categoryColor: String(
+                t.categoryColor ?? t.category?.color ?? "#999999",
+              ),
+            })),
+          );
+        }
+      } catch (e) {
+        console.warn("Nie udało się pobrać tagów", e);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const errors = useMemo(() => {
     const e: Record<string, string> = {};
@@ -76,9 +98,7 @@ const AddOfferScreen = () => {
   }, [form, t]);
 
   const previewItem: Offer = useMemo(() => {
-    const resolvedTags = mockAvailableTags.filter((t) =>
-      form.tags.includes(t.id),
-    );
+    const resolvedTags = availableTags.filter((t) => form.tags.includes(t.id));
     return {
       title: form.title.trim(),
       description: form.description.trim(),
@@ -87,34 +107,15 @@ const AddOfferScreen = () => {
       owner: form.owner ?? "",
       tags: resolvedTags,
     } as unknown as Offer;
-  }, [form]);
+  }, [form, availableTags]);
 
   const filteredTags = useMemo(() => {
     const q = form.tagInput?.trim().toLowerCase();
     if (!q) return [] as Tag[];
-    return mockAvailableTags.filter(
+    return availableTags.filter(
       (t) => t.name.toLowerCase().includes(q) && !form.tags.includes(t.id),
     );
-  }, [form.tagInput, form.tags]);
-
-  const onAddTag = () => {
-    const name = form.tagInput.trim();
-    if (!name) return;
-    const found = mockAvailableTags.find(
-      (t) => t.name.toLowerCase() === name.toLowerCase(),
-    );
-    const idToAdd =
-      found?.id ?? `tmp-${Math.random().toString(36).slice(2, 8)}`;
-    if (form.tags.includes(idToAdd)) {
-      setForm((prev) => ({ ...prev, tagInput: "" }));
-      return;
-    }
-    setForm((prev) => ({
-      ...prev,
-      tags: [...prev.tags, idToAdd],
-      tagInput: "",
-    }));
-  };
+  }, [form.tagInput, form.tags, availableTags]);
 
   const onAddTagById = (id: string) => {
     if (!id) return;
@@ -128,27 +129,32 @@ const AddOfferScreen = () => {
       tags: prev.tags.filter((tId) => tId !== id),
     }));
   };
+  const formatLocalDateTime = (date: any) => {
+    const pad = (n: any) => n.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  };
 
   const onSubmit = async () => {
     if (Object.keys(errors).length > 0) return;
     const offer: Offer = {
       title: form.title.trim(),
       description: form.description.trim(),
+      dateAndTime: formatLocalDateTime(date),
       salary: Number(form.salary) || 0,
       maxParticipants: Number(form.maxParticipants) || 0,
-      owner: form.owner ?? "",
-      tags: mockAvailableTags.filter((t) => form.tags.includes(t.id)),
+      tags: availableTags.filter((t) => form.tags.includes(t.id)),
     } as unknown as Offer;
     addStorageOffer(offer);
     const createPayload = {
       title: form.title.trim(),
       description: form.description.trim(),
       salary: Number(form.salary) || 0,
+      dateAndTime: formatLocalDateTime(date),
       maxParticipants: Number(form.maxParticipants) || 0,
       ownerId: form.owner ?? "",
       tags: form.tags,
     };
-    const response = await createOffer(createPayload as any);
+    await createOffer(createPayload);
     navigation.goBack();
   };
 
@@ -288,33 +294,32 @@ const AddOfferScreen = () => {
                     },
                   ]}
                 >
-                  {filteredTags.map((tag) => (
-                    <Chip
-                      key={tag.id}
-                      onPress={() => {
-                        onAddTagById(tag.id);
-                        setForm((prev) => ({ ...prev, tagInput: "" }));
-                      }}
-                      style={styles.dropdownChip}
-                    >
-                      {tag.name}
-                    </Chip>
-                  ))}
+                  <ScrollView
+                    style={styles.dropdownScroll}
+                    contentContainerStyle={styles.dropdownContent}
+                    keyboardShouldPersistTaps="handled"
+                    nestedScrollEnabled
+                  >
+                    {filteredTags.map((tag) => (
+                      <Chip
+                        key={tag.id}
+                        onPress={() => {
+                          onAddTagById(tag.id);
+                          setForm((prev) => ({ ...prev, tagInput: "" }));
+                        }}
+                        style={styles.dropdownChip}
+                      >
+                        {tag.name}
+                      </Chip>
+                    ))}
+                  </ScrollView>
                 </View>
               )}
             </View>
-            <Button
-              style={{ marginTop: height * 0.015 }}
-              mode="contained"
-              onPress={onAddTag}
-            >
-              {t("offer.addTag")}
-            </Button>
           </View>
           <View style={styles.chipsWrap}>
             {form.tags.map((id) => {
-              const name =
-                mockAvailableTags.find((t) => t.id === id)?.name ?? id;
+              const name = availableTags.find((t) => t.id === id)?.name ?? id;
               return (
                 <Chip
                   key={id}
@@ -413,11 +418,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 12,
+    zIndex: 10,
+  },
+  dropdownScroll: {
+    maxHeight: 200,
+  },
+  dropdownContent: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 6,
-    maxHeight: 200,
-    zIndex: 10,
   },
   dropdownChip: {
     marginBottom: 6,
