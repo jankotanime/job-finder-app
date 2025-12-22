@@ -1,6 +1,7 @@
 import React from "react";
 import { TextInput } from "react-native-paper";
 import { StyleSheet, Dimensions } from "react-native";
+import type { KeyboardTypeOptions } from "react-native";
 
 interface TextInputProps {
   placeholder: string;
@@ -13,6 +14,7 @@ interface TextInputProps {
   style?: any;
   onFocus?: () => void;
   onBlur?: () => void;
+  keyboardType?: KeyboardTypeOptions;
 }
 
 const { width, height } = Dimensions.get("window");
@@ -28,6 +30,7 @@ const Input = ({
   style,
   onFocus,
   onBlur,
+  keyboardType,
 }: TextInputProps) => {
   return (
     <TextInput
@@ -38,6 +41,7 @@ const Input = ({
       numberOfLines={numberOfLines}
       onChangeText={onChangeText}
       secureTextEntry={secure}
+      keyboardType={keyboardType}
       style={[styles.input, multiline && styles.textarea, style]}
       theme={{ roundness: 20 }}
       onFocus={onFocus}

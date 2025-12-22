@@ -8,7 +8,7 @@ import {
   Animated,
 } from "react-native";
 import { useTheme, Icon } from "react-native-paper";
-import { Job } from "../../types/Job";
+import { Offer } from "../../types/Offer";
 import { palette } from "../../constans/tagPalette";
 import { createAnimation } from "../../utils/animationHelper";
 
@@ -19,11 +19,13 @@ const CardContent = ({
   isActive = false,
   onFadeOutComplete,
   finalizeHide = false,
+  preview,
 }: {
-  item: Job;
+  item: Offer;
   isActive?: boolean;
   onFadeOutComplete?: () => void;
   finalizeHide?: boolean;
+  preview?: boolean;
 }) => {
   const { colors } = useTheme();
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -49,10 +51,10 @@ const CardContent = ({
 
   return (
     <View style={styles.container}>
-      {item.logoUrl ? (
+      {item.offerPhoto ? (
         <View style={[styles.logoWrapper, { borderColor: colors.primary }]}>
           <Image
-            source={{ uri: item.logoUrl }}
+            source={{ uri: String(item.offerPhoto) }}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -68,25 +70,20 @@ const CardContent = ({
           <Icon source="camera" size={50} />
         </View>
       )}
-      {item.owner && (
-        <Text style={[styles.owner, { color: colors.onSurface }]}>
-          {item.owner}
-        </Text>
-      )}
-      {item.location && (
+      {/* {item.location && (
         <Text style={[styles.meta, { color: colors.onSurface }]}>
           {item.location}
         </Text>
-      )}
+      )} */}
       {item.title && (
         <Text style={[styles.title, { color: colors.onSurface }]}>
           {item.title}
         </Text>
       )}
-      {item.salary && (
+      {Number.isFinite(Number(item.salary)) && Number(item.salary) > 0 && (
         <View style={styles.salaryContainer}>
           <Text style={[styles.salary, { color: colors.onSurface }]}>
-            {item.salary} zł
+            {String(item.salary)} zł
           </Text>
         </View>
       )}
@@ -96,7 +93,7 @@ const CardContent = ({
             const bg = palette[idx % palette.length];
             return (
               <View
-                key={tag.id ?? idx}
+                key={tag.id ?? `${tag.name}-${idx}`}
                 style={[styles.tag, { backgroundColor: bg }]}
               >
                 <Text style={styles.tagText}>{tag.name}</Text>
@@ -116,6 +113,7 @@ const CardContent = ({
                 outputRange: [0, 500],
               }),
               overflow: "hidden",
+              ...(preview ? { marginLeft: 20 } : {}),
             },
           ]}
         >
@@ -132,7 +130,7 @@ export default CardContent;
 
 const styles = StyleSheet.create({
   container: {
-    width: width,
+    width: "100%",
     paddingHorizontal: 0,
     alignItems: "center",
     paddingTop: 0,

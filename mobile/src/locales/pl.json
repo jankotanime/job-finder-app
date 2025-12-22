@@ -34,7 +34,7 @@
     "passwords_dont_match": "Hasła nie są takie same",
     "no_access_token": "Brak tokena dostępu w odpowiedzi serwera",
     "network": "Błąd sieci",
-    "job_not_found": "Nie znaleziono oferty pracy",
+    "offer_not_found": "Nie znaleziono oferty",
     "wrong_login_data": "Nieprawidłowe dane logowania",
     "wrong_password": "Nieprawidłowe hasło",
     "invalid_username": "Nieprawidłowa nazwa użytkownika",
@@ -73,7 +73,7 @@
     "support": "Wsparcie",
     "contactUs": "Skontaktuj się z nami",
     "logout": "Wyloguj",
-    "saved_jobs": "Zapisane prace"
+    "saved_offers": "Zapisane oferty"
   },
   "profileCompletion": {
     "firstName": "Imię",
@@ -95,5 +95,36 @@
   },
   "google": {
     "sms_code": "Kod sms"
+  },
+  "offer": {
+    "addHeader": "Dodaj ofertę",
+    "status": "Status",
+    "tags": "Tagi",
+    "addTag": "Dodaj",
+    "candidates": "Kandydaci",
+    "addCandidate": "Dodaj",
+    "useNow": "Użyj teraz",
+    "save": "Dodaj ofertę",
+    "preview": "Zobacz podgląd oferty",
+    "close": "Zamknij",
+    "title": "Tytuł",
+    "description": "Opis",
+    "dateAndTime": "Data i czas",
+    "salary": "Wynagrodzenie",
+    "maxParticipants": "Maks. uczestników",
+    "location": "Lokalizacja",
+    "owner": "Właściciel",
+    "chosenCandidate": "Wybrany kandydat",
+    "offerPhotoUrl": "Zdjęcie",
+    "errors": {
+      "titleRequired": "Wpisz tytuł",
+      "descriptionRequired": "Dodaj opis",
+      "dateAndTimeRequired": "Ustaw datę i czas",
+      "locationRequired": "Podaj lokalizację",
+      "salaryInvalid": "Podaj wynagrodzenie",
+      "maxParticipantsInvalid": "Podaj maksymalną ilość uczestników",
+      "ownerRequired": "Podaj właściciela",
+      "chosenCandidateInvalid": "Wybrany kandydat musi być na liście"
+    }
   }
 }

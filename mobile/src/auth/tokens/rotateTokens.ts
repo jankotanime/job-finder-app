@@ -33,5 +33,9 @@ export const rotateTokens = async ({
     return null;
   }
   const data = await response.json();
+  if (data.code !== "RESOURCE_CREATED" || !data.data) {
+    setError(t("token_expired"));
+    return null;
+  }
   return data;
 };

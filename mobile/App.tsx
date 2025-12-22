@@ -17,6 +17,7 @@ import ProfileCompletionGoogle from "./src/screens/pre-login/ProfileCompletionGo
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { RootStackParamList } from "./src/types/RootStackParamList";
 import SmsGoogleCodeScreen from "./src/screens/pre-login/SmsGoogleCodeScreen";
+import AddOfferScreen from "./src/screens/offers/AddOfferScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -54,6 +55,7 @@ export default function App() {
               name="SmsGoogleCode"
               component={SmsGoogleCodeScreen}
             />
+            <Stack.Screen name="AddOffer" component={AddOfferScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </ThemeProvider>

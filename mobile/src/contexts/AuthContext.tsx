@@ -18,12 +18,20 @@ import { checkUserExistence } from "../auth/google/checkUserExistence";
 import { loginWithGoogle } from "../auth/google/loginWithGoogle";
 import { registerWithGoogle } from "../auth/google/registerWithGoogle";
 import { AuthStatus } from "../enums/authStatus";
+import getUserInfo, { User } from "../auth/tokens/getUserInfo";
+import { setTokensApiFetch } from "../api/client";
 
 type AuthContextType = {
   user: string;
   loading: boolean;
   isAuthenticated: boolean;
+  userInfo: User | null;
   pendingGoogleIdToken: string | null;
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+    refreshTokenId: string;
+  } | null;
   signIn: (
     formState: FormStateLoginProps,
     navigation: any,
@@ -75,7 +83,9 @@ const AuthContext = createContext<AuthContextType>({
   user: "",
   loading: true,
   isAuthenticated: false,
+  userInfo: null,
   pendingGoogleIdToken: "",
+  tokens: null,
   signIn: async () => ({
     ok: false,
     error: "not-initialized",
@@ -102,6 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
   const [tokens, setTokens] = useState<{
     accessToken: string;
     refreshToken: string;
@@ -120,7 +131,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (saved) {
       const parsed = JSON.parse(saved);
       const username = getUsernameFromAccessToken(parsed?.accessToken);
+      const userProps = getUserInfo(parsed?.accessToken);
       if (username) setUser(username);
+      if (userProps) setUserInfo(userProps);
+      setTokensApiFetch(parsed);
       setTokens(parsed);
       setIsAuthenticated(true);
     }
@@ -145,6 +159,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
     );
     setTokens({
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
+    });
+    setTokensApiFetch({
       accessToken: accessToken || "",
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
@@ -194,6 +213,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
     });
+    setTokensApiFetch({
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
+    });
     setIsAuthenticated(true);
     setUser(formState.username);
     return { ok: true };
@@ -228,6 +252,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
       );
       setTokens({
+        accessToken: accessToken || "",
+        refreshToken: refreshToken || "",
+        refreshTokenId: refreshTokenId || "",
+      });
+      setTokensApiFetch({
         accessToken: accessToken || "",
         refreshToken: refreshToken || "",
         refreshTokenId: refreshTokenId || "",
@@ -297,6 +326,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
     });
+    setTokensApiFetch({
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
+    });
 
     setUser(username);
     setIsAuthenticated(true);
@@ -329,9 +363,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        userInfo,
         loading,
         isAuthenticated,
         pendingGoogleIdToken,
+        tokens,
         signIn,
         signOut,
         signUp,

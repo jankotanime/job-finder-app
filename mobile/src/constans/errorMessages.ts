@@ -1,5 +1,5 @@
 export const errorMessages: Record<string, string> = {
-  "Job not found": "errors.job_not_found",
+  "Offer not found": "errors.offer_not_found",
   "Wrong login data": "errors.wrong_login_data",
   "Wrong password": "errors.wrong_password",
   "Invalid username": "errors.invalid_username",

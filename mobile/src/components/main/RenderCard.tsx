@@ -1,29 +1,29 @@
 import React from "react";
-import { Job } from "../../types/Job";
+import { Offer } from "../../types/Offer";
 import Card from "./Card";
 import { StyleSheet, Animated, ScrollView, Text } from "react-native";
 import CardContent from "./CardContent";
 import { useTheme } from "react-native-paper";
 import { useTranslation } from "react-i18next";
 
-interface JobCardProps {
-  item: Job;
+interface OfferCardProps {
+  item: Offer;
   expandAnim: Animated.Value;
   isActive: boolean;
   onDescriptionHidden?: () => void;
   finalizeHide?: boolean;
 }
-const JobCard = ({
+const OfferCard = ({
   item,
   expandAnim,
   isActive,
   onDescriptionHidden,
   finalizeHide,
-}: JobCardProps) => {
+}: OfferCardProps) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
   return (
-    <Card key={item.id} expandAnim={expandAnim}>
+    <Card key={item.title} expandAnim={expandAnim}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
@@ -46,7 +46,7 @@ const JobCard = ({
   );
 };
 
-export default JobCard;
+export default OfferCard;
 
 const styles = StyleSheet.create({
   container: {

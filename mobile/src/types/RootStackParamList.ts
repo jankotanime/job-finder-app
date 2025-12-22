@@ -13,4 +13,5 @@ export type RootStackParamList = {
     onRegisterSuccess: (username: string, phoneNumber: string) => Promise<void>;
   };
   SmsGoogleCode: undefined;
+  AddOffer: undefined;
 };

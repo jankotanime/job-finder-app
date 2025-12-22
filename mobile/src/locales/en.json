@@ -34,7 +34,7 @@
     "passwords_dont_match": "Passwords don't match",
     "no_access_token": "No access token in server response",
     "network": "Network error",
-    "job_not_found": "Job not found",
+    "offer_not_found": "Offer not found",
     "wrong_login_data": "Wrong login data",
     "wrong_password": "Wrong password",
     "invalid_username": "Invalid username",
@@ -73,7 +73,7 @@
     "support": "Support",
     "contactUs": "Contact Us",
     "logout": "Logout",
-    "saved_jobs": "Saved jobs"
+    "saved_offers": "Saved offers"
   },
   "profileCompletion": {
     "firstName": "First name",
@@ -95,5 +95,36 @@
   },
   "google": {
     "sms_code": "Sms code"
+  },
+  "offer": {
+    "addHeader": "Add offer",
+    "status": "Status",
+    "tags": "Tags",
+    "addTag": "Add",
+    "candidates": "Candidates",
+    "addCandidate": "Add",
+    "useNow": "Use now",
+    "save": "Save offer",
+    "preview": "Preview offer",
+    "close": "Close",
+    "title": "Title",
+    "description": "Description",
+    "dateAndTime": "Date and time",
+    "salary": "Salary",
+    "maxParticipants": "Max participants",
+    "location": "Location",
+    "owner": "Owner",
+    "chosenCandidate": "Chosen candidate",
+    "offerPhotoUrl": "Photo",
+    "errors": {
+      "titleRequired": "Enter a title",
+      "descriptionRequired": "Add a description",
+      "dateAndTimeRequired": "Set date and time",
+      "locationRequired": "Provide location",
+      "salaryInvalid": "Enter salary",
+      "maxParticipantsInvalid": "Enter max participants",
+      "ownerRequired": "Provide owner",
+      "chosenCandidateInvalid": "Chosen candidate must be on the list"
+    }
   }
 }

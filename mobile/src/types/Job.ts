@@ -1,17 +1,37 @@
 import { Tag } from "./Tag";
-export type JobStatus = "accepted" | "declined" | "pending";
-export type Job = {
-  id: string;
-  title: string;
-  description: string;
-  startAt: string;
-  location: string;
-  salary: number;
-  status: JobStatus;
-  owner: string;
-  candidates: string[];
-  tags: Tag[];
+type JobStatus = "accepted" | "declined" | "pending";
+type ApprovalPhoto = {
+  name: string;
+  mimeType: string;
+  data: string;
+};
+type JobDispatcher = {
+  isAnyIssueOwner: boolean;
+  isAnyIssueContractor: boolean;
+  ownerApprovalPhoto: ApprovalPhoto;
+  contractorApprovalPhoto: ApprovalPhoto;
+  finishedAt: string;
   createdAt: string;
   updatedAt: string;
-  logoUrl?: string;
+};
+type JobPhoto = {
+  name: string;
+  mimeType: string;
+  data: string;
+};
+export type Job = {
+  title: string;
+  description: string;
+  dateAndTime: string;
+  salary: number;
+  location: string;
+  status: JobStatus;
+  owner: string;
+  contractor: string;
+  tags: Tag[];
+  jobPhoto?: JobPhoto;
+  deposit: number;
+  jobDispatcher: JobDispatcher;
+  createdAt: string;
+  updatedAt: string;
 };

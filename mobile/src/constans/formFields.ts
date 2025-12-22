@@ -49,3 +49,23 @@ export const fieldsProfileCompletionGoogle = (t: (text: string) => string) => [
 export const fieldsSmsGoogleCode = (t: (text: string) => string) => [
   { key: "smsCode", placeholder: t("google.sms_code"), secure: false },
 ];
+
+export const fieldsAddOffer = (t: (text: string) => string) => [
+  { key: "title", placeholder: t("offer.title"), secure: false },
+  { key: "description", placeholder: t("offer.description"), secure: false },
+  { key: "dateAndTime", placeholder: t("offer.dateAndTime"), secure: false },
+  { key: "salary", placeholder: t("offer.salary"), secure: false },
+  {
+    key: "maxParticipants",
+    placeholder: t("offer.maxParticipants"),
+    secure: false,
+  },
+  { key: "location", placeholder: t("offer.location"), secure: false },
+  { key: "owner", placeholder: t("offer.owner"), secure: false },
+  {
+    key: "chosenCandidate",
+    placeholder: t("offer.chosenCandidate"),
+    secure: false,
+  },
+  { key: "offerPhoto", placeholder: t("offer.offerPhotoUrl"), secure: false },
+];
