@@ -6,7 +6,7 @@ import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.security.authorization.login.dto.request.LoginRequestDto;
 import com.mimaja.job_finder_app.security.authorization.login.utils.DefaultLoginValidation;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
 import com.mimaja.job_finder_app.security.token.refreshToken.service.RefreshTokenServiceDefault;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class LoginServiceDefault implements LoginService {
     private final DefaultLoginValidation defaultLoginValidation;
 
     @Override
-    public ResponseTokenDto tryToLogin(LoginRequestDto reqData) {
+    public TokenResponseDto tryToLogin(LoginRequestDto reqData) {
         String loginData = reqData.loginData();
         String password = reqData.password();
 
@@ -35,7 +35,7 @@ public class LoginServiceDefault implements LoginService {
             throw new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA);
         }
 
-        ResponseTokenDto tokens = refreshTokenServiceDefault.createTokensSet(user);
+        TokenResponseDto tokens = refreshTokenServiceDefault.createTokensSet(user);
         return tokens;
     }
 }

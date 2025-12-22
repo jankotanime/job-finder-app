@@ -1,6 +1,6 @@
 package com.mimaja.job_finder_app.security.token.refreshToken.controller;
 
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
 import com.mimaja.job_finder_app.security.token.refreshToken.dto.request.RequestRefreshTokenRotateDto;
 import com.mimaja.job_finder_app.security.token.refreshToken.service.RefreshTokenServiceDefault;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
@@ -18,11 +18,11 @@ public class RefreshTokenController {
     private final RefreshTokenServiceDefault refreshTokenServiceDefault;
 
     @PostMapping("/rotate")
-    public ResponseDto<ResponseTokenDto> rotateToken(
+    public ResponseDto<TokenResponseDto> rotateToken(
             @RequestBody RequestRefreshTokenRotateDto reqData) {
-        ResponseTokenDto tokens = refreshTokenServiceDefault.rotateToken(reqData);
+        TokenResponseDto tokens = refreshTokenServiceDefault.rotateToken(reqData);
 
-        ResponseDto<ResponseTokenDto> response =
+        ResponseDto<TokenResponseDto> response =
                 new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfully refreshed", tokens);
 
         return response;

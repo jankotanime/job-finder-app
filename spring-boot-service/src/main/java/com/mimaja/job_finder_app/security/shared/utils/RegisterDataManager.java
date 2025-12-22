@@ -9,13 +9,19 @@ import org.springframework.stereotype.Component;
 public class RegisterDataManager {
     private final CheckDataValidity checkDataValidity;
 
-    public void checkRegisterData(
-            String usernaname, String email, int phoneNumber, String password) {
-        checkDataValidity.checkEmail(null, email);
-        checkDataValidity.checkPhoneNumber(null, phoneNumber);
-        checkDataValidity.checkUsername(null, usernaname);
-        // checkDataValidity.checkPassword();
+    public void checkRegisterDataGoogle(
+            String usernaname, String email, int phoneNumber, String googleId) {
+        checkDataValidity.checkEmail(email);
+        checkDataValidity.checkPhoneNumber(phoneNumber);
+        checkDataValidity.checkUsername(usernaname);
+        checkDataValidity.checkGoogleId(googleId);
     }
 
-    public void checkPassword(String password) {}
+    public void checkRegisterDataDefault(
+            String usernaname, String email, int phoneNumber, String password) {
+        checkDataValidity.checkEmail(email);
+        checkDataValidity.checkPhoneNumber(phoneNumber);
+        checkDataValidity.checkUsername(usernaname);
+        checkDataValidity.checkPassword(password);
+    }
 }

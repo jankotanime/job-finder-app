@@ -14,8 +14,8 @@ import com.mimaja.job_finder_app.security.authorization.googleAuth.dto.request.G
 import com.mimaja.job_finder_app.security.authorization.googleAuth.dto.response.GoogleAuthLoginResponseDto;
 import com.mimaja.job_finder_app.security.authorization.googleAuth.dto.response.GoogleIdExistResponseDto;
 import com.mimaja.job_finder_app.security.authorization.googleAuth.enums.GoogleIdExistence;
-import com.mimaja.job_finder_app.security.authorization.googleAuth.utils.GoogleAuthDataManager;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
+import com.mimaja.job_finder_app.security.shared.utils.RegisterDataManager;
 import com.mimaja.job_finder_app.security.smsCode.service.SmsCodeServiceDefault;
 import com.mimaja.job_finder_app.security.token.refreshToken.service.RefreshTokenServiceDefault;
 import java.io.IOException;
@@ -28,19 +28,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class GoogleAuthServiceDefault implements GoogleAuthService {
     private final UserRepository userRepository;
-    private final GoogleAuthDataManager googleAuthDataManager;
+    private final RegisterDataManager registerDataManager;
     private final RefreshTokenServiceDefault refreshTokenServiceDefault;
     private final GoogleIdTokenVerifier verifier;
     private final SmsCodeServiceDefault smsCodeServiceDefault;
 
     public GoogleAuthServiceDefault(
             UserRepository userRepository,
-            GoogleAuthDataManager googleAuthDataManager,
+            RegisterDataManager registerDataManager,
             RefreshTokenServiceDefault refreshTokenServiceDefault,
             @Value("${google.id}") String googleId,
             SmsCodeServiceDefault smsCodeServiceDefault) {
         this.userRepository = userRepository;
-        this.googleAuthDataManager = googleAuthDataManager;
+        this.registerDataManager = registerDataManager;
         this.refreshTokenServiceDefault = refreshTokenServiceDefault;
         this.smsCodeServiceDefault = smsCodeServiceDefault;
 
@@ -100,7 +100,7 @@ public class GoogleAuthServiceDefault implements GoogleAuthService {
             changedEmail = true;
         }
 
-        ResponseTokenDto tokens = refreshTokenServiceDefault.createTokensSet(user);
+        TokenResponseDto tokens = refreshTokenServiceDefault.createTokensSet(user);
         GoogleAuthLoginResponseDto response = new GoogleAuthLoginResponseDto(tokens, changedEmail);
         return response;
     }
@@ -141,7 +141,7 @@ public class GoogleAuthServiceDefault implements GoogleAuthService {
     }
 
     @Override
-    public ResponseTokenDto tryToRegisterViaGoogle(GoogleAuthRegisterRequestDto reqData) {
+    public TokenResponseDto tryToRegisterViaGoogle(GoogleAuthRegisterRequestDto reqData) {
         String googleIdToken = reqData.googleToken();
         String username = reqData.username();
         int phoneNumber = reqData.phoneNumber();
@@ -150,7 +150,6 @@ public class GoogleAuthServiceDefault implements GoogleAuthService {
         try {
             verifiedToken = verifier.verify(googleIdToken);
         } catch (GeneralSecurityException | IOException e) {
-            System.out.println(e);
             throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
         }
 
@@ -162,9 +161,13 @@ public class GoogleAuthServiceDefault implements GoogleAuthService {
         String googleId = payload.getSubject();
         String email = payload.getEmail();
 
-        User user = googleAuthDataManager.registerUser(username, email, googleId, phoneNumber);
+        registerDataManager.checkRegisterDataGoogle(username, email, phoneNumber, googleId);
 
-        ResponseTokenDto tokens = refreshTokenServiceDefault.createTokensSet(user);
+        User user = new User(username, email, null, googleId, phoneNumber);
+
+        userRepository.save(user);
+
+        TokenResponseDto tokens = refreshTokenServiceDefault.createTokensSet(user);
         return tokens;
     }
 }

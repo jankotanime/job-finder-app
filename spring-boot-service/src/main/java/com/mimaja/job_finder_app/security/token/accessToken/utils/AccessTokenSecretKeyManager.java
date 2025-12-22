@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AccessTokenSecretKeyManager {
-    @Value("${jwt.secret}")
+    @Value("${access.token.secret}")
     private String secretFilePath;
 
     private String secretKey;

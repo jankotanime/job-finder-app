@@ -16,6 +16,7 @@ public class CheckDataValidity {
     private final String usernamePattern = "^(?=.*[a-zA-Z])[^@]+$";
     private final String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private final String restDataPattern = "^(?=.*[a-zA-Z]).+$";
+    private final String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
 
     private final UserRepository userRepository;
 
@@ -23,7 +24,7 @@ public class CheckDataValidity {
         return Pattern.compile(regexPattern).matcher(data).matches();
     }
 
-    public void checkUsername(UUID userId, String username) {
+    public void validateUsername(String username) {
         if (username.length() < 4 || username.length() > 25) {
             throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_LENGTH);
         }
@@ -31,6 +32,19 @@ public class CheckDataValidity {
         if (!patternMatches(username, usernamePattern)) {
             throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_PATTERN);
         }
+    }
+
+    public void checkUsername(String username) {
+        validateUsername(username);
+
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN);
+        }
+    }
+
+    public void checkUsername(UUID userId, String username) {
+        validateUsername(username);
 
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
@@ -40,10 +54,23 @@ public class CheckDataValidity {
         }
     }
 
-    public void checkEmail(UUID userId, String email) {
+    public void validateEmail(String email) {
         if (!patternMatches(email, emailPattern)) {
             throw new BusinessException(BusinessExceptionReason.INVALID_EMAIL_PATTERN);
         }
+    }
+
+    public void checkEmail(String email) {
+        validateEmail(email);
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.EMAIL_ALREADY_TAKEN);
+        }
+    }
+
+    public void checkEmail(UUID userId, String email) {
+        validateEmail(email);
 
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
@@ -53,16 +80,45 @@ public class CheckDataValidity {
         }
     }
 
-    public void checkPhoneNumber(UUID userId, int phoneNumber) {
+    public void validatePhoneNumber(int phoneNumber) {
         if (String.valueOf(phoneNumber).length() != 9) {
             throw new BusinessException(BusinessExceptionReason.INVALID_PHONE_NUMBER_LENGTH);
         }
+    }
+
+    public void checkPhoneNumber(int phoneNumber) {
+        validatePhoneNumber(phoneNumber);
+
+        Optional<User> userOptional = userRepository.findByPhoneNumber(phoneNumber);
+        if (userOptional.isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.PHONE_NUMBER_ALREADY_TAKEN);
+        }
+    }
+
+    public void checkPhoneNumber(UUID userId, int phoneNumber) {
+        validatePhoneNumber(phoneNumber);
 
         Optional<User> userOptional = userRepository.findByPhoneNumber(phoneNumber);
         if (userOptional.isPresent()) {
             if (!userId.equals(userOptional.get().getId())) {
                 throw new BusinessException(BusinessExceptionReason.PHONE_NUMBER_ALREADY_TAKEN);
             }
+        }
+    }
+
+    public void checkGoogleId(String googleId) {
+        if (userRepository.findByGoogleId(googleId).isPresent()) {
+            throw new BusinessException(BusinessExceptionReason.GOOGLEID_ALREADY_TAKEN);
+        }
+    }
+
+    public void checkPassword(String password) {
+        if (password.length() < 8 || password.length() > 128) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_LENGTH);
+        }
+
+        if (!patternMatches(password, passwordPattern)) {
+            throw new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_PATTERN);
         }
     }
 

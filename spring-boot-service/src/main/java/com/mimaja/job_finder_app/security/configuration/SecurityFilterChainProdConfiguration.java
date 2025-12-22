@@ -1,7 +1,8 @@
 package com.mimaja.job_finder_app.security.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
-import com.mimaja.job_finder_app.security.token.accessToken.authorizationFilter.JwtAuthorizationFilter;
+import com.mimaja.job_finder_app.security.token.accessToken.authorizationFilter.AuthorizationFilter;
 import com.mimaja.job_finder_app.security.token.accessToken.utils.AccessTokenSecretKeyManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -64,7 +65,7 @@ public class SecurityFilterChainProdConfiguration {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(
-                        new JwtAuthorizationFilter(secretKey, userRepository),
+                        new AuthorizationFilter(secretKey, userRepository, new ObjectMapper()),
                         UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }

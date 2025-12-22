@@ -43,7 +43,7 @@ services:
       - database
       - redis
     environment:
-      JWT_SECRET_FILE: /run/secrets/spring-boot-jwt-secret
+      ACCESS_TOKEN_SECRET_FILE: /run/secrets/spring-boot-access-token-secret
       PASSWORD_SECRET_FILE: /run/secrets/spring-boot-password-secret
       REFRESH_TOKEN_SECRET_FILE: /run/secrets/spring-boot-refresh-token-secret
       RESET_TOKEN_SECRET_FILE: /run/secrets/spring-boot-reset-token-secret
@@ -57,7 +57,7 @@ services:
       CLOUDFLARE_SECRET_KEY: ${CLOUDFLARE_SECRET_KEY}
       CLOUDFLARE_BUCKET_NAME: ${CLOUDFLARE_BUCKET_NAME}
     secrets:
-      - spring-boot-jwt-secret
+      - spring-boot-access-token-secret
       - spring-boot-password-secret
       - spring-boot-refresh-token-secret
       - spring-boot-reset-token-secret
@@ -127,8 +127,8 @@ networks:
     name: job-finder-app
 
 secrets:
-  spring-boot-jwt-secret:
-    file: ./secrets/spring-boot-jwt
+  spring-boot-access-token-secret:
+    file: ./secrets/spring-boot-access-token
   spring-boot-password-secret:
     file: ./secrets/spring-boot-password
   spring-boot-refresh-token-secret:

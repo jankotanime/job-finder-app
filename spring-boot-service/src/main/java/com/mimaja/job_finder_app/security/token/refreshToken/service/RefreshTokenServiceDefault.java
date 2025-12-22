@@ -5,7 +5,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.encoder.RefreshTokenEncoder;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
 import com.mimaja.job_finder_app.security.token.accessToken.dto.response.CreateAccessTokenResponseDto;
 import com.mimaja.job_finder_app.security.token.accessToken.service.AccessTokenService;
 import com.mimaja.job_finder_app.security.token.refreshToken.dto.request.RequestRefreshTokenRotateDto;
@@ -71,12 +71,12 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
     }
 
     @Override
-    public ResponseTokenDto createTokensSet(User user) {
+    public TokenResponseDto createTokensSet(User user) {
         CreateAccessTokenResponseDto accessTokenDto = accessTokenService.createToken(user);
         RefreshTokenResponseDto newRefreshToken = createRefreshToken(user);
 
-        ResponseTokenDto response =
-                new ResponseTokenDto(
+        TokenResponseDto response =
+                new TokenResponseDto(
                         accessTokenDto.accessToken(),
                         newRefreshToken.refreshToken(),
                         newRefreshToken.refreshTokenId());
@@ -85,7 +85,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
     }
 
     @Override
-    public ResponseTokenDto rotateToken(RequestRefreshTokenRotateDto reqData) {
+    public TokenResponseDto rotateToken(RequestRefreshTokenRotateDto reqData) {
         String refreshToken = reqData.refreshToken();
         String refreshTokenId = reqData.refreshTokenId();
 

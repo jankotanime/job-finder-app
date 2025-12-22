@@ -6,7 +6,7 @@ import com.mimaja.job_finder_app.security.authorization.googleAuth.dto.request.G
 import com.mimaja.job_finder_app.security.authorization.googleAuth.dto.response.GoogleAuthLoginResponseDto;
 import com.mimaja.job_finder_app.security.authorization.googleAuth.dto.response.GoogleIdExistResponseDto;
 import com.mimaja.job_finder_app.security.authorization.googleAuth.service.GoogleAuthServiceDefault;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth/google-auth/ios")
+@RequestMapping("/auth/google-auth")
 public class GoogleAuthController {
     private final GoogleAuthServiceDefault googleAuthServiceDefault;
 
@@ -38,9 +38,9 @@ public class GoogleAuthController {
     }
 
     @PostMapping("/register")
-    public ResponseDto<ResponseTokenDto> googleAuthIosRegister(
+    public ResponseDto<TokenResponseDto> googleAuthIosRegister(
             @RequestBody GoogleAuthRegisterRequestDto reqData) {
-        ResponseTokenDto tokens = googleAuthServiceDefault.tryToRegisterViaGoogle(reqData);
+        TokenResponseDto tokens = googleAuthServiceDefault.tryToRegisterViaGoogle(reqData);
 
         return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Succesfuly registered", tokens);
     }
