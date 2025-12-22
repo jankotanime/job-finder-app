@@ -59,7 +59,8 @@
   "main": {
     "card": {
       "details_check": "Dotknij, aby zobaczyć detale"
-    }
+    },
+    "offers_loading": "Ładowanie ofert..."
   },
   "menu": {
     "profile": "Profil",

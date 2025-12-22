@@ -307,9 +307,14 @@ const AddOfferScreen = () => {
                           onAddTagById(tag.id);
                           setForm((prev) => ({ ...prev, tagInput: "" }));
                         }}
-                        style={styles.dropdownChip}
+                        style={[
+                          styles.dropdownChip,
+                          { backgroundColor: colors.primary },
+                        ]}
                       >
-                        {tag.name}
+                        <Text style={{ color: colors.onPrimary }}>
+                          {tag.name}
+                        </Text>
                       </Chip>
                     ))}
                   </ScrollView>

@@ -59,7 +59,8 @@
   "main": {
     "card": {
       "details_check": "Press, to check details"
-    }
+    },
+    "offers_loading": "Loading offers..."
   },
   "menu": {
     "profile": "Profile",

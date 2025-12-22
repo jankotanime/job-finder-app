@@ -20,7 +20,7 @@ const { width, height } = Dimensions.get("window");
 const Filter = () => {
   const { colors } = useTheme();
   const [isActive, setIsActive] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-height)).current;
+  const slideAnim = useRef(new Animated.Value(height + 10)).current;
   const firstBarRotation = useRef(new Animated.Value(0)).current;
   const secondBarRotation = useRef(new Animated.Value(0)).current;
   const moveThirdBarY = useRef(new Animated.Value(0)).current;
@@ -52,8 +52,8 @@ const Filter = () => {
         createAnimation(moveThirdBarY, next ? -10 : 0),
         createAnimation(moveThirdBarX, next ? 10 : 0),
         createAnimation(menuDisplay, next ? -height : 0, 300),
-        createAnimation(widthAnim, next ? 30 : 10, 500, 0, false),
-        createAnimation(slideAnim, next ? 0 : -height, 350, 0, true),
+        createAnimation(widthAnim, next ? 25 : 10, 300, 0, false),
+        createAnimation(slideAnim, next ? 0 : height + 10, 300, 0, true),
       ]).start(() => {
         hasPressed.current = false;
       });
@@ -122,12 +122,11 @@ const Filter = () => {
           styles.animBox,
           {
             transform: [{ translateY: slideAnim }],
-            backgroundColor: colors.onBackground,
+            backgroundColor: colors.background,
             borderColor: colors.primary,
           },
         ]}
-      />
-      {isActive && (
+      >
         <View style={styles.exitBox}>
           <TouchableOpacity onPress={filterOffers}>
             <Text style={{ color: colors.primary, fontSize: 16 }}>filtruj</Text>
@@ -141,7 +140,7 @@ const Filter = () => {
             <Text style={{ color: colors.primary, fontSize: 16 }}>getTags</Text>
           </TouchableOpacity>
         </View>
-      )}
+      </Animated.View>
     </>
   );
 };
@@ -177,14 +176,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   bar_1: {
-    width: 30,
+    width: 25,
     height: 3.2,
     backgroundColor: "#5F5100",
     marginBottom: 4,
     borderRadius: 20,
   },
   bar_2: {
-    width: 20,
+    width: 18,
     height: 3.2,
     backgroundColor: "#5F5100",
     marginBottom: 4,

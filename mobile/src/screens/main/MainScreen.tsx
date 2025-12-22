@@ -18,6 +18,7 @@ import Filter from "../../components/main/Filter";
 import AddOfferButton from "../../components/main/AddOfferButton";
 import { ActivityIndicator } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
@@ -45,7 +46,7 @@ const MainScreen = () => {
   >(null);
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
-  const swiperKey = `${offersData.length}-${storageOffers.length}`;
+  const { t } = useTranslation();
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -86,7 +87,7 @@ const MainScreen = () => {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
             <Text style={{ color: colors.onSurfaceVariant, marginTop: 10 }}>
-              Ładowanie ofert...
+              {t("main.offers_loading")}
             </Text>
           </View>
         )}
