@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -51,6 +52,7 @@ public class CvServiceDefault implements CvService {
     }
 
     @Override
+    @Transactional
     public Cv uploadCv(MultipartFile file, UUID userId) {
         ProcessedFileDetails fileDetails = processFileDetails(file);
 
@@ -91,6 +93,7 @@ public class CvServiceDefault implements CvService {
     }
 
     @Override
+    @Transactional
     public Cv updateCv(MultipartFile file, UUID cvId) {
         Cv cv = getOrThrow(cvId);
         ProcessedFileDetails fileDetails = processFileDetails(file);
@@ -124,6 +127,7 @@ public class CvServiceDefault implements CvService {
     }
 
     @Override
+    @Transactional
     public void deleteCv(UUID cvId) {
         Cv cv = getOrThrow(cvId);
         s3Client.deleteObject(
@@ -132,6 +136,7 @@ public class CvServiceDefault implements CvService {
     }
 
     @Override
+    @Transactional
     public void deleteAllCvsForUser(UUID userId) {
         List<Cv> cvList = cvRepository.findAllCvsByUserId(userId);
         cvList.forEach(

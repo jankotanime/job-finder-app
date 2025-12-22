@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class JobServiceDefault implements JobService {
     }
 
     @Override
+    @Transactional
     public Job createJob(Offer offer) {
         if (offer.getChosenCandidate() == null) {
             throw new BusinessException(BusinessExceptionReason.CANDIDATE_NEED_TO_BE_CHOSEN);
@@ -43,6 +45,7 @@ public class JobServiceDefault implements JobService {
     }
 
     @Override
+    @Transactional
     public void deleteJob(UUID jobId) {
         Job job = getOrThrow(jobId);
         jobRepository.delete(job);
