@@ -45,7 +45,6 @@ const AddOfferScreen = () => {
   const { t } = useTranslation();
   const { addStorageOffer } = useOfferStorage();
   const { userInfo } = useAuth();
-  console.log(userInfo);
   const mockAvailableTags: Tag[] = [
     { id: "tag-edu", name: "Edukacja" },
     { id: "tag-it", name: "IT" },
@@ -150,7 +149,6 @@ const AddOfferScreen = () => {
       tags: form.tags,
     };
     const response = await createOffer(createPayload as any);
-    console.log(response);
     navigation.goBack();
   };
 

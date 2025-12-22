@@ -5,7 +5,6 @@ import { tryCatch } from "../utils/try-catch";
 let accessToken: string | null = null;
 let refreshTokenValue: string | null = null;
 let refreshTokenId: string | null = null;
-
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
 let rotationTimer: ReturnType<typeof setInterval> | null = null;
@@ -18,10 +17,6 @@ export const setTokensApiFetch = (tokens: {
   accessToken = tokens.accessToken;
   refreshTokenValue = tokens.refreshToken;
   refreshTokenId = tokens.refreshTokenId;
-};
-
-export const setAccessToken = (token: string | null) => {
-  accessToken = token;
 };
 
 const ensureTokensFromStorage = async () => {

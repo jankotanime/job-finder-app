@@ -58,8 +58,6 @@ const MainScreen = () => {
     let mounted = true;
     const load = async () => {
       try {
-        console.log("tokens: ", tokens);
-        console.log("loading: ", loading);
         if (!tokens || loading) return;
         const page = await getAllOffers();
         const items = Array.isArray(page?.body.data.content)

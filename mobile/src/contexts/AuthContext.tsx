@@ -4,8 +4,6 @@ import React, {
   useEffect,
   useState,
   ReactNode,
-  useRef,
-  useLayoutEffect,
 } from "react";
 import EncryptedStorage from "react-native-encrypted-storage";
 import getUsernameFromAccessToken from "../auth/tokens/getUsernameFromAccessToken";
@@ -20,7 +18,6 @@ import { checkUserExistence } from "../auth/google/checkUserExistence";
 import { loginWithGoogle } from "../auth/google/loginWithGoogle";
 import { registerWithGoogle } from "../auth/google/registerWithGoogle";
 import { AuthStatus } from "../enums/authStatus";
-import { setAccessToken } from "../api/client";
 import getUserInfo, { User } from "../auth/tokens/getUserInfo";
 import { setTokensApiFetch } from "../api/client";
 
@@ -127,10 +124,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    setAccessToken(tokens?.accessToken ?? null);
-  }, [tokens]);
-
-  useEffect(() => {
     loadTokens();
   }, []);
   const loadTokens = async () => {
@@ -166,6 +159,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
     );
     setTokens({
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
+    });
+    setTokensApiFetch({
       accessToken: accessToken || "",
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
@@ -215,6 +213,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
     });
+    setTokensApiFetch({
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
+    });
     setIsAuthenticated(true);
     setUser(formState.username);
     return { ok: true };
@@ -249,6 +252,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         JSON.stringify({ accessToken, refreshToken, refreshTokenId }),
       );
       setTokens({
+        accessToken: accessToken || "",
+        refreshToken: refreshToken || "",
+        refreshTokenId: refreshTokenId || "",
+      });
+      setTokensApiFetch({
         accessToken: accessToken || "",
         refreshToken: refreshToken || "",
         refreshTokenId: refreshTokenId || "",
@@ -314,6 +322,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }),
     );
     setTokens({
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
+    });
+    setTokensApiFetch({
       accessToken: accessToken || "",
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
