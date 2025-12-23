@@ -51,7 +51,7 @@ public class User {
 
     @OneToMany private Set<Cv> cvs = new HashSet<>();
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToOne(cascade = CascadeType.ALL)
     private ProfilePhoto profilePhoto;
 
     @Column(updatable = false)

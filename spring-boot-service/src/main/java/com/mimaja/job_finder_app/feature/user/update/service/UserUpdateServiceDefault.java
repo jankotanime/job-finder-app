@@ -7,6 +7,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.profilephoto.dto.ProfilePhotoCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.profilephoto.model.ProfilePhoto;
+import com.mimaja.job_finder_app.feature.user.profilephoto.repository.ProfilePhotoRepository;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.UpdateEmailRequestDto;
 import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.UpdatePhoneNumberRequestDto;
@@ -43,6 +44,7 @@ public class UserUpdateServiceDefault implements UserUpdateService {
     private final CheckDataValidity checkDataValidity;
     private final PasswordConfiguration passwordConfiguration;
     private final UserRepository userRepository;
+    private final ProfilePhotoRepository profilePhotoRepository;
     private final JwtConfiguration jwtConfiguration;
     private final S3Client s3Client;
 
@@ -94,10 +96,11 @@ public class UserUpdateServiceDefault implements UserUpdateService {
                             .key(user.getProfilePhoto().getStorageKey())
                             .build();
             s3Client.deleteObject(deleteObjectRequest);
+            profilePhotoRepository.deleteById(user.getProfilePhoto().getId());
             user.setProfilePhoto(null);
         }
 
-        if (profilePhoto.isPresent() && !profilePhoto.equals(Optional.empty())) {
+        if (profilePhoto.isPresent()) {
             ProfilePhoto newProfilePhoto = processPhoto(profilePhoto.get());
             user.setProfilePhoto(newProfilePhoto);
         }

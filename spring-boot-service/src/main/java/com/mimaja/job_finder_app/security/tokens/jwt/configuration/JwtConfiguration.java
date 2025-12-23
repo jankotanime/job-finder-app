@@ -23,6 +23,11 @@ public class JwtConfiguration {
                         .withClaim("firstName", user.getFirstName())
                         .withClaim("lastName", user.getLastName())
                         .withClaim("profileDescription", user.getProfileDescription())
+                        .withClaim(
+                                "profilePhoto",
+                                user.getProfilePhoto() != null
+                                        ? user.getProfilePhoto().getStorageKey()
+                                        : "")
                         .withIssuedAt(new Date())
                         .withExpiresAt(
                                 new Date(
