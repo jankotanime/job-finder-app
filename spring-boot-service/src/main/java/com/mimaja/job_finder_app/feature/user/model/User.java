@@ -1,13 +1,16 @@
 package com.mimaja.job_finder_app.feature.user.model;
 
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
+import com.mimaja.job_finder_app.feature.user.profilephoto.model.ProfilePhoto;
 import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -47,6 +50,9 @@ public class User {
     private String profileDescription;
 
     @OneToMany private Set<Cv> cvs = new HashSet<>();
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private ProfilePhoto profilePhoto;
 
     @Column(updatable = false)
     @CreationTimestamp
