@@ -11,11 +11,13 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
 import com.mimaja.job_finder_app.feature.offer.mapper.OfferMapper;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -36,16 +38,21 @@ public class OfferUserService {
     }
 
     public OfferUserIsOwnerResponseDto createOffer(
-            OfferCreateRequestDto offerCreateRequestDto, JwtPrincipal jwt) {
+            Optional<MultipartFile[]> photos,
+            OfferCreateRequestDto offerCreateRequestDto,
+            JwtPrincipal jwt) {
         return offerMapper.toOfferUserIsOwnerResponseDto(
-                offerService.createOffer(offerCreateRequestDto, jwt.id()));
+                offerService.createOffer(photos, offerCreateRequestDto, jwt.id()));
     }
 
     public OfferUserIsOwnerResponseDto updateOffer(
-            UUID offerId, OfferUpdateRequestDto offerUpdateRequestDto, JwtPrincipal jwt) {
+            UUID offerId,
+            Optional<MultipartFile[]> photos,
+            OfferUpdateRequestDto offerUpdateRequestDto,
+            JwtPrincipal jwt) {
         throwErrorIfUserIsNotOwner(jwt.id(), offerId);
         return offerMapper.toOfferUserIsOwnerResponseDto(
-                offerService.updateOffer(offerId, offerUpdateRequestDto));
+                offerService.updateOffer(offerId, photos, offerUpdateRequestDto));
     }
 
     public void deleteOffer(UUID offerId, JwtPrincipal jwt) {

@@ -1,6 +1,7 @@
 package com.mimaja.job_finder_app.feature.offer.dto;
 
 import com.mimaja.job_finder_app.feature.offer.model.OfferStatus;
+import com.mimaja.job_finder_app.feature.offer.offerphoto.dto.OfferPhotoResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagResponseDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserInOfferResponseDto;
 import jakarta.annotation.Nullable;
@@ -19,5 +20,6 @@ public record OfferUserIsOwnerResponseDto(
         UserInOfferResponseDto owner,
         Set<TagResponseDto> tags,
         Set<UserInOfferResponseDto> candidates,
-        @Nullable UserInOfferResponseDto chosenCandidate)
+        @Nullable UserInOfferResponseDto chosenCandidate,
+        @Nullable Set<OfferPhotoResponseDto> photos)
         implements OfferBaseResponseDto {}

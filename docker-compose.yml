@@ -15,7 +15,7 @@ services:
       - db-volume:/var/lib/postgresql/data
 
   db-update:
-    image: postgres:16-alpine
+    image: postgres:16
     container_name: db-update
     profiles:
       - init
@@ -24,11 +24,15 @@ services:
       - spring-boot-service
     volumes:
       - ./data.sql:/data.sql:ro
-      - ./scripts/wait-for-it.sh:/wait-for-it.sh
+      - ./scripts/import-data.sh:/import-data.sh:ro
+      - ./scripts/wait-for-it.sh:/wait-for-it.sh:ro
     entrypoint: >
-      /bin/sh -c "chmod +x /wait-for-it.sh && /wait-for-it.sh spring-boot-service:8080 --timeout=60 && psql -h database -U admin -d jobFinderApp -f /data.sql"
+      /bin/sh -c "bash /wait-for-it.sh spring-boot-service:8080 --timeout=60 && sh /import-data.sh"
     environment:
       PGPASSWORD: admin
+      PGHOST: database
+      PGUSER: admin
+      PGDATABASE: jobFinderApp
     networks:
       - job-finder-app
 

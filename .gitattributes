@@ -1,0 +1,21 @@
+# default: treat text files and normalize to LF in repo
+* text=auto
+
+# enforce LF for shell scripts and common text formats
+*.sh     text eol=lf
+/scripts/* text eol=lf
+*.sql    text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.md     text eol=lf
+*.java   text eol=lf
+*.gradle text eol=lf
+*.js     text eol=lf
+*.ts     text eol=lf
+*.py     text eol=lf
+
+# keep Windows batch files CRLF
+*.bat    text eol=crlf
+
+# ensure gradlew is LF
+/gradlew text eol=lf
