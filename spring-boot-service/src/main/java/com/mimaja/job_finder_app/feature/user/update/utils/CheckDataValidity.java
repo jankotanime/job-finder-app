@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class CheckDataValidity {
-    private final String usernamePattern = "^(?=.*[a-zA-Z])[^@]+$";
-    private final String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-    private final String restDataPattern = "^(?=.*[a-zA-Z]).+$";
+    private static final String USERNAME_PATTERN = "^(?=.*[a-zA-Z])[^@]+$";
+    private static final String EMAIL_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    private static final String REST_DATA_PATTERN = "^(?=.*[a-zA-Z]).+$";
 
     private final UserRepository userRepository;
 
@@ -28,28 +28,24 @@ public class CheckDataValidity {
             throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_LENGTH);
         }
 
-        if (!patternMatches(username, usernamePattern)) {
+        if (!patternMatches(username, USERNAME_PATTERN)) {
             throw new BusinessException(BusinessExceptionReason.INVALID_USERNAME_PATTERN);
         }
 
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isPresent()) {
-            if (!userId.equals(userOptional.get().getId())) {
-                throw new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN);
-            }
+        if (userOptional.isPresent() && !userId.equals(userOptional.get().getId())) {
+            throw new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN);
         }
     }
 
     public void checkEmail(UUID userId, String email) {
-        if (!patternMatches(email, emailPattern)) {
+        if (!patternMatches(email, EMAIL_PATTERN)) {
             throw new BusinessException(BusinessExceptionReason.INVALID_EMAIL_PATTERN);
         }
 
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            if (!userId.equals(userOptional.get().getId())) {
-                throw new BusinessException(BusinessExceptionReason.EMAIL_ALREADY_TAKEN);
-            }
+        if (userOptional.isPresent() && !userId.equals(userOptional.get().getId())) {
+            throw new BusinessException(BusinessExceptionReason.EMAIL_ALREADY_TAKEN);
         }
     }
 
@@ -59,18 +55,16 @@ public class CheckDataValidity {
         }
 
         Optional<User> userOptional = userRepository.findByPhoneNumber(phoneNumber);
-        if (userOptional.isPresent()) {
-            if (!userId.equals(userOptional.get().getId())) {
-                throw new BusinessException(BusinessExceptionReason.PHONE_NUMBER_ALREADY_TAKEN);
-            }
+        if (userOptional.isPresent() && !userId.equals(userOptional.get().getId())) {
+            throw new BusinessException(BusinessExceptionReason.PHONE_NUMBER_ALREADY_TAKEN);
         }
     }
 
     public void checkRestData(String data) {
-        if (data.length() < 1) {
+        if (data.isEmpty()) {
             throw new BusinessException(BusinessExceptionReason.INVALID_DATA_LENGTH);
         }
-        if (!patternMatches(data, restDataPattern)) {
+        if (!patternMatches(data, REST_DATA_PATTERN)) {
             throw new BusinessException(BusinessExceptionReason.INVALID_DATA_PATTERN);
         }
     }

@@ -7,10 +7,14 @@ import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdateEm
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdatePhoneNumberResponseDto;
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdateUserDataResponseDto;
 import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
+import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserUpdateService {
     UpdateUserDataResponseDto updateUserdata(
-            UpdateUserDataRequestDto reqData, JwtPrincipal principal);
+            Optional<MultipartFile> profilePhoto,
+            UpdateUserDataRequestDto reqData,
+            JwtPrincipal principal);
 
     UpdateEmailResponseDto updateEmail(UpdateEmailRequestDto reqData, JwtPrincipal principal);
 
