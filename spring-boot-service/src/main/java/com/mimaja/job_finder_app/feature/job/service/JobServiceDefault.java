@@ -1,7 +1,5 @@
 package com.mimaja.job_finder_app.feature.job.service;
 
-import com.mimaja.job_finder_app.core.handler.exception.ApplicationException;
-import com.mimaja.job_finder_app.core.handler.exception.ApplicationExceptionReason;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.job.jobphoto.model.JobPhoto;
@@ -10,31 +8,26 @@ import com.mimaja.job_finder_app.feature.job.repository.JobRepository;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
-import java.io.IOException;
+import com.mimaja.job_finder_app.shared.adapters.R2FileSource;
+import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
+import com.mimaja.job_finder_app.shared.enums.FileFolderName;
+import com.mimaja.job_finder_app.shared.service.FileManagementService;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @RequiredArgsConstructor
 public class JobServiceDefault implements JobService {
     private final JobRepository jobRepository;
     private final OfferService offerService;
-    private final S3Client s3Client;
-
-    @Value("${cloudflare.r2.bucket}")
-    private String bucket;
+    private final FileManagementService fileManagementService;
 
     @Override
     public Job getJobById(UUID jobId) {
@@ -78,28 +71,15 @@ public class JobServiceDefault implements JobService {
     }
 
     private JobPhoto processPhoto(OfferPhoto photo) {
-        GetObjectRequest reqGet =
-                GetObjectRequest.builder().bucket(bucket).key(photo.getStorageKey()).build();
+        ResponseInputStream<GetObjectResponse> response =
+                fileManagementService.getFile(photo.getStorageKey());
+        R2FileSource fileSource = new R2FileSource(response, photo.getFileName());
+        String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.JOB_PHOTO);
+        ProcessedFileDetails fileDetails =
+                fileManagementService.processFileDetails(fileSource, folder);
 
-        String folder = "photos/job-photos";
-        String key = String.format("%s/%s-%s", folder, UUID.randomUUID(), photo.getFileName());
+        fileManagementService.uploadFile(fileDetails);
 
-        try {
-            ResponseInputStream<GetObjectResponse> responseGet = s3Client.getObject(reqGet);
-            String contentType = responseGet.response().contentType();
-            byte[] bytes = responseGet.readAllBytes();
-            PutObjectRequest req =
-                    PutObjectRequest.builder()
-                            .bucket(bucket)
-                            .key(key)
-                            .contentType(contentType)
-                            .build();
-            responseGet.close();
-            s3Client.putObject(req, RequestBody.fromBytes(bytes));
-        } catch (IOException e) {
-            throw new ApplicationException(ApplicationExceptionReason.FILE_UPLOAD_EXCEPTION);
-        }
-
-        return JobPhoto.from(photo, key);
+        return JobPhoto.from(photo, fileDetails.storageKey());
     }
 }

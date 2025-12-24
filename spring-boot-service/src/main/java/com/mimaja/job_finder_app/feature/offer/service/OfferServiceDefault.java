@@ -1,7 +1,5 @@
 package com.mimaja.job_finder_app.feature.offer.service;
 
-import com.mimaja.job_finder_app.core.handler.exception.ApplicationException;
-import com.mimaja.job_finder_app.core.handler.exception.ApplicationExceptionReason;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
@@ -17,30 +15,22 @@ import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.offer.tag.service.TagService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
-import com.mimaja.job_finder_app.shared.enums.MimeType;
-import java.io.IOException;
-import java.math.BigInteger;
+import com.mimaja.job_finder_app.shared.adapters.MultipartFileSource;
+import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
+import com.mimaja.job_finder_app.shared.enums.FileFolderName;
+import com.mimaja.job_finder_app.shared.service.FileManagementService;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -49,21 +39,7 @@ public class OfferServiceDefault implements OfferService {
     private final OfferMapper offerMapper;
     private final UserService userService;
     private final TagService tagService;
-    private final S3Client s3Client;
-
-    @Value("${cloudflare.r2.bucket}")
-    private String bucket;
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ProcessedPhotoDetails {
-        String fileName;
-        String contentType;
-        MimeType mimeType;
-        String storageKey;
-    }
+    private final FileManagementService fileManagementService;
 
     @Override
     public Page<Offer> getAllOffers(Pageable pageable) {
@@ -113,14 +89,7 @@ public class OfferServiceDefault implements OfferService {
                 offerUpdateRequestDto.tags().stream()
                         .map(tagService::getTagById)
                         .collect(Collectors.toSet());
-        offer.getPhotos()
-                .forEach(
-                        photo ->
-                                s3Client.deleteObject(
-                                        DeleteObjectRequest.builder()
-                                                .bucket(bucket)
-                                                .key(photo.getStorageKey())
-                                                .build()));
+        offer.getPhotos().forEach(photo -> fileManagementService.deleteFile(photo.getStorageKey()));
         Set<OfferPhoto> offerPhotos =
                 photos.map(
                                 multipartFiles ->
@@ -155,67 +124,14 @@ public class OfferServiceDefault implements OfferService {
     }
 
     private OfferPhoto processPhoto(MultipartFile photo) {
-        ProcessedPhotoDetails fileDetails = processFileDetails(photo);
+        MultipartFileSource fileSource = new MultipartFileSource(photo);
+        String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
+        ProcessedFileDetails fileDetails =
+                fileManagementService.processFileDetails(fileSource, folder);
 
-        PutObjectRequest req =
-                PutObjectRequest.builder()
-                        .bucket(bucket)
-                        .key(fileDetails.storageKey)
-                        .contentType(fileDetails.contentType)
-                        .build();
+        fileManagementService.uploadFile(fileDetails);
 
-        try {
-            s3Client.putObject(req, RequestBody.fromBytes(photo.getBytes()));
-        } catch (IOException e) {
-            throw new ApplicationException(ApplicationExceptionReason.FILE_UPLOAD_EXCEPTION);
-        }
-
-        BigInteger fileSize = BigInteger.valueOf(photo.getSize());
-
-        OfferPhotoCreateRequestDto dto =
-                new OfferPhotoCreateRequestDto(
-                        fileDetails.getFileName(),
-                        fileDetails.getMimeType(),
-                        fileSize,
-                        fileDetails.getStorageKey());
+        OfferPhotoCreateRequestDto dto = OfferPhotoCreateRequestDto.from(fileDetails);
         return OfferPhoto.from(dto);
-    }
-
-    private MimeType getFileExtension(String filename) {
-        int idx = filename.lastIndexOf('.');
-        if (idx < 0 || idx == filename.length() - 1) {
-            throw new IllegalArgumentException("Invalid file extension in filename: " + filename);
-        }
-        return MimeType.valueOf(filename.substring(idx + 1).toUpperCase());
-    }
-
-    private String getFileName(MultipartFile file) {
-        return Optional.ofNullable(file.getOriginalFilename())
-                .orElseThrow(
-                        () ->
-                                new ApplicationException(
-                                        ApplicationExceptionReason.FILE_NAME_MISSING))
-                .toLowerCase();
-    }
-
-    private String getContentType(MultipartFile file) {
-        return Optional.ofNullable(file.getContentType())
-                .orElseThrow(
-                        () ->
-                                new ApplicationException(
-                                        ApplicationExceptionReason.CONTENT_TYPE_UNKNOWN));
-    }
-
-    private ProcessedPhotoDetails processFileDetails(MultipartFile file) {
-        String fileName = getFileName(file);
-        String contentType = getContentType(file);
-        MimeType ext = getFileExtension(fileName);
-        if (!ext.equals(MimeType.JPG) && !ext.equals(MimeType.JPEG) && !ext.equals(MimeType.PNG)) {
-            throw new BusinessException(BusinessExceptionReason.WRONG_PHOTO_FORMAT);
-        }
-        String folder = "photos/offer-photos";
-
-        String key = String.format("%s/%s-%s", folder, UUID.randomUUID(), fileName);
-        return new ProcessedPhotoDetails(fileName, contentType, ext, key);
     }
 }
