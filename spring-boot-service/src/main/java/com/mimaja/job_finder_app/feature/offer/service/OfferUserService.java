@@ -2,6 +2,8 @@ package com.mimaja.job_finder_app.feature.offer.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.application.model.Application;
+import com.mimaja.job_finder_app.feature.offer.dto.OfferApplyRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferBaseResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
@@ -67,6 +69,13 @@ public class OfferUserService {
                 .map(offerMapper::toOfferSummaryResponseDto);
     }
 
+    public OfferSummaryResponseDto applyOffer(
+            UUID offerId, JwtPrincipal jwt, OfferApplyRequestDto dto) {
+        validateCandidate(jwt.id(), offerId);
+        return offerMapper.toOfferSummaryResponseDto(
+                offerService.applyOffer(offerId, jwt.id(), dto));
+    }
+
     private boolean checkIfUserIsOwner(UUID userId, Offer offer) {
         return (offer.getOwner().getId()).equals(userId);
     }
@@ -75,6 +84,18 @@ public class OfferUserService {
         Offer offer = offerService.getOfferById(offerId);
         if (!offer.getOwner().getId().equals(userId)) {
             throw new BusinessException(BusinessExceptionReason.USER_NOT_OWNER);
+        }
+    }
+
+    private void validateCandidate(UUID userId, UUID offerId) {
+        Offer offer = offerService.getOfferById(offerId);
+        for (Application application : offer.getApplications()) {
+            if (application.getCandidate().getId().equals(userId)) {
+                throw new BusinessException(BusinessExceptionReason.ALREADY_APPLIED_FOR_OFFER);
+            }
+        }
+        if (checkIfUserIsOwner(userId, offer)) {
+            throw new BusinessException(BusinessExceptionReason.OWNER_CANNOT_APPLY);
         }
     }
 }

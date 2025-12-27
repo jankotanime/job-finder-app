@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.service;
 
+import com.mimaja.job_finder_app.feature.offer.dto.OfferApplyRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
@@ -28,4 +29,6 @@ public interface OfferService {
     void deleteOffer(UUID offerId);
 
     Page<Offer> getFilteredOffers(OfferFilterRequestDto offerFilterRequestDto, Pageable pageable);
+
+    Offer applyOffer(UUID offerId, UUID userId, OfferApplyRequestDto dto);
 }

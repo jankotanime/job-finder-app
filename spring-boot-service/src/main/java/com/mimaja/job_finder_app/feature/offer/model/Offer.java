@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.model;
 
+import com.mimaja.job_finder_app.feature.application.model.Application;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.user.model.User;
@@ -46,7 +47,7 @@ public class Offer {
     @Enumerated(EnumType.STRING)
     private OfferStatus status = OfferStatus.OPEN;
 
-    private int maxParticipants;
+    private int maxApplications;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -56,7 +57,8 @@ public class Offer {
     @JoinColumn(name = "chosen_candidate_id")
     private User chosenCandidate;
 
-    @ManyToMany private Set<User> candidates = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Application> applications = new HashSet<>();
 
     @ManyToMany private Set<Tag> tags = new HashSet<>();
 
@@ -72,7 +74,7 @@ public class Offer {
         this.description = updatedOffer.getDescription();
         this.dateAndTime = updatedOffer.getDateAndTime();
         this.salary = updatedOffer.getSalary();
-        this.maxParticipants = updatedOffer.getMaxParticipants();
+        this.maxApplications = updatedOffer.getMaxApplications();
         this.tags = tags;
         this.photos = photos;
     }

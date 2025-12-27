@@ -13,5 +13,5 @@ public record OfferUpdateRequestDto(
         @NotBlank String description,
         @NotNull @Future LocalDateTime dateAndTime,
         @NotNull Double salary,
-        @NotNull int maxParticipants,
+        @NotNull int maxApplications,
         @Valid @NotNull Set<UUID> tags) {}

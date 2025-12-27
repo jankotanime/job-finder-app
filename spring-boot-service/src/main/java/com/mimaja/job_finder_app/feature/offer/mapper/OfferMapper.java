@@ -1,5 +1,7 @@
 package com.mimaja.job_finder_app.feature.offer.mapper;
 
+import com.mimaja.job_finder_app.feature.application.mapper.ApplicationMapper;
+import com.mimaja.job_finder_app.feature.cv.mapper.CvMapper;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
@@ -13,7 +15,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(
         componentModel = "spring",
-        uses = {UserMapper.class, TagMapper.class},
+        uses = {UserMapper.class, TagMapper.class, ApplicationMapper.class, CvMapper.class},
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OfferMapper {
     @Mapping(target = "tags", ignore = true)
@@ -25,7 +27,8 @@ public interface OfferMapper {
 
     @Mapping(
             target = "candidatesAmount",
-            expression = "java(offer.getCandidates() == null ? 0 : offer.getCandidates().size())")
+            expression =
+                    "java(offer.getApplications() == null ? 0 : offer.getApplications().size())")
     OfferSummaryResponseDto toOfferSummaryResponseDto(Offer offer);
 
     OfferUserIsOwnerResponseDto toOfferUserIsOwnerResponseDto(Offer offer);

@@ -16,7 +16,7 @@ public record OfferSummaryResponseDto(
         LocalDateTime dateAndTime,
         Double salary,
         OfferStatus status,
-        int maxParticipants,
+        int maxApplications,
         UserInOfferResponseDto owner,
         Set<TagResponseDto> tags,
         int candidatesAmount,
