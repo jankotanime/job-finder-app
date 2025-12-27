@@ -4,6 +4,7 @@ import com.mimaja.job_finder_app.feature.job.jobphoto.model.JobPhoto;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.user.model.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -56,7 +57,8 @@ public class Job {
 
     @ManyToMany private Set<Tag> tags = new HashSet<>();
 
-    @OneToMany private Set<JobPhoto> photos = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<JobPhoto> photos = new HashSet<>();
 
     @CreationTimestamp private LocalDateTime createdAt;
 
