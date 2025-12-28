@@ -67,7 +67,32 @@ const MainScreen = () => {
           ? page.body.data.content
           : [];
         if (active) {
-          setOffersData(items as Offer[]);
+          const resolvePhoto = (obj: any): string | undefined => {
+            if (!obj) return undefined;
+            if (typeof obj === "string") return obj;
+            if (typeof obj?.url === "string") return obj.url;
+            console.log("photo: ", obj);
+            return undefined;
+          };
+          const normalized = (items as any[]).map((it) => {
+            const direct =
+              typeof it?.offerPhoto === "string"
+                ? it.offerPhoto
+                : resolvePhoto(it?.offerPhoto);
+            const firstPhoto =
+              Array.isArray(it?.photos) && it.photos.length > 0
+                ? resolvePhoto(it.photos[0])
+                : undefined;
+            const fallback =
+              typeof it?.photoUrl === "string"
+                ? it.photoUrl
+                : typeof it?.imageUrl === "string"
+                  ? it.imageUrl
+                  : undefined;
+            const offerPhoto = direct || firstPhoto || fallback;
+            return { ...it, offerPhoto } as Offer;
+          });
+          setOffersData(normalized as Offer[]);
         }
       };
       load();

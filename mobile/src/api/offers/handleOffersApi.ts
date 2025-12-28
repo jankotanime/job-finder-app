@@ -5,9 +5,13 @@ import { Offer } from "../../types/Offer";
 
 export const getAllOffers = async () => {
   const [response, error] = await tryCatch(
-    apiFetch("/offer", {
-      method: "GET",
-    }),
+    apiFetch(
+      "/offer",
+      {
+        method: "GET",
+      },
+      true,
+    ),
   );
   if (error) console.error("get error:", error);
   if (!response) throw new Error("No response received");
@@ -15,9 +19,13 @@ export const getAllOffers = async () => {
 };
 export const getOfferById = async (id: string) => {
   const [response, error] = await tryCatch(
-    apiFetch(`/offer/${id}`, {
-      method: "GET",
-    }),
+    apiFetch(
+      `/offer/${id}`,
+      {
+        method: "GET",
+      },
+      true,
+    ),
   );
   if (error) console.error("get id error:", error);
   if (!response) throw new Error("No response received");
@@ -31,38 +39,56 @@ export const createOffer = async (
         typeof t === "string" ? t : t.id,
       )
     : [];
-  const payload: any = {
-    title: (formState as any).title,
-    description: (formState as any).description,
-    salary: (formState as any).salary,
-    maxParticipants: (formState as any).maxParticipants,
-    tags: tagIds,
-  };
-  if ((formState as any).dateAndTime)
-    payload.dateAndTime = (formState as any).dateAndTime;
-  if ((formState as any).ownerId) payload.ownerId = (formState as any).ownerId;
+  const form = new FormData();
+  const title = (formState as any).title;
+  const description = (formState as any).description;
+  const salary = (formState as any).salary;
+  const maxParticipants = (formState as any).maxParticipants;
+  const dateAndTime = (formState as any).dateAndTime;
+  const ownerId = (formState as any).ownerId;
+  const offerPhoto = (formState as any).offerPhoto;
+
+  if (title) form.append("title", String(title));
+  if (description) form.append("description", String(description));
+  if (typeof salary !== "undefined") form.append("salary", String(salary));
+  if (typeof maxParticipants !== "undefined")
+    form.append("maxParticipants", String(maxParticipants));
+  if (dateAndTime) form.append("dateAndTime", String(dateAndTime));
+  if (ownerId) form.append("ownerId", String(ownerId));
+  tagIds.forEach((id: string) => form.append("tags", id));
+  if (offerPhoto) form.append("offerPhoto", String(offerPhoto));
+
   const [response, error] = await tryCatch(
-    apiFetch(`/offer`, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
+    apiFetch(
+      `/offer`,
+      {
+        method: "POST",
+        body: form,
+      },
+      true,
+    ),
   );
+  console.log("response: ", response);
   if (error) console.error("create error:", error);
   if (!response) throw new Error("No response received");
   return response;
 };
 export const updateOffer = async (formState: UpdateOffer, id: string) => {
   const [response, error] = await tryCatch(
-    apiFetch(`/offer${id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        title: formState.title,
-        description: formState.description,
-        salary: formState.salary,
-        maxParticipants: formState.maxParticipants,
-        tags: formState.tags,
-      }),
-    }),
+    apiFetch(
+      `/offer/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          title: formState.title,
+          description: formState.description,
+          salary: formState.salary,
+          maxParticipants: formState.maxParticipants,
+          tags: formState.tags,
+        }),
+      },
+      true,
+    ),
   );
   if (error) console.error("put error:", error);
   if (!response) throw new Error("No response received");
@@ -70,9 +96,13 @@ export const updateOffer = async (formState: UpdateOffer, id: string) => {
 };
 export const deleteOffer = async (id: string) => {
   const [response, error] = await tryCatch(
-    apiFetch(`/offer${id}`, {
-      method: "DELETE",
-    }),
+    apiFetch(
+      `/offer/${id}`,
+      {
+        method: "DELETE",
+      },
+      true,
+    ),
   );
   if (error) console.error("delete error:", error);
   if (!response) throw new Error("No response received");

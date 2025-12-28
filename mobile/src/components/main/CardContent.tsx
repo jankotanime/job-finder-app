@@ -51,25 +51,38 @@ const CardContent = ({
 
   return (
     <View style={styles.container}>
-      {item.offerPhoto ? (
-        <View style={[styles.logoWrapper, { borderColor: colors.primary }]}>
-          <Image
-            source={{ uri: String(item.offerPhoto) }}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
-      ) : (
-        <View
-          style={[
-            styles.logoWrapper,
-            styles.placeholderLogo,
-            { borderColor: colors.onSurface, backgroundColor: colors.surface },
-          ]}
-        >
-          <Icon source="camera" size={50} />
-        </View>
-      )}
+      {(() => {
+        const photoUri =
+          typeof item.offerPhoto === "string"
+            ? item.offerPhoto
+            : item.offerPhoto && typeof (item.offerPhoto as any) === "object"
+              ? ((item.offerPhoto as any).url ??
+                (item.offerPhoto as any).uri ??
+                undefined)
+              : undefined;
+        return photoUri ? (
+          <View style={[styles.logoWrapper, { borderColor: colors.primary }]}>
+            <Image
+              source={{ uri: photoUri }}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+        ) : (
+          <View
+            style={[
+              styles.logoWrapper,
+              styles.placeholderLogo,
+              {
+                borderColor: colors.onSurface,
+                backgroundColor: colors.surface,
+              },
+            ]}
+          >
+            <Icon source="camera" size={50} />
+          </View>
+        );
+      })()}
       {/* {item.location && (
         <Text style={[styles.meta, { color: colors.onSurface }]}>
           {item.location}
@@ -93,7 +106,7 @@ const CardContent = ({
             const bg = getTagColor((tag as any).categoryColor);
             return (
               <View
-                key={tag.id ?? `${tag.id}-${idx}`}
+                key={`tag-${(tag as any).id ?? "noid"}-${idx}`}
                 style={[styles.tag, { backgroundColor: bg }]}
               >
                 <Text style={styles.tagText}>{tag.name}</Text>
@@ -156,8 +169,8 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   logo: {
-    width: width,
-    height: height,
+    width: width * 0.65,
+    height: height * 0.65,
   },
   owner: {
     fontSize: 18,

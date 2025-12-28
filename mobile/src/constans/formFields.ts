@@ -51,6 +51,7 @@ export const fieldsSmsGoogleCode = (t: (text: string) => string) => [
 ];
 
 export const fieldsAddOffer = (t: (text: string) => string) => [
+  { key: "offerPhoto", placeholder: t("offer.offerPhotoUrl"), secure: false },
   { key: "title", placeholder: t("offer.title"), secure: false },
   { key: "description", placeholder: t("offer.description"), secure: false },
   { key: "dateAndTime", placeholder: t("offer.dateAndTime"), secure: false },
@@ -67,5 +68,4 @@ export const fieldsAddOffer = (t: (text: string) => string) => [
     placeholder: t("offer.chosenCandidate"),
     secure: false,
   },
-  { key: "offerPhoto", placeholder: t("offer.offerPhotoUrl"), secure: false },
 ];

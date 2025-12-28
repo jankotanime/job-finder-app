@@ -30,7 +30,7 @@ import { useNavigation } from "@react-navigation/native";
 import { handleProfileCompletionSubmit } from "../../auth/profileCompletionForm/handleProfileCompletionSubmit";
 import { useAuth } from "../../contexts/AuthContext";
 
-interface FormState {
+export interface FormState {
   firstName: string;
   lastName: string;
   // location: string;
