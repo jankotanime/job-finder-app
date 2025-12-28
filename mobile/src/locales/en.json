@@ -59,7 +59,8 @@
   "main": {
     "card": {
       "details_check": "Press, to check details"
-    }
+    },
+    "offers_loading": "Loading offers..."
   },
   "menu": {
     "profile": "Profile",
@@ -100,7 +101,7 @@
     "addHeader": "Add offer",
     "status": "Status",
     "tags": "Tags",
-    "addTag": "Add",
+    "addTag": "Add tag",
     "candidates": "Candidates",
     "addCandidate": "Add",
     "useNow": "Use now",
@@ -111,7 +112,7 @@
     "description": "Description",
     "dateAndTime": "Date and time",
     "salary": "Salary",
-    "maxParticipants": "Max participants",
+    "maxParticipants": "Max number of candidates",
     "location": "Location",
     "owner": "Owner",
     "chosenCandidate": "Chosen candidate",

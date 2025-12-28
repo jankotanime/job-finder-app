@@ -120,10 +120,15 @@ const Menu = () => {
           <Text style={[styles.menuTitle, { color: colors.onSurface }]}>
             {t("menu.profile")}
           </Text>
-          <View style={[styles.menuBox, { backgroundColor: colors.surface }]}>
+          <View
+            style={[styles.menuBox, { backgroundColor: colors.onBackground }]}
+          >
             <TouchableOpacity
               onPress={() => navigation.navigate("MyProfile")}
-              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              style={[
+                styles.menuItem,
+                { backgroundColor: colors.onBackground },
+              ]}
             >
               <Ionicons
                 name="person-circle-outline"
@@ -140,7 +145,10 @@ const Menu = () => {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              style={[
+                styles.menuItem,
+                { backgroundColor: colors.onBackground },
+              ]}
               onPress={() => navigation.navigate("Storage")}
             >
               <Entypo
@@ -162,9 +170,14 @@ const Menu = () => {
           <Text style={[styles.menuTitle, { color: colors.onSurface }]}>
             {t("menu.settings")}
           </Text>
-          <View style={[styles.menuBox, { backgroundColor: colors.surface }]}>
+          <View
+            style={[styles.menuBox, { backgroundColor: colors.onBackground }]}
+          >
             <View
-              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              style={[
+                styles.menuItem,
+                { backgroundColor: colors.onBackground },
+              ]}
             >
               <Ionicons name="moon-outline" size={24} color={colors.primary} />
               <Text style={[styles.menuItemText, { color: colors.onSurface }]}>
@@ -173,7 +186,10 @@ const Menu = () => {
               <Switch value={isDarkMode} onValueChange={toggleTheme} />
             </View>
             <TouchableOpacity
-              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              style={[
+                styles.menuItem,
+                { backgroundColor: colors.onBackground },
+              ]}
               onPress={() => navigation.navigate("LanguageMenu")}
             >
               <Ionicons
@@ -191,7 +207,10 @@ const Menu = () => {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              style={[
+                styles.menuItem,
+                { backgroundColor: colors.onBackground },
+              ]}
               onPress={() => handleSignOut()}
             >
               <Ionicons name="log-out-outline" size={24} color={colors.error} />
@@ -204,9 +223,14 @@ const Menu = () => {
           <Text style={[styles.menuTitle, { color: colors.onSurface }]}>
             {t("menu.support")}
           </Text>
-          <View style={[styles.menuBox, { backgroundColor: colors.surface }]}>
+          <View
+            style={[styles.menuBox, { backgroundColor: colors.onBackground }]}
+          >
             <TouchableOpacity
-              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              style={[
+                styles.menuItem,
+                { backgroundColor: colors.onBackground },
+              ]}
               onPress={() =>
                 Linking.openURL(process.env.EXPO_PUBLIC_SUPPORT_MAIL)
               }

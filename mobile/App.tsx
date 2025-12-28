@@ -18,6 +18,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { RootStackParamList } from "./src/types/RootStackParamList";
 import SmsGoogleCodeScreen from "./src/screens/pre-login/SmsGoogleCodeScreen";
 import AddOfferScreen from "./src/screens/offers/AddOfferScreen";
+import { OfferStorageProvider } from "./src/contexts/OfferStorageContext";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -30,34 +31,36 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName="Auth"
-            screenOptions={{ headerShown: false }}
-          >
-            <Stack.Screen name="Auth" component={AuthLoadingScreen} />
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
-            <Stack.Screen name="Main" component={MainScreen} />
-            <Stack.Screen name="Storage" component={StorageScreen} />
-            <Stack.Screen name="MyProfile" component={MyProfile} />
-            <Stack.Screen name="LanguageMenu" component={LanguageMenu} />
-            <Stack.Screen
-              name="ProfileCompletion"
-              component={ProfileCompletionFormScreen}
-            />
-            <Stack.Screen
-              name="ProfileCompletionGoogle"
-              component={ProfileCompletionGoogle}
-            />
-            <Stack.Screen
-              name="SmsGoogleCode"
-              component={SmsGoogleCodeScreen}
-            />
-            <Stack.Screen name="AddOffer" component={AddOfferScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <OfferStorageProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              initialRouteName="Auth"
+              screenOptions={{ headerShown: false }}
+            >
+              <Stack.Screen name="Auth" component={AuthLoadingScreen} />
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Register" component={RegisterScreen} />
+              <Stack.Screen name="Main" component={MainScreen} />
+              <Stack.Screen name="Storage" component={StorageScreen} />
+              <Stack.Screen name="MyProfile" component={MyProfile} />
+              <Stack.Screen name="LanguageMenu" component={LanguageMenu} />
+              <Stack.Screen
+                name="ProfileCompletion"
+                component={ProfileCompletionFormScreen}
+              />
+              <Stack.Screen
+                name="ProfileCompletionGoogle"
+                component={ProfileCompletionGoogle}
+              />
+              <Stack.Screen
+                name="SmsGoogleCode"
+                component={SmsGoogleCodeScreen}
+              />
+              <Stack.Screen name="AddOffer" component={AddOfferScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </OfferStorageProvider>
       </ThemeProvider>
     </AuthProvider>
   );

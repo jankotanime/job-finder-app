@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
-import useOfferStorage from "../../hooks/useOfferStorage";
+import useOfferStorageContext from "../../hooks/useOfferStorage";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAllOffers } from "../../api/offers/handleOffersApi";
 import { useTheme } from "react-native-paper";
@@ -17,6 +17,8 @@ import OnSwipeBottom from "../../components/main/swipe/OnSwipeBottom";
 import Filter from "../../components/main/Filter";
 import AddOfferButton from "../../components/main/AddOfferButton";
 import { ActivityIndicator } from "react-native-paper";
+import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
@@ -33,7 +35,7 @@ const MainScreen = () => {
     removeDeclinedOffer,
     addStorageOffer,
     removeStorageOffer,
-  } = useOfferStorage();
+  } = useOfferStorageContext();
   const { tokens, loading } = useAuth();
   const [offersData, setOffersData] = useState<Offer[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -44,6 +46,7 @@ const MainScreen = () => {
   >(null);
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
+  const { t } = useTranslation();
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -54,29 +57,25 @@ const MainScreen = () => {
     getCurrentIndex: () => currentIndex,
   });
 
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      try {
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      const load = async () => {
         if (!tokens || loading) return;
         const page = await getAllOffers();
-        const items = Array.isArray(page?.body.data.content)
+        const items = Array.isArray(page?.body?.data?.content)
           ? page.body.data.content
-          : Array.isArray(page)
-            ? page
-            : [];
-        if (!mounted) return;
-        setOffersData(items as unknown as Offer[]);
-      } catch (e) {
-        console.error("Failed to load offers", e);
-      }
-    };
-    load();
-    return () => {
-      mounted = false;
-    };
-  }, [tokens, loading]);
-
+          : [];
+        if (active) {
+          setOffersData(items as Offer[]);
+        }
+      };
+      load();
+      return () => {
+        active = false;
+      };
+    }, [tokens, loading]),
+  );
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView
@@ -88,12 +87,13 @@ const MainScreen = () => {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
             <Text style={{ color: colors.onSurfaceVariant, marginTop: 10 }}>
-              Ładowanie ofert...
+              {t("main.offers_loading")}
             </Text>
           </View>
         )}
         <View style={styles.subContainer}>
           <Swiper
+            key={offersData.length}
             ref={swiperRef}
             data={offersData}
             initialIndex={0}

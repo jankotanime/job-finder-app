@@ -23,18 +23,28 @@ export const getOfferById = async (id: string) => {
   if (!response) throw new Error("No response received");
   return response;
 };
-export const createOffer = async (formState: Offer) => {
+export const createOffer = async (
+  formState: Offer | (CreateOffer & { dateAndTime?: string }),
+) => {
+  const tagIds = Array.isArray((formState as any).tags)
+    ? (formState as any).tags.map((t: any) =>
+        typeof t === "string" ? t : t.id,
+      )
+    : [];
+  const payload: any = {
+    title: (formState as any).title,
+    description: (formState as any).description,
+    salary: (formState as any).salary,
+    maxParticipants: (formState as any).maxParticipants,
+    tags: tagIds,
+  };
+  if ((formState as any).dateAndTime)
+    payload.dateAndTime = (formState as any).dateAndTime;
+  if ((formState as any).ownerId) payload.ownerId = (formState as any).ownerId;
   const [response, error] = await tryCatch(
     apiFetch(`/offer`, {
       method: "POST",
-      body: JSON.stringify({
-        title: formState.title,
-        description: formState.description,
-        dateAndTime: formState.dateAndTime,
-        salary: formState.salary,
-        maxParticipants: formState.maxParticipants,
-        tags: formState.tags,
-      }),
+      body: JSON.stringify(payload),
     }),
   );
   if (error) console.error("create error:", error);

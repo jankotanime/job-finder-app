@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useTheme, Icon } from "react-native-paper";
 import { Offer } from "../../types/Offer";
-import { palette } from "../../constans/tagPalette";
+import { getTagColor } from "../../constans/tagColorsDictionairy";
 import { createAnimation } from "../../utils/animationHelper";
 
 const { width, height } = Dimensions.get("window");
@@ -90,10 +90,10 @@ const CardContent = ({
       {item.tags && item.tags.length > 0 && (
         <View style={styles.tagsWrap}>
           {item.tags.map((tag, idx) => {
-            const bg = palette[idx % palette.length];
+            const bg = getTagColor((tag as any).categoryColor);
             return (
               <View
-                key={tag.id ?? `${tag.name}-${idx}`}
+                key={tag.id ?? `${tag.id}-${idx}`}
                 style={[styles.tag, { backgroundColor: bg }]}
               >
                 <Text style={styles.tagText}>{tag.name}</Text>
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#0b1220",
+    color: "#FFFFFF",
   },
   descriptionContainer: {
     flexDirection: "row",
