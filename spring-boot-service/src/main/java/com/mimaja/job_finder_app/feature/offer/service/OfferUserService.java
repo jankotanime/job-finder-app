@@ -27,10 +27,6 @@ public class OfferUserService {
     private final OfferService offerService;
     private final OfferMapper offerMapper;
 
-    public Page<OfferSummaryResponseDto> getAllOffers(Pageable pageable) {
-        return offerService.getAllOffers(pageable).map(offerMapper::toOfferSummaryResponseDto);
-    }
-
     public OfferBaseResponseDto getOfferById(JwtPrincipal jwt, UUID offerId) {
         Offer offer = offerService.getOfferById(offerId);
         if (checkIfUserIsOwner(jwt.id(), offer)) {

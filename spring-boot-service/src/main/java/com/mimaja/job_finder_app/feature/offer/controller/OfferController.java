@@ -47,12 +47,13 @@ public class OfferController {
 
     @GetMapping
     public ResponseDto<Page<OfferSummaryResponseDto>> getAllOffers(
+            @Valid @RequestBody OfferFilterRequestDto offerFilterRequestDto,
             @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC)
                     Pageable pageable) {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
-                "Successfully fetched all offers",
-                offerUserService.getAllOffers(pageable));
+                "Successfully fetched offers",
+                offerUserService.getFilteredOffers(offerFilterRequestDto, pageable));
     }
 
     @GetMapping(ID)
@@ -122,17 +123,6 @@ public class OfferController {
                 SuccessCode.RESOURCE_DELETED,
                 "Successfully deleted offer with id: " + offerId,
                 null);
-    }
-
-    @GetMapping("/filter")
-    public ResponseDto<Page<OfferSummaryResponseDto>> getFilteredOffers(
-            @Valid @RequestBody OfferFilterRequestDto offerFilterRequestDto,
-            @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC)
-                    Pageable pageable) {
-        return new ResponseDto<>(
-                SuccessCode.RESPONSE_SUCCESSFUL,
-                "Successfully fetched offers",
-                offerUserService.getFilteredOffers(offerFilterRequestDto, pageable));
     }
 
     @PatchMapping(ID)

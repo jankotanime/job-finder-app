@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface OfferService {
-    Page<Offer> getAllOffers(Pageable pageable);
-
     Offer getOfferById(UUID offerId);
 
     Offer createOffer(
