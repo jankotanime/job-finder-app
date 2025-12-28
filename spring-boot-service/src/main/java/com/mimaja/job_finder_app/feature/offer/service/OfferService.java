@@ -17,13 +17,13 @@ public interface OfferService {
     Offer getOfferById(UUID offerId);
 
     Offer createOffer(
-            Optional<MultipartFile[]> photos,
+            Optional<MultipartFile> photo,
             OfferCreateRequestDto offerCreateRequestDto,
             UUID userId);
 
     Offer updateOffer(
             UUID offerId,
-            Optional<MultipartFile[]> photos,
+            Optional<MultipartFile> photo,
             OfferUpdateRequestDto offerUpdateRequestDto);
 
     void deleteOffer(UUID offerId);

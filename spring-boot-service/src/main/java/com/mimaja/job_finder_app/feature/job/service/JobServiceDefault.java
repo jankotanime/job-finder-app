@@ -13,9 +13,7 @@ import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
 import com.mimaja.job_finder_app.shared.enums.FileFolderName;
 import com.mimaja.job_finder_app.shared.service.FileManagementService;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,9 +48,11 @@ public class JobServiceDefault implements JobService {
         if (offer.getChosenCandidate() == null) {
             throw new BusinessException(BusinessExceptionReason.CANDIDATE_NEED_TO_BE_CHOSEN);
         }
-        Set<JobPhoto> photos =
-                offer.getPhotos().stream().map(this::processPhoto).collect(Collectors.toSet());
-        Job job = Job.from(offer, photos);
+        JobPhoto jobPhoto = null;
+        if (offer.getPhoto() != null) {
+            jobPhoto = processPhoto(offer.getPhoto());
+        }
+        Job job = Job.from(offer, jobPhoto);
         offerService.deleteOffer(offer.getId());
         return jobRepository.save(job);
     }

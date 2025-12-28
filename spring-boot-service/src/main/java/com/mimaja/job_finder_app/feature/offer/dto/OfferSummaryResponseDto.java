@@ -20,5 +20,5 @@ public record OfferSummaryResponseDto(
         UserInOfferResponseDto owner,
         Set<TagResponseDto> tags,
         int candidatesAmount,
-        @Nullable Set<OfferPhotoResponseDto> photos)
+        @Nullable OfferPhotoResponseDto photo)
         implements OfferBaseResponseDto {}

@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -62,20 +63,20 @@ public class Offer {
 
     @ManyToMany private Set<Tag> tags = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<OfferPhoto> photos = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    private OfferPhoto photo;
 
     @CreationTimestamp private LocalDateTime createdAt;
 
     @UpdateTimestamp private LocalDateTime updatedAt;
 
-    public void update(Offer updatedOffer, Set<Tag> tags, Set<OfferPhoto> photos) {
+    public void update(Offer updatedOffer, Set<Tag> tags, OfferPhoto photo) {
         this.title = updatedOffer.getTitle();
         this.description = updatedOffer.getDescription();
         this.dateAndTime = updatedOffer.getDateAndTime();
         this.salary = updatedOffer.getSalary();
         this.maxApplications = updatedOffer.getMaxApplications();
         this.tags = tags;
-        this.photos = photos;
+        this.photo = photo;
     }
 }

@@ -40,21 +40,21 @@ public class OfferUserService {
     }
 
     public OfferUserIsOwnerResponseDto createOffer(
-            Optional<MultipartFile[]> photos,
+            Optional<MultipartFile> photo,
             OfferCreateRequestDto offerCreateRequestDto,
             JwtPrincipal jwt) {
         return offerMapper.toOfferUserIsOwnerResponseDto(
-                offerService.createOffer(photos, offerCreateRequestDto, jwt.id()));
+                offerService.createOffer(photo, offerCreateRequestDto, jwt.id()));
     }
 
     public OfferUserIsOwnerResponseDto updateOffer(
             UUID offerId,
-            Optional<MultipartFile[]> photos,
+            Optional<MultipartFile> photo,
             OfferUpdateRequestDto offerUpdateRequestDto,
             JwtPrincipal jwt) {
         throwErrorIfUserIsNotOwner(jwt.id(), offerId);
         return offerMapper.toOfferUserIsOwnerResponseDto(
-                offerService.updateOffer(offerId, photos, offerUpdateRequestDto));
+                offerService.updateOffer(offerId, photo, offerUpdateRequestDto));
     }
 
     public void deleteOffer(UUID offerId, JwtPrincipal jwt) {
