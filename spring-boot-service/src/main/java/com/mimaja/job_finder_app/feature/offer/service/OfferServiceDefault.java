@@ -26,8 +26,6 @@ import com.mimaja.job_finder_app.shared.adapters.MultipartFileSource;
 import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
 import com.mimaja.job_finder_app.shared.enums.FileFolderName;
 import com.mimaja.job_finder_app.shared.service.FileManagementService;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -63,7 +61,7 @@ public class OfferServiceDefault implements OfferService {
     @Override
     @Transactional
     public Offer createOffer(
-            Optional<MultipartFile[]> photos,
+            Optional<MultipartFile> photo,
             OfferCreateRequestDto offerCreateRequestDto,
             UUID userId) {
         User owner = userService.getUserById(userId);
@@ -75,15 +73,11 @@ public class OfferServiceDefault implements OfferService {
         Offer offer = offerMapper.toEntity(offerCreateRequestDto);
         offer.setOwner(owner);
         offer.setTags(tags);
-        if (photos.isPresent()) {
-            Set<OfferPhoto> offerPhotos =
-                    photos.get().length > 0
-                            ? Arrays.stream(photos.get())
-                                    .map(this::processPhoto)
-                                    .collect(Collectors.toSet())
-                            : null;
-            offer.setPhotos(offerPhotos);
+        OfferPhoto offerPhoto = null;
+        if (photo.isPresent()) {
+            offerPhoto = processPhoto(photo.get());
         }
+        offer.setPhoto(offerPhoto);
         return offerRepository.save(offer);
     }
 
@@ -91,23 +85,22 @@ public class OfferServiceDefault implements OfferService {
     @Transactional
     public Offer updateOffer(
             UUID offerId,
-            Optional<MultipartFile[]> photos,
+            Optional<MultipartFile> photo,
             OfferUpdateRequestDto offerUpdateRequestDto) {
         Offer offer = getOrThrow(offerId);
         Set<Tag> tags =
                 offerUpdateRequestDto.tags().stream()
                         .map(tagService::getTagById)
                         .collect(Collectors.toSet());
-        offer.getPhotos().forEach(photo -> fileManagementService.deleteFile(photo.getStorageKey()));
-        Set<OfferPhoto> offerPhotos =
-                photos.map(
-                                multipartFiles ->
-                                        Arrays.stream(multipartFiles)
-                                                .map(this::processPhoto)
-                                                .collect(Collectors.toSet()))
-                        .orElse(new HashSet<>());
+        if (offer.getPhoto() != null) {
+            fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
+        }
 
-        offer.update(offerMapper.toEntityFromUpdate(offerUpdateRequestDto), tags, offerPhotos);
+        OfferPhoto offerPhoto = null;
+        if (photo.isPresent()) {
+            offerPhoto = processPhoto(photo.get());
+        }
+        offer.update(offerMapper.toEntityFromUpdate(offerUpdateRequestDto), tags, offerPhoto);
         return offerRepository.save(offer);
     }
 

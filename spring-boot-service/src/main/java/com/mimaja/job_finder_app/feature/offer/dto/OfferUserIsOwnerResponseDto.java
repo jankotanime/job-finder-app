@@ -21,5 +21,5 @@ public record OfferUserIsOwnerResponseDto(
         Set<TagResponseDto> tags,
         Set<ApplicationResponseDto> applications,
         @Nullable UserInOfferResponseDto chosenCandidate,
-        @Nullable Set<OfferPhotoResponseDto> photos)
+        @Nullable OfferPhotoResponseDto photo)
         implements OfferBaseResponseDto {}

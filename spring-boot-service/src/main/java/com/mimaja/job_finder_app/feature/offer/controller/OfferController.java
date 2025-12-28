@@ -67,7 +67,7 @@ public class OfferController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDto<OfferUserIsOwnerResponseDto>> createOffer(
             @AuthenticationPrincipal JwtPrincipal jwt,
-            @RequestParam("photos") Optional<MultipartFile[]> photos,
+            @RequestParam("photo") Optional<MultipartFile> photo,
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("dateAndTime") LocalDateTime dateAndTime,
@@ -78,7 +78,7 @@ public class OfferController {
                 new OfferCreateRequestDto(
                         title, description, dateAndTime, salary, maxApplications, tags);
         OfferUserIsOwnerResponseDto offerResponseDto =
-                offerUserService.createOffer(photos, offerCreateRequestDto, jwt);
+                offerUserService.createOffer(photo, offerCreateRequestDto, jwt);
 
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -98,7 +98,7 @@ public class OfferController {
     public ResponseDto<OfferUserIsOwnerResponseDto> updateOffer(
             @PathVariable UUID offerId,
             @AuthenticationPrincipal JwtPrincipal jwt,
-            @RequestParam("photos") Optional<MultipartFile[]> photos,
+            @RequestParam("photo") Optional<MultipartFile> photo,
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("dateAndTime") LocalDateTime dateAndTime,
@@ -111,7 +111,7 @@ public class OfferController {
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_UPDATED,
                 "Successfully updated offer with id: " + offerId,
-                offerUserService.updateOffer(offerId, photos, offerUpdateRequestDto, jwt));
+                offerUserService.updateOffer(offerId, photo, offerUpdateRequestDto, jwt));
     }
 
     @DeleteMapping(ID)
