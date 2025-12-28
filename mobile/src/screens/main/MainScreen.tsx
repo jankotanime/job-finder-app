@@ -17,7 +17,6 @@ import OnSwipeBottom from "../../components/main/swipe/OnSwipeBottom";
 import Filter from "../../components/main/Filter";
 import AddOfferButton from "../../components/main/AddOfferButton";
 import { ActivityIndicator } from "react-native-paper";
-// useFocusEffect nieużywane — korzystamy wyłącznie z useEffect
 import { useTranslation } from "react-i18next";
 import { buildPhotoUrl } from "../../utils/photoUrl";
 
@@ -48,7 +47,6 @@ const MainScreen = () => {
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
   const { t } = useTranslation();
-  const [ownerId, setOwnerId] = useState<string>("");
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
