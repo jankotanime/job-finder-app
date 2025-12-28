@@ -11,6 +11,7 @@ import { useTheme, Icon } from "react-native-paper";
 import { Offer } from "../../types/Offer";
 import { getTagColor } from "../../constans/tagColorsDictionairy";
 import { createAnimation } from "../../utils/animationHelper";
+import { buildPhotoUrl } from "../../utils/photoUrl";
 
 const { width, height } = Dimensions.get("window");
 
@@ -52,7 +53,7 @@ const CardContent = ({
   return (
     <View style={styles.container}>
       {(() => {
-        const photoUri =
+        const raw =
           typeof item.offerPhoto === "string"
             ? item.offerPhoto
             : item.offerPhoto && typeof (item.offerPhoto as any) === "object"
@@ -60,6 +61,7 @@ const CardContent = ({
                 (item.offerPhoto as any).uri ??
                 undefined)
               : undefined;
+        const photoUri = buildPhotoUrl(raw);
         return photoUri ? (
           <View style={[styles.logoWrapper, { borderColor: colors.primary }]}>
             <Image

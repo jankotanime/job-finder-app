@@ -47,6 +47,7 @@ export const createOffer = async (
   const dateAndTime = (formState as any).dateAndTime;
   const ownerId = (formState as any).ownerId;
   const offerPhoto = (formState as any).offerPhoto;
+  const photosArray = (formState as any).photos;
 
   if (title) form.append("title", String(title));
   if (description) form.append("description", String(description));
@@ -56,7 +57,29 @@ export const createOffer = async (
   if (dateAndTime) form.append("dateAndTime", String(dateAndTime));
   if (ownerId) form.append("ownerId", String(ownerId));
   tagIds.forEach((id: string) => form.append("tags", id));
-  if (offerPhoto) form.append("offerPhoto", String(offerPhoto));
+
+  const appendPhoto = (uri: string) => {
+    if (!uri) return;
+    const lastSlash = uri.lastIndexOf("/");
+    const filename =
+      lastSlash >= 0 ? uri.substring(lastSlash + 1) : `photo.jpg`;
+    const ext = filename.split(".").pop()?.toLowerCase();
+    const mime =
+      ext === "png"
+        ? "image/png"
+        : ext === "jpg" || ext === "jpeg"
+          ? "image/jpeg"
+          : "application/octet-stream";
+    form.append("photos", {
+      uri,
+      name: filename,
+      type: mime,
+    } as any);
+  };
+  if (offerPhoto) appendPhoto(offerPhoto);
+  else if (Array.isArray(photosArray) && photosArray.length > 0) {
+    photosArray.forEach((p: string) => appendPhoto(p));
+  }
 
   const [response, error] = await tryCatch(
     apiFetch(
@@ -68,7 +91,6 @@ export const createOffer = async (
       true,
     ),
   );
-  console.log("response: ", response);
   if (error) console.error("create error:", error);
   if (!response) throw new Error("No response received");
   return response;

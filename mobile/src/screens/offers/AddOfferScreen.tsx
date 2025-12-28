@@ -170,7 +170,6 @@ const AddOfferScreen = () => {
     await createOffer(createPayload);
     navigation.goBack();
   };
-
   const handlePickCamera = async () => {
     try {
       const uri = await uploadCameraImage();
@@ -301,20 +300,7 @@ const AddOfferScreen = () => {
               //     );
               case "offerPhoto":
                 return (
-                  // <View style={styles.formGroup} key={key}>
-                  //   <Input
-                  //     {...commonProps}
-                  //     value={form.offerPhoto ?? ""}
-                  //     onChangeText={(v) =>
-                  //       setForm((prev) => ({
-                  //         ...prev,
-                  //         offerPhoto: v || undefined,
-                  //       }))
-                  //     }
-                  //     style={styles.inputStyle}
-                  //   />
-                  // </View>
-                  <>
+                  <React.Fragment key={key}>
                     <View style={styles.photoContainer}>
                       {!isPhotoAvailable ? (
                         <TouchableOpacity
@@ -347,7 +333,7 @@ const AddOfferScreen = () => {
                         onPickGallery={() => handlePickGallery()}
                       />
                     )}
-                  </>
+                  </React.Fragment>
                 );
             }
           })}
