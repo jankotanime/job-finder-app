@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.controller;
 
+import com.mimaja.job_finder_app.feature.offer.dto.OfferApplyRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferBaseResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
@@ -26,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -70,11 +72,11 @@ public class OfferController {
             @RequestParam("description") String description,
             @RequestParam("dateAndTime") LocalDateTime dateAndTime,
             @RequestParam("salary") Double salary,
-            @RequestParam("maxParticipants") int maxParticipants,
+            @RequestParam("maxApplications") int maxApplications,
             @RequestParam("tags") Set<UUID> tags) {
         OfferCreateRequestDto offerCreateRequestDto =
                 new OfferCreateRequestDto(
-                        title, description, dateAndTime, salary, maxParticipants, tags);
+                        title, description, dateAndTime, salary, maxApplications, tags);
         OfferUserIsOwnerResponseDto offerResponseDto =
                 offerUserService.createOffer(photos, offerCreateRequestDto, jwt);
 
@@ -101,11 +103,11 @@ public class OfferController {
             @RequestParam("description") String description,
             @RequestParam("dateAndTime") LocalDateTime dateAndTime,
             @RequestParam("salary") Double salary,
-            @RequestParam("maxParticipants") int maxParticipants,
+            @RequestParam("maxApplications") int maxApplications,
             @RequestParam("tags") Set<UUID> tags) {
         OfferUpdateRequestDto offerUpdateRequestDto =
                 new OfferUpdateRequestDto(
-                        title, description, dateAndTime, salary, maxParticipants, tags);
+                        title, description, dateAndTime, salary, maxApplications, tags);
         return new ResponseDto<>(
                 SuccessCode.RESOURCE_UPDATED,
                 "Successfully updated offer with id: " + offerId,
@@ -131,5 +133,16 @@ public class OfferController {
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched offers",
                 offerUserService.getFilteredOffers(offerFilterRequestDto, pageable));
+    }
+
+    @PatchMapping(ID)
+    public ResponseDto<OfferSummaryResponseDto> applyOffer(
+            @PathVariable UUID offerId,
+            @AuthenticationPrincipal JwtPrincipal jwt,
+            @RequestBody @Valid OfferApplyRequestDto dto) {
+        return new ResponseDto<>(
+                SuccessCode.RESOURCE_UPDATED,
+                "Successfully applied for offer with id: " + offerId,
+                offerUserService.applyOffer(offerId, jwt, dto));
     }
 }

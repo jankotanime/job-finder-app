@@ -12,5 +12,5 @@ public record OfferCreateRequestDto(
         @NotBlank String description,
         @NotNull @Future LocalDateTime dateAndTime,
         @NotNull Double salary,
-        @NotNull int maxParticipants,
+        @NotNull int maxApplications,
         @NotNull Set<UUID> tags) {}

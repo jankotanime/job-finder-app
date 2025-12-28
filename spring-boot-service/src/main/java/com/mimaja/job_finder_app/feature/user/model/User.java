@@ -49,7 +49,8 @@ public class User {
     @Column(columnDefinition = "TEXT", length = 500)
     private String profileDescription;
 
-    @OneToMany private Set<Cv> cvs = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Cv> cvs = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     private ProfilePhoto profilePhoto;

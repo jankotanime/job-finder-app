@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum BusinessExceptionReason implements BusinessExceptionPolicy {
+    ALREADY_APPLIED_FOR_OFFER("User already applied for this offer", HttpStatus.FORBIDDEN, null),
     CANDIDATE_NEED_TO_BE_CHOSEN(
             "Offer doesn't have any chosen candidate", HttpStatus.BAD_REQUEST, null),
     CATEGORY_ALREADY_EXISTS("Category already exists", HttpStatus.CONFLICT, null),
@@ -35,7 +36,10 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     JOB_NOT_FOUND("Job not found", HttpStatus.NOT_FOUND, null),
     LACK_OF_GOOGLE_ID("Lack of google id", HttpStatus.UNAUTHORIZED, null),
     LACK_OF_PASSWORD("Lack of password", HttpStatus.UNAUTHORIZED, null),
+    OFFER_CANDIDATES_LIMIT(
+            "Offer has reached maximum number of candidates", HttpStatus.FORBIDDEN, null),
     OFFER_NOT_FOUND("Offer not found", HttpStatus.NOT_FOUND, null),
+    OWNER_CANNOT_APPLY("Owner cannot apply for offer", HttpStatus.FORBIDDEN, null),
     PHONE_NUMBER_ALREADY_TAKEN("User with this phone number exists", HttpStatus.UNAUTHORIZED, null),
     PROFILE_INCOMPLETE("User profile needs to be completed", HttpStatus.UNAUTHORIZED, null),
     TAG_ALREADY_EXISTS("Tag already exists", HttpStatus.CONFLICT, null),
