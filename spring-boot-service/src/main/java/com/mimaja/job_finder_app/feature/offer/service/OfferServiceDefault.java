@@ -49,11 +49,6 @@ public class OfferServiceDefault implements OfferService {
     private final FileManagementService fileManagementService;
 
     @Override
-    public Page<Offer> getAllOffers(Pageable pageable) {
-        return offerRepository.findAll(pageable);
-    }
-
-    @Override
     public Offer getOfferById(UUID offerId) {
         return getOrThrow(offerId);
     }
