@@ -15,7 +15,6 @@ const CollapsibleSection = ({
   const borderRadiusAnim = useRef(new Animated.Value(20)).current;
 
   const toggleSection = () => {
-    const toValue = expanded ? 0 : 1;
     setExpanded(!expanded);
     Animated.timing(animationValue, {
       toValue: expanded ? 0 : 1,

@@ -43,7 +43,7 @@ export const createOffer = async (
   const title = (formState as any).title;
   const description = (formState as any).description;
   const salary = (formState as any).salary;
-  const maxParticipants = (formState as any).maxParticipants;
+  const maxApplications = (formState as any).maxParticipants;
   const dateAndTime = (formState as any).dateAndTime;
   const ownerId = (formState as any).ownerId;
   const offerPhoto = (formState as any).offerPhoto;
@@ -52,8 +52,8 @@ export const createOffer = async (
   if (title) form.append("title", String(title));
   if (description) form.append("description", String(description));
   if (typeof salary !== "undefined") form.append("salary", String(salary));
-  if (typeof maxParticipants !== "undefined")
-    form.append("maxParticipants", String(maxParticipants));
+  if (typeof maxApplications !== "undefined")
+    form.append("maxApplications", String(maxApplications));
   if (dateAndTime) form.append("dateAndTime", String(dateAndTime));
   if (ownerId) form.append("ownerId", String(ownerId));
   tagIds.forEach((id: string) => form.append("tags", id));
@@ -70,7 +70,7 @@ export const createOffer = async (
         : ext === "jpg" || ext === "jpeg"
           ? "image/jpeg"
           : "application/octet-stream";
-    form.append("photos", {
+    form.append("photo", {
       uri,
       name: filename,
       type: mime,

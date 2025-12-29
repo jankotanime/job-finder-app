@@ -171,6 +171,7 @@ export const apiFetch = async (
     (body?.code === "INVALID_ACCESS_TOKEN" || response.status === 401) &&
     retry
   ) {
+    console.log("ROTOWANIE TOKENU DOSTALEM INVALID_ACCESS_TOKEN");
     let newToken = await refreshAccessToken();
     if (!newToken) {
       try {

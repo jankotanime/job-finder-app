@@ -58,40 +58,31 @@ const MainScreen = () => {
   });
 
   useEffect(() => {
-    let active = true;
     const load = async () => {
       if (!tokens || loading) return;
       const page = await getAllOffers();
       const items = Array.isArray(page?.body?.data?.content)
         ? page.body.data.content
         : [];
-      if (active) {
-        const resolvePhoto = (obj: any): string | undefined => {
-          if (!obj) return undefined;
-          if (typeof obj.storageKey === "string") return obj.storageKey;
-          return undefined;
-        };
-        const normalized = (items as any[]).map((it) => {
-          const firstPhoto =
-            Array.isArray(it?.photos) && it.photos.length > 0
-              ? resolvePhoto(it.photos[0])
-              : undefined;
-          const offerPhoto = buildPhotoUrl(firstPhoto);
-          return { ...it, offerPhoto } as Offer;
-        });
-        const filtered = (normalized as any[]).filter((it) => {
-          const ownerId = it?.owner?.id ?? it?.ownerId ?? null;
-          const currentUserId = userInfo?.userId ?? null;
-          if (!ownerId || !currentUserId) return true;
-          return ownerId !== currentUserId;
-        });
-        setOffersData(filtered as Offer[]);
-      }
+      const resolvePhoto = (obj: any): string | undefined => {
+        if (!obj) return undefined;
+        if (typeof obj.storageKey === "string") return obj.storageKey;
+        return undefined;
+      };
+      const normalized = (items as any[]).map((it) => {
+        const firstPhoto = it?.photo ? resolvePhoto(it.photo) : undefined;
+        const offerPhoto = buildPhotoUrl(firstPhoto);
+        return { ...it, offerPhoto } as Offer;
+      });
+      const filtered = (normalized as any[]).filter((it) => {
+        const ownerId = it?.owner?.id ?? it?.ownerId ?? null;
+        const currentUserId = userInfo?.userId ?? null;
+        if (!ownerId || !currentUserId) return true;
+        return ownerId !== currentUserId;
+      });
+      setOffersData(filtered as Offer[]);
     };
     load();
-    return () => {
-      active = false;
-    };
   }, [tokens, loading, userInfo?.userId]);
   return (
     <View style={{ flex: 1 }}>

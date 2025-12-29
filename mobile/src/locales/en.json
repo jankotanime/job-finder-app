@@ -127,5 +127,8 @@
       "ownerRequired": "Provide owner",
       "chosenCandidateInvalid": "Chosen candidate must be on the list"
     }
+  },
+  "filter": {
+    "apply": "Apply filters"
   }
 }

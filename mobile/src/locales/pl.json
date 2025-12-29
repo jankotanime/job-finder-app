@@ -127,5 +127,8 @@
       "ownerRequired": "Podaj właściciela",
       "chosenCandidateInvalid": "Wybrany kandydat musi być na liście"
     }
+  },
+  "filter": {
+    "apply": "Zastosuj filtry"
   }
 }

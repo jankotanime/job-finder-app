@@ -62,22 +62,6 @@ const Filter = () => {
     });
   };
 
-  const filterOffers = async () => {
-    if (!tokens) return;
-    const response = await handleFilterOffers();
-    console.log(response);
-  };
-  const getOffers = async () => {
-    if (!tokens) return;
-    const response = await getAllOffers();
-    console.log(response);
-  };
-  const getTags = async () => {
-    if (!tokens) return;
-    const response = await getAllTags();
-    console.log(response);
-  };
-
   return (
     <>
       <TouchableOpacity

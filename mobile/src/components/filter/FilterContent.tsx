@@ -10,6 +10,8 @@ import { useTheme, Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getAllTags } from "../../api/filter/handleTags";
 import CollapsibleSection from "./FilterCollapsibleSection";
+import { useTranslation } from "react-i18next";
+import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
 
 const { height, width } = Dimensions.get("window");
 
@@ -30,6 +32,7 @@ const FilterContent = () => {
   const [categories, setCategories] = useState<GroupedCategory[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchTags();
@@ -62,7 +65,6 @@ const FilterContent = () => {
       setLoading(false);
     }
   };
-  console.log(categories);
 
   const toggleTag = (tagId: string) => {
     setSelectedTags((prev) =>
@@ -72,7 +74,15 @@ const FilterContent = () => {
     );
   };
 
-  const handleApply = () => {};
+  const handleApply = async () => {
+    console.log("applied: ", selectedTags);
+    const response = await handleFilterOffers({ tags: selectedTags });
+    const body = response.body.data.content;
+    body.forEach((item: any) => {
+      console.log("Oferta:", item.title);
+      console.log("Tags:", item.tags);
+    });
+  };
 
   if (loading) {
     return (
@@ -109,7 +119,7 @@ const FilterContent = () => {
             style={styles.applyButton}
             contentStyle={styles.buttonInner}
           >
-            Zastosuj
+            {t("filter.apply")}
           </Button>
         </View>
       </View>
