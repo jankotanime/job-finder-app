@@ -8,9 +8,9 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferSummaryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUserIsOwnerResponseDto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferUserService;
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
+import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -47,9 +47,17 @@ public class OfferController {
 
     @GetMapping
     public ResponseDto<Page<OfferSummaryResponseDto>> getAllOffers(
-            @Valid @RequestBody OfferFilterRequestDto offerFilterRequestDto,
+            @RequestParam(required = false) LocalDateTime firstDate,
+            @RequestParam(required = false) LocalDateTime lastDate,
+            @RequestParam(required = false) Double minSalary,
+            @RequestParam(required = false) Double maxSalary,
+            @RequestParam(required = false) Set<UUID> categories,
+            @RequestParam(required = false) Set<UUID> tags,
             @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC)
                     Pageable pageable) {
+        OfferFilterRequestDto offerFilterRequestDto =
+                new OfferFilterRequestDto(
+                        firstDate, lastDate, minSalary, maxSalary, categories, tags);
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched offers",

@@ -1,8 +1,8 @@
 package com.mimaja.job_finder_app.security.authorization.register.controller;
 
+import com.mimaja.job_finder_app.security.authorization.register.dto.request.RegisterRequestDto;
 import com.mimaja.job_finder_app.security.authorization.register.service.RegisterServiceDefault;
-import com.mimaja.job_finder_app.security.shared.dto.RequestRegisterDto;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
+import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,9 @@ public class RegisterController {
     private final RegisterServiceDefault registerService;
 
     @PostMapping
-    public ResponseDto<ResponseTokenDto> registerPostMapping(
-            @RequestBody RequestRegisterDto reqData) {
-        ResponseTokenDto tokens = registerService.tryToRegister(reqData);
+    public ResponseDto<TokenResponseDto> registerPostMapping(
+            @RequestBody RegisterRequestDto reqData) {
+        TokenResponseDto tokens = registerService.tryToRegister(reqData);
 
         return new ResponseDto<>(SuccessCode.RESOURCE_CREATED, "Successfully registered", tokens);
     }

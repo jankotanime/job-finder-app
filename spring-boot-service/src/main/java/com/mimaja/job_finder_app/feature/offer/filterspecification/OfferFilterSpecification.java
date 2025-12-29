@@ -12,10 +12,13 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 
 public class OfferFilterSpecification {
+    private OfferFilterSpecification() {}
+
     public static Specification<Offer> filter(OfferFilterRequestDto dto) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            assert query != null;
             query.distinct(true);
 
             if (dto.firstDate() != null) {
