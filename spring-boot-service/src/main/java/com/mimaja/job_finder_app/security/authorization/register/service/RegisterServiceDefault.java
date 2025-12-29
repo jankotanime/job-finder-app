@@ -2,13 +2,11 @@ package com.mimaja.job_finder_app.security.authorization.register.service;
 
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
-import com.mimaja.job_finder_app.security.authorization.register.utils.DefaultRegisterDataManager;
+import com.mimaja.job_finder_app.security.authorization.register.dto.request.RegisterRequestDto;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.shared.dto.RequestRegisterDto;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseRefreshTokenDto;
-import com.mimaja.job_finder_app.security.shared.dto.ResponseTokenDto;
-import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
-import com.mimaja.job_finder_app.security.tokens.refreshTokens.service.RefreshTokenServiceDefault;
+import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
+import com.mimaja.job_finder_app.security.shared.utils.RegisterDataManager;
+import com.mimaja.job_finder_app.security.token.refreshToken.service.RefreshTokenServiceDefault;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,37 +15,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class RegisterServiceDefault implements RegisterService {
-    private final JwtConfiguration jwtConfiguration;
     private final PasswordConfiguration passwordConfiguration;
     private final UserRepository userRepository;
     private final RefreshTokenServiceDefault refreshTokenServiceDefault;
-    private final DefaultRegisterDataManager defaultRegisterDataValidation;
+    private final RegisterDataManager registerDataManager;
 
     @Override
-    public ResponseTokenDto tryToRegister(RequestRegisterDto reqData) {
+    public TokenResponseDto tryToRegister(RegisterRequestDto reqData) {
         String username = reqData.username();
         String email = reqData.email();
         String password = reqData.password();
-        String phoneNumberString = reqData.phoneNumber();
+        int phoneNumber = reqData.phoneNumber();
 
-        defaultRegisterDataValidation.checkDataPatterns(
-                username, email, phoneNumberString, password);
-
-        int phoneNumber = defaultRegisterDataValidation.convertePhoneNumberToInt(phoneNumberString);
-
-        defaultRegisterDataValidation.checkUserExistence(username, email, phoneNumber);
+        registerDataManager.checkRegisterDataDefault(username, email, phoneNumber, password);
 
         String hashedPassword = passwordConfiguration.passwordEncoder().encode(password);
 
         User user = new User(username, email, hashedPassword, null, phoneNumber);
         userRepository.save(user);
 
-        String accessToken = jwtConfiguration.createToken(user);
-
-        ResponseRefreshTokenDto refreshToken = refreshTokenServiceDefault.createToken(user.getId());
-        ResponseTokenDto tokens =
-                new ResponseTokenDto(
-                        accessToken, refreshToken.refreshToken(), refreshToken.refreshTokenId());
+        TokenResponseDto tokens = refreshTokenServiceDefault.createTokensSet(user);
 
         return tokens;
     }

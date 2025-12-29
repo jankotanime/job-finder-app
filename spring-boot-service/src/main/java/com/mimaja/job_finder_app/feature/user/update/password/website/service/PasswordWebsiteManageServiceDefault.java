@@ -4,11 +4,11 @@ import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.feature.user.update.password.utils.PasswordManageDataManager;
 import com.mimaja.job_finder_app.feature.user.update.password.utils.PasswordWebsiteManager;
+import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.SendEmailToUpdatePasswordRequestDto;
+import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.UpdatePasswordByEmailRequestDto;
+import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.SendEmailToUpdatePasswordResponseDto;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateByEmailDto;
-import com.mimaja.job_finder_app.security.shared.dto.RequestPasswordUpdateEmailRequestDto;
-import com.mimaja.job_finder_app.security.shared.dto.ResponsePasswordUpdateEmailRequestDto;
-import com.mimaja.job_finder_app.security.tokens.resetTokens.service.ResetTokenServiceDefault;
+import com.mimaja.job_finder_app.security.token.resetToken.service.ResetTokenServiceDefault;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,8 +24,8 @@ public class PasswordWebsiteManageServiceDefault implements PasswordWebsiteManag
     private final UserRepository userRepository;
 
     @Override
-    public ResponsePasswordUpdateEmailRequestDto sendEmailWithUpdatePasswordRequest(
-            RequestPasswordUpdateEmailRequestDto reqData) {
+    public SendEmailToUpdatePasswordResponseDto sendEmailWithUpdatePasswordRequest(
+            SendEmailToUpdatePasswordRequestDto reqData) {
         String loginData = reqData.loginData();
         User user = passwordWebsiteManager.findUser(loginData);
 
@@ -35,14 +35,14 @@ public class PasswordWebsiteManageServiceDefault implements PasswordWebsiteManag
         String[] emailSplitted = email.split("@");
         String modifiedEmail = email.charAt(0) + "***@" + emailSplitted[emailSplitted.length - 1];
 
-        ResponsePasswordUpdateEmailRequestDto response =
-                new ResponsePasswordUpdateEmailRequestDto(modifiedEmail);
+        SendEmailToUpdatePasswordResponseDto response =
+                new SendEmailToUpdatePasswordResponseDto(modifiedEmail);
 
         return response;
     }
 
     @Override
-    public void updatePasswordByEmail(RequestPasswordUpdateByEmailDto reqData) {
+    public void updatePasswordByEmail(UpdatePasswordByEmailRequestDto reqData) {
         String newPassword = reqData.password();
         String token = reqData.token();
         String tokenId = reqData.tokenId();

@@ -13,14 +13,15 @@ import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.UpdateUse
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdateEmailResponseDto;
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdatePhoneNumberResponseDto;
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdateUserDataResponseDto;
-import com.mimaja.job_finder_app.feature.user.update.utils.CheckDataValidity;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.tokens.jwt.configuration.JwtConfiguration;
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
+import com.mimaja.job_finder_app.security.token.accessToken.dto.response.CreateAccessTokenResponseDto;
+import com.mimaja.job_finder_app.security.token.accessToken.service.AccessTokenService;
 import com.mimaja.job_finder_app.shared.adapters.MultipartFileSource;
 import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
 import com.mimaja.job_finder_app.shared.enums.FileFolderName;
+import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.service.FileManagementService;
+import com.mimaja.job_finder_app.shared.utils.CheckDataValidity;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,8 @@ public class UserUpdateServiceDefault implements UserUpdateService {
     private final CheckDataValidity checkDataValidity;
     private final PasswordConfiguration passwordConfiguration;
     private final UserRepository userRepository;
+    private final AccessTokenService accessTokenService;
     private final ProfilePhotoRepository profilePhotoRepository;
-    private final JwtConfiguration jwtConfiguration;
     private final FileManagementService fileManagementService;
 
     @Override
@@ -77,9 +78,9 @@ public class UserUpdateServiceDefault implements UserUpdateService {
 
         userRepository.save(user);
 
-        String accessToken = jwtConfiguration.createToken(user);
+        CreateAccessTokenResponseDto accessTokenDto = accessTokenService.createToken(user);
 
-        return new UpdateUserDataResponseDto(accessToken);
+        return new UpdateUserDataResponseDto(accessTokenDto.accessToken());
     }
 
     @Override
@@ -99,9 +100,9 @@ public class UserUpdateServiceDefault implements UserUpdateService {
 
         userRepository.save(user);
 
-        String accessToken = jwtConfiguration.createToken(user);
+        CreateAccessTokenResponseDto accessTokenDto = accessTokenService.createToken(user);
 
-        return new UpdatePhoneNumberResponseDto(accessToken);
+        return new UpdatePhoneNumberResponseDto(accessTokenDto.accessToken());
     }
 
     @Override
@@ -121,9 +122,9 @@ public class UserUpdateServiceDefault implements UserUpdateService {
 
         userRepository.save(user);
 
-        String accessToken = jwtConfiguration.createToken(user);
+        CreateAccessTokenResponseDto accessTokenDto = accessTokenService.createToken(user);
 
-        return new UpdateEmailResponseDto(accessToken);
+        return new UpdateEmailResponseDto(accessTokenDto.accessToken());
     }
 
     private ProfilePhoto processPhoto(MultipartFile photo) {
