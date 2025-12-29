@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
@@ -17,8 +17,8 @@ import OnSwipeBottom from "../../components/main/swipe/OnSwipeBottom";
 import Filter from "../../components/main/Filter";
 import AddOfferButton from "../../components/main/AddOfferButton";
 import { ActivityIndicator } from "react-native-paper";
-import { useFocusEffect } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
+import { buildPhotoUrl } from "../../utils/photoUrl";
 
 const { width, height } = Dimensions.get("window");
 
@@ -36,7 +36,7 @@ const MainScreen = () => {
     addStorageOffer,
     removeStorageOffer,
   } = useOfferStorageContext();
-  const { tokens, loading } = useAuth();
+  const { tokens, loading, userInfo } = useAuth();
   const [offersData, setOffersData] = useState<Offer[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
@@ -57,25 +57,42 @@ const MainScreen = () => {
     getCurrentIndex: () => currentIndex,
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      let active = true;
-      const load = async () => {
-        if (!tokens || loading) return;
-        const page = await getAllOffers();
-        const items = Array.isArray(page?.body?.data?.content)
-          ? page.body.data.content
-          : [];
-        if (active) {
-          setOffersData(items as Offer[]);
-        }
-      };
-      load();
-      return () => {
-        active = false;
-      };
-    }, [tokens, loading]),
-  );
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      if (!tokens || loading) return;
+      const page = await getAllOffers();
+      const items = Array.isArray(page?.body?.data?.content)
+        ? page.body.data.content
+        : [];
+      if (active) {
+        const resolvePhoto = (obj: any): string | undefined => {
+          if (!obj) return undefined;
+          if (typeof obj.storageKey === "string") return obj.storageKey;
+          return undefined;
+        };
+        const normalized = (items as any[]).map((it) => {
+          const firstPhoto =
+            Array.isArray(it?.photos) && it.photos.length > 0
+              ? resolvePhoto(it.photos[0])
+              : undefined;
+          const offerPhoto = buildPhotoUrl(firstPhoto);
+          return { ...it, offerPhoto } as Offer;
+        });
+        const filtered = (normalized as any[]).filter((it) => {
+          const ownerId = it?.owner?.id ?? it?.ownerId ?? null;
+          const currentUserId = userInfo?.userId ?? null;
+          if (!ownerId || !currentUserId) return true;
+          return ownerId !== currentUserId;
+        });
+        setOffersData(filtered as Offer[]);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [tokens, loading, userInfo?.userId]);
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView

@@ -6,6 +6,8 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -16,6 +18,7 @@ import {
   useTheme,
   Portal,
   Dialog,
+  Icon,
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
@@ -28,9 +31,12 @@ import { useAuth } from "../../contexts/AuthContext";
 import { createOffer } from "../../api/offers/handleOffersApi";
 import { getAllTags } from "../../api/filter/handleTags";
 import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
+import PhotoPickerModal from "../../components/pre-login/PhotoPickerModal";
+import { uploadCameraImage, uploadGalleryImage } from "../../utils/pickerUtils";
 
 const { width, height } = Dimensions.get("window");
 interface FormState {
+  offerPhoto?: string;
   title: string;
   description: string;
   salary: string;
@@ -47,6 +53,7 @@ const AddOfferScreen = () => {
   const { userInfo } = useAuth();
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [form, setForm] = useState<FormState>({
+    offerPhoto: undefined,
     title: "",
     description: "",
     salary: "",
@@ -57,6 +64,8 @@ const AddOfferScreen = () => {
   });
   const [showPreview, setShowPreview] = useState(false);
   const [date, setDate] = useState(new Date());
+  const [isPhotoAvailable, setIsPhotoAvailable] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
@@ -97,6 +106,11 @@ const AddOfferScreen = () => {
     return e;
   }, [form, t]);
 
+  const formatLocalDateTime = (date: Date) => {
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  };
+
   const previewItem: Offer = useMemo(() => {
     const resolvedTags = availableTags.filter((t) => form.tags.includes(t.id));
     return {
@@ -104,10 +118,11 @@ const AddOfferScreen = () => {
       description: form.description.trim(),
       salary: Number(form.salary) || 0,
       maxParticipants: Number(form.maxParticipants) || 0,
-      owner: form.owner ?? "",
       tags: resolvedTags,
+      offerPhoto: form.offerPhoto || undefined,
+      dateAndTime: formatLocalDateTime(date),
     } as unknown as Offer;
-  }, [form, availableTags]);
+  }, [form, availableTags, date]);
 
   const filteredTags = useMemo(() => {
     const q = form.tagInput?.trim().toLowerCase();
@@ -129,10 +144,6 @@ const AddOfferScreen = () => {
       tags: prev.tags.filter((tId) => tId !== id),
     }));
   };
-  const formatLocalDateTime = (date: any) => {
-    const pad = (n: any) => n.toString().padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-  };
 
   const onSubmit = async () => {
     if (Object.keys(errors).length > 0) return;
@@ -143,6 +154,7 @@ const AddOfferScreen = () => {
       salary: Number(form.salary) || 0,
       maxParticipants: Number(form.maxParticipants) || 0,
       tags: availableTags.filter((t) => form.tags.includes(t.id)),
+      offerPhoto: form.offerPhoto || undefined,
     } as unknown as Offer;
     addStorageOffer(offer);
     const createPayload = {
@@ -153,9 +165,32 @@ const AddOfferScreen = () => {
       maxParticipants: Number(form.maxParticipants) || 0,
       ownerId: form.owner ?? "",
       tags: form.tags,
+      offerPhoto: form.offerPhoto,
     };
     await createOffer(createPayload);
     navigation.goBack();
+  };
+  const handlePickCamera = async () => {
+    try {
+      const uri = await uploadCameraImage();
+      if (uri) {
+        setIsPhotoAvailable(true);
+        setForm((prev) => ({ ...prev, offerPhoto: uri }));
+      }
+    } finally {
+      setModalVisible(false);
+    }
+  };
+  const handlePickGallery = async () => {
+    try {
+      const uri = await uploadGalleryImage();
+      if (uri) {
+        setIsPhotoAvailable(true);
+        setForm((prev) => ({ ...prev, offerPhoto: uri }));
+      }
+    } finally {
+      setModalVisible(false);
+    }
   };
 
   return (
@@ -263,14 +298,43 @@ const AddOfferScreen = () => {
               //             <HelperText type="error" visible={!!errors.location}>{errors.location}</HelperText>
               //         </View>
               //     );
-              // case "offerPhoto":
-              //     return (
-              //         <View style={styles.formGroup} key={key}>
-              //             <Input {...commonProps} value={form.offerPhoto} onChangeText={(v) => updateForm("offerPhoto", v)} style={styles.inputStyle} />
-              //         </View>
-              //     );
-              // default:
-              //     return null;
+              case "offerPhoto":
+                return (
+                  <React.Fragment key={key}>
+                    <View style={styles.photoContainer}>
+                      {!isPhotoAvailable ? (
+                        <TouchableOpacity
+                          style={[styles.logoWrapper, styles.placeholderLogo]}
+                          onPress={() => setModalVisible(true)}
+                        >
+                          <Icon source="camera" size={50} />
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity
+                          style={styles.logoWrapper}
+                          onPress={() => setModalVisible(true)}
+                        >
+                          <Image
+                            source={{ uri: form.offerPhoto as string }}
+                            style={{
+                              width: 120,
+                              height: 120,
+                              borderRadius: 15,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    {modalVisible && (
+                      <PhotoPickerModal
+                        visible={modalVisible}
+                        onClose={() => setModalVisible(false)}
+                        onPickCamera={() => handlePickCamera()}
+                        onPickGallery={() => handlePickGallery()}
+                      />
+                    )}
+                  </React.Fragment>
+                );
             }
           })}
           <View style={styles.row}>
@@ -439,6 +503,28 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 10,
     paddingVertical: 4,
+  },
+  photoContainer: {
+    marginTop: 12,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoWrapper: {
+    width: 120,
+    height: 120,
+    borderRadius: 15,
+    borderWidth: 1,
+    overflow: "hidden",
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  placeholderLogo: {
+    borderStyle: "dashed",
+    opacity: 0.75,
+    backgroundColor: "white",
   },
 });
 

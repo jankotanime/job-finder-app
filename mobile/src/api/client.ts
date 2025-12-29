@@ -103,13 +103,40 @@ export const apiFetch = async (
   retry: boolean = true,
 ): Promise<{ response: Response; body: any }> => {
   const fetchWithToken = async (): Promise<Response> => {
+    const headers: Record<string, string> = {
+      ...((options.headers as Record<string, string>) || {}),
+      Authorization: accessToken ? `Bearer ${accessToken}` : "",
+    };
+    const hasContentType = Object.keys(headers).some(
+      (h) => h.toLowerCase() === "content-type",
+    );
+    if (!hasContentType) {
+      const bodyVal: any = options.body as any;
+      if (typeof bodyVal !== "undefined") {
+        if (typeof bodyVal === "string") {
+          const s = bodyVal.trim();
+          if (
+            (s.startsWith("{") && s.endsWith("}")) ||
+            (s.startsWith("[") && s.endsWith("]"))
+          ) {
+            headers["Content-Type"] = "application/json";
+          } else if (s.includes("=") && s.includes("&")) {
+            headers["Content-Type"] = "application/x-www-form-urlencoded";
+          } else {
+            headers["Content-Type"] = "text/plain;charset=UTF-8";
+          }
+        } else if (
+          typeof FormData !== "undefined" &&
+          bodyVal instanceof FormData
+        ) {
+        } else {
+          headers["Content-Type"] = "application/json";
+        }
+      }
+    }
     return fetch(`${process.env.EXPO_PUBLIC_API_URL}${url}`, {
       ...options,
-      headers: {
-        ...(options.headers || {}),
-        Authorization: accessToken ? `Bearer ${accessToken}` : "",
-        "Content-Type": "application/json",
-      },
+      headers,
     });
   };
   let response: Response;

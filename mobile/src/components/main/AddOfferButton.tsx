@@ -27,11 +27,12 @@ const styles = StyleSheet.create({
   button: {
     position: "absolute",
     top: height * 0.91,
-    width: 65,
-    height: 50,
+    width: 60,
+    height: 40,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 0.2,
+    borderRightWidth: 4,
+    borderLeftWidth: 4,
   },
 });
