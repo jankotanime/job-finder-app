@@ -1,8 +1,13 @@
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
 import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
-import useOfferStorageContext from "../../hooks/useOfferStorage";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAllOffers } from "../../api/offers/handleOffersApi";
 import { useTheme } from "react-native-paper";
@@ -19,6 +24,7 @@ import AddOfferButton from "../../components/main/AddOfferButton";
 import { ActivityIndicator } from "react-native-paper";
 import { useTranslation } from "react-i18next";
 import { buildPhotoUrl } from "../../utils/photoUrl";
+import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -47,6 +53,7 @@ const MainScreen = () => {
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
   const { t } = useTranslation();
+  const { offersVersion } = useOfferStorageContext();
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -57,33 +64,37 @@ const MainScreen = () => {
     getCurrentIndex: () => currentIndex,
   });
 
+  const swiperKey = useMemo(() => {
+    const ids = (offersData as any[]).map((o) => o?.id ?? "").join("|");
+    return `${userInfo?.userId ?? "anon"}-${ids}`;
+  }, [userInfo?.userId, offersData]);
+
   useEffect(() => {
+    setOffersData([]);
+    setCurrentIndex(0);
+    if (!tokens || loading || !userInfo?.userId) {
+      return;
+    }
+    let active = true;
     const load = async () => {
-      if (!tokens || loading) return;
       const page = await getAllOffers();
       const items = Array.isArray(page?.body?.data?.content)
         ? page.body.data.content
         : [];
-      const resolvePhoto = (obj: any): string | undefined => {
-        if (!obj) return undefined;
-        if (typeof obj.storageKey === "string") return obj.storageKey;
-        return undefined;
-      };
-      const normalized = (items as any[]).map((it) => {
-        const firstPhoto = it?.photo ? resolvePhoto(it.photo) : undefined;
-        const offerPhoto = buildPhotoUrl(firstPhoto);
-        return { ...it, offerPhoto } as Offer;
-      });
-      const filtered = (normalized as any[]).filter((it) => {
-        const ownerId = it?.owner?.id ?? it?.ownerId ?? null;
-        const currentUserId = userInfo?.userId ?? null;
-        if (!ownerId || !currentUserId) return true;
-        return ownerId !== currentUserId;
-      });
-      setOffersData(filtered as Offer[]);
+      const normalized = items.map((it: any) => ({
+        ...it,
+        offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
+      }));
+      const filtered = normalized.filter(
+        (it: any) => it?.owner?.id !== userInfo.userId,
+      );
+      if (active) setOffersData(filtered);
     };
     load();
-  }, [tokens, loading, userInfo?.userId]);
+    return () => {
+      active = false;
+    };
+  }, [tokens, loading, userInfo?.userId, offersVersion]);
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView
@@ -101,7 +112,8 @@ const MainScreen = () => {
         )}
         <View style={styles.subContainer}>
           <Swiper
-            key={offersData.length}
+            key={swiperKey}
+            keyExtractor={(item) => (item as any)?.id ?? item.dateAndTime}
             ref={swiperRef}
             data={offersData}
             initialIndex={0}

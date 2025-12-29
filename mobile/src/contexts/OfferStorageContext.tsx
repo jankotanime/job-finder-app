@@ -1,7 +1,10 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import useOfferStorage from "../hooks/useOfferStorage";
 
-type OfferStorageContextType = ReturnType<typeof useOfferStorage>;
+type OfferStorageContextType = ReturnType<typeof useOfferStorage> & {
+  offersVersion: number;
+  refreshOffers: () => void;
+};
 
 const OfferStorageContext = createContext<OfferStorageContextType | null>(null);
 
@@ -11,8 +14,19 @@ export const OfferStorageProvider = ({
   children: React.ReactNode;
 }) => {
   const storage = useOfferStorage();
+  const [offersVersion, setOffersVersion] = useState(0);
+
+  const refreshOffers = () => {
+    setOffersVersion((v) => v + 1);
+  };
   return (
-    <OfferStorageContext.Provider value={storage}>
+    <OfferStorageContext.Provider
+      value={{
+        ...storage,
+        offersVersion,
+        refreshOffers,
+      }}
+    >
       {children}
     </OfferStorageContext.Provider>
   );

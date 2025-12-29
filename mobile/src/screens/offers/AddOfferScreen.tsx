@@ -49,7 +49,6 @@ const AddOfferScreen = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
-  const { addStorageOffer } = useOfferStorageContext();
   const { userInfo } = useAuth();
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [form, setForm] = useState<FormState>({
@@ -66,6 +65,7 @@ const AddOfferScreen = () => {
   const [date, setDate] = useState(new Date());
   const [isPhotoAvailable, setIsPhotoAvailable] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const { refreshOffers } = useOfferStorageContext();
 
   useEffect(() => {
     let mounted = true;
@@ -156,7 +156,6 @@ const AddOfferScreen = () => {
       tags: availableTags.filter((t) => form.tags.includes(t.id)),
       offerPhoto: form.offerPhoto || undefined,
     } as unknown as Offer;
-    addStorageOffer(offer);
     const createPayload = {
       title: form.title.trim(),
       description: form.description.trim(),
@@ -168,6 +167,7 @@ const AddOfferScreen = () => {
       offerPhoto: form.offerPhoto,
     };
     await createOffer(createPayload);
+    refreshOffers();
     navigation.goBack();
   };
   const handlePickCamera = async () => {
