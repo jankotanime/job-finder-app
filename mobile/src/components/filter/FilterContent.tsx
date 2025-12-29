@@ -82,7 +82,6 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
   };
 
   const handleApply = async () => {
-    console.log("applied: ", selectedTags);
     const page = await handleFilterOffers({ tags: selectedTags });
     const body = Array.isArray(page?.body?.data?.content)
       ? page.body.data.content
