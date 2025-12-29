@@ -5,20 +5,17 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated,
-  Text,
 } from "react-native";
 import { useTheme } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
-import { useTranslation } from "react-i18next";
 import { createAnimation } from "../../utils/animationHelper";
-import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
-import { useAuth } from "../../contexts/AuthContext";
-import { getAllOffers } from "../../api/offers/handleOffersApi";
-import { getAllTags } from "../../api/filter/handleTags";
 import FilterContent from "./FilterContent";
+import { Offer } from "../../types/Offer";
 
+export interface FilterProps {
+  setOffersData: (data: Offer[]) => void;
+}
 const { width, height } = Dimensions.get("window");
-const Filter = () => {
+const Filter = ({ setOffersData }: FilterProps) => {
   const { colors } = useTheme();
   const [isActive, setIsActive] = useState(false);
   const slideAnim = useRef(new Animated.Value(height + 10)).current;
@@ -27,11 +24,8 @@ const Filter = () => {
   const moveThirdBarY = useRef(new Animated.Value(0)).current;
   const moveThirdBarX = useRef(new Animated.Value(0)).current;
   const menuDisplay = useRef(new Animated.Value(0)).current;
-  const navigation = useNavigation<any>();
-  const { t } = useTranslation();
   const widthAnim = useRef(new Animated.Value(10)).current;
   const hasPressed = useRef(false);
-  const { tokens } = useAuth();
 
   const turnLeft = firstBarRotation.interpolate({
     inputRange: [0, 1],
@@ -59,6 +53,23 @@ const Filter = () => {
         hasPressed.current = false;
       });
       return next;
+    });
+  };
+
+  const closeFilter = () => {
+    if (!isActive || hasPressed.current) return;
+    hasPressed.current = true;
+    setIsActive(false);
+    Animated.parallel([
+      createAnimation(firstBarRotation, 0),
+      createAnimation(secondBarRotation, 0),
+      createAnimation(moveThirdBarY, 0),
+      createAnimation(moveThirdBarX, 0),
+      createAnimation(menuDisplay, 0, 300),
+      createAnimation(widthAnim, 10, 300, 0, false),
+      createAnimation(slideAnim, height + 10, 300, 0, true),
+    ]).start(() => {
+      hasPressed.current = false;
     });
   };
 
@@ -113,7 +124,7 @@ const Filter = () => {
         ]}
       >
         <View style={styles.exitBox}>
-          <FilterContent />
+          <FilterContent setOffersData={setOffersData} onClose={closeFilter} />
         </View>
       </Animated.View>
     </>

@@ -12,6 +12,9 @@ import { getAllTags } from "../../api/filter/handleTags";
 import CollapsibleSection from "./FilterCollapsibleSection";
 import { useTranslation } from "react-i18next";
 import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
+import { Offer } from "../../types/Offer";
+import { buildPhotoUrl } from "../../utils/photoUrl";
+import { useAuth } from "../../contexts/AuthContext";
 
 const { height, width } = Dimensions.get("window");
 
@@ -21,18 +24,22 @@ interface ApiTag {
   id: string;
   name: string;
 }
-
 interface GroupedCategory {
   title: string;
   tags: { id: string; name: string }[];
 }
+interface FilterContentProps {
+  setOffersData: (data: Offer[]) => void;
+  onClose?: () => void;
+}
 
-const FilterContent = () => {
+const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
   const theme = useTheme();
   const [categories, setCategories] = useState<GroupedCategory[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
+  const { userInfo } = useAuth();
 
   useEffect(() => {
     fetchTags();
@@ -76,12 +83,19 @@ const FilterContent = () => {
 
   const handleApply = async () => {
     console.log("applied: ", selectedTags);
-    const response = await handleFilterOffers({ tags: selectedTags });
-    const body = response.body.data.content;
-    body.forEach((item: any) => {
-      console.log("Oferta:", item.title);
-      console.log("Tags:", item.tags);
-    });
+    const page = await handleFilterOffers({ tags: selectedTags });
+    const body = Array.isArray(page?.body?.data?.content)
+      ? page.body.data.content
+      : [];
+    const normalized = body.map((it: any) => ({
+      ...it,
+      offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
+    }));
+    const filtered = normalized.filter(
+      (it: any) => it?.owner?.id !== userInfo?.userId,
+    );
+    setOffersData(filtered);
+    onClose && onClose();
   };
 
   if (loading) {

@@ -10,7 +10,6 @@ export async function handleFilterOffers({ tags }: FilterParams) {
   if (tags.length > 0) {
     params.set("tags", tags.join(","));
   }
-  console.log("queryString:", params.toString());
   const [response, error] = await tryCatch(
     apiFetch(`/offer?${params.toString()}`, {
       method: "GET",

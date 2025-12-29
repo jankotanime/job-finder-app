@@ -209,6 +209,7 @@ const AddOfferScreen = () => {
             { backgroundColor: colors.background },
           ]}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <Text
             variant="titleLarge"
@@ -304,7 +305,14 @@ const AddOfferScreen = () => {
                     <View style={styles.photoContainer}>
                       {!isPhotoAvailable ? (
                         <TouchableOpacity
-                          style={[styles.logoWrapper, styles.placeholderLogo]}
+                          style={[
+                            styles.logoWrapper,
+                            styles.placeholderLogo,
+                            {
+                              backgroundColor: colors.background,
+                              borderColor: colors.onSurface,
+                            },
+                          ]}
                           onPress={() => setModalVisible(true)}
                         >
                           <Icon source="camera" size={50} />

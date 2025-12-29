@@ -100,7 +100,7 @@ const MainScreen = () => {
       <GestureHandlerRootView
         style={[styles.container, { backgroundColor: colors.background }]}
       >
-        <Filter />
+        <Filter setOffersData={setOffersData} />
         <Menu />
         {(loading || !offersData || offersData.length === 0) && (
           <View style={styles.loadingContainer}>
