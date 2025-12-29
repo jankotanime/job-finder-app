@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict z6oUBaaaezSYPmRLjJGQY98fqbjQ52MJ3RveVTdo9WTRBbVLohm0zVw0cBmpkAe
+\restrict lHf4sS3BncKWvy1Pv4FQp6xsgooXQthrAUJH5gdI2hrDYBvfL7pRfrIEAgadotg
 
--- Dumped from database version 16.10
--- Dumped by pg_dump version 16.10
+-- Dumped from database version 16.11
+-- Dumped by pg_dump version 16.11
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,18 +19,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: admin
---
-
-INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('7d9caf17-5dcb-46b7-ae52-21cdbe7bd533', 2, '2025-12-21 20:08:39.711024', 'Dom', '2025-12-21 20:08:39.711041');
-INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('55935584-7a71-4fb0-ae7b-1b20f8132b87', 1, '2025-12-21 20:08:54.492448', 'Technologia', '2025-12-21 20:08:54.492465');
-INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('b0622b50-6958-4b1c-a0fd-4cbbeed0615e', 3, '2025-12-21 20:09:14.282483', 'Nauka', '2025-12-21 20:09:14.282499');
-INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('e465c1a5-658b-4ba0-931e-ab053eb35811', 0, '2025-12-21 20:09:29.667899', 'Wydarzenia', '2025-12-21 20:09:29.667915');
-INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('8ef97dfe-30db-482a-9b61-c6b652cfa8cb', 5, '2025-12-21 20:10:11.327969', 'Opieka', '2025-12-21 20:10:11.327984');
-
-
---
--- Data for Name: profile_photos; Type: TABLE DATA; Schema: public; Owner: admin
+-- Data for Name: profile_photo; Type: TABLE DATA; Schema: public; Owner: admin
 --
 
 
@@ -39,11 +28,11 @@ INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES (
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: admin
 --
 
-INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username) VALUES ('6380e192-6e0e-460c-ae65-5caf69903e66', '2025-12-21 20:03:01.707664', 'email@gmail.com', 'Janusz', NULL, 'Pierwszy', '$2a$10$K26PMb0XOOaP1MSqw2MO6u9wsWoN9jAf4RAp61bW7L/0jxUF1hGQO', 123456789, 'asdasdasdasdasda', '2025-12-21 20:05:07.331084', 'user');
-INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username) VALUES ('44fadc16-c788-446c-a7d7-ceba96b6b74d', '2025-12-21 20:05:34.14962', 'email2@gmail.com', 'Janusz', NULL, 'Drugi', '$2a$10$MofkmXedguR.eij3PYpdDea6UMmoVtx9lCRYn.iHkzg6o4bUFIZDq', 223456789, 'asdaasdasda', '2025-12-21 20:06:09.302049', 'user2');
-INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username) VALUES ('5110bd94-58d5-4ea4-af58-669ebf4c8976', '2025-12-21 20:06:22.307042', 'email3@gmail.com', 'Zbyszek', NULL, 'Pierwszy', '$2a$10$pNu6FK1AQf0Zl7eKGsgOuuDJgEZiHHaSaLXlWIAgbFDDv4ElI0ez.', 323456789, 'gsfggsdasda', '2025-12-21 20:06:43.81525', 'user3');
-INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username) VALUES ('a88e2a4a-53dd-40d2-960c-cd59cb452de2', '2025-12-21 20:07:02.984003', 'email4@gmail.com', 'Zbyszek', NULL, 'Drugi', '$2a$10$VHbOFvCGyyXvL.MXNvHD2uip6mvRsQfWie6QBySfY/vzxBKp1xItO', 423456789, 'gsfgafdfagsdasda', '2025-12-21 20:07:16.694906', 'user4');
-INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username) VALUES ('0b6cc9bc-2369-4008-933d-3f1270dbd1ea', '2025-12-21 20:07:31.323406', 'email5@gmail.com', 'Zbyszek', NULL, 'Trzeci', '$2a$10$sX7JOnOtWdvasy9t7MkASez4gmbt6.SaqL4ojQrjh91BTjXy.bojG', 523456789, 'gfgafdfagsdasda', '2025-12-21 20:07:47.518256', 'user5');
+INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username, profile_photo_id) VALUES ('6380e192-6e0e-460c-ae65-5caf69903e66', '2025-12-21 20:03:01.707664', 'email@gmail.com', 'Janusz', NULL, 'Pierwszy', '{cfvghjkl}$2a$10$htdsmb7c2hs0t6LqutjYo.uW45Bx0/2rgfTNzPf0VwDS2iKNHx782', 123456789, 'asdasdasdasdasda', '2025-12-29 19:01:44.42659', 'user', NULL);
+INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username, profile_photo_id) VALUES ('44fadc16-c788-446c-a7d7-ceba96b6b74d', '2025-12-21 20:05:34.14962', 'email2@gmail.com', 'Janusz', NULL, 'Drugi', '{cfvghjkl}$2a$10$xA6PpKUQp6/8lPwzV6uNNuKBED4LKFTvBKTp.Nt1dpKtOVIC060Sq', 223456789, 'asdaasdasda', '2025-12-29 19:02:50.342035', 'user2', NULL);
+INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username, profile_photo_id) VALUES ('5110bd94-58d5-4ea4-af58-669ebf4c8976', '2025-12-21 20:06:22.307042', 'email3@gmail.com', 'Zbyszek', NULL, 'Pierwszy', '{cfvghjkl}$2a$10$o771RcnKKs.cri29DihLtenyp69ebukEczS.gC3LT773auSPBGb8O', 323456789, 'gsfggsdasda', '2025-12-29 19:03:20.060871', 'user3', NULL);
+INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username, profile_photo_id) VALUES ('a88e2a4a-53dd-40d2-960c-cd59cb452de2', '2025-12-21 20:07:02.984003', 'email4@gmail.com', 'Zbyszek', NULL, 'Drugi', '{cfvghjkl}$2a$10$xw4A48UHBG7WO90KRKRJkeeb.1R06r.jH1WDDcA5feHWggJ6q0zkO', 423456789, 'gsfgafdfagsdasda', '2025-12-29 19:03:48.608836', 'user4', NULL);
+INSERT INTO public.users (id, created_at, email, first_name, google_id, last_name, password_hash, phone_number, profile_description, updated_at, username, profile_photo_id) VALUES ('0b6cc9bc-2369-4008-933d-3f1270dbd1ea', '2025-12-21 20:07:31.323406', 'email5@gmail.com', 'Zbyszek', NULL, 'Trzeci', '{cfvghjkl}$2a$10$xT0QUxsU83dPbr/1BvcG...KzTG4RyVknOyk0gAEuKOoQKKUib0Du', 523456789, 'gfgafdfagsdasda', '2025-12-29 19:04:21.853363', 'user5', NULL);
 
 
 --
@@ -56,6 +45,56 @@ INSERT INTO public.cvs (id, created_at, file_name, file_size, mime_type, storage
 INSERT INTO public.cvs (id, created_at, file_name, file_size, mime_type, storage_key, updated_at, user_id) VALUES ('d2e79a57-9890-45ab-8e0b-6e5d1d489a34', '2025-12-21 20:34:14.604545', 'cv.docx', 171906, 'DOCX', 'documents/95d99444-8b01-41ae-9a07-23d82e515a7f-cv.docx', '2025-12-21 20:34:14.604553', 'a88e2a4a-53dd-40d2-960c-cd59cb452de2');
 INSERT INTO public.cvs (id, created_at, file_name, file_size, mime_type, storage_key, updated_at, user_id) VALUES ('c27a9cf1-b1cf-46c0-ad4a-ec71687b5c5f', '2025-12-21 20:34:51.714254', 'dokument.docx', 17925, 'DOCX', 'documents/d5e63827-2d2f-4a81-828e-d2b684f7f95e-dokument.docx', '2025-12-21 20:34:51.714263', '0b6cc9bc-2369-4008-933d-3f1270dbd1ea');
 INSERT INTO public.cvs (id, created_at, file_name, file_size, mime_type, storage_key, updated_at, user_id) VALUES ('9aea2718-d9c9-4ea0-b30b-9687b8d9ddfd', '2025-12-21 20:35:03.146694', 'mvp_po_skonczeniu_kursu.docx', 15126, 'DOCX', 'documents/0a65b871-86b9-45e6-a76e-19e5b751814b-mvp_po_skonczeniu_kursu.docx', '2025-12-21 20:35:03.146703', '0b6cc9bc-2369-4008-933d-3f1270dbd1ea');
+
+
+--
+-- Data for Name: offer_photo; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- Data for Name: offers; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('9ecc5fb9-822a-499c-92ca-63a7f095507b', '2025-12-21 20:24:46.607882', '2026-02-15 10:15:00', 'Praca z React, TypeScript i REST API. Zdalnie lub hybrydowo.', 5, 600, 'OPEN', 'Frontend Developer', '2025-12-21 20:24:46.607893', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('afda2738-ffc8-4106-8dc5-80031ae99b70', '2025-12-21 20:25:07.751177', '2026-03-01 09:00:00', 'API, bazy danych, Node.js lub Python. Praca zdalna.', 4, 700, 'OPEN', 'Backend Developer', '2025-12-21 20:25:07.751186', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('a9aacb09-2f91-4c66-9ebb-1da310837e84', '2025-12-21 20:25:19.951114', '2026-03-10 08:30:00', 'CI/CD, kontenery, automatyzacja infrastruktury.', 3, 750, 'OPEN', 'DevOps Engineer', '2025-12-21 20:25:19.951125', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('cb3c1253-a6f8-4531-a321-949a9f120ad4', '2025-12-21 20:25:33.345467', '2026-04-05 11:00:00', 'Analiza danych, uczenie maszynowe, Python, pandas.', 6, 800, 'OPEN', 'Data Scientist', '2025-12-21 20:25:33.345476', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('2705c257-a829-432d-a1fc-5bc7201c7777', '2025-12-21 20:25:44.868388', '2026-01-20 14:00:00', 'Monitorowanie zabezpieczeń, audyty bezpieczeństwa, SOC.', 4, 650, 'OPEN', 'Cybersecurity Analyst', '2025-12-21 20:25:44.868398', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('c03602e5-59d9-4a64-9e98-ad7e01872d4a', '2025-12-21 20:26:33.843141', '2026-05-12 08:00:00', 'Prace remontowe w mieszkaniach i domach, doświadczenie mile widziane.', 8, 420, 'OPEN', 'Specjalista ds. Remontów', '2025-12-21 20:26:33.843153', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('dca29d3c-b419-4639-9d33-843ea08ff30f', '2025-12-21 20:26:44.014283', '2026-05-20 07:30:00', 'Pielęgnacja ogrodów, nasadzenia, sezonowa praca.', 10, 300, 'OPEN', 'Ogrodnik / Konserwator Zieleni', '2025-12-21 20:26:44.014295', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('9a48b62d-f137-4e13-8bb5-bab794521960', '2025-12-21 20:26:51.931365', '2026-06-01 09:30:00', 'Wsparcie w laboratorium, przygotowywanie próbek, proste analizy.', 4, 380, 'OPEN', 'Asystent badań biologicznych', '2025-12-21 20:26:51.931373', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('af19d830-c4fe-470d-a785-09fb6076b8d4', '2025-12-21 20:27:01.356713', '2026-06-15 17:00:00', 'Korepetycje z fizyki dla uczniów i studentów, przygotowanie do egzaminów.', 1, 45, 'OPEN', 'Korepetytor Fizyki', '2025-12-21 20:27:01.356724', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('2fc518ac-bd1e-43da-9491-438b9b24f2ec', '2025-12-21 20:27:15.542414', '2026-07-10 09:00:00', 'Koordynacja wydarzeń naukowych i biznesowych, kontakt z prelegentami.', 6, 500, 'OPEN', 'Organizator Konferencji', '2025-12-21 20:27:15.542425', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('a2f67516-4c7e-461f-9294-e3ed09a43c7a', '2025-12-21 20:27:23.049997', '2026-07-18 10:00:00', 'Przygotowanie ekspozycji, współpraca z artystami i instytucjami.', 3, 520, 'OPEN', 'Kurator Wystaw', '2025-12-21 20:27:23.050003', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('a455505c-6d63-4e43-b3ad-f536a85736eb', '2025-12-21 20:27:34.311694', '2026-08-01 07:00:00', 'Pomoc przy opiece pacjentów, podstawowe czynności pielęgniarskie, praca w zespole.', 5, 430, 'OPEN', 'Asystent opieki medycznej', '2025-12-21 20:27:34.311702', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('cb430bc1-8fc3-4252-82e9-c02976c14586', '2025-12-21 20:27:42.413224', '2026-08-05 09:00:00', 'Opieka domowa nad osobami starszymi, wsparcie w codziennych czynnościach.', 2, 380, 'OPEN', 'Opiekun Seniora', '2025-12-21 20:27:42.413233', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('a4482327-d6c2-4a58-84c7-dcc90301ee5e', '2025-12-21 20:27:52.960733', '2026-09-10 16:00:00', 'Warsztaty dla licealistów i studentów — praktyczne zastosowania matematyki.', 15, 350, 'OPEN', 'Prowadzący warsztaty matematyczne', '2025-12-21 20:27:52.960741', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id, photo_id) VALUES ('b38cb7d2-f348-454b-b53e-1ea386741b9b', '2025-12-21 20:28:01.333407', '2026-09-20 09:00:00', 'Pomoc przy stoiskach, obsługa zwiedzających, praca przy wydarzeniu edukacyjnym.', 20, 0, 'OPEN', 'Wolontariusz na targi naukowe', '2025-12-21 20:28:01.333414', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d', NULL);
+
+
+--
+-- Data for Name: applications; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('7d9caf17-5dcb-46b7-ae52-21cdbe7bd533', 2, '2025-12-21 20:08:39.711024', 'Dom', '2025-12-21 20:08:39.711041');
+INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('55935584-7a71-4fb0-ae7b-1b20f8132b87', 1, '2025-12-21 20:08:54.492448', 'Technologia', '2025-12-21 20:08:54.492465');
+INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('b0622b50-6958-4b1c-a0fd-4cbbeed0615e', 3, '2025-12-21 20:09:14.282483', 'Nauka', '2025-12-21 20:09:14.282499');
+INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('e465c1a5-658b-4ba0-931e-ab053eb35811', 0, '2025-12-21 20:09:29.667899', 'Wydarzenia', '2025-12-21 20:09:29.667915');
+INSERT INTO public.categories (id, color, created_at, name, updated_at) VALUES ('8ef97dfe-30db-482a-9b61-c6b652cfa8cb', 5, '2025-12-21 20:10:11.327969', 'Opieka', '2025-12-21 20:10:11.327984');
+
+
+--
+-- Data for Name: job_photo; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
 
 
 --
@@ -89,28 +128,7 @@ INSERT INTO public.tags (id, created_at, name, updated_at, category_id) VALUES (
 
 
 --
--- Data for Name: offers; Type: TABLE DATA; Schema: public; Owner: admin
---
-
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('9ecc5fb9-822a-499c-92ca-63a7f095507b', '2025-12-21 20:24:46.607882', '2026-02-15 10:15:00', 'Praca z React, TypeScript i REST API. Zdalnie lub hybrydowo.', 5, 600, 'OPEN', 'Frontend Developer', '2025-12-21 20:24:46.607893', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('afda2738-ffc8-4106-8dc5-80031ae99b70', '2025-12-21 20:25:07.751177', '2026-03-01 09:00:00', 'API, bazy danych, Node.js lub Python. Praca zdalna.', 4, 700, 'OPEN', 'Backend Developer', '2025-12-21 20:25:07.751186', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('a9aacb09-2f91-4c66-9ebb-1da310837e84', '2025-12-21 20:25:19.951114', '2026-03-10 08:30:00', 'CI/CD, kontenery, automatyzacja infrastruktury.', 3, 750, 'OPEN', 'DevOps Engineer', '2025-12-21 20:25:19.951125', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('cb3c1253-a6f8-4531-a321-949a9f120ad4', '2025-12-21 20:25:33.345467', '2026-04-05 11:00:00', 'Analiza danych, uczenie maszynowe, Python, pandas.', 6, 800, 'OPEN', 'Data Scientist', '2025-12-21 20:25:33.345476', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('2705c257-a829-432d-a1fc-5bc7201c7777', '2025-12-21 20:25:44.868388', '2026-01-20 14:00:00', 'Monitorowanie zabezpieczeń, audyty bezpieczeństwa, SOC.', 4, 650, 'OPEN', 'Cybersecurity Analyst', '2025-12-21 20:25:44.868398', NULL, '6380e192-6e0e-460c-ae65-5caf69903e66');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('c03602e5-59d9-4a64-9e98-ad7e01872d4a', '2025-12-21 20:26:33.843141', '2026-05-12 08:00:00', 'Prace remontowe w mieszkaniach i domach, doświadczenie mile widziane.', 8, 420, 'OPEN', 'Specjalista ds. Remontów', '2025-12-21 20:26:33.843153', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('dca29d3c-b419-4639-9d33-843ea08ff30f', '2025-12-21 20:26:44.014283', '2026-05-20 07:30:00', 'Pielęgnacja ogrodów, nasadzenia, sezonowa praca.', 10, 300, 'OPEN', 'Ogrodnik / Konserwator Zieleni', '2025-12-21 20:26:44.014295', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('9a48b62d-f137-4e13-8bb5-bab794521960', '2025-12-21 20:26:51.931365', '2026-06-01 09:30:00', 'Wsparcie w laboratorium, przygotowywanie próbek, proste analizy.', 4, 380, 'OPEN', 'Asystent badań biologicznych', '2025-12-21 20:26:51.931373', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('af19d830-c4fe-470d-a785-09fb6076b8d4', '2025-12-21 20:27:01.356713', '2026-06-15 17:00:00', 'Korepetycje z fizyki dla uczniów i studentów, przygotowanie do egzaminów.', 1, 45, 'OPEN', 'Korepetytor Fizyki', '2025-12-21 20:27:01.356724', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('2fc518ac-bd1e-43da-9491-438b9b24f2ec', '2025-12-21 20:27:15.542414', '2026-07-10 09:00:00', 'Koordynacja wydarzeń naukowych i biznesowych, kontakt z prelegentami.', 6, 500, 'OPEN', 'Organizator Konferencji', '2025-12-21 20:27:15.542425', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('a2f67516-4c7e-461f-9294-e3ed09a43c7a', '2025-12-21 20:27:23.049997', '2026-07-18 10:00:00', 'Przygotowanie ekspozycji, współpraca z artystami i instytucjami.', 3, 520, 'OPEN', 'Kurator Wystaw', '2025-12-21 20:27:23.050003', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('a455505c-6d63-4e43-b3ad-f536a85736eb', '2025-12-21 20:27:34.311694', '2026-08-01 07:00:00', 'Pomoc przy opiece pacjentów, podstawowe czynności pielęgniarskie, praca w zespole.', 5, 430, 'OPEN', 'Asystent opieki medycznej', '2025-12-21 20:27:34.311702', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('cb430bc1-8fc3-4252-82e9-c02976c14586', '2025-12-21 20:27:42.413224', '2026-08-05 09:00:00', 'Opieka domowa nad osobami starszymi, wsparcie w codziennych czynnościach.', 2, 380, 'OPEN', 'Opiekun Seniora', '2025-12-21 20:27:42.413233', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('a4482327-d6c2-4a58-84c7-dcc90301ee5e', '2025-12-21 20:27:52.960733', '2026-09-10 16:00:00', 'Warsztaty dla licealistów i studentów — praktyczne zastosowania matematyki.', 15, 350, 'OPEN', 'Prowadzący warsztaty matematyczne', '2025-12-21 20:27:52.960741', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-INSERT INTO public.offers (id, created_at, date_and_time, description, max_applications, salary, status, title, updated_at, chosen_candidate_id, owner_id) VALUES ('b38cb7d2-f348-454b-b53e-1ea386741b9b', '2025-12-21 20:28:01.333407', '2026-09-20 09:00:00', 'Pomoc przy stoiskach, obsługa zwiedzających, praca przy wydarzeniu edukacyjnym.', 20, 0, 'OPEN', 'Wolontariusz na targi naukowe', '2025-12-21 20:28:01.333414', NULL, '44fadc16-c788-446c-a7d7-ceba96b6b74d');
-
-
---
--- Data for Name: offers_candidates; Type: TABLE DATA; Schema: public; Owner: admin
+-- Data for Name: offers_applications; Type: TABLE DATA; Schema: public; Owner: admin
 --
 
 
@@ -160,5 +178,5 @@ INSERT INTO public.offers_tags (offer_id, tags_id) VALUES ('b38cb7d2-f348-454b-b
 -- PostgreSQL database dump complete
 --
 
-\unrestrict z6oUBaaaezSYPmRLjJGQY98fqbjQ52MJ3RveVTdo9WTRBbVLohm0zVw0cBmpkAe
+\unrestrict lHf4sS3BncKWvy1Pv4FQp6xsgooXQthrAUJH5gdI2hrDYBvfL7pRfrIEAgadotg
 
