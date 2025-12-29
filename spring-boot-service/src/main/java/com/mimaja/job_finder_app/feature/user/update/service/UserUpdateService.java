@@ -6,7 +6,7 @@ import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.UpdateUse
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdateEmailResponseDto;
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdatePhoneNumberResponseDto;
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.UpdateUserDataResponseDto;
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
+import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -1,8 +1,8 @@
 package com.mimaja.job_finder_app.global.controller;
 
-import com.mimaja.job_finder_app.security.tokens.jwt.shared.JwtPrincipal;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
+import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
