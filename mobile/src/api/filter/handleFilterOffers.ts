@@ -3,7 +3,7 @@ import { apiFetch } from "../client";
 
 export async function handleFilterOffers() {
   const [response, error] = await tryCatch(
-    apiFetch("/offer/filter", {
+    apiFetch("/offer", {
       method: "GET",
     }),
   );

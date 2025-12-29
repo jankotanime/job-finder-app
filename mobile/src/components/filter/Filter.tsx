@@ -15,6 +15,7 @@ import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAllOffers } from "../../api/offers/handleOffersApi";
 import { getAllTags } from "../../api/filter/handleTags";
+import FilterContent from "./FilterContent";
 
 const { width, height } = Dimensions.get("window");
 const Filter = () => {
@@ -128,17 +129,7 @@ const Filter = () => {
         ]}
       >
         <View style={styles.exitBox}>
-          <TouchableOpacity onPress={filterOffers}>
-            <Text style={{ color: colors.primary, fontSize: 16 }}>filtruj</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={getOffers}>
-            <Text style={{ color: colors.primary, fontSize: 16 }}>
-              getOffers
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={getTags}>
-            <Text style={{ color: colors.primary, fontSize: 16 }}>getTags</Text>
-          </TouchableOpacity>
+          <FilterContent />
         </View>
       </Animated.View>
     </>

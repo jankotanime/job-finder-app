@@ -14,7 +14,7 @@ import { makeExpandHandlers } from "../../utils/expandController";
 import OnSwipeRight from "../../components/main/swipe/OnSwipeRight";
 import OnSwipeLeft from "../../components/main/swipe/OnSwipeLeft";
 import OnSwipeBottom from "../../components/main/swipe/OnSwipeBottom";
-import Filter from "../../components/main/Filter";
+import Filter from "../../components/filter/Filter";
 import AddOfferButton from "../../components/main/AddOfferButton";
 import { ActivityIndicator } from "react-native-paper";
 import { useTranslation } from "react-i18next";
