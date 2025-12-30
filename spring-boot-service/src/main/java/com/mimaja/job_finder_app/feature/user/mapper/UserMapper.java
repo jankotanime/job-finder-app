@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.user.mapper;
 
+import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelResponseDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserInOfferResponseDto;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import java.util.Set;
@@ -11,4 +12,6 @@ public interface UserMapper {
     UserInOfferResponseDto toUserInOfferResponseDto(User user);
 
     Set<UserInOfferResponseDto> toSetOfUserInOfferResponseDto(Set<User> users);
+
+    UserAdminPanelResponseDto toUserAdminPanelResponseDto(User user);
 }

@@ -26,6 +26,7 @@ import com.mimaja.job_finder_app.shared.adapters.MultipartFileSource;
 import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
 import com.mimaja.job_finder_app.shared.enums.FileFolderName;
 import com.mimaja.job_finder_app.shared.service.FileManagementService;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -103,7 +104,23 @@ public class OfferServiceDefault implements OfferService {
     @Transactional
     public void deleteOffer(UUID offerId) {
         Offer offer = getOrThrow(offerId);
+        if (offer.getPhoto() != null) {
+            fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
+        }
         offerRepository.delete(offer);
+    }
+
+    @Override
+    @Transactional
+    public void deleteOffersByOwnerId(UUID userId) {
+        List<Offer> offersToDelete = offerRepository.findOffersByOwnerId(userId);
+        offersToDelete.forEach(
+                offer -> {
+                    if (offer.getPhoto() != null) {
+                        fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
+                    }
+                });
+        offerRepository.deleteAll(offersToDelete);
     }
 
     @Override

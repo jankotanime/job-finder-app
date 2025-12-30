@@ -1,6 +1,7 @@
 package com.mimaja.job_finder_app.feature.user.model;
 
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
+import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.user.profilephoto.model.ProfilePhoto;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
@@ -68,5 +69,11 @@ public class User {
         this.passwordHash = passwordHash;
         this.googleId = googleId;
         this.phoneNumber = phoneNumber;
+    }
+
+    public void update(UserAdminPanelUpdateRequestDto dto) {
+        this.username = dto.username();
+        this.email = dto.email();
+        this.phoneNumber = dto.phoneNumber();
     }
 }

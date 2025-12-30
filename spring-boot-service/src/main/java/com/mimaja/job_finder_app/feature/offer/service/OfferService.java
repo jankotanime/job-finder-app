@@ -26,6 +26,8 @@ public interface OfferService {
 
     void deleteOffer(UUID offerId);
 
+    void deleteOffersByOwnerId(UUID userId);
+
     Page<Offer> getFilteredOffers(OfferFilterRequestDto offerFilterRequestDto, Pageable pageable);
 
     Offer applyOffer(UUID offerId, UUID userId, OfferApplyRequestDto dto);
