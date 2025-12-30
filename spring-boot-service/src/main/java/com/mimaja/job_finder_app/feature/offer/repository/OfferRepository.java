@@ -16,4 +16,7 @@ public interface OfferRepository
 
     @Query("SELECT o FROM Offer o JOIN o.applications a WHERE a.candidate = :candidateId")
     List<Offer> findAllOffersContainsUserInApplications(@Param("candidateId") UUID candidateId);
+
+    @Query("SElECT o FROM Offer o WHERE o.owner.id = :userId")
+    List<Offer> findOffersByOwnerId(UUID userId);
 }
