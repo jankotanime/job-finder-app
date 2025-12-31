@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.tag.mapper;
 
+import com.mimaja.job_finder_app.feature.offer.tag.category.mapper.CategoryMapper;
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
@@ -8,7 +9,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(
+        componentModel = "spring",
+        uses = {CategoryMapper.class},
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TagMapper {
     Tag toEntity(TagCreateRequestDto tagCreateRequestDto);
 

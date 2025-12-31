@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.tag.category.mapper;
 
+import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryAdminResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.category.model.Category;
@@ -11,4 +12,6 @@ public interface CategoryMapper {
     Category toEntity(CategoryCreateRequestDto categoryCreateRequestDto);
 
     CategoryResponseDto toResponseDto(Category category);
+
+    CategoryAdminResponseDto toAdminResponseDto(Category category);
 }
