@@ -131,5 +131,8 @@
   "filter": {
     "apply": "Zastosuj filtry",
     "clear": "Wyczyść filtry"
+  },
+  "profile": {
+    "edit": "Edytuj profil"
   }
 }

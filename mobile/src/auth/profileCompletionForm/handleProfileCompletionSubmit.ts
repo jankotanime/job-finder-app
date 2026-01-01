@@ -48,10 +48,12 @@ export async function handleProfileCompletionSubmit({
         firstName: formState.firstName,
         lastName: formState.lastName,
         profileDescription: formState.description,
+        profilePhoto: formState.profilePhoto,
       }),
     }),
   );
   const data = await response?.json();
+  console.log("data: ", data);
   if (backendError || !response) {
     return { ok: false, error: backendError || response };
   }

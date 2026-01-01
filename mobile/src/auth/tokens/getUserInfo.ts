@@ -4,6 +4,8 @@ export type User = {
   firstName: string | null;
   lastName: string | null;
   phoneNumber: string | null;
+  email: string | null;
+  profilePhoto: string | null;
 };
 
 export const getUserInfo = (access?: string | null): User | null => {
@@ -21,6 +23,10 @@ export const getUserInfo = (access?: string | null): User | null => {
       parsedPayload?.userId ?? parsedPayload?.sub ?? null;
     const firstName: string | null =
       parsedPayload?.firstName ?? parsedPayload?.sub ?? null;
+    const email: string | null =
+      parsedPayload?.email ?? parsedPayload?.sub ?? null;
+    const profilePhoto: string | null =
+      parsedPayload?.profilePhoto ?? parsedPayload?.sub ?? null;
     const lastName: string | null =
       parsedPayload?.lastName ?? parsedPayload?.sub ?? null;
     let phoneNumberVal: string | null =
@@ -34,6 +40,8 @@ export const getUserInfo = (access?: string | null): User | null => {
       firstName,
       lastName,
       phoneNumber: phoneNumberVal,
+      profilePhoto,
+      email,
     };
     return user || null;
   } catch (e) {
