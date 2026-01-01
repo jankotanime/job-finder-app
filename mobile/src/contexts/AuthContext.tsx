@@ -169,6 +169,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       refreshTokenId: refreshTokenId || "",
     });
     const username = getUsernameFromAccessToken(accessToken);
+    const info = getUserInfo(accessToken);
+    setUserInfo(info);
     const userRegisterStatus = await EncryptedStorage.getItem(
       `auth:${username}`,
     );
@@ -180,13 +182,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { ok: true, status: AuthStatus.REGISTER_REQUIRED };
     }
     setIsAuthenticated(true);
-    setUser(formState.loginData);
+    setUser(info?.username ?? formState.loginData);
     return { ok: true, status: AuthStatus.LOGGED_IN };
   };
   const signOut = async () => {
     await EncryptedStorage.removeItem("auth");
     setTokens(null);
+    setTokensApiFetch({
+      accessToken: "",
+      refreshToken: "",
+      refreshTokenId: "",
+    });
     setUser("");
+    setUserInfo(null);
     setIsAuthenticated(false);
   };
   const signUp = async (formState: FormStateRegisterProps) => {
@@ -218,8 +226,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
     });
+    const info = getUserInfo(accessToken);
+    setUserInfo(info);
     setIsAuthenticated(true);
-    setUser(formState.username);
+    setUser(info?.username ?? formState.username);
     return { ok: true };
   };
 
@@ -261,6 +271,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         refreshToken: refreshToken || "",
         refreshTokenId: refreshTokenId || "",
       });
+      const info = getUserInfo(accessToken);
+      setUserInfo(info);
       const username = getUsernameFromAccessToken(accessToken);
       const userRegisterStatus = await EncryptedStorage.getItem(
         `auth:${username}`,
@@ -331,8 +343,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       refreshToken: refreshToken || "",
       refreshTokenId: refreshTokenId || "",
     });
-
-    setUser(username);
+    const info = getUserInfo(accessToken);
+    setUserInfo(info);
+    setUser(info?.username ?? username);
     setIsAuthenticated(true);
 
     return { status: AuthStatus.REGISTER_REQUIRED };
