@@ -1,8 +1,7 @@
 package com.mimaja.job_finder_app.feature.offer.tag.controller;
 
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagResponseDto;
-import com.mimaja.job_finder_app.feature.offer.tag.mapper.TagMapper;
-import com.mimaja.job_finder_app.feature.offer.tag.service.TagService;
+import com.mimaja.job_finder_app.feature.offer.tag.service.TagServiceUser;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import java.util.UUID;
@@ -20,8 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/tag")
 public class TagController {
-    private final TagService tagService;
-    private final TagMapper tagMapper;
+    private final TagServiceUser tagServiceUser;
     private static final String ID = "/{tagId}";
 
     @GetMapping
@@ -31,7 +29,7 @@ public class TagController {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched all tags",
-                tagService.getAllTags(pageable).map(tagMapper::toResponseDto));
+                tagServiceUser.getAllTags(pageable));
     }
 
     @GetMapping("/category/{categoryId}")
@@ -42,7 +40,7 @@ public class TagController {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched all tags for category with id: " + categoryId,
-                tagService.getAllByCategoryId(categoryId, pageable).map(tagMapper::toResponseDto));
+                tagServiceUser.getAllByCategoryId(categoryId, pageable));
     }
 
     @GetMapping(ID)
@@ -50,6 +48,6 @@ public class TagController {
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched tag with id: " + tagId,
-                tagMapper.toResponseDto(tagService.getTagById(tagId)));
+                tagServiceUser.getTagById(tagId));
     }
 }
