@@ -15,6 +15,7 @@ import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
 import { Offer } from "../../types/Offer";
 import { buildPhotoUrl } from "../../utils/photoUrl";
 import { useAuth } from "../../contexts/AuthContext";
+import useFilter from "../../hooks/useFilter";
 
 const { height, width } = Dimensions.get("window");
 
@@ -40,6 +41,7 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const { userInfo } = useAuth();
+  const { filters, setFiltersList, clearFilters } = useFilter();
 
   useEffect(() => {
     fetchTags();
@@ -73,6 +75,12 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
     }
   };
 
+  useEffect(() => {
+    if (Array.isArray(filters)) {
+      setSelectedTags(filters);
+    }
+  }, [filters]);
+
   const toggleTag = (tagId: string) => {
     setSelectedTags((prev) =>
       prev.includes(tagId)
@@ -80,9 +88,10 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
         : [...prev, tagId],
     );
   };
-
   const handleApply = async () => {
-    const page = await handleFilterOffers({ tags: selectedTags });
+    const next = Array.from(new Set(selectedTags));
+    await setFiltersList(next);
+    const page = await handleFilterOffers({ tags: next });
     const body = Array.isArray(page?.body?.data?.content)
       ? page.body.data.content
       : [];
@@ -95,6 +104,29 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
     );
     setOffersData(filtered);
     onClose && onClose();
+  };
+
+  const handleClearFilters = async () => {
+    try {
+      await clearFilters();
+      setSelectedTags([]);
+      const page = await handleFilterOffers({ tags: [] });
+      const body = Array.isArray(page?.body?.data?.content)
+        ? page.body.data.content
+        : [];
+      const normalized = body.map((it: any) => ({
+        ...it,
+        offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
+      }));
+      const filtered = normalized.filter(
+        (it: any) => it?.owner?.id !== userInfo?.userId,
+      );
+      setOffersData(filtered);
+    } catch (err) {
+      console.error("error while clearing filters:", err);
+    } finally {
+      onClose && onClose();
+    }
   };
 
   if (loading) {
@@ -126,6 +158,14 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
         </ScrollView>
 
         <View style={styles.footer}>
+          <Button
+            mode="outlined"
+            onPress={handleClearFilters}
+            style={styles.clearButton}
+            contentStyle={styles.buttonInner}
+          >
+            {t("filter.clear")}
+          </Button>
           <Button
             mode="contained"
             onPress={handleApply}
@@ -171,6 +211,10 @@ const styles = StyleSheet.create({
   },
   applyButton: {
     borderRadius: 15,
+  },
+  clearButton: {
+    borderRadius: 15,
+    marginBottom: 10,
   },
   buttonInner: {
     height: 54,

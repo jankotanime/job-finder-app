@@ -25,6 +25,8 @@ import { ActivityIndicator } from "react-native-paper";
 import { useTranslation } from "react-i18next";
 import { buildPhotoUrl } from "../../utils/photoUrl";
 import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
+import useFilter from "../../hooks/useFilter";
+import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
 
 const { width, height } = Dimensions.get("window");
 
@@ -54,6 +56,7 @@ const MainScreen = () => {
   const animatingCardIndexRef = useRef<number | null>(null);
   const { t } = useTranslation();
   const { offersVersion } = useOfferStorageContext();
+  const { filters } = useFilter();
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -75,9 +78,16 @@ const MainScreen = () => {
     if (!tokens || loading || !userInfo?.userId) {
       return;
     }
+    console.log("filters: ", filters);
     let active = true;
     const load = async () => {
-      const page = await getAllOffers();
+      let page;
+      if (filters.length > 0) {
+        const next = Array.from(new Set(filters));
+        page = await handleFilterOffers({ tags: next });
+      } else {
+        page = await getAllOffers();
+      }
       const items = Array.isArray(page?.body?.data?.content)
         ? page.body.data.content
         : [];

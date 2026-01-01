@@ -129,6 +129,7 @@
     }
   },
   "filter": {
-    "apply": "Zastosuj filtry"
+    "apply": "Zastosuj filtry",
+    "clear": "Wyczyść filtry"
   }
 }

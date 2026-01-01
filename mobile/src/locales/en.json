@@ -129,6 +129,7 @@
     }
   },
   "filter": {
-    "apply": "Apply filters"
+    "apply": "Apply filters",
+    "clear": "Clear filters"
   }
 }
