@@ -20,6 +20,7 @@ const { height } = Dimensions.get("window");
 const MyProfile = () => {
   const { colors } = useTheme();
   const { userInfo } = useAuth();
+  console.log(userInfo?.profilePhoto);
   const photoUrl = buildPhotoUrl(userInfo?.profilePhoto ?? undefined);
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
@@ -49,15 +50,6 @@ const MyProfile = () => {
                 )}
               />
             )}
-            <IconButton
-              icon="camera"
-              mode="contained"
-              containerColor={colors.primary}
-              iconColor={colors.onPrimary}
-              size={20}
-              style={styles.editIcon}
-              onPress={() => {}}
-            />
           </View>
           <Text variant="headlineMedium" style={styles.name}>
             {userInfo?.firstName} {userInfo?.lastName}

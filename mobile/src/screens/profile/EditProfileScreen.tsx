@@ -10,7 +10,15 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, HelperText, Text, useTheme, Icon } from "react-native-paper";
+import {
+  Button,
+  HelperText,
+  Text,
+  useTheme,
+  Icon,
+  Portal,
+  Dialog,
+} from "react-native-paper";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext";
 import PhotoPickerModal from "../../components/pre-login/PhotoPickerModal";
@@ -36,6 +44,9 @@ const EditProfileScreen = () => {
   });
   const [modalVisible, setModalVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const errors = useMemo(() => {
     const e: Record<string, string> = {};
@@ -67,6 +78,15 @@ const EditProfileScreen = () => {
 
   const onSubmit = async () => {
     if (Object.keys(errors).length > 0) return;
+    setPasswordError("");
+    setConfirmVisible(true);
+  };
+
+  const handleConfirmUpdate = async () => {
+    if (!passwordInput.trim()) {
+      setPasswordError(t("profile.errors.passwordRequired"));
+      return;
+    }
     setSubmitting(true);
     try {
       await updateUserData({
@@ -75,9 +95,12 @@ const EditProfileScreen = () => {
         newLastName: form.newLastName.trim(),
         newProfileDescription: form.newProfileDescription.trim(),
         profilePhoto: form.profilePhoto,
+        password: passwordInput.trim(),
       });
       await refreshAccessToken();
       await refreshAuth();
+      setConfirmVisible(false);
+      setPasswordInput("");
     } catch (e) {
       console.error("error while saving profile: ", e);
     } finally {
@@ -224,6 +247,57 @@ const EditProfileScreen = () => {
             </Button>
           </View>
         </ScrollView>
+        <Portal>
+          <Dialog
+            visible={confirmVisible}
+            onDismiss={() => setConfirmVisible(false)}
+          >
+            <Dialog.Title>
+              {t("profile.confirmChangeTitle", {
+                defaultValue: "Potwierdź zmianę danych",
+              })}
+            </Dialog.Title>
+            <Dialog.Content>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 88 : 0}
+              >
+                <Text style={{ marginBottom: 8 }}>
+                  {t("profile.confirmChangeMessage", {
+                    defaultValue:
+                      "Czy na pewno chcesz zmienić dane? Podaj hasło, aby potwierdzić.",
+                  })}
+                </Text>
+                <Input
+                  placeholder={t("profile.password")}
+                  value={passwordInput}
+                  onChangeText={(v) => {
+                    setPasswordInput(v);
+                    if (passwordError) setPasswordError("");
+                  }}
+                  secure
+                  mode="outlined"
+                  style={styles.inputStyle}
+                />
+                <HelperText type="error" visible={!!passwordError}>
+                  {passwordError}
+                </HelperText>
+              </KeyboardAvoidingView>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => setConfirmVisible(false)}>
+                {t("profile.cancel", { defaultValue: "Anuluj" })}
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleConfirmUpdate}
+                disabled={submitting}
+              >
+                {t("profile.confirm", { defaultValue: "Potwierdź" })}
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

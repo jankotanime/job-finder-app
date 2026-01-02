@@ -23,6 +23,10 @@
   },
   "register": {
     "get_started": "Get started",
+    "confirmChangeTitle": "Confirm data change",
+    "confirmChangeMessage": "Are you sure you want to change your data? Enter your password to confirm.",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
     "sign_in_question": "Already have an account?",
     "signing_up": "Signing up...",
     "username": "Username",
