@@ -133,6 +133,14 @@
     "apply": "Apply filters",
     "clear": "Clear filters"
   },
+  "offerManage": {
+    "applicantsHeader": "Applicants"
+  },
+  "cv": {
+    "title": "CV",
+    "openError": "Failed to open candidate CV",
+    "openErrorGeneric": "An error occurred while opening CV"
+  },
   "profile": {
     "editHeader": "Edit profile",
     "edit": "Edit your profile",
@@ -148,5 +156,8 @@
       "lastNameRequired": "Enter a last name",
       "passwordRequired": "Enter a password"
     }
+  },
+  "offerExtra": {
+    "candidate": "Candidate"
   }
 }

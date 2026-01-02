@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import { Text, useTheme, Button } from "react-native-paper";
+import { useTranslation } from "react-i18next";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import type { RouteProp } from "@react-navigation/native";
 import type { RootStackParamList } from "../../types/RootStackParamList";
@@ -13,6 +14,7 @@ const CvPreviewScreen = () => {
   const { colors } = useTheme();
   const route = useRoute<RouteProp<RootStackParamList, "CvPreview">>();
   const navigation = useNavigation<any>();
+  const { t } = useTranslation();
   const { cvUri, cvName } = route.params;
 
   return (
@@ -27,7 +29,7 @@ const CvPreviewScreen = () => {
         onPress={() => navigation.goBack()}
         style={{ marginTop: 25, width: width * 0.8 }}
       >
-        Zamknij
+        {t("offer.close")}
       </Button>
     </SafeAreaView>
   );

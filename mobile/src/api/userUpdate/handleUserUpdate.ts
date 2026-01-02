@@ -76,7 +76,6 @@ export const updateUserData = async (params: UpdateUserDataParams) => {
       true,
     ),
   );
-  console.log("result: ", result);
   if (error) console.error("update user-data error:", error);
   if (!result) throw new Error("No response received");
   return result;

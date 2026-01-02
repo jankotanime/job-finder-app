@@ -2,6 +2,7 @@ import { tryCatch } from "../../utils/try-catch";
 import { getTokens } from "../tokens/getTokens";
 import { AuthStatus } from "../../enums/authStatus";
 import getUsernameFromAccessToken from "../tokens/getUsernameFromAccessToken";
+import { apiFetch } from "../../api/client";
 interface FormState {
   firstName: string;
   lastName: string;
@@ -37,25 +38,25 @@ export async function handleProfileCompletionSubmit({
   }
   const { accessToken, refreshToken, refreshTokenId } = tokensObj;
   const username = getUsernameFromAccessToken(accessToken);
-  const [response, backendError] = await tryCatch(
-    fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile-completion-form`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+  const [result, backendError] = await tryCatch(
+    apiFetch(
+      "/profile-completion-form",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          firstName: formState.firstName,
+          lastName: formState.lastName,
+          profileDescription: formState.description,
+          profilePhoto: formState.profilePhoto,
+        }),
       },
-      body: JSON.stringify({
-        firstName: formState.firstName,
-        lastName: formState.lastName,
-        profileDescription: formState.description,
-        profilePhoto: formState.profilePhoto,
-      }),
-    }),
+      true,
+    ),
   );
-  const data = await response?.json();
+  const data = result?.body;
   console.log("data: ", data);
-  if (backendError || !response) {
-    return { ok: false, error: backendError || response };
+  if (backendError || !result || !result.response) {
+    return { ok: false, error: backendError || result };
   }
   const responseFinalRegistration = await completeFinalRegistration(
     data.data.accessToken,

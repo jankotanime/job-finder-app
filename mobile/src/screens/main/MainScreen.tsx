@@ -9,7 +9,7 @@ import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import { useAuth } from "../../contexts/AuthContext";
-import { getAllOffers } from "../../api/offers/handleOffersApi";
+import { applyForOffer, getAllOffers } from "../../api/offers/handleOffersApi";
 import { useTheme } from "react-native-paper";
 import { Offer } from "../../types/Offer";
 import OfferCard from "../../components/main/RenderCard";
@@ -27,23 +27,14 @@ import { buildPhotoUrl } from "../../utils/photoUrl";
 import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
 import useFilter from "../../hooks/useFilter";
 import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
+import { getCvsByUser } from "../../api/cv/handleCvApi";
 
 const { width, height } = Dimensions.get("window");
 
 const MainScreen = () => {
   const swiperRef = useRef<SwiperCardRefType | null>(null);
   const { colors } = useTheme();
-  const {
-    acceptedOffers,
-    declinedOffers,
-    storageOffers,
-    addAcceptedOffer,
-    removeAcceptedOffer,
-    addDeclinedOffer,
-    removeDeclinedOffer,
-    addStorageOffer,
-    removeStorageOffer,
-  } = useOfferStorageContext();
+  const { addStorageOffer } = useOfferStorageContext();
   const { tokens, loading, userInfo } = useAuth();
   const [offersData, setOffersData] = useState<Offer[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -91,7 +82,6 @@ const MainScreen = () => {
         ? page.body.data.content
         : [];
 
-      // console.log(items)
       const normalized = items.map((it: any) => ({
         ...it,
         offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
@@ -164,8 +154,29 @@ const MainScreen = () => {
             OverlayLabelBottom={() => (
               <OnSwipeBottom isActive={isActivePressAnim} />
             )}
-            onSwipeRight={() => {
+            onSwipeRight={async (index) => {
               collapseCard();
+              try {
+                const { body } = await getCvsByUser();
+                const list = Array.isArray(body?.data)
+                  ? body.data
+                  : Array.isArray(body)
+                    ? (body as any[])
+                    : [];
+                const cvId = list?.[0]?.id as string | undefined;
+                if (!cvId) {
+                  console.warn("no cv");
+                  return;
+                }
+                const offerIdToApply = offersData[index].id;
+                if (!offerIdToApply) {
+                  console.warn("no offer id");
+                  return;
+                }
+                const response = await applyForOffer(offerIdToApply, { cvId });
+              } catch (e) {
+                console.error("failed to fetch id", e);
+              }
             }}
             onPress={() => {
               onExpand();

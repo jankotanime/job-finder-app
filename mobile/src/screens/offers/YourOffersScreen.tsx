@@ -10,6 +10,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useTheme, Text } from "react-native-paper";
 import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { Offer } from "../../types/Offer";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,6 +23,7 @@ const YourOfferScreen = () => {
   const navigation = useNavigation<any>();
   const { colors } = useTheme();
   const { savedOffers } = useOfferStorageContext();
+  const { userInfo } = useAuth();
   const { t } = useTranslation();
   const numColumns = 2;
   const tileWidth = useMemo(() => width * 0.5 - 24, []);
@@ -36,7 +38,7 @@ const YourOfferScreen = () => {
       <TouchableOpacity
         style={[
           styles.tile,
-          { backgroundColor: colors.surface, width: tileWidth },
+          { backgroundColor: colors.onBackground, width: tileWidth },
         ]}
         onPress={() => navigation.navigate("OfferManage", { offer: item })}
       >
@@ -44,7 +46,7 @@ const YourOfferScreen = () => {
           <Image source={{ uri: photoUri }} style={styles.image} />
         ) : (
           <View
-            style={[styles.image, { backgroundColor: colors.background }]}
+            style={[styles.image, { backgroundColor: colors.onBackground }]}
           />
         )}
         <View style={styles.tileContent}>
@@ -64,7 +66,12 @@ const YourOfferScreen = () => {
       </TouchableOpacity>
     );
   };
-  console.log(savedOffers);
+  const myOffers = useMemo(() => {
+    const uid = userInfo?.userId ? String(userInfo.userId) : undefined;
+    if (!uid) return savedOffers || [];
+    return (savedOffers || []).filter((it: any) => String(it?.owner) === uid);
+  }, [savedOffers, userInfo?.userId]);
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -81,7 +88,7 @@ const YourOfferScreen = () => {
         </Text>
       </View>
       <FlatList
-        data={savedOffers}
+        data={myOffers}
         keyExtractor={(item) => keyFor(item)}
         renderItem={renderItem}
         numColumns={numColumns}

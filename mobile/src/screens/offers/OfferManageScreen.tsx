@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, useTheme } from "react-native-paper";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -17,65 +18,110 @@ import type { RouteProp } from "@react-navigation/native";
 import type { RootStackParamList } from "../../types/RootStackParamList";
 import { buildPhotoUrl } from "../../utils/photoUrl";
 import { getOfferById } from "../../api/offers/handleOffersApi";
+import { getCvById } from "../../api/cv/handleCvApi";
 
 const { width } = Dimensions.get("window");
 
-type Applicant = {
+type ApplicationItem = {
   id: string;
-  name: string;
-  appliedAt: string;
+  status?: string;
+  candidate?: {
+    id?: string;
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+  };
+  chosenCv?: {
+    id?: string;
+    storageKey?: string;
+  };
 };
 
-const mockApplicants: Applicant[] = [
-  { id: "1", name: "Jan Kowalski", appliedAt: "2025-12-20" },
-  { id: "2", name: "Anna Nowak", appliedAt: "2025-12-21" },
-  { id: "3", name: "Piotr Zieliński", appliedAt: "2025-12-22" },
-  { id: "4", name: "Kasia Wiśniewska", appliedAt: "2025-12-22" },
-  { id: "5", name: "Michał Krawczyk", appliedAt: "2025-12-23" },
-  { id: "6", name: "Ola Dąbrowska", appliedAt: "2025-12-24" },
-];
-
 const getCandidates = async (id: string) => {
-  const response = await getOfferById(id);
-  console.log(response.body.data);
+  const { body } = await getOfferById(id);
+  const apps = Array.isArray((body?.data as any)?.applications)
+    ? ((body?.data as any)?.applications as ApplicationItem[])
+    : [];
+  return apps;
 };
 
 const OfferManageScreen = () => {
   const navigation = useNavigation<any>();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const imageHeight = useMemo(() => Math.round(width * 0.55), []);
   const route = useRoute<RouteProp<RootStackParamList, "OfferManage">>();
+  const [applicants, setApplicants] = useState<ApplicationItem[]>([]);
   const offer = route.params?.offer;
-  console.log("offer: ", offer);
   const photoUri = buildPhotoUrl(offer?.photo?.storageKey ?? undefined);
   const offerId = offer?.id as string | undefined;
-  const onPressApplicant = (a: Applicant) => {
-    Alert.alert("Kandydat", `${a.name} — kliknięty`);
+  const onPressApplicant = async (a: ApplicationItem) => {
+    try {
+      const storageKey = a?.chosenCv?.storageKey;
+      let cvUri = storageKey ? buildPhotoUrl(storageKey) : undefined;
+      if (!cvUri && a?.chosenCv?.id) {
+        const { body } = await getCvById(String(a.chosenCv.id));
+        const key = (body?.data as any)?.storageKey;
+        if (key) cvUri = buildPhotoUrl(key);
+      }
+      if (!cvUri) {
+        Alert.alert(t("cv.title"), t("cv.openError"));
+        return;
+      }
+      navigation.navigate("CvPreview", { cvUri, cvName: t("cv.title") });
+    } catch (e) {
+      console.error("failed to open candidate cv", e);
+      Alert.alert(t("cv.title"), t("cv.openErrorGeneric"));
+    }
   };
-  const renderApplicant = ({ item }: { item: Applicant }) => (
-    <TouchableOpacity
-      onPress={() => onPressApplicant(item)}
-      style={[styles.applicantItem, { backgroundColor: colors.surface }]}
-    >
-      <View style={[styles.avatar, { backgroundColor: colors.background }]} />
-      <View style={styles.applicantContent}>
-        <Text variant="titleMedium" numberOfLines={1}>
-          {item.name}
-        </Text>
-        <Text variant="labelSmall" style={{ opacity: 0.7 }}>
-          Zgłoszono: {item.appliedAt}
-        </Text>
-      </View>
-      <Ionicons name="chevron-forward" size={20} color={colors.primary} />
-    </TouchableOpacity>
-  );
+  const renderApplicant = ({ item }: { item: ApplicationItem }) => {
+    const name =
+      item?.candidate?.name ||
+      [item?.candidate?.firstName, item?.candidate?.lastName]
+        .filter(Boolean)
+        .join(" ") ||
+      item?.candidate?.username ||
+      t("offerExtra.candidate");
+    const status = item?.status ? String(item.status) : "";
+    return (
+      <TouchableOpacity
+        onPress={() => onPressApplicant(item)}
+        style={[styles.applicantItem, { backgroundColor: colors.onBackground }]}
+      >
+        <View style={[styles.avatar, { backgroundColor: colors.background }]} />
+        <View style={styles.applicantContent}>
+          <Text variant="titleMedium" numberOfLines={1}>
+            {name}
+          </Text>
+          <Text variant="labelSmall" style={{ opacity: 0.7 }}>
+            {t("offer.status")}: {status}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={colors.primary} />
+      </TouchableOpacity>
+    );
+  };
+
+  useEffect(() => {
+    const apps = Array.isArray((offer as any)?.applications)
+      ? ((offer as any).applications as ApplicationItem[])
+      : [];
+    setApplicants(apps);
+    if ((!apps || apps.length === 0) && offerId) {
+      (async () => {
+        const fetched = await getCandidates(offerId);
+        setApplicants(fetched);
+      })();
+    }
+  }, [offer]);
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <FlatList
-        data={mockApplicants}
+        data={applicants}
         keyExtractor={(item) => item.id}
         renderItem={renderApplicant}
         showsVerticalScrollIndicator={false}
@@ -107,10 +153,14 @@ const OfferManageScreen = () => {
             </View>
             <View style={[styles.section, styles.candidatesHeaderRow]}>
               <Text variant="titleMedium" style={styles.subHeader}>
-                Zgłoszeni kandydaci
+                {t("offerManage.applicantsHeader")}
               </Text>
               <TouchableOpacity
-                onPress={() => offerId && getCandidates(offerId)}
+                onPress={async () => {
+                  if (!offerId) return;
+                  const fetched = await getCandidates(offerId);
+                  setApplicants(fetched);
+                }}
                 style={styles.refreshButton}
               >
                 <FontAwesome name="refresh" size={20} color={colors.primary} />

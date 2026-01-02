@@ -25,7 +25,7 @@ const OfferGrid = () => {
     <TouchableOpacity
       style={[
         styles.tile,
-        { backgroundColor: colors.surface, width: tileWidth },
+        { backgroundColor: colors.onBackground, width: tileWidth },
       ]}
     >
       {item?.offerPhoto ? (

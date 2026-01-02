@@ -167,8 +167,7 @@ const AddOfferScreen = () => {
       offerPhoto: form.offerPhoto,
     };
     const response = await createOffer(createPayload);
-    console.log("created Offer: ", response);
-    const saveOffer = response.body.data;
+    const saveOffer = { ...response.body.data, owner: form.owner };
     refreshOffers();
     await addSavedOffer(saveOffer);
     navigation.goBack();
