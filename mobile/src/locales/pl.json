@@ -74,7 +74,8 @@
     "support": "Wsparcie",
     "contactUs": "Skontaktuj się z nami",
     "logout": "Wyloguj",
-    "saved_offers": "Zapisane oferty"
+    "saved_offers": "Zapisane oferty",
+    "offers": "Twoje oferty"
   },
   "profileCompletion": {
     "firstName": "Imię",

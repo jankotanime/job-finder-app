@@ -57,7 +57,6 @@ const MainScreen = () => {
   const { t } = useTranslation();
   const { offersVersion } = useOfferStorageContext();
   const { filters } = useFilter();
-  console.log("userInfo: ", userInfo);
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -79,7 +78,6 @@ const MainScreen = () => {
     if (!tokens || loading || !userInfo?.userId) {
       return;
     }
-    console.log("filters: ", filters);
     let active = true;
     const load = async () => {
       let page;

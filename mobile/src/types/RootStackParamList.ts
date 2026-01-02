@@ -14,4 +14,5 @@ export type RootStackParamList = {
   };
   SmsGoogleCode: undefined;
   AddOffer: undefined;
+  YourOffersScreen: undefined;
 };

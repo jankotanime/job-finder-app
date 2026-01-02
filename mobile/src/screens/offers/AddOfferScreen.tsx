@@ -65,7 +65,7 @@ const AddOfferScreen = () => {
   const [date, setDate] = useState(new Date());
   const [isPhotoAvailable, setIsPhotoAvailable] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const { refreshOffers } = useOfferStorageContext();
+  const { refreshOffers, addSavedOffer } = useOfferStorageContext();
 
   useEffect(() => {
     let mounted = true;
@@ -168,6 +168,7 @@ const AddOfferScreen = () => {
     };
     await createOffer(createPayload);
     refreshOffers();
+    await addSavedOffer(offer);
     navigation.goBack();
   };
   const handlePickCamera = async () => {

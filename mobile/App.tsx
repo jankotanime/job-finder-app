@@ -9,7 +9,7 @@ import RegisterScreen from "./src/screens/pre-login/RegisterScreen";
 import MainScreen from "./src/screens/main/MainScreen";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import AuthLoadingScreen from "./src/components/pre-login/AuthLoadingScreen";
-import StorageScreen from "./src/screens/main/StorageScreen";
+import StorageScreen from "./src/screens/offers/StorageScreen";
 import MyProfile from "./src/screens/main/MyProfile";
 import LanguageMenu from "./src/screens/main/LanguageMenu";
 import ProfileCompletionFormScreen from "./src/screens/pre-login/ProfileCompletionFormScreen";
@@ -19,6 +19,7 @@ import { RootStackParamList } from "./src/types/RootStackParamList";
 import SmsGoogleCodeScreen from "./src/screens/pre-login/SmsGoogleCodeScreen";
 import AddOfferScreen from "./src/screens/offers/AddOfferScreen";
 import { OfferStorageProvider } from "./src/contexts/OfferStorageContext";
+import YourOffersScreen from "./src/screens/offers/YourOffersScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -58,6 +59,10 @@ export default function App() {
                 component={SmsGoogleCodeScreen}
               />
               <Stack.Screen name="AddOffer" component={AddOfferScreen} />
+              <Stack.Screen
+                name="YourOffersScreen"
+                component={YourOffersScreen}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </OfferStorageProvider>

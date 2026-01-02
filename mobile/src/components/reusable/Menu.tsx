@@ -18,6 +18,7 @@ import { createAnimation } from "../../utils/animationHelper";
 import { Linking } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import Entypo from "@expo/vector-icons/Entypo";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 const { width, height } = Dimensions.get("window");
 
@@ -159,6 +160,28 @@ const Menu = () => {
               />
               <Text style={[styles.menuItemText, { color: colors.onSurface }]}>
                 {t("menu.storage")}
+              </Text>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.menuItem,
+                { backgroundColor: colors.onBackground },
+              ]}
+              onPress={() => navigation.navigate("YourOffersScreen")}
+            >
+              <AntDesign
+                name="solution"
+                size={20}
+                color={colors.primary}
+                style={{ marginLeft: 2 }}
+              />
+              <Text style={[styles.menuItemText, { color: colors.onSurface }]}>
+                {t("menu.offers")}
               </Text>
               <Ionicons
                 name="chevron-forward"

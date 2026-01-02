@@ -74,7 +74,8 @@
     "support": "Support",
     "contactUs": "Contact Us",
     "logout": "Logout",
-    "saved_offers": "Saved offers"
+    "saved_offers": "Saved offers",
+    "offers": "Your offers"
   },
   "profileCompletion": {
     "firstName": "First name",
