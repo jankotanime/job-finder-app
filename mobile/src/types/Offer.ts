@@ -6,11 +6,15 @@ export type OfferPhoto = {
   data: string;
 };
 export type Offer = {
+  id?: string;
   title: string;
   description: string;
   salary: number;
   maxParticipants: number;
   tags: Tag[];
   offerPhoto?: string;
+  photo?: {
+    storageKey: string;
+  };
   dateAndTime: string;
 };

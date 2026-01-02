@@ -101,7 +101,7 @@ const ProfileCompletionFormScreen = () => {
     if (!response?.ok) {
       console.error("something went wrong: ", response?.data.message);
     }
-    navigation.navigate("Main");
+    navigation.navigate("CvSelect");
   };
   return (
     <>

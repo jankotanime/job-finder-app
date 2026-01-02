@@ -90,6 +90,8 @@ const MainScreen = () => {
       const items = Array.isArray(page?.body?.data?.content)
         ? page.body.data.content
         : [];
+
+      // console.log(items)
       const normalized = items.map((it: any) => ({
         ...it,
         offerPhoto: buildPhotoUrl(it?.photo?.storageKey),

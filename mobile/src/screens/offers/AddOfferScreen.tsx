@@ -166,9 +166,11 @@ const AddOfferScreen = () => {
       tags: form.tags,
       offerPhoto: form.offerPhoto,
     };
-    await createOffer(createPayload);
+    const response = await createOffer(createPayload);
+    console.log("created Offer: ", response);
+    const saveOffer = response.body.data;
     refreshOffers();
-    await addSavedOffer(offer);
+    await addSavedOffer(saveOffer);
     navigation.goBack();
   };
   const handlePickCamera = async () => {

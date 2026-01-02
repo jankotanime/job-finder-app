@@ -14,6 +14,7 @@ import { Offer } from "../../types/Offer";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { buildPhotoUrl } from "../../utils/photoUrl";
 
 const { width } = Dimensions.get("window");
 
@@ -27,36 +28,43 @@ const YourOfferScreen = () => {
 
   const keyFor = (o: Offer) => `${o.title}|${o.dateAndTime}`;
 
-  const renderItem = ({ item }: { item: Offer }) => (
-    <TouchableOpacity
-      style={[
-        styles.tile,
-        { backgroundColor: colors.surface, width: tileWidth },
-      ]}
-      // onPress={() => navigation.navigate("AddOffer")}
-    >
-      {item?.offerPhoto ? (
-        <Image source={{ uri: item.offerPhoto }} style={styles.image} />
-      ) : (
-        <View style={[styles.image, { backgroundColor: colors.background }]} />
-      )}
-      <View style={styles.tileContent}>
-        <Text variant="titleMedium" numberOfLines={1}>
-          {item.title}
-        </Text>
-        {typeof item.salary === "number" && (
-          <Text
-            variant="labelMedium"
-            style={{ opacity: 0.7 }}
-            numberOfLines={1}
-          >
-            {item.salary} zł
-          </Text>
+  const renderItem = ({ item }: { item: Offer }) => {
+    const photoUri = buildPhotoUrl(
+      (item as any)?.offerPhoto ?? (item as any)?.photo?.storageKey,
+    );
+    return (
+      <TouchableOpacity
+        style={[
+          styles.tile,
+          { backgroundColor: colors.surface, width: tileWidth },
+        ]}
+        onPress={() => navigation.navigate("OfferManage", { offer: item })}
+      >
+        {photoUri ? (
+          <Image source={{ uri: photoUri }} style={styles.image} />
+        ) : (
+          <View
+            style={[styles.image, { backgroundColor: colors.background }]}
+          />
         )}
-      </View>
-    </TouchableOpacity>
-  );
-
+        <View style={styles.tileContent}>
+          <Text variant="titleMedium" numberOfLines={1}>
+            {item.title}
+          </Text>
+          {typeof item.salary === "number" && (
+            <Text
+              variant="labelMedium"
+              style={{ opacity: 0.7 }}
+              numberOfLines={1}
+            >
+              {item.salary} zł
+            </Text>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+  console.log(savedOffers);
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}

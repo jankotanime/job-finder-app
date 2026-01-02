@@ -14,6 +14,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { buildPhotoUrl } from "../../utils/photoUrl";
 import Feather from "@expo/vector-icons/Feather";
 import { useTranslation } from "react-i18next";
+import { useNavigation } from "@react-navigation/native";
 
 const { height } = Dimensions.get("window");
 const MyProfile = () => {
@@ -21,6 +22,7 @@ const MyProfile = () => {
   const { userInfo } = useAuth();
   const photoUrl = buildPhotoUrl(userInfo?.profilePhoto ?? undefined);
   const { t } = useTranslation();
+  const navigation = useNavigation<any>();
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -68,7 +70,7 @@ const MyProfile = () => {
           <Button
             mode="contained"
             icon="account-edit"
-            onPress={() => {}}
+            onPress={() => navigation.navigate("EditProfile")}
             style={styles.mainButton}
           >
             {t("profile.edit")}

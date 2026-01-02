@@ -134,6 +134,19 @@
     "clear": "Clear filters"
   },
   "profile": {
-    "edit": "Edit your profile"
+    "editHeader": "Edit profile",
+    "edit": "Edit your profile",
+    "username": "Username",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "description": "Profile description",
+    "password": "Password",
+    "save": "Save changes",
+    "errors": {
+      "usernameRequired": "Enter a username",
+      "firstNameRequired": "Enter a first name",
+      "lastNameRequired": "Enter a last name",
+      "passwordRequired": "Enter a password"
+    }
   }
 }
