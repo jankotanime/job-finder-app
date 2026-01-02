@@ -369,6 +369,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         status: AuthStatus.REGISTERED,
       }),
     );
+    setTokens({
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
+    });
+    setTokensApiFetch({
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
+      refreshTokenId: refreshTokenId || "",
+    });
+    const info = getUserInfo(accessToken);
+    setUserInfo(info);
+    setUser(info?.username ?? username ?? "");
+    setIsAuthenticated(true);
     return { ok: true, status: AuthStatus.REGISTERED };
   };
 

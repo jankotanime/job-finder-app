@@ -57,6 +57,7 @@ const MainScreen = () => {
   const { t } = useTranslation();
   const { offersVersion } = useOfferStorageContext();
   const { filters } = useFilter();
+  console.log("userInfo: ", userInfo);
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,

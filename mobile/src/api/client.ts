@@ -102,6 +102,7 @@ export const apiFetch = async (
   options: RequestInit = {},
   retry: boolean = true,
 ): Promise<{ response: Response; body: any }> => {
+  await ensureTokensFromStorage();
   const fetchWithToken = async (): Promise<Response> => {
     const headers: Record<string, string> = {
       ...((options.headers as Record<string, string>) || {}),
