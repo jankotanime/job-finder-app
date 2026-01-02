@@ -4,6 +4,8 @@ export type User = {
   firstName: string | null;
   lastName: string | null;
   phoneNumber: string | null;
+  email: string | null;
+  profilePhoto: string | null;
 };
 
 export const getUserInfo = (access?: string | null): User | null => {
@@ -15,16 +17,14 @@ export const getUserInfo = (access?: string | null): User | null => {
     const { Buffer } = require("buffer");
     const decoded = Buffer.from(payload, "base64").toString("utf8");
     const parsedPayload = JSON.parse(decoded);
-    const username: string | null =
-      parsedPayload?.username ?? parsedPayload?.sub ?? null;
+    const username: string | null = parsedPayload?.username ?? null;
     const userId: string | null =
       parsedPayload?.userId ?? parsedPayload?.sub ?? null;
-    const firstName: string | null =
-      parsedPayload?.firstName ?? parsedPayload?.sub ?? null;
-    const lastName: string | null =
-      parsedPayload?.lastName ?? parsedPayload?.sub ?? null;
-    let phoneNumberVal: string | null =
-      parsedPayload?.phoneNumber ?? parsedPayload?.sub ?? null;
+    const firstName: string | null = parsedPayload?.firstName ?? null;
+    const email: string | null = parsedPayload?.email ?? null;
+    const profilePhoto: string | null = parsedPayload?.profilePhoto ?? null;
+    const lastName: string | null = parsedPayload?.lastName ?? null;
+    let phoneNumberVal: string | null = parsedPayload?.phoneNumber ?? null;
     if (phoneNumberVal != null && typeof phoneNumberVal !== "string") {
       phoneNumberVal = String(phoneNumberVal);
     }
@@ -34,6 +34,8 @@ export const getUserInfo = (access?: string | null): User | null => {
       firstName,
       lastName,
       phoneNumber: phoneNumberVal,
+      profilePhoto,
+      email,
     };
     return user || null;
   } catch (e) {

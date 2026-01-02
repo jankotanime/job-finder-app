@@ -7,6 +7,9 @@ export const useOfferStorage = () => {
   const [acceptedOffers, setAcceptedOffers] = useState<Offer[]>([]);
   const [declinedOffers, setDeclinedOffers] = useState<Offer[]>([]);
   const [storageOffers, setStorageOffers] = useState<Offer[]>([]);
+  const [savedOffers, setSavedOffers] = useState<Offer[]>([]);
+
+  const makeOfferKey = (offer: Offer) => `${offer.title}|${offer.dateAndTime}`;
 
   useEffect(() => {
     const loadOffers = async () => {
@@ -27,6 +30,12 @@ export const useOfferStorage = () => {
       );
       if (storageJson) setStorageOffers(JSON.parse(storageJson));
       if (errS) console.error("failed to load storage offers: ", errS);
+
+      const [savedJson, errSaved] = await tryCatch(
+        AsyncStorage.getItem("savedOffers"),
+      );
+      if (savedJson) setSavedOffers(JSON.parse(savedJson));
+      if (errSaved) console.error("failed to load saved offers: ", errSaved);
     };
     loadOffers();
   }, []);
@@ -108,16 +117,63 @@ export const useOfferStorage = () => {
     [storageOffers],
   );
 
+  const addSavedOffer = useCallback(
+    async (offer: Offer) => {
+      const key = makeOfferKey(offer);
+      const deduped = savedOffers.filter((o) => makeOfferKey(o) !== key);
+      const newOffers = [...deduped, offer];
+      setSavedOffers(newOffers);
+      const [_, error] = await tryCatch(
+        AsyncStorage.setItem("savedOffers", JSON.stringify(newOffers)),
+      );
+      if (error) console.error("failed to add saved offer: ", error);
+    },
+    [savedOffers],
+  );
+
+  const removeSavedOffer = useCallback(
+    async (offer: Offer) => {
+      const key = makeOfferKey(offer);
+      const newOffers = savedOffers.filter((o) => makeOfferKey(o) !== key);
+      setSavedOffers(newOffers);
+      const [_, error] = await tryCatch(
+        AsyncStorage.setItem("savedOffers", JSON.stringify(newOffers)),
+      );
+      if (error) console.error("failed to remove saved offer: ", error);
+    },
+    [savedOffers],
+  );
+
+  const resetOfferStorage = useCallback(async () => {
+    setAcceptedOffers([]);
+    setDeclinedOffers([]);
+    setStorageOffers([]);
+    setSavedOffers([]);
+    const [_, error] = await tryCatch(
+      AsyncStorage.multiRemove([
+        "acceptedOffers",
+        "declinedOffers",
+        "storageOffers",
+        "savedOffers",
+      ]),
+    );
+    if (error) console.error("failed to reset offer storage: ", error);
+  }, []);
+
   return {
     acceptedOffers,
     declinedOffers,
     storageOffers,
+    savedOffers,
     addAcceptedOffer,
     removeAcceptedOffer,
     addDeclinedOffer,
     removeDeclinedOffer,
     addStorageOffer,
     removeStorageOffer,
+    addSavedOffer,
+    removeSavedOffer,
+    resetOfferStorage,
   };
 };
 

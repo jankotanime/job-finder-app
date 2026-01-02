@@ -23,6 +23,10 @@
   },
   "register": {
     "get_started": "Zarejestruj się",
+    "confirmChangeTitle": "Potwierdź zmianę danych",
+    "confirmChangeMessage": "Czy na pewno chcesz zmienić dane? Podaj hasło, aby potwierdzić.",
+    "confirm": "Potwierdź",
+    "cancel": "Anuluj",
     "sign_in_question": "Masz już konto?",
     "signing_up": "Rejestrowanie...",
     "username": "Nazwa",
@@ -74,7 +78,8 @@
     "support": "Wsparcie",
     "contactUs": "Skontaktuj się z nami",
     "logout": "Wyloguj",
-    "saved_offers": "Zapisane oferty"
+    "saved_offers": "Zapisane oferty",
+    "offers": "Twoje oferty"
   },
   "profileCompletion": {
     "firstName": "Imię",
@@ -131,5 +136,32 @@
   "filter": {
     "apply": "Zastosuj filtry",
     "clear": "Wyczyść filtry"
+  },
+  "offerManage": {
+    "applicantsHeader": "Zgłoszeni kandydaci"
+  },
+  "cv": {
+    "title": "CV",
+    "openError": "Nie udało się otworzyć CV kandydata",
+    "openErrorGeneric": "Wystąpił błąd podczas otwierania CV"
+  },
+  "profile": {
+    "editHeader": "Edytuj profil",
+    "edit": "Edytuj profil",
+    "username": "Nazwa użytkownika",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "description": "Opis profilu",
+    "password": "Hasło",
+    "save": "Zapisz zmiany",
+    "errors": {
+      "usernameRequired": "Podaj nazwę użytkownika",
+      "firstNameRequired": "Podaj imię",
+      "lastNameRequired": "Podaj nazwisko",
+      "passwordRequired": "Podaj hasło"
+    }
+  },
+  "offerExtra": {
+    "candidate": "Kandydat"
   }
 }

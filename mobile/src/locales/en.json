@@ -23,6 +23,10 @@
   },
   "register": {
     "get_started": "Get started",
+    "confirmChangeTitle": "Confirm data change",
+    "confirmChangeMessage": "Are you sure you want to change your data? Enter your password to confirm.",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
     "sign_in_question": "Already have an account?",
     "signing_up": "Signing up...",
     "username": "Username",
@@ -74,7 +78,8 @@
     "support": "Support",
     "contactUs": "Contact Us",
     "logout": "Logout",
-    "saved_offers": "Saved offers"
+    "saved_offers": "Saved offers",
+    "offers": "Your offers"
   },
   "profileCompletion": {
     "firstName": "First name",
@@ -131,5 +136,32 @@
   "filter": {
     "apply": "Apply filters",
     "clear": "Clear filters"
+  },
+  "offerManage": {
+    "applicantsHeader": "Applicants"
+  },
+  "cv": {
+    "title": "CV",
+    "openError": "Failed to open candidate CV",
+    "openErrorGeneric": "An error occurred while opening CV"
+  },
+  "profile": {
+    "editHeader": "Edit profile",
+    "edit": "Edit your profile",
+    "username": "Username",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "description": "Profile description",
+    "password": "Password",
+    "save": "Save changes",
+    "errors": {
+      "usernameRequired": "Enter a username",
+      "firstNameRequired": "Enter a first name",
+      "lastNameRequired": "Enter a last name",
+      "passwordRequired": "Enter a password"
+    }
+  },
+  "offerExtra": {
+    "candidate": "Candidate"
   }
 }

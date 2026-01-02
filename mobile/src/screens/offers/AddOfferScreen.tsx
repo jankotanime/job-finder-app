@@ -65,7 +65,7 @@ const AddOfferScreen = () => {
   const [date, setDate] = useState(new Date());
   const [isPhotoAvailable, setIsPhotoAvailable] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const { refreshOffers } = useOfferStorageContext();
+  const { refreshOffers, addSavedOffer } = useOfferStorageContext();
 
   useEffect(() => {
     let mounted = true;
@@ -166,8 +166,10 @@ const AddOfferScreen = () => {
       tags: form.tags,
       offerPhoto: form.offerPhoto,
     };
-    await createOffer(createPayload);
+    const response = await createOffer(createPayload);
+    const saveOffer = { ...response.body.data, owner: form.owner };
     refreshOffers();
+    await addSavedOffer(saveOffer);
     navigation.goBack();
   };
   const handlePickCamera = async () => {

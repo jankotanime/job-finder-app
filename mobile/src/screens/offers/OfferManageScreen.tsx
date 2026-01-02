@@ -1,0 +1,246 @@
+import React, { useMemo, useEffect, useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Image,
+  Dimensions,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Text, useTheme } from "react-native-paper";
+import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import type { RouteProp } from "@react-navigation/native";
+import type { RootStackParamList } from "../../types/RootStackParamList";
+import { buildPhotoUrl } from "../../utils/photoUrl";
+import { getOfferById } from "../../api/offers/handleOffersApi";
+import { getCvById } from "../../api/cv/handleCvApi";
+
+const { width } = Dimensions.get("window");
+
+type ApplicationItem = {
+  id: string;
+  status?: string;
+  candidate?: {
+    id?: string;
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+  };
+  chosenCv?: {
+    id?: string;
+    storageKey?: string;
+  };
+};
+
+const getCandidates = async (id: string) => {
+  const { body } = await getOfferById(id);
+  const apps = Array.isArray((body?.data as any)?.applications)
+    ? ((body?.data as any)?.applications as ApplicationItem[])
+    : [];
+  return apps;
+};
+
+const OfferManageScreen = () => {
+  const navigation = useNavigation<any>();
+  const { colors } = useTheme();
+  const { t } = useTranslation();
+  const imageHeight = useMemo(() => Math.round(width * 0.55), []);
+  const route = useRoute<RouteProp<RootStackParamList, "OfferManage">>();
+  const [applicants, setApplicants] = useState<ApplicationItem[]>([]);
+  const offer = route.params?.offer;
+  const photoUri = buildPhotoUrl(offer?.photo?.storageKey ?? undefined);
+  const offerId = offer?.id as string | undefined;
+  const onPressApplicant = async (a: ApplicationItem) => {
+    try {
+      const storageKey = a?.chosenCv?.storageKey;
+      let cvUri = storageKey ? buildPhotoUrl(storageKey) : undefined;
+      if (!cvUri && a?.chosenCv?.id) {
+        const { body } = await getCvById(String(a.chosenCv.id));
+        const key = (body?.data as any)?.storageKey;
+        if (key) cvUri = buildPhotoUrl(key);
+      }
+      if (!cvUri) {
+        Alert.alert(t("cv.title"), t("cv.openError"));
+        return;
+      }
+      navigation.navigate("CvPreview", { cvUri, cvName: t("cv.title") });
+    } catch (e) {
+      console.error("failed to open candidate cv", e);
+      Alert.alert(t("cv.title"), t("cv.openErrorGeneric"));
+    }
+  };
+  const renderApplicant = ({ item }: { item: ApplicationItem }) => {
+    const name =
+      item?.candidate?.name ||
+      [item?.candidate?.firstName, item?.candidate?.lastName]
+        .filter(Boolean)
+        .join(" ") ||
+      item?.candidate?.username ||
+      t("offerExtra.candidate");
+    const status = item?.status ? String(item.status) : "";
+    return (
+      <TouchableOpacity
+        onPress={() => onPressApplicant(item)}
+        style={[styles.applicantItem, { backgroundColor: colors.onBackground }]}
+      >
+        <View style={[styles.avatar, { backgroundColor: colors.background }]} />
+        <View style={styles.applicantContent}>
+          <Text variant="titleMedium" numberOfLines={1}>
+            {name}
+          </Text>
+          <Text variant="labelSmall" style={{ opacity: 0.7 }}>
+            {t("offer.status")}: {status}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={colors.primary} />
+      </TouchableOpacity>
+    );
+  };
+
+  useEffect(() => {
+    const apps = Array.isArray((offer as any)?.applications)
+      ? ((offer as any).applications as ApplicationItem[])
+      : [];
+    setApplicants(apps);
+    if ((!apps || apps.length === 0) && offerId) {
+      (async () => {
+        const fetched = await getCandidates(offerId);
+        setApplicants(fetched);
+      })();
+    }
+  }, [offer]);
+
+  return (
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <FlatList
+        data={applicants}
+        keyExtractor={(item) => item.id}
+        renderItem={renderApplicant}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View>
+            {photoUri ? (
+              <Image
+                source={{ uri: photoUri }}
+                style={[styles.image, { height: imageHeight }]}
+              />
+            ) : (
+              <View
+                style={[
+                  styles.image,
+                  { height: imageHeight, backgroundColor: colors.surface },
+                ]}
+              />
+            )}
+            <View style={styles.section}>
+              <Text variant="titleLarge" style={styles.title}>
+                {offer.title}
+              </Text>
+              <Text variant="titleMedium" style={{ opacity: 0.8 }}>
+                {typeof offer.salary === "number" ? `${offer.salary} zł` : ""}
+              </Text>
+              <Text variant="bodyMedium" style={styles.description}>
+                {offer.description}
+              </Text>
+            </View>
+            <View style={[styles.section, styles.candidatesHeaderRow]}>
+              <Text variant="titleMedium" style={styles.subHeader}>
+                {t("offerManage.applicantsHeader")}
+              </Text>
+              <TouchableOpacity
+                onPress={async () => {
+                  if (!offerId) return;
+                  const fetched = await getCandidates(offerId);
+                  setApplicants(fetched);
+                }}
+                style={styles.refreshButton}
+              >
+                <FontAwesome name="refresh" size={20} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        }
+        contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 12 }}
+      />
+    </SafeAreaView>
+  );
+};
+
+export default OfferManageScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    marginBottom: 8,
+  },
+  backButton: {
+    padding: 6,
+    marginRight: 12,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "700",
+  },
+  image: {
+    width: "100%",
+    borderRadius: 25,
+  },
+  section: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  title: {
+    marginBottom: 4,
+  },
+  description: {
+    marginTop: 8,
+  },
+  subHeader: {
+    marginBottom: 6,
+    fontWeight: "600",
+  },
+  candidatesHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  refreshButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  list: {
+    paddingBottom: 24,
+    gap: 8,
+  },
+  applicantItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  applicantContent: {
+    flex: 1,
+  },
+});
