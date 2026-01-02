@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState, useCallback } from "react";
 import {
   StyleSheet,
   View,
@@ -11,32 +11,22 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, useTheme } from "react-native-paper";
 import { useTranslation } from "react-i18next";
-import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from "@react-navigation/native";
 import type { RouteProp } from "@react-navigation/native";
 import type { RootStackParamList } from "../../types/RootStackParamList";
 import { buildPhotoUrl } from "../../utils/photoUrl";
 import { getOfferById } from "../../api/offers/handleOffersApi";
 import { getCvById } from "../../api/cv/handleCvApi";
+import RenderApplicant from "../../components/main/offers/RenderApplicant";
+import { ApplicationItem } from "../../types/Applicants";
+import { useApplicants } from "../../hooks/useApplicants";
 
 const { width } = Dimensions.get("window");
-
-type ApplicationItem = {
-  id: string;
-  status?: string;
-  candidate?: {
-    id?: string;
-    name?: string;
-    firstName?: string;
-    lastName?: string;
-    username?: string;
-  };
-  chosenCv?: {
-    id?: string;
-    storageKey?: string;
-  };
-};
 
 const getCandidates = async (id: string) => {
   const { body } = await getOfferById(id);
@@ -56,6 +46,19 @@ const OfferManageScreen = () => {
   const offer = route.params?.offer;
   const photoUri = buildPhotoUrl(offer?.photo?.storageKey ?? undefined);
   const offerId = offer?.id as string | undefined;
+  const { chosenApplicants, reload, isReady } = useApplicants({ offerId });
+
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+      return () => {};
+    }, [reload]),
+  );
+
+  useEffect(() => {
+    if (isReady) reload();
+  }, [isReady, reload]);
+
   const onPressApplicant = async (a: ApplicationItem) => {
     try {
       const storageKey = a?.chosenCv?.storageKey;
@@ -69,38 +72,17 @@ const OfferManageScreen = () => {
         Alert.alert(t("cv.title"), t("cv.openError"));
         return;
       }
-      navigation.navigate("CvPreview", { cvUri, cvName: t("cv.title") });
+      navigation.navigate("CvPreview", {
+        cvUri,
+        cvName: t("cv.title"),
+        manage: true,
+        offerId: offerId,
+        applicant: a,
+      });
     } catch (e) {
       console.error("failed to open candidate cv", e);
       Alert.alert(t("cv.title"), t("cv.openErrorGeneric"));
     }
-  };
-  const renderApplicant = ({ item }: { item: ApplicationItem }) => {
-    const name =
-      item?.candidate?.name ||
-      [item?.candidate?.firstName, item?.candidate?.lastName]
-        .filter(Boolean)
-        .join(" ") ||
-      item?.candidate?.username ||
-      t("offerExtra.candidate");
-    const status = item?.status ? String(item.status) : "";
-    return (
-      <TouchableOpacity
-        onPress={() => onPressApplicant(item)}
-        style={[styles.applicantItem, { backgroundColor: colors.onBackground }]}
-      >
-        <View style={[styles.avatar, { backgroundColor: colors.background }]} />
-        <View style={styles.applicantContent}>
-          <Text variant="titleMedium" numberOfLines={1}>
-            {name}
-          </Text>
-          <Text variant="labelSmall" style={{ opacity: 0.7 }}>
-            {t("offer.status")}: {status}
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color={colors.primary} />
-      </TouchableOpacity>
-    );
   };
 
   useEffect(() => {
@@ -123,7 +105,16 @@ const OfferManageScreen = () => {
       <FlatList
         data={applicants}
         keyExtractor={(item) => item.id}
-        renderItem={renderApplicant}
+        renderItem={({ item }) => {
+          const isSelected = chosenApplicants.some((a) => a.id === item.id);
+          return (
+            <RenderApplicant
+              item={item}
+              onPress={onPressApplicant}
+              selected={isSelected}
+            />
+          );
+        }}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View>
@@ -155,16 +146,31 @@ const OfferManageScreen = () => {
               <Text variant="titleMedium" style={styles.subHeader}>
                 {t("offerManage.applicantsHeader")}
               </Text>
-              <TouchableOpacity
-                onPress={async () => {
-                  if (!offerId) return;
-                  const fetched = await getCandidates(offerId);
-                  setApplicants(fetched);
-                }}
-                style={styles.refreshButton}
-              >
-                <FontAwesome name="refresh" size={20} color={colors.primary} />
-              </TouchableOpacity>
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                <TouchableOpacity
+                  onPress={async () => {
+                    if (!offerId) return;
+                    const fetched = await getCandidates(offerId);
+                    setApplicants(fetched);
+                  }}
+                  style={styles.refreshButton}
+                >
+                  <FontAwesome
+                    name="refresh"
+                    size={20}
+                    color={colors.primary}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    offerId &&
+                    navigation.navigate("ChosenApplicants", { offerId })
+                  }
+                  style={styles.refreshButton}
+                >
+                  <FontAwesome name="list" size={20} color={colors.primary} />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         }

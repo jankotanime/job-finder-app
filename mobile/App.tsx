@@ -24,6 +24,7 @@ import EditProfileScreen from "./src/screens/profile/EditProfileScreen";
 import OfferManageScreen from "./src/screens/offers/OfferManageScreen";
 import CvSelectScreen from "./src/screens/pre-login/CvSelectScreen";
 import CvPreviewScreen from "./src/screens/pre-login/CvPreviewScreen";
+import ChosenApplicantsScreen from "./src/screens/offers/ChosenApplicantsScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -71,6 +72,10 @@ export default function App() {
               <Stack.Screen name="OfferManage" component={OfferManageScreen} />
               <Stack.Screen name="CvSelect" component={CvSelectScreen} />
               <Stack.Screen name="CvPreview" component={CvPreviewScreen} />
+              <Stack.Screen
+                name="ChosenApplicants"
+                component={ChosenApplicantsScreen}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </OfferStorageProvider>

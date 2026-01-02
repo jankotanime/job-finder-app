@@ -131,7 +131,8 @@
       "maxParticipantsInvalid": "Podaj maksymalną ilość uczestników",
       "ownerRequired": "Podaj właściciela",
       "chosenCandidateInvalid": "Wybrany kandydat musi być na liście"
-    }
+    },
+    "contract": "Zakontraktuj"
   },
   "filter": {
     "apply": "Zastosuj filtry",
@@ -163,5 +164,11 @@
   },
   "offerExtra": {
     "candidate": "Kandydat"
+  },
+  "chosenApplicants": {
+    "header": "Wybrani kandydaci"
+  },
+  "common": {
+    "emptyApplicants": "Brak wybranych kandydatów"
   }
 }
