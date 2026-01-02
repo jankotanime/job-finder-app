@@ -157,6 +157,40 @@ Każdy członek zespołu ma lokalnie tę samą bazę danych i rekordy, co w repo
 
 ---
 
+## Workflow gałęzi: `main` → `production`
+
+Ten fragment opisuje sposób aktualizowania gałęzi `production`, która służy **wyłącznie do deployu**.
+
+---
+
+###  Struktura gałęzi
+
+### `main`
+- gałąź **rozwojowa**
+- trafiają tu wszystkie nowe funkcjonalności i poprawki
+- na niej pracuje cały zespół
+
+### `production`
+- gałąź **deployowa**
+- **nikt nie pracuje na niej bezpośrednio**
+- zawiera **kod aktualnie wdrażany na produkcję**
+- jest aktualizowana wyłącznie na podstawie `main`
+
+---
+
+###  Aktualizacja `production`
+
+Z racji, że `production` **nie zawiera** własnych commitów i służy tylko do **deployu** to aktualizacja `production` jest prosta:
+
+```bash
+git fetch origin
+git checkout production
+git reset --hard origin/main
+git push origin production --force
+```
+
+---
+
 ## FAQ
 
 **Jak mogę sprawdzić dane w bazie z terminala?**
