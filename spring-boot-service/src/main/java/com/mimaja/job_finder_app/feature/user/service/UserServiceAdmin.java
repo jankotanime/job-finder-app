@@ -3,6 +3,7 @@ package com.mimaja.job_finder_app.feature.user.service;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelResponseDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelUpdateRequestDto;
+import com.mimaja.job_finder_app.feature.user.dto.UserFilterRequestDto;
 import com.mimaja.job_finder_app.feature.user.mapper.UserMapper;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,11 @@ public class UserServiceAdmin {
     private final UserDeletionService userDeletionService;
     private final UserMapper userMapper;
 
-    public Page<UserAdminPanelResponseDto> getAllUsers(Pageable pageable) {
-        return userService.getAllUsers(pageable).map(userMapper::toUserAdminPanelResponseDto);
+    public Page<UserAdminPanelResponseDto> getAllUsers(
+            UserFilterRequestDto userFilterRequestDto, Pageable pageable) {
+        return userService
+                .getAllUsers(userFilterRequestDto, pageable)
+                .map(userMapper::toUserAdminPanelResponseDto);
     }
 
     public UserAdminPanelResponseDto createUser(UserAdminPanelCreateRequestDto dto) {

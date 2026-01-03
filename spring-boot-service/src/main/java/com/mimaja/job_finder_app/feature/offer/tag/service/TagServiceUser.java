@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.tag.service;
 
+import com.mimaja.job_finder_app.feature.offer.tag.dto.TagFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.mapper.TagMapper;
 import java.util.UUID;
@@ -14,8 +15,9 @@ public class TagServiceUser {
     private final TagService tagService;
     private final TagMapper tagMapper;
 
-    public Page<TagResponseDto> getAllTags(Pageable pageable) {
-        return tagService.getAllTags(pageable).map(tagMapper::toResponseDto);
+    public Page<TagResponseDto> getAllTags(
+            TagFilterRequestDto tagFilterRequestDto, Pageable pageable) {
+        return tagService.getAllTags(tagFilterRequestDto, pageable).map(tagMapper::toResponseDto);
     }
 
     public Page<TagResponseDto> getAllByCategoryId(UUID categoryId, Pageable pageable) {
