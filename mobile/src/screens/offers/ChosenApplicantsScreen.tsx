@@ -19,8 +19,6 @@ import { useTranslation } from "react-i18next";
 import type { RouteProp } from "@react-navigation/native";
 import type { RootStackParamList } from "../../types/RootStackParamList";
 
-const { width } = Dimensions.get("window");
-
 const ChosenApplicantsScreen: React.FC = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();

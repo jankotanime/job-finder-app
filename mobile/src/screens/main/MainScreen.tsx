@@ -5,7 +5,14 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { View, StyleSheet, Dimensions, Animated, Text } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  Animated,
+  Text,
+  Alert,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import { useAuth } from "../../contexts/AuthContext";
@@ -27,7 +34,9 @@ import { buildPhotoUrl } from "../../utils/photoUrl";
 import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
 import useFilter from "../../hooks/useFilter";
 import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
-import { getCvsByUser } from "../../api/cv/handleCvApi";
+// import { getCvsByUser } from "../../api/cv/handleCvApi";
+import CvChoseButton from "../../components/main/CvChoseButton";
+import useSelectCv from "../../hooks/useSelectCv";
 
 const { width, height } = Dimensions.get("window");
 
@@ -48,6 +57,7 @@ const MainScreen = () => {
   const { t } = useTranslation();
   const { offersVersion } = useOfferStorageContext();
   const { filters } = useFilter();
+  const { selectedIds } = useSelectCv();
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -66,6 +76,7 @@ const MainScreen = () => {
   useEffect(() => {
     setOffersData([]);
     setCurrentIndex(0);
+    console.log(selectedIds);
     if (!tokens || loading || !userInfo?.userId) {
       return;
     }
@@ -95,7 +106,7 @@ const MainScreen = () => {
     return () => {
       active = false;
     };
-  }, [tokens, loading, userInfo?.userId, offersVersion]);
+  }, [tokens, loading, userInfo?.userId, offersVersion, selectedIds]);
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView
@@ -157,25 +168,19 @@ const MainScreen = () => {
             onSwipeRight={async (index) => {
               collapseCard();
               try {
-                const { body } = await getCvsByUser();
-                const list = Array.isArray(body?.data)
-                  ? body.data
-                  : Array.isArray(body)
-                    ? (body as any[])
-                    : [];
-                const cvId = list?.[0]?.id as string | undefined;
+                const cvId = selectedIds?.[0];
                 if (!cvId) {
-                  console.warn("no cv");
+                  Alert.alert(t("cv.title"), t("cv.selectionUserMissing"));
                   return;
                 }
-                const offerIdToApply = offersData[index].id;
+                const offerIdToApply = offersData[index]?.id;
                 if (!offerIdToApply) {
                   console.warn("no offer id");
                   return;
                 }
-                const response = await applyForOffer(offerIdToApply, { cvId });
+                await applyForOffer(offerIdToApply, { cvId });
               } catch (e) {
-                console.error("failed to fetch id", e);
+                console.error("failed to apply for offer", e);
               }
             }}
             onPress={() => {
@@ -194,6 +199,7 @@ const MainScreen = () => {
             }}
           />
         </View>
+        <CvChoseButton />
         <AddOfferButton />
       </GestureHandlerRootView>
     </View>

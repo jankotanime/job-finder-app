@@ -144,7 +144,19 @@
   "cv": {
     "title": "CV",
     "openError": "Nie udało się otworzyć CV kandydata",
-    "openErrorGeneric": "Wystąpił błąd podczas otwierania CV"
+    "openErrorGeneric": "Wystąpił błąd podczas otwierania CV",
+    "selectionUserMissing": "Brak użytkownika — zaloguj się, aby wybrać CV",
+    "selectionSaved": "Zapisano wybór CV",
+    "selectionSaveError": "Nie udało się zapisać wyboru CV",
+    "item": "CV",
+    "selectHint": "Zaznacz maksymalnie 1 CV",
+    "chooseHeader": "Wybierz CV",
+    "selectedCount": "Wybrane: {{count}} / {{max}}",
+    "emptyList": "Brak dostępnych CV",
+    "confirmSelection": "Zatwierdź wybór",
+    "add": "Dodaj CV",
+    "premiumOnly": "Tylko dla użytkowników premium",
+    "maxReached": "Osiągnięto limit CV"
   },
   "profile": {
     "editHeader": "Edytuj profil",

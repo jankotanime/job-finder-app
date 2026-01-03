@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, useTheme } from "react-native-paper";
+import { Button, Text, useTheme } from "react-native-paper";
 import { useTranslation } from "react-i18next";
 import { FontAwesome } from "@expo/vector-icons";
 import {
@@ -25,8 +25,9 @@ import { getCvById } from "../../api/cv/handleCvApi";
 import RenderApplicant from "../../components/main/offers/RenderApplicant";
 import { ApplicationItem } from "../../types/Applicants";
 import { useApplicants } from "../../hooks/useApplicants";
+import { createJob } from "../../api/jobs/handleJobApi";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const getCandidates = async (id: string) => {
   const { body } = await getOfferById(id);
@@ -45,7 +46,7 @@ const OfferManageScreen = () => {
   const [applicants, setApplicants] = useState<ApplicationItem[]>([]);
   const offer = route.params?.offer;
   const photoUri = buildPhotoUrl(offer?.photo?.storageKey ?? undefined);
-  const offerId = offer?.id as string | undefined;
+  const offerId = offer?.id as string;
   const { chosenApplicants, reload, isReady } = useApplicants({ offerId });
 
   useFocusEffect(
@@ -54,7 +55,6 @@ const OfferManageScreen = () => {
       return () => {};
     }, [reload]),
   );
-
   useEffect(() => {
     if (isReady) reload();
   }, [isReady, reload]);
@@ -84,7 +84,10 @@ const OfferManageScreen = () => {
       Alert.alert(t("cv.title"), t("cv.openErrorGeneric"));
     }
   };
-
+  const handleAccept = async (offerId: string) => {
+    const response = await createJob(offerId);
+    console.log("created job: ", response);
+  };
   useEffect(() => {
     const apps = Array.isArray((offer as any)?.applications)
       ? ((offer as any).applications as ApplicationItem[])
@@ -97,7 +100,6 @@ const OfferManageScreen = () => {
       })();
     }
   }, [offer]);
-
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -143,9 +145,14 @@ const OfferManageScreen = () => {
               </Text>
             </View>
             <View style={[styles.section, styles.candidatesHeaderRow]}>
-              <Text variant="titleMedium" style={styles.subHeader}>
-                {t("offerManage.applicantsHeader")}
-              </Text>
+              <View>
+                <Text variant="titleMedium" style={styles.subHeader}>
+                  {t("offerManage.applicantsHeader")}
+                </Text>
+                <Text>
+                  {applicants.length} / {(offer as any).maxApplications}
+                </Text>
+              </View>
               <View style={{ flexDirection: "row", gap: 8 }}>
                 <TouchableOpacity
                   onPress={async () => {
@@ -176,6 +183,14 @@ const OfferManageScreen = () => {
         }
         contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 12 }}
       />
+      <Button
+        mode="contained"
+        style={styles.confirmButton}
+        disabled={chosenApplicants.length <= 0}
+        onPress={() => handleAccept(offerId)}
+      >
+        Zatwierdz chec wspolpracy
+      </Button>
     </SafeAreaView>
   );
 };
@@ -248,5 +263,10 @@ const styles = StyleSheet.create({
   },
   applicantContent: {
     flex: 1,
+  },
+  confirmButton: {
+    alignSelf: "center",
+    width: width * 0.9,
+    marginBottom: height * 0.02,
   },
 });

@@ -19,7 +19,9 @@ export type RootStackParamList = {
   EditProfile: undefined;
   YourOffersScreen: undefined;
   OfferManage: { offer: Offer };
-  CvSelect: undefined;
+  CvSelect: {
+    disableSkip?: boolean;
+  };
   CvPreview: {
     cvUri: string;
     cvName?: string;
@@ -28,4 +30,5 @@ export type RootStackParamList = {
     applicant?: ApplicationItem;
   };
   ChosenApplicants: { offerId: string };
+  CvMain: undefined;
 };

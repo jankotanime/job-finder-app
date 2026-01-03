@@ -144,7 +144,19 @@
   "cv": {
     "title": "CV",
     "openError": "Failed to open candidate CV",
-    "openErrorGeneric": "An error occurred while opening CV"
+    "openErrorGeneric": "An error occurred while opening CV",
+    "selectionUserMissing": "No user — sign in to select CVs",
+    "selectionSaved": "CV selection saved",
+    "selectionSaveError": "Failed to save CV selection",
+    "item": "CV",
+    "selectHint": "Select up to 1 CVs",
+    "chooseHeader": "Choose CV",
+    "selectedCount": "Selected: {{count}} / {{max}}",
+    "emptyList": "No CVs available",
+    "confirmSelection": "Confirm selection",
+    "add": "Add CV",
+    "premiumOnly": "Premium users only",
+    "maxReached": "CV limit reached"
   },
   "profile": {
     "editHeader": "Edit profile",

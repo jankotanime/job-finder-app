@@ -7,17 +7,21 @@ import {
   Dimensions,
 } from "react-native";
 import { useTheme, Button } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import { uploadPDF } from "../../utils/pickerUtils";
 import { uploadCv } from "../../api/cv/handleCvApi";
+import type { RouteProp } from "@react-navigation/native";
+import type { RootStackParamList } from "../../types/RootStackParamList";
 
 const { width, height } = Dimensions.get("window");
 
 const CvSelectScreen = () => {
   const { colors } = useTheme();
+  const route = useRoute<RouteProp<RootStackParamList, "CvSelect">>();
   const navigation = useNavigation<any>();
   const [cvUri, setCvUri] = useState<string>("");
   const [cvName, setCvName] = useState<string>("");
+  const disabled = route.params.disableSkip;
 
   const handlePickPDF = async () => {
     const pdf = await uploadPDF();
@@ -39,7 +43,7 @@ const CvSelectScreen = () => {
 
   const handleApplyCv = async (fileUri: string) => {
     await uploadCv(fileUri);
-    navigation.replace("Main");
+    !disabled ? navigation.replace("Main") : navigation.goBack();
   };
 
   return (
@@ -68,11 +72,13 @@ const CvSelectScreen = () => {
       >
         Zapisz
       </Button>
-      <TouchableOpacity style={styles.skip} onPress={handleSkip}>
-        <Text style={{ color: colors.primary, fontWeight: 700 }}>
-          Pomiń na razie
-        </Text>
-      </TouchableOpacity>
+      {!disabled ? (
+        <TouchableOpacity style={styles.skip} onPress={handleSkip}>
+          <Text style={{ color: colors.primary, fontWeight: 700 }}>
+            Pomiń na razie
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
