@@ -3,6 +3,8 @@ package com.mimaja.job_finder_app.feature.offer.tag.category.service;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryCreateRequestDto;
+import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryFilterRequestDto;
+import com.mimaja.job_finder_app.feature.offer.tag.category.filterspecification.CategoryFilterSpecification;
 import com.mimaja.job_finder_app.feature.offer.tag.category.mapper.CategoryMapper;
 import com.mimaja.job_finder_app.feature.offer.tag.category.model.Category;
 import com.mimaja.job_finder_app.feature.offer.tag.category.repository.CategoryRepository;
@@ -21,8 +23,10 @@ public class CategoryServiceDefault implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public Page<Category> getAllCategories(Pageable pageable) {
-        return categoryRepository.findAll(pageable);
+    public Page<Category> getAllCategories(
+            CategoryFilterRequestDto categoryFilterRequestDto, Pageable pageable) {
+        return categoryRepository.findAll(
+                CategoryFilterSpecification.filter(categoryFilterRequestDto), pageable);
     }
 
     @Override
