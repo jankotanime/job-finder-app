@@ -5,6 +5,8 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.offer.tag.category.model.Category;
 import com.mimaja.job_finder_app.feature.offer.tag.category.service.CategoryService;
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagCreateRequestDto;
+import com.mimaja.job_finder_app.feature.offer.tag.dto.TagFilterRequestDto;
+import com.mimaja.job_finder_app.feature.offer.tag.filterspecification.TagFilterSpecification;
 import com.mimaja.job_finder_app.feature.offer.tag.mapper.TagMapper;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.offer.tag.repository.TagRepository;
@@ -24,8 +26,8 @@ public class TagServiceDefault implements TagService {
     private final TagMapper tagMapper;
 
     @Override
-    public Page<Tag> getAllTags(Pageable pageable) {
-        return tagRepository.findAll(pageable);
+    public Page<Tag> getAllTags(TagFilterRequestDto tagFilterRequestDto, Pageable pageable) {
+        return tagRepository.findAll(TagFilterSpecification.filter(tagFilterRequestDto), pageable);
     }
 
     @Override
