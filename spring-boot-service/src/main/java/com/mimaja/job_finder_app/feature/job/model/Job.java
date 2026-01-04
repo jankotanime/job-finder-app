@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.job.model;
 
+import com.mimaja.job_finder_app.feature.contract.model.Contract;
 import com.mimaja.job_finder_app.feature.job.jobphoto.model.JobPhoto;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
@@ -55,6 +56,9 @@ public class Job {
     @JoinColumn(name = "contractor_id")
     private User contractor;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private Contract contract;
+
     @ManyToMany private Set<Tag> tags = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -72,6 +76,7 @@ public class Job {
         job.salary = offer.getSalary();
         job.owner = offer.getOwner();
         job.contractor = offer.getChosenCandidate();
+        job.contract = offer.getContract();
         job.photo = photo;
         job.tags = offer.getTags() == null ? new HashSet<>() : new HashSet<>(offer.getTags());
         return job;

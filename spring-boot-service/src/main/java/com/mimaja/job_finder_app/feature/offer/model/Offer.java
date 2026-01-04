@@ -1,6 +1,7 @@
 package com.mimaja.job_finder_app.feature.offer.model;
 
 import com.mimaja.job_finder_app.feature.application.model.Application;
+import com.mimaja.job_finder_app.feature.contract.model.Contract;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import com.mimaja.job_finder_app.feature.user.model.User;
@@ -58,6 +59,9 @@ public class Offer {
     @JoinColumn(name = "chosen_candidate_id")
     private User chosenCandidate;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private Contract contract;
+
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Application> applications = new HashSet<>();
 
@@ -78,5 +82,6 @@ public class Offer {
         this.maxApplications = updatedOffer.getMaxApplications();
         this.tags = tags;
         this.photo = photo;
+        this.contract = null;
     }
 }

@@ -53,7 +53,7 @@ public class FileManagementService {
         String contentType = fileSource.getContentType();
         MimeType ext = getFileExtension(fileName);
 
-        throwErrorIfWrongCvFormat(folder, ext);
+        throwErrorIfWrongDocumentFormat(folder, ext);
         throwErrorIfWrongPhotoFormat(folder, ext);
 
         String key = String.format("%s/%s-%s", folder, UUID.randomUUID(), fileName);
@@ -70,11 +70,11 @@ public class FileManagementService {
         }
     }
 
-    private void throwErrorIfWrongCvFormat(String folder, MimeType ext) {
+    private void throwErrorIfWrongDocumentFormat(String folder, MimeType ext) {
         if (folder.contains(FileFolderName.DOCUMENTS.getFolderName())
                 && !ext.equals(MimeType.DOCX)
                 && !ext.equals(MimeType.PDF)) {
-            throw new BusinessException(BusinessExceptionReason.WRONG_CV_FILE_FORMAT);
+            throw new BusinessException(BusinessExceptionReason.WRONG_DOCUMENT_FILE_FORMAT);
         }
     }
 
