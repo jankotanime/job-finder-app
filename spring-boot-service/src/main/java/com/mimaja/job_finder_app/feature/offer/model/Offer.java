@@ -58,7 +58,7 @@ public class Offer {
     @JoinColumn(name = "chosen_candidate_id")
     private User chosenCandidate;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL)
     private Set<Application> applications = new HashSet<>();
 
     @ManyToMany private Set<Tag> tags = new HashSet<>();
@@ -78,5 +78,10 @@ public class Offer {
         this.maxApplications = updatedOffer.getMaxApplications();
         this.tags = tags;
         this.photo = photo;
+    }
+
+    public void addApplication(Application application) {
+        applications.add(application);
+        application.setOffer(this);
     }
 }
