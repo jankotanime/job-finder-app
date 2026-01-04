@@ -49,11 +49,12 @@ public class OfferController {
             @RequestParam(required = false) Double maxSalary,
             @RequestParam(required = false) Set<UUID> categories,
             @RequestParam(required = false) Set<UUID> tags,
+            @AuthenticationPrincipal JwtPrincipal jwt,
             @PageableDefault(sort = "createdAt", size = 20, direction = Sort.Direction.DESC)
                     Pageable pageable) {
         OfferFilterRequestDto offerFilterRequestDto =
                 new OfferFilterRequestDto(
-                        firstDate, lastDate, minSalary, maxSalary, categories, tags);
+                        jwt.id(), firstDate, lastDate, minSalary, maxSalary, categories, tags);
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched offers",
