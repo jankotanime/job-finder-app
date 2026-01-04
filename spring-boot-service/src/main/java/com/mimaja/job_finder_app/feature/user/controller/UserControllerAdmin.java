@@ -37,14 +37,14 @@ public class UserControllerAdmin {
 
     @GetMapping
     public ResponseDto<Page<UserAdminPanelResponseDto>> getAllUsers(
-            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String username,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) LocalDateTime firstDate,
             @RequestParam(required = false) LocalDateTime lastDate,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
                     Pageable pageable) {
         UserFilterRequestDto userFilterRequestDto =
-                new UserFilterRequestDto(name, email, firstDate, lastDate);
+                new UserFilterRequestDto(username, email, firstDate, lastDate);
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched all users",

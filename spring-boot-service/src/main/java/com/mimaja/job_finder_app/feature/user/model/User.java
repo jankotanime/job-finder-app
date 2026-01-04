@@ -75,5 +75,8 @@ public class User {
         this.username = dto.username();
         this.email = dto.email();
         this.phoneNumber = dto.phoneNumber();
+        this.firstName = dto.firstName();
+        this.lastName = dto.lastName();
+        this.profileDescription = dto.profileDescription();
     }
 }
