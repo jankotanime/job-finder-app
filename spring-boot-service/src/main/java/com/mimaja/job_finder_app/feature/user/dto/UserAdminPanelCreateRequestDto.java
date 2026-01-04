@@ -7,4 +7,7 @@ public record UserAdminPanelCreateRequestDto(
         @NotBlank String username,
         @NotBlank String email,
         @NotNull int phoneNumber,
-        @NotBlank String password) {}
+        @NotBlank String password,
+        @NotBlank String firstName,
+        @NotBlank String lastName,
+        @NotBlank String profileDescription) {}
