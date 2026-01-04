@@ -59,7 +59,8 @@ public class Offer {
     @JoinColumn(name = "chosen_candidate_id")
     private User chosenCandidate;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "contract_id")
     private Contract contract;
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -82,6 +83,6 @@ public class Offer {
         this.maxApplications = updatedOffer.getMaxApplications();
         this.tags = tags;
         this.photo = photo;
-        this.contract = null;
+        this.contract = updatedOffer.getContract();
     }
 }

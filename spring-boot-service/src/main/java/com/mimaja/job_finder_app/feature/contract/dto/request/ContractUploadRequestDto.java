@@ -4,4 +4,4 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
-public record ContractUploadRequestDto(@NotNull MultipartFile file, @NotNull UUID offerId) {}
+public record ContractUploadRequestDto(@NotNull UUID offerId, @NotNull MultipartFile file) {}

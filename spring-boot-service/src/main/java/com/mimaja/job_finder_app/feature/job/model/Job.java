@@ -56,7 +56,8 @@ public class Job {
     @JoinColumn(name = "contractor_id")
     private User contractor;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "contract_id")
     private Contract contract;
 
     @ManyToMany private Set<Tag> tags = new HashSet<>();

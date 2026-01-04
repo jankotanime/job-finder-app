@@ -5,6 +5,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.application.dto.ApplicationCreateRequestDto;
 import com.mimaja.job_finder_app.feature.application.mapper.ApplicationMapper;
 import com.mimaja.job_finder_app.feature.application.model.Application;
+import com.mimaja.job_finder_app.feature.contract.utils.ContractFileManager;
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
 import com.mimaja.job_finder_app.feature.cv.service.CvService;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferApplyRequestDto;
@@ -48,6 +49,7 @@ public class OfferServiceDefault implements OfferService {
     private final CvService cvService;
     private final ApplicationMapper applicationMapper;
     private final FileManagementService fileManagementService;
+    private final ContractFileManager contractFileManager;
 
     @Override
     public Offer getOfferById(UUID offerId) {
@@ -107,6 +109,7 @@ public class OfferServiceDefault implements OfferService {
         if (offer.getPhoto() != null) {
             fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
         }
+        contractFileManager.deleteContract(offer.getContract());
         offerRepository.delete(offer);
     }
 
@@ -119,6 +122,7 @@ public class OfferServiceDefault implements OfferService {
                     if (offer.getPhoto() != null) {
                         fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
                     }
+                    contractFileManager.deleteContract(offer.getContract());
                 });
         offerRepository.deleteAll(offersToDelete);
     }

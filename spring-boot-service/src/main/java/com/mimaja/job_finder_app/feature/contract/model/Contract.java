@@ -23,10 +23,10 @@ import lombok.experimental.SuperBuilder;
 public class Contract extends FileBase {
     private ContractStatus contractorAcceptance;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "contract", fetch = FetchType.LAZY)
     private Offer offer;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "contract", fetch = FetchType.LAZY)
     private Job job;
 
     public static Contract from(FileBase fileBase) {
