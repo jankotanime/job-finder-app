@@ -12,13 +12,14 @@ exports[`ErrorNotification component renders correctly with a raw error string 1
       "marginBottom": 10,
       "padding": 10,
       "position": "absolute",
-      "top": 10,
+      "top": 80.03999999999999,
       "transform": [
         {
           "translateY": -100,
         },
       ],
       "width": 600,
+      "zIndex": 40,
     }
   }
   testID="error-notification"
@@ -53,13 +54,14 @@ exports[`ErrorNotification component renders correctly with a translation key 1`
       "marginBottom": 10,
       "padding": 10,
       "position": "absolute",
-      "top": 10,
+      "top": 80.03999999999999,
       "transform": [
         {
           "translateY": -100,
         },
       ],
       "width": 600,
+      "zIndex": 40,
     }
   }
   testID="error-notification"
