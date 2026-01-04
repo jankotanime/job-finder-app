@@ -1,6 +1,5 @@
 package com.mimaja.job_finder_app.feature.offer.controller;
 
-import com.mimaja.job_finder_app.feature.offer.dto.OfferApplyRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferBaseResponseDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
@@ -11,7 +10,6 @@ import com.mimaja.job_finder_app.feature.offer.service.OfferUserService;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
-import jakarta.validation.Valid;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -27,11 +25,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -131,16 +127,5 @@ public class OfferController {
                 SuccessCode.RESOURCE_DELETED,
                 "Successfully deleted offer with id: " + offerId,
                 null);
-    }
-
-    @PatchMapping(ID)
-    public ResponseDto<OfferSummaryResponseDto> applyOffer(
-            @PathVariable UUID offerId,
-            @AuthenticationPrincipal JwtPrincipal jwt,
-            @RequestBody @Valid OfferApplyRequestDto dto) {
-        return new ResponseDto<>(
-                SuccessCode.RESOURCE_UPDATED,
-                "Successfully applied for offer with id: " + offerId,
-                offerUserService.applyOffer(offerId, jwt, dto));
     }
 }

@@ -4,6 +4,8 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelUpdateRequestDto;
+import com.mimaja.job_finder_app.feature.user.dto.UserFilterRequestDto;
+import com.mimaja.job_finder_app.feature.user.filterspecification.UserFilterSpecification;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
@@ -23,8 +25,9 @@ public class UserServiceDefault implements UserService {
     private final PasswordConfiguration passwordConfiguration;
 
     @Override
-    public Page<User> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    public Page<User> getAllUsers(UserFilterRequestDto userFilterRequestDto, Pageable pageable) {
+        return userRepository.findAll(
+                UserFilterSpecification.filter(userFilterRequestDto), pageable);
     }
 
     @Override

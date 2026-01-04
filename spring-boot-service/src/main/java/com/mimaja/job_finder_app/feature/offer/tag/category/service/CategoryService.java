@@ -1,13 +1,15 @@
 package com.mimaja.job_finder_app.feature.offer.tag.category.service;
 
 import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryCreateRequestDto;
+import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.tag.category.model.Category;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CategoryService {
-    Page<Category> getAllCategories(Pageable pageable);
+    Page<Category> getAllCategories(
+            CategoryFilterRequestDto categoryFilterRequestDto, Pageable pageable);
 
     Category getCategoryById(UUID id);
 

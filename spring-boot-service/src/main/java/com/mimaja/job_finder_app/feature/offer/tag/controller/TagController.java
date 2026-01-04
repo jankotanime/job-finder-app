@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.tag.controller;
 
+import com.mimaja.job_finder_app.feature.offer.tag.dto.TagFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.service.TagServiceUser;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
@@ -13,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,12 +26,15 @@ public class TagController {
 
     @GetMapping
     public ResponseDto<Page<TagResponseDto>> getAllTags(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String[] categories,
             @PageableDefault(sort = "name", size = 20, direction = Sort.Direction.ASC)
                     Pageable pageable) {
+        TagFilterRequestDto tagFilterRequestDto = new TagFilterRequestDto(name, categories);
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched all tags",
-                tagServiceUser.getAllTags(pageable));
+                tagServiceUser.getAllTags(tagFilterRequestDto, pageable));
     }
 
     @GetMapping("/category/{categoryId}")

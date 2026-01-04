@@ -3,11 +3,13 @@ package com.mimaja.job_finder_app.feature.user.controller;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelResponseDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelUpdateRequestDto;
+import com.mimaja.job_finder_app.feature.user.dto.UserFilterRequestDto;
 import com.mimaja.job_finder_app.feature.user.service.UserServiceAdmin;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -34,12 +37,18 @@ public class UserControllerAdmin {
 
     @GetMapping
     public ResponseDto<Page<UserAdminPanelResponseDto>> getAllUsers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) LocalDateTime firstDate,
+            @RequestParam(required = false) LocalDateTime lastDate,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
                     Pageable pageable) {
+        UserFilterRequestDto userFilterRequestDto =
+                new UserFilterRequestDto(name, email, firstDate, lastDate);
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched all users",
-                userServiceAdmin.getAllUsers(pageable));
+                userServiceAdmin.getAllUsers(userFilterRequestDto, pageable));
     }
 
     @PostMapping
