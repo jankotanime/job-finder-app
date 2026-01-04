@@ -25,8 +25,6 @@ export default AddOfferButton;
 
 const styles = StyleSheet.create({
   button: {
-    position: "absolute",
-    top: height * 0.912,
     width: 50,
     height: 35,
     borderRadius: 12,

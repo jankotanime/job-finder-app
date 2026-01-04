@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../contexts/AuthContext";
+import { tryCatch } from "../utils/try-catch";
 
 export type UseSelectCvParams = {
   limit?: number;
@@ -21,23 +22,18 @@ export const useSelectCv = (params?: UseSelectCvParams) => {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      try {
-        if (!storageKey) return;
-        const raw = await AsyncStorage.getItem(storageKey);
-        const parsed: unknown = raw ? JSON.parse(raw) : null;
-        if (!cancelled && Array.isArray(parsed)) {
-          const unique = Array.from(
-            new Set(parsed.filter((x) => typeof x === "string")),
-          ) as string[];
-          setSelectedIds(unique.slice(0, limit));
-        } else if (!cancelled) {
-          setSelectedIds([]);
-        }
-      } catch {
-        if (!cancelled) setSelectedIds([]);
-      } finally {
-        if (!cancelled) setLoaded(true);
+      if (!storageKey) return;
+      const [raw] = await tryCatch(AsyncStorage.getItem(storageKey));
+      const parsed: unknown = raw ? JSON.parse(raw) : null;
+      if (!cancelled && Array.isArray(parsed)) {
+        const unique = Array.from(
+          new Set(parsed.filter((x) => typeof x === "string")),
+        ) as string[];
+        setSelectedIds(unique.slice(0, limit));
+      } else if (!cancelled) {
+        setSelectedIds([]);
       }
+      if (!cancelled) setLoaded(true);
     };
     setSelectedIds([]);
     setLoaded(false);
@@ -50,12 +46,12 @@ export const useSelectCv = (params?: UseSelectCvParams) => {
   useEffect(() => {
     const save = async () => {
       if (!storageKey || !loaded) return;
-      try {
-        await AsyncStorage.setItem(
+      await tryCatch(
+        AsyncStorage.setItem(
           storageKey,
           JSON.stringify(selectedIds.slice(0, limit)),
-        );
-      } catch {}
+        ),
+      );
     };
     save();
   }, [selectedIds, storageKey, loaded, limit]);
@@ -92,24 +88,20 @@ export const useSelectCv = (params?: UseSelectCvParams) => {
 
   const reload = useCallback(async () => {
     if (!storageKey) return;
-    try {
-      const raw = await AsyncStorage.getItem(storageKey);
-      const parsed: unknown = raw ? JSON.parse(raw) : null;
-      if (Array.isArray(parsed)) {
-        const unique = Array.from(
-          new Set(parsed.filter((x) => typeof x === "string")),
-        ) as string[];
-        setSelectedIds(unique.slice(0, limit));
-      }
-    } catch {}
+    const [raw] = await tryCatch(AsyncStorage.getItem(storageKey));
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (Array.isArray(parsed)) {
+      const unique = Array.from(
+        new Set(parsed.filter((x) => typeof x === "string")),
+      ) as string[];
+      setSelectedIds(unique.slice(0, limit));
+    }
   }, [storageKey, limit]);
 
   const clearStorage = useCallback(async () => {
     if (!storageKey) return;
-    try {
-      await AsyncStorage.removeItem(storageKey);
-      setSelectedIds([]);
-    } catch {}
+    await tryCatch(AsyncStorage.removeItem(storageKey));
+    setSelectedIds([]);
   }, [storageKey]);
 
   const isReady = Boolean(storageKey);

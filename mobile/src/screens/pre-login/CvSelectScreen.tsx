@@ -5,13 +5,19 @@ import {
   TouchableOpacity,
   Text,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { useTheme, Button } from "react-native-paper";
+import { useTheme, Button, TextInput } from "react-native-paper";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { uploadPDF } from "../../utils/pickerUtils";
 import { uploadCv } from "../../api/cv/handleCvApi";
+import { tryCatch } from "../../utils/try-catch";
+import useSelectCv from "../../hooks/useSelectCv";
+import useCvNames from "../../hooks/useCvNames";
 import type { RouteProp } from "@react-navigation/native";
 import type { RootStackParamList } from "../../types/RootStackParamList";
+import Input from "../../components/reusable/Input";
 
 const { width, height } = Dimensions.get("window");
 
@@ -21,6 +27,9 @@ const CvSelectScreen = () => {
   const navigation = useNavigation<any>();
   const [cvUri, setCvUri] = useState<string>("");
   const [cvName, setCvName] = useState<string>("");
+  const [name, setNameInput] = useState<string>("");
+  const { reload: reloadSelection } = useSelectCv();
+  const { setName: setCvNameForId } = useCvNames();
   const disabled = route.params.disableSkip;
 
   const handlePickPDF = async () => {
@@ -37,12 +46,30 @@ const CvSelectScreen = () => {
   };
 
   const handleSkip = () => {
-    if (navigation.canGoBack()) navigation.goBack();
-    else navigation.replace("Main");
+    navigation.replace("Main");
   };
 
-  const handleApplyCv = async (fileUri: string) => {
-    await uploadCv(fileUri);
+  const handleSave = async () => {
+    const trimmed = String(name || "").trim();
+    if (!cvUri) return;
+    if (!trimmed) {
+      alert("Podaj nazwę CV");
+      return;
+    }
+    const [resp, err] = await tryCatch(uploadCv(cvUri));
+    if (err || !resp) {
+      alert("Nie udało się zapisać CV");
+      return;
+    }
+    const created = resp.body?.data;
+    const cvId: string | undefined =
+      created?.id || created?.cvId || created?.uuid;
+    if (!cvId) {
+      alert("Nie udało się zapisać CV");
+      return;
+    }
+    setCvNameForId(String(cvId), trimmed);
+    await reloadSelection();
     !disabled ? navigation.replace("Main") : navigation.goBack();
   };
 
@@ -56,22 +83,34 @@ const CvSelectScreen = () => {
           {cvName ? cvName : "Załącz CV (PDF)"}
         </Text>
       </TouchableOpacity>
-      <Button
-        mode="contained"
-        style={styles.nextButton}
-        onPress={handleNext}
-        disabled={!cvUri}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
-        Podgląd CV
-      </Button>
-      <Button
-        mode="contained"
-        style={styles.applyButton}
-        onPress={() => handleApplyCv(cvUri)}
-        disabled={!cvUri}
-      >
-        Zapisz
-      </Button>
+        <Input
+          placeholder="Nazwa CV"
+          mode="outlined"
+          value={name}
+          onChangeText={setNameInput}
+          style={{ top: -height * 0.025 }}
+        />
+        <Button
+          mode="contained"
+          style={styles.nextButton}
+          onPress={handleNext}
+          disabled={!cvUri}
+        >
+          Podgląd CV
+        </Button>
+        <Button
+          mode="contained"
+          style={styles.applyButton}
+          onPress={handleSave}
+          disabled={!cvUri || !String(name || "").trim()}
+        >
+          Zapisz
+        </Button>
+      </KeyboardAvoidingView>
       {!disabled ? (
         <TouchableOpacity style={styles.skip} onPress={handleSkip}>
           <Text style={{ color: colors.primary, fontWeight: 700 }}>

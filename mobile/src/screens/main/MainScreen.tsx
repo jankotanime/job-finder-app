@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
+import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../../contexts/AuthContext";
 import { applyForOffer, getAllOffers } from "../../api/offers/handleOffersApi";
 import { useTheme } from "react-native-paper";
@@ -34,9 +35,11 @@ import { buildPhotoUrl } from "../../utils/photoUrl";
 import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
 import useFilter from "../../hooks/useFilter";
 import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
-// import { getCvsByUser } from "../../api/cv/handleCvApi";
 import CvChoseButton from "../../components/main/CvChoseButton";
 import useSelectCv from "../../hooks/useSelectCv";
+import Footer from "../../components/main/Footer";
+import CvInfo from "../../components/main/CvInfo";
+import ErrorNotification from "../../components/reusable/ErrorNotification";
 
 const { width, height } = Dimensions.get("window");
 
@@ -48,6 +51,7 @@ const MainScreen = () => {
   const [offersData, setOffersData] = useState<Offer[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
+  const [errorText, setErrorText] = useState<string | null>(null);
   const expandAnim = useRef(new Animated.Value(0)).current;
   const [finalizeHideForIndex, setFinalizeHideForIndex] = useState<
     number | null
@@ -57,7 +61,8 @@ const MainScreen = () => {
   const { t } = useTranslation();
   const { offersVersion } = useOfferStorageContext();
   const { filters } = useFilter();
-  const { selectedIds } = useSelectCv();
+  const { selectedIds, reload } = useSelectCv();
+  const cvId = selectedIds?.[0];
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -67,7 +72,6 @@ const MainScreen = () => {
     animatingCardIndexRef,
     getCurrentIndex: () => currentIndex,
   });
-
   const swiperKey = useMemo(() => {
     const ids = (offersData as any[]).map((o) => o?.id ?? "").join("|");
     return `${userInfo?.userId ?? "anon"}-${ids}`;
@@ -76,7 +80,6 @@ const MainScreen = () => {
   useEffect(() => {
     setOffersData([]);
     setCurrentIndex(0);
-    console.log(selectedIds);
     if (!tokens || loading || !userInfo?.userId) {
       return;
     }
@@ -107,12 +110,27 @@ const MainScreen = () => {
       active = false;
     };
   }, [tokens, loading, userInfo?.userId, offersVersion, selectedIds]);
+
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+      return () => {};
+    }, [reload]),
+  );
+
+  useEffect(() => {
+    if (!errorText) return;
+    const id = setTimeout(() => setErrorText(null), 7200);
+    return () => clearTimeout(id);
+  }, [errorText]);
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView
         style={[styles.container, { backgroundColor: colors.background }]}
       >
         <Filter setOffersData={setOffersData} />
+        {errorText && <ErrorNotification error={errorText} />}
+        <CvInfo />
         <Menu />
         {(loading || !offersData || offersData.length === 0) && (
           <View style={styles.loadingContainer}>
@@ -130,6 +148,12 @@ const MainScreen = () => {
             data={offersData}
             initialIndex={0}
             cardStyle={styles.cardStyle}
+            disableRightSwipe={!cvId}
+            disableLeftSwipe={!cvId}
+            onSwipeActive={() => {
+              if (!cvId) setErrorText(t("cv.selectionCvMissing"));
+              return;
+            }}
             renderCard={(item) => (
               <OfferCard
                 item={item}
@@ -168,9 +192,8 @@ const MainScreen = () => {
             onSwipeRight={async (index) => {
               collapseCard();
               try {
-                const cvId = selectedIds?.[0];
                 if (!cvId) {
-                  Alert.alert(t("cv.title"), t("cv.selectionUserMissing"));
+                  Alert.alert(t("cv.title"), t("cv.selectionCvMissing"));
                   return;
                 }
                 const offerIdToApply = offersData[index]?.id;
@@ -199,8 +222,7 @@ const MainScreen = () => {
             }}
           />
         </View>
-        <CvChoseButton />
-        <AddOfferButton />
+        <Footer />
       </GestureHandlerRootView>
     </View>
   );
@@ -244,5 +266,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
+  },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 24,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    zIndex: 20,
+    pointerEvents: "box-none",
   },
 });

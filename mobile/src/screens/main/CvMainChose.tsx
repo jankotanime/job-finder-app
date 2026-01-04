@@ -21,12 +21,14 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { getCvsByUser, deleteCv } from "../../api/cv/handleCvApi";
 import { buildPhotoUrl } from "../../utils/photoUrl";
 import useSelectCv from "../../hooks/useSelectCv";
+import useCvNames from "../../hooks/useCvNames";
 import { useAuth } from "../../contexts/AuthContext";
+import { tryCatch } from "../../utils/try-catch";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type CvItem = {
   id: string;
   storageKey?: string;
-  name?: string;
 };
 
 const { width, height } = Dimensions.get("window");
@@ -40,42 +42,60 @@ const CvMainChose = () => {
   const { selectedIds, selectCv, unselectCv, reload } = useSelectCv({
     limit: 1,
   });
+  const { namesMap, reload: reloadNames } = useCvNames();
   const { userInfo } = useAuth();
-  const isPremium = Boolean(
-    (userInfo as any)?.isPremium ?? (userInfo as any)?.premium ?? false,
+  const userId = userInfo?.userId ? String(userInfo.userId) : null;
+  const deletedKey = useMemo(
+    () => (userId ? `deletedCvs:${userId}` : null),
+    [userId],
   );
-
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  useEffect(() => {
+    const loadDeleted = async () => {
+      if (!deletedKey) return;
+      const [raw] = await tryCatch(AsyncStorage.getItem(deletedKey));
+      const arr: unknown = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(arr)) {
+        setDeletedIds(arr.map((x) => String(x)));
+      }
+    };
+    setDeletedIds([]);
+    loadDeleted();
+  }, [deletedKey]);
   const loadCvs = useCallback(async () => {
-    try {
-      const { body } = await getCvsByUser();
-      const list: CvItem[] = Array.isArray(body?.data)
-        ? (body?.data as any[]).map((it) => ({
-            id: String(it?.id),
-            storageKey: it?.storageKey,
-            name: it?.name,
-          }))
-        : Array.isArray(body)
-          ? (body as any[]).map((it) => ({
-              id: String((it as any)?.id),
-              storageKey: (it as any)?.storageKey,
-              name: (it as any)?.name,
-            }))
-          : [];
-      setCvs(list);
-    } catch (e) {
-      console.warn("CvMainChose: failed to load cvs", e);
+    const [resp, err] = await tryCatch(getCvsByUser());
+    if (err || !resp) {
+      console.warn("CvMainChose: failed to load cvs", err);
+      setCvs([]);
+      return;
     }
-  }, []);
+    const body = resp.body;
+    const list: CvItem[] = body.data;
+    const filtered = list.filter((x) => !deletedIds.includes(x.id));
+    setCvs(filtered);
+    if (deletedKey) {
+      const backendIds = new Set(list.map((x) => x.id));
+      const cleaned = deletedIds.filter((id) => backendIds.has(id));
+      if (cleaned.length !== deletedIds.length) {
+        setDeletedIds(cleaned);
+        await tryCatch(
+          AsyncStorage.setItem(deletedKey, JSON.stringify(cleaned)),
+        );
+      }
+    }
+  }, [deletedIds, deletedKey]);
 
   useEffect(() => {
     loadCvs();
-  }, [loadCvs]);
+    reloadNames();
+  }, [loadCvs, reloadNames]);
 
   useFocusEffect(
     useCallback(() => {
       loadCvs();
+      reloadNames();
       return () => {};
-    }, [loadCvs]),
+    }, [loadCvs, reloadNames]),
   );
 
   const toggleSelect = useCallback(
@@ -98,8 +118,7 @@ const CvMainChose = () => {
         return;
       }
       navigation.navigate("CvPreview", {
-        cvUri: uri,
-        cvName: item.name ?? t("cv.title"),
+        cvUri: uri ?? t("cv.title"),
         manage: false,
       });
     },
@@ -108,29 +127,32 @@ const CvMainChose = () => {
 
   const onDelete = useCallback(
     async (item: CvItem) => {
-      try {
-        const resp = await deleteCv(item.id);
-        const httpStatus = resp?.response?.status;
-        const ok =
-          typeof httpStatus === "number"
-            ? httpStatus >= 200 && httpStatus < 300
-            : true;
-        if (!ok) {
-          Alert.alert(t("cv.title"), "Nie udało się usunąć CV");
-          return;
-        }
-        if (selectedIds.includes(item.id)) unselectCv(item.id);
-        await reload();
-        await loadCvs();
-      } catch (e) {
-        console.warn("CvMainChose: failed to delete cv", e);
+      const [resp, err] = await tryCatch(deleteCv(item.id));
+      if (err || !resp) {
+        console.warn("CvMainChose: failed to delete cv", err);
+        Alert.alert(t("cv.title"), t("cv.openError"));
+        return;
       }
+      if (resp?.response?.status !== 200) {
+        Alert.alert(t("cv.title"), t("cv.openError"));
+        return;
+      }
+      setCvs((prev) => prev.filter((x) => x.id !== item.id));
+      if (deletedKey) {
+        const next = Array.from(new Set([...deletedIds, item.id]));
+        setDeletedIds(next);
+        await tryCatch(AsyncStorage.setItem(deletedKey, JSON.stringify(next)));
+      }
+      if (selectedIds.includes(item.id)) unselectCv(item.id);
+      await reload();
+      await new Promise((r) => setTimeout(r, 150));
+      await loadCvs();
     },
-    [selectedIds, unselectCv, reload, loadCvs, t],
+    [selectedIds, unselectCv, reload, loadCvs, t, deletedIds, deletedKey],
   );
-
   const renderItem = ({ item, index }: { item: CvItem; index: number }) => {
     const checked = selectedIds.includes(item.id);
+    const title = namesMap[item.id] || `${t("cv.item")} ${index + 1}`;
     return (
       <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <TouchableOpacity
@@ -143,10 +165,9 @@ const CvMainChose = () => {
           onPress={() => toggleSelect(item.id)}
         >
           <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text
-              variant="titleMedium"
-              numberOfLines={1}
-            >{`${t("cv.item")} ${index + 1}`}</Text>
+            <Text variant="titleMedium" numberOfLines={1}>
+              {title}
+            </Text>
           </View>
           <IconButton
             icon="eye"
@@ -162,7 +183,6 @@ const CvMainChose = () => {
       </Card>
     );
   };
-
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
