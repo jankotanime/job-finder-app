@@ -45,12 +45,14 @@ public class ApplicationServiceDefault implements ApplicationService {
     @Override
     @Transactional
     public Application acceptApplication(UUID offerId, UUID applicationId) {
-        offerService.getOfferById(offerId);
+        Offer offer = offerService.getOfferById(offerId);
         Application application = getOrThrow(applicationId);
         if (!application.getStatus().equals(ApplicationStatus.SENT)) {
             throw new BusinessException(BusinessExceptionReason.APPLICATION_ALREADY_REVIEWED);
         }
         application.setStatus(ApplicationStatus.ACCEPTED);
+        offer.setStatus(OfferStatus.CLOSED);
+        offer.setChosenCandidate(application.getCandidate());
         return applicationRepository.save(application);
     }
 
