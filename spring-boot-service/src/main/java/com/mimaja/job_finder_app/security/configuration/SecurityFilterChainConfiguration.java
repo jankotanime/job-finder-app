@@ -1,6 +1,7 @@
 package com.mimaja.job_finder_app.security.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mimaja.job_finder_app.feature.user.model.UserRole;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.token.accessToken.authorizationFilter.AuthorizationFilter;
 import com.mimaja.job_finder_app.security.token.accessToken.utils.AccessTokenSecretKeyManager;
@@ -15,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityFilterChainConfiguration {
     private final AccessTokenSecretKeyManager accessTokenSecretKeyManager;
     private final UserRepository userRepository;
+    private static final String ADMIN_ROUTES_PATTERN = "/admin/.*";
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -33,6 +36,10 @@ public class SecurityFilterChainConfiguration {
                                         .permitAll()
                                         .requestMatchers(HttpMethod.GET, "/example-error")
                                         .permitAll()
+                                        .requestMatchers(
+                                                RegexRequestMatcher.regexMatcher(
+                                                        ADMIN_ROUTES_PATTERN))
+                                        .hasAnyRole(UserRole.ADMIN.toString())
                                         .requestMatchers(
                                                 HttpMethod.POST,
                                                 "/auth/**",
