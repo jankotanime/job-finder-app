@@ -9,8 +9,8 @@ import RegisterScreen from "./src/screens/pre-login/RegisterScreen";
 import MainScreen from "./src/screens/main/MainScreen";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import AuthLoadingScreen from "./src/components/pre-login/AuthLoadingScreen";
-import StorageScreen from "./src/screens/main/StorageScreen";
-import MyProfile from "./src/screens/main/MyProfile";
+import StorageScreen from "./src/screens/offers/StorageScreen";
+import MyProfile from "./src/screens/profile/MyProfile";
 import LanguageMenu from "./src/screens/main/LanguageMenu";
 import ProfileCompletionFormScreen from "./src/screens/pre-login/ProfileCompletionFormScreen";
 import ProfileCompletionGoogle from "./src/screens/pre-login/ProfileCompletionGoogle";
@@ -19,6 +19,11 @@ import { RootStackParamList } from "./src/types/RootStackParamList";
 import SmsGoogleCodeScreen from "./src/screens/pre-login/SmsGoogleCodeScreen";
 import AddOfferScreen from "./src/screens/offers/AddOfferScreen";
 import { OfferStorageProvider } from "./src/contexts/OfferStorageContext";
+import YourOffersScreen from "./src/screens/offers/YourOffersScreen";
+import EditProfileScreen from "./src/screens/profile/EditProfileScreen";
+import OfferManageScreen from "./src/screens/offers/OfferManageScreen";
+import CvSelectScreen from "./src/screens/pre-login/CvSelectScreen";
+import CvPreviewScreen from "./src/screens/pre-login/CvPreviewScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -58,6 +63,14 @@ export default function App() {
                 component={SmsGoogleCodeScreen}
               />
               <Stack.Screen name="AddOffer" component={AddOfferScreen} />
+              <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+              <Stack.Screen
+                name="YourOffersScreen"
+                component={YourOffersScreen}
+              />
+              <Stack.Screen name="OfferManage" component={OfferManageScreen} />
+              <Stack.Screen name="CvSelect" component={CvSelectScreen} />
+              <Stack.Screen name="CvPreview" component={CvPreviewScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </OfferStorageProvider>

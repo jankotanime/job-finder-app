@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.filterspecification;
 
+import com.mimaja.job_finder_app.feature.application.model.Application;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.tag.category.model.Category;
@@ -7,8 +8,11 @@ import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 
 public class OfferFilterSpecification {
@@ -20,6 +24,19 @@ public class OfferFilterSpecification {
 
             assert query != null;
             query.distinct(true);
+
+            if (dto.userId() != null) {
+                predicates.add(cb.notEqual(root.get("owner").get("id"), dto.userId()));
+
+                Subquery<UUID> sub = query.subquery(UUID.class);
+                Root<Application> appRoot = sub.from(Application.class);
+                sub.select(appRoot.get("id"));
+                sub.where(
+                        cb.equal(appRoot.get("offer"), root),
+                        cb.equal(appRoot.get("candidate").get("id"), dto.userId()));
+
+                predicates.add(cb.not(cb.exists(sub)));
+            }
 
             if (dto.firstDate() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("dateAndTime"), dto.firstDate()));

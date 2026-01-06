@@ -22,6 +22,7 @@ public class AccessTokenServiceDefault implements AccessTokenService {
                         .withClaim("username", user.getUsername())
                         .withClaim("email", user.getEmail())
                         .withClaim("phoneNumber", user.getPhoneNumber())
+                        .withClaim("role", user.getRole().toString())
                         .withClaim("firstName", user.getFirstName())
                         .withClaim("lastName", user.getLastName())
                         .withClaim("profileDescription", user.getProfileDescription())

@@ -18,8 +18,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -63,6 +65,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                 String idString = jwt.getSubject();
                 String username = jwt.getClaim("username").asString();
                 String email = jwt.getClaim("email").asString();
+                String role = jwt.getClaim("role").asString();
                 int phoneNumber = jwt.getClaim("phoneNumber").asInt();
 
                 if (idString != null && username != null && email != null && phoneNumber != 0) {
@@ -82,8 +85,11 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
                         JwtPrincipal principal =
                                 new JwtPrincipal(
-                                        user, id, username, email, phoneNumber, null, null);
-                        AuthenticationToken authentication = new AuthenticationToken(principal);
+                                        user, id, username, email, role, phoneNumber, null, null);
+                        List<GrantedAuthority> authorities =
+                                List.of(() -> "ROLE_" + principal.role());
+                        AuthenticationToken authentication =
+                                new AuthenticationToken(principal, authorities);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                         filterChain.doFilter(request, response);
                         return;
@@ -98,8 +104,17 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
                     JwtPrincipal principal =
                             new JwtPrincipal(
-                                    user, id, username, email, phoneNumber, firstName, lastName);
-                    AuthenticationToken authentication = new AuthenticationToken(principal);
+                                    user,
+                                    id,
+                                    username,
+                                    email,
+                                    role,
+                                    phoneNumber,
+                                    firstName,
+                                    lastName);
+                    List<GrantedAuthority> authorities = List.of(() -> "ROLE_" + principal.role());
+                    AuthenticationToken authentication =
+                            new AuthenticationToken(principal, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (BusinessException e) {

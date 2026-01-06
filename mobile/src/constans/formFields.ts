@@ -69,3 +69,14 @@ export const fieldsAddOffer = (t: (text: string) => string) => [
     secure: false,
   },
 ];
+
+export const fieldsEditProfile = (t: (text: string) => string) => [
+  { key: "newUsername", placeholder: t("profile.username"), secure: false },
+  { key: "newFirstName", placeholder: t("profile.firstName"), secure: false },
+  { key: "newLastName", placeholder: t("profile.lastName"), secure: false },
+  {
+    key: "newProfileDescription",
+    placeholder: t("profile.description"),
+    secure: false,
+  },
+];

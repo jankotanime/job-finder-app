@@ -100,7 +100,7 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
       offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
     }));
     const filtered = normalized.filter(
-      (it: any) => it?.owner?.id !== userInfo?.userId,
+      (it: any) => String(it?.owner) !== String(userInfo?.userId),
     );
     setOffersData(filtered);
     onClose && onClose();
@@ -119,7 +119,7 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
         offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
       }));
       const filtered = normalized.filter(
-        (it: any) => it?.owner?.id !== userInfo?.userId,
+        (it: any) => String(it?.owner) !== String(userInfo?.userId),
       );
       setOffersData(filtered);
     } catch (err) {

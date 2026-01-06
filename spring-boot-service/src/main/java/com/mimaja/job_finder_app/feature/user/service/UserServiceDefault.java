@@ -4,6 +4,9 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelUpdateRequestDto;
+import com.mimaja.job_finder_app.feature.user.dto.UserFilterRequestDto;
+import com.mimaja.job_finder_app.feature.user.filterspecification.UserFilterSpecification;
+import com.mimaja.job_finder_app.feature.user.mapper.UserMapper;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
@@ -19,23 +22,33 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceDefault implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final RegisterDataManager registerDataManager;
     private final PasswordConfiguration passwordConfiguration;
 
     @Override
-    public Page<User> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    public Page<User> getAllUsers(UserFilterRequestDto userFilterRequestDto, Pageable pageable) {
+        return userRepository.findAll(
+                UserFilterSpecification.filter(userFilterRequestDto), pageable);
     }
 
     @Override
     @Transactional
     public User createUser(UserAdminPanelCreateRequestDto dto) {
-        registerDataManager.checkRegisterDataDefault(
-                dto.username(), dto.email(), dto.phoneNumber(), dto.password());
+        registerDataManager.checkRegisterDataAdminPanel(dto);
 
         String hashedPassword = passwordConfiguration.passwordEncoder().encode(dto.password());
 
-        User user = new User(dto.username(), dto.email(), hashedPassword, null, dto.phoneNumber());
+        UserAdminPanelCreateRequestDto dtoWithHashedPassword =
+                new UserAdminPanelCreateRequestDto(
+                        dto.username(),
+                        dto.email(),
+                        dto.phoneNumber(),
+                        hashedPassword,
+                        dto.firstName(),
+                        dto.lastName(),
+                        dto.profileDescription());
+        User user = userMapper.toEntity(dtoWithHashedPassword);
         return userRepository.save(user);
     }
 

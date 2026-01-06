@@ -63,7 +63,7 @@ public class Offer {
     @JoinColumn(name = "contract_id")
     private Contract contract;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL)
     private Set<Application> applications = new HashSet<>();
 
     @ManyToMany private Set<Tag> tags = new HashSet<>();
@@ -84,5 +84,10 @@ public class Offer {
         this.tags = tags;
         this.photo = photo;
         this.contract = updatedOffer.getContract();
+    }
+
+    public void addApplication(Application application) {
+        applications.add(application);
+        application.setOffer(this);
     }
 }

@@ -130,3 +130,22 @@ export const deleteOffer = async (id: string) => {
   if (!response) throw new Error("No response received");
   return response;
 };
+
+export const applyForOffer = async (
+  offerId: string,
+  payload: Record<string, any>,
+) => {
+  const [response, error] = await tryCatch(
+    apiFetch(
+      `/offer/${offerId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      },
+      true,
+    ),
+  );
+  if (error) console.error("apply error:", error);
+  if (!response) throw new Error("No response received");
+  return response;
+};

@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     ALREADY_APPLIED_FOR_OFFER("User already applied for this offer", HttpStatus.FORBIDDEN, null),
+    APPLICATION_ALREADY_REVIEWED("Application already reviewed", HttpStatus.FORBIDDEN, null),
+    APPLICATION_NOT_FOUND("Application not found", HttpStatus.NOT_FOUND, null),
     CANDIDATE_NEED_TO_BE_CHOSEN(
             "Offer doesn't have any chosen candidate", HttpStatus.BAD_REQUEST, null),
     CATEGORY_ALREADY_EXISTS("Category already exists", HttpStatus.CONFLICT, null),

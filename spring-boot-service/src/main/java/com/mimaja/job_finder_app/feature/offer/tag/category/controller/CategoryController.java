@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.offer.tag.category.controller;
 
+import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.category.service.CategoryServiceUser;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
@@ -13,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,12 +26,14 @@ public class CategoryController {
 
     @GetMapping
     public ResponseDto<Page<CategoryResponseDto>> getAllCategories(
+            @RequestParam(required = false) String name,
             @PageableDefault(sort = "name", size = 20, direction = Sort.Direction.ASC)
                     Pageable pageable) {
+        CategoryFilterRequestDto categoryFilterRequestDto = new CategoryFilterRequestDto(name);
         return new ResponseDto<>(
                 SuccessCode.RESPONSE_SUCCESSFUL,
                 "Successfully fetched all categories",
-                categoryServiceUser.getAllCategories(pageable));
+                categoryServiceUser.getAllCategories(categoryFilterRequestDto, pageable));
     }
 
     @GetMapping(ID)

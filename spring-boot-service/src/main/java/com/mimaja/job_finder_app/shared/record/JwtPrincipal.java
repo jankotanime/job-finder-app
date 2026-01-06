@@ -9,6 +9,7 @@ public record JwtPrincipal(
         UUID id,
         String username,
         String email,
+        String role,
         int phoneNumber,
         String firstName,
         String lastName) {}

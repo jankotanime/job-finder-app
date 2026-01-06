@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public record OfferFilterRequestDto(
+        UUID userId,
         LocalDateTime firstDate,
         LocalDateTime lastDate,
         Double minSalary,

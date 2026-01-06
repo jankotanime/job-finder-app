@@ -1,3 +1,4 @@
+import type { Offer } from "./Offer";
 export type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
@@ -14,4 +15,9 @@ export type RootStackParamList = {
   };
   SmsGoogleCode: undefined;
   AddOffer: undefined;
+  EditProfile: undefined;
+  YourOffersScreen: undefined;
+  OfferManage: { offer: Offer };
+  CvSelect: undefined;
+  CvPreview: { cvUri: string; cvName?: string };
 };

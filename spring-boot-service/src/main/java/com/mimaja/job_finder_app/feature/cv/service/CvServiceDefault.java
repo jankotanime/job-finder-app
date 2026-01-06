@@ -76,6 +76,7 @@ public class CvServiceDefault implements CvService {
     public void deleteCv(UUID cvId) {
         Cv cv = getOrThrow(cvId);
         fileManagementService.deleteFile(cv.getStorageKey());
+        cvRepository.delete(cv);
     }
 
     @Override

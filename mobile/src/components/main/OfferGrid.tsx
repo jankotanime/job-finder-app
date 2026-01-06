@@ -1,6 +1,14 @@
-import React from "react";
-import { View, Text, StyleSheet, FlatList, Dimensions } from "react-native";
-import { useTheme } from "react-native-paper";
+import React, { useMemo } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { useTheme, Text as PaperText } from "react-native-paper";
 import useOfferStorage from "../../hooks/useOfferStorage";
 
 const { width, height } = Dimensions.get("window");
@@ -9,34 +17,49 @@ const OfferGrid = () => {
   const { colors } = useTheme();
   const { storageOffers } = useOfferStorage();
 
-  const renderItem = ({ item }: any) => {
-    return (
-      <View style={[styles.card, { backgroundColor: colors.onBackground }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>
-          {item.title}
-        </Text>
-        <Text style={[styles.salary, { color: colors.onSurface }]}>
-          ${item.salary}
-        </Text>
-        <Text style={[styles.location, { color: colors.secondary }]}>
-          {item.location}
-        </Text>
+  const numColumns = 2;
+  const tileWidth = useMemo(() => width * 0.5 - 24, []);
+  const keyFor = (item: any) => `${item?.title}|${item?.dateAndTime}`;
+
+  const renderItem = ({ item }: any) => (
+    <TouchableOpacity
+      style={[
+        styles.tile,
+        { backgroundColor: colors.onBackground, width: tileWidth },
+      ]}
+    >
+      {item?.offerPhoto ? (
+        <Image source={{ uri: item.offerPhoto }} style={styles.image} />
+      ) : (
+        <View style={[styles.image, { backgroundColor: colors.background }]} />
+      )}
+      <View style={styles.tileContent}>
+        <PaperText variant="titleMedium" numberOfLines={1}>
+          {item?.title}
+        </PaperText>
+        {typeof item?.salary === "number" && (
+          <PaperText style={{ opacity: 0.7 }} numberOfLines={1}>
+            {item.salary} zł
+          </PaperText>
+        )}
       </View>
-    );
-  };
+    </TouchableOpacity>
+  );
 
   return (
-    <FlatList
-      data={storageOffers}
-      keyExtractor={(item) => item.id}
-      renderItem={renderItem}
-      numColumns={2}
-      columnWrapperStyle={styles.row}
-      contentContainerStyle={[
-        styles.container,
-        { backgroundColor: colors.background, paddingBottom: height * 0.129 },
-      ]}
-    />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <FlatList
+        data={storageOffers}
+        keyExtractor={keyFor}
+        renderItem={renderItem}
+        numColumns={numColumns}
+        columnWrapperStyle={{
+          justifyContent: "space-between",
+          paddingHorizontal: 12,
+        }}
+        contentContainerStyle={styles.grid}
+      />
+    </View>
   );
 };
 
@@ -44,36 +67,23 @@ export default OfferGrid;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 5,
-    paddingBottom: height * 0.129,
+    flex: 1,
+    paddingTop: 12,
   },
-  row: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    marginBottom: 15,
+  grid: {
+    paddingBottom: 24,
+    gap: 12,
   },
-  card: {
-    width: (width - 20) / 2,
+  tile: {
     borderRadius: 12,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginRight: 10,
-    marginBottom: 0,
+    overflow: "hidden",
+    marginBottom: 12,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
+  image: {
+    width: "100%",
+    height: 120,
   },
-  salary: {
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  location: {
-    fontSize: 12,
+  tileContent: {
+    padding: 10,
   },
 });

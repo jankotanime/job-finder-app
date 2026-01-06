@@ -7,6 +7,8 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,6 +45,9 @@ public class User {
 
     @Nullable private String passwordHash;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.USER;
+
     private int phoneNumber;
 
     @Nullable private String googleId;
@@ -75,5 +80,8 @@ public class User {
         this.username = dto.username();
         this.email = dto.email();
         this.phoneNumber = dto.phoneNumber();
+        this.firstName = dto.firstName();
+        this.lastName = dto.lastName();
+        this.profileDescription = dto.profileDescription();
     }
 }
