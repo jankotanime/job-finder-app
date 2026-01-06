@@ -16,6 +16,7 @@ import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.filterspecification.OfferFilterSpecification;
 import com.mimaja.job_finder_app.feature.offer.mapper.OfferMapper;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
+import com.mimaja.job_finder_app.feature.offer.model.OfferStatus;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.dto.OfferPhotoCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.repository.OfferRepository;
@@ -48,6 +49,8 @@ public class OfferServiceDefault implements OfferService {
     private final TagService tagService;
     private final FileManagementService fileManagementService;
     private final ContractRepository contractRepository;
+    private final CvService cvService;
+    private final ApplicationMapper applicationMapper;
 
     @Override
     public Offer getOfferById(UUID offerId) {
