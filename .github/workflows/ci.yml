@@ -40,6 +40,8 @@ jobs:
             ~/.gradle/wrapper
           key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-${{ runner.os }}-
+      - name: Test Maven Central access
+        run: curl -I https://repo.maven.apache.org/maven2/
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
       - name: Run tests and coverage
