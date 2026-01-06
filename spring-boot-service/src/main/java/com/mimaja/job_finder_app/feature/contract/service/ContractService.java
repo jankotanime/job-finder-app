@@ -20,4 +20,6 @@ public interface ContractService {
     void deleteContract(UUID contractId, JwtPrincipal principal);
 
     ContractDto getContract(UUID contractId, JwtPrincipal principal);
+
+    ContractDto getContractByOfferId(UUID offerId, JwtPrincipal principal);
 }

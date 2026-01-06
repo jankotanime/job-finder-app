@@ -5,7 +5,8 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.application.dto.ApplicationCreateRequestDto;
 import com.mimaja.job_finder_app.feature.application.mapper.ApplicationMapper;
 import com.mimaja.job_finder_app.feature.application.model.Application;
-import com.mimaja.job_finder_app.feature.contract.utils.ContractFileManager;
+import com.mimaja.job_finder_app.feature.contract.model.Contract;
+import com.mimaja.job_finder_app.feature.contract.repository.ContractRepository;
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
 import com.mimaja.job_finder_app.feature.cv.service.CvService;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferApplyRequestDto;
@@ -49,7 +50,7 @@ public class OfferServiceDefault implements OfferService {
     private final CvService cvService;
     private final ApplicationMapper applicationMapper;
     private final FileManagementService fileManagementService;
-    private final ContractFileManager contractFileManager;
+    private final ContractRepository contractRepository;
 
     @Override
     public Offer getOfferById(UUID offerId) {
@@ -109,7 +110,7 @@ public class OfferServiceDefault implements OfferService {
         if (offer.getPhoto() != null) {
             fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
         }
-        contractFileManager.deleteContract(offer.getContract());
+        removeContractByOffer(offer);
         offerRepository.delete(offer);
     }
 
@@ -122,7 +123,7 @@ public class OfferServiceDefault implements OfferService {
                     if (offer.getPhoto() != null) {
                         fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
                     }
-                    contractFileManager.deleteContract(offer.getContract());
+                    removeContractByOffer(offer);
                 });
         offerRepository.deleteAll(offersToDelete);
     }
@@ -146,6 +147,26 @@ public class OfferServiceDefault implements OfferService {
                         new ApplicationCreateRequestDto(candidate, offer, chosenCv));
         offer.getApplications().add(application);
         return offerRepository.save(offer);
+    }
+
+    @Override
+    @Transactional
+    public void attachContract(Offer offer, Contract contract) {
+        offer.setContract(contract);
+        offerRepository.save(offer);
+        contract.setId(offer.getContract().getId());
+    }
+
+    @Override
+    @Transactional
+    public void removeContractByOffer(Offer offer) {
+        Contract contract = offer.getContract();
+        if (contract != null) {
+            offer.setContract(null);
+            offerRepository.save(offer);
+            contractRepository.delete(contract);
+            fileManagementService.deleteFile(contract.getStorageKey());
+        }
     }
 
     private Offer getOrThrow(UUID offerId) {

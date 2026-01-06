@@ -15,6 +15,7 @@ import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.job.service.JobService;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.repository.OfferRepository;
+import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class ContractServiceDefault implements ContractService {
     private final OfferRepository offerRepository;
     private final ContractRepository contractRepository;
     private final ContractFileManager contractFileManager;
+    private final OfferService offerService;
     private final JobService jobService;
     private final JobMapper jobMapper;
 
@@ -45,15 +47,13 @@ public class ContractServiceDefault implements ContractService {
         if (offer.getContract() != null) {
             throw new BusinessException(BusinessExceptionReason.OFFER_HAS_CONTRACT);
         }
-        checkIfUserIsOwner(offer, principal.id());
-        checkIfOfferHasCandidate(offer);
+        throwErrorIfUserNotOwner(offer, principal.id());
+        throwErrorIfOfferHasNoCandidate(offer);
 
         Contract contract =
                 Contract.from(contractFileManager.saveContract(requestDto.file()), offer);
 
-        contractRepository.save(contract);
-        offer.setContract(contract);
-        offerRepository.save(offer);
+        offerService.attachContract(offer, contract);
 
         return ContractDto.from(contract);
     }
@@ -66,16 +66,16 @@ public class ContractServiceDefault implements ContractService {
 
         Offer offer = contract.getOffer();
 
-        if (!offer.getOwner().getId().equals(principal.id())) {
-            throw new BusinessException(BusinessExceptionReason.USER_NOT_OWNER);
-        }
+        throwErrorIfUserNotOwner(offer, principal.id());
 
-        contractFileManager.deleteContract(contract);
-        contract = Contract.from(contractFileManager.saveContract(requestDto.file()), offer);
+        offerService.removeContractByOffer(offer);
 
-        contractRepository.save(contract);
+        Contract newContract =
+                Contract.from(contractFileManager.saveContract(requestDto.file()), offer);
 
-        return ContractDto.from(contract);
+        offerService.attachContract(offer, newContract);
+
+        return ContractDto.from(newContract);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ContractServiceDefault implements ContractService {
 
         Offer offer = contract.getOffer();
 
-        checkIfUserIsCandidate(offer, principal.id());
+        throwErrorIfUserNotCandidate(offer, principal.id());
 
         contract.setContractorAcceptance(ContractStatus.ACCEPTED);
         contract.setOffer(null);
@@ -105,7 +105,7 @@ public class ContractServiceDefault implements ContractService {
         Contract contract = getOfferContract(contractId);
         Offer offer = contract.getOffer();
 
-        checkIfUserIsCandidate(offer, principal.id());
+        throwErrorIfUserNotCandidate(offer, principal.id());
 
         contract.setContractorAcceptance(ContractStatus.DECLINED);
 
@@ -122,26 +122,39 @@ public class ContractServiceDefault implements ContractService {
         }
 
         Contract contract = contractOptional.get();
-        if (contract.getJob() == null) {
-            Offer offer = contract.getOffer();
-            if (offer.getOwner().getId().equals(userId)) {
-                return ContractDto.from(contract);
-            }
-            User chosenCandidate = offer.getChosenCandidate();
-            if (chosenCandidate != null) {
-                if (chosenCandidate.getId().equals(userId)) {
-                    return ContractDto.from(contract);
-                }
-            }
-            throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
+        Offer offer = contract.getOffer();
+        if (offer != null) {
+            return getContractDtoIfHasAccess(offer, contract, userId);
         }
 
         Job job = contract.getJob();
-        if (!job.getContractor().getId().equals(userId) && !job.getOwner().getId().equals(userId)) {
-            throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
+        if (job != null) {
+            if (job.getContractor().getId().equals(userId)
+                    || job.getOwner().getId().equals(userId)) {
+                return ContractDto.from(contract);
+            }
         }
 
-        return ContractDto.from(contract);
+        throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
+    }
+
+    @Override
+    public ContractDto getContractByOfferId(UUID offerId, JwtPrincipal principal) {
+        Optional<Offer> offerOptional = offerRepository.findById(offerId);
+        if (offerOptional.isEmpty()) {
+            throw new BusinessException(BusinessExceptionReason.OFFER_NOT_FOUND);
+        }
+
+        Offer offer = offerOptional.get();
+        Contract contract = offer.getContract();
+
+        if (contract == null) {
+            throw new BusinessException(BusinessExceptionReason.OFFER_HAS_NO_CONTRACT);
+        }
+
+        UUID userId = principal.id();
+
+        return getContractDtoIfHasAccess(offer, contract, userId);
     }
 
     @Override
@@ -149,10 +162,8 @@ public class ContractServiceDefault implements ContractService {
     public void deleteContract(UUID contractId, JwtPrincipal principal) {
         Contract contract = getOfferContract(contractId);
         Offer offer = contract.getOffer();
-        checkIfUserIsOwner(offer, principal.id());
-        offer.setContract(null);
-        contractFileManager.deleteContract(contract);
-        offerRepository.save(offer);
+        throwErrorIfUserNotOwner(offer, principal.id());
+        offerService.removeContractByOffer(offer);
     }
 
     private Contract getOfferContract(UUID contractId) {
@@ -169,22 +180,35 @@ public class ContractServiceDefault implements ContractService {
         return contract;
     }
 
-    private void checkIfUserIsCandidate(Offer offer, UUID id) {
-        checkIfOfferHasCandidate(offer);
+    private void throwErrorIfUserNotCandidate(Offer offer, UUID id) {
+        throwErrorIfOfferHasNoCandidate(offer);
         if (!offer.getChosenCandidate().getId().equals(id)) {
             throw new BusinessException(BusinessExceptionReason.USER_NOT_CANDIDATE);
         }
     }
 
-    private void checkIfUserIsOwner(Offer offer, UUID id) {
+    private void throwErrorIfUserNotOwner(Offer offer, UUID id) {
         if (!offer.getOwner().getId().equals(id)) {
             throw new BusinessException(BusinessExceptionReason.USER_NOT_OWNER);
         }
     }
 
-    private void checkIfOfferHasCandidate(Offer offer) {
+    private void throwErrorIfOfferHasNoCandidate(Offer offer) {
         if (offer.getChosenCandidate() == null) {
             throw new BusinessException(BusinessExceptionReason.OFFER_HAS_NONE_CANDIDATES);
         }
+    }
+
+    private ContractDto getContractDtoIfHasAccess(Offer offer, Contract contract, UUID userId) {
+        if (offer.getOwner().getId().equals(userId)) {
+            return ContractDto.from(contract);
+        }
+        User chosenCandidate = offer.getChosenCandidate();
+        if (chosenCandidate != null) {
+            if (chosenCandidate.getId().equals(userId)) {
+                return ContractDto.from(contract);
+            }
+        }
+        throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
     }
 }

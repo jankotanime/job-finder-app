@@ -8,6 +8,7 @@ import com.mimaja.job_finder_app.feature.job.dto.JobResponseDto;
 import com.mimaja.job_finder_app.shared.dto.ResponseDto;
 import com.mimaja.job_finder_app.shared.enums.SuccessCode;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -30,7 +31,7 @@ public class ContractController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseDto<ContractDto> uploadContract(
-            @ModelAttribute ContractUploadRequestDto reqBody,
+            @Valid @ModelAttribute ContractUploadRequestDto reqBody,
             @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
         ContractDto response = contractService.uploadContract(reqBody, jwtPrincipal);
 
@@ -41,6 +42,14 @@ public class ContractController {
     ResponseDto<ContractDto> getContract(
             @PathVariable UUID contractId, @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
         ContractDto response = contractService.getContract(contractId, jwtPrincipal);
+
+        return new ResponseDto<>(SuccessCode.RESPONSE_SUCCESSFUL, "Contract found", response);
+    }
+
+    @GetMapping("/by-offer/{offerId}")
+    ResponseDto<ContractDto> getContractByOfferId(
+            @PathVariable UUID offerId, @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
+        ContractDto response = contractService.getContractByOfferId(offerId, jwtPrincipal);
 
         return new ResponseDto<>(SuccessCode.RESPONSE_SUCCESSFUL, "Contract found", response);
     }
@@ -56,7 +65,7 @@ public class ContractController {
     @PutMapping(path = "/{contractId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseDto<ContractDto> updateContract(
             @PathVariable UUID contractId,
-            @ModelAttribute ContractUpdateRequestDto reqBody,
+            @Valid @ModelAttribute ContractUpdateRequestDto reqBody,
             @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
         ContractDto response = contractService.updateContract(contractId, reqBody, jwtPrincipal);
 

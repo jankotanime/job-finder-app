@@ -43,6 +43,7 @@ public enum BusinessExceptionReason implements BusinessExceptionPolicy {
     OFFER_NOT_FOUND("Offer not found", HttpStatus.NOT_FOUND, null),
     OFFER_HAS_CONTRACT("Offer has assgined contract", HttpStatus.FORBIDDEN, null),
     OFFER_HAS_NONE_CANDIDATES("Offer has none candidates", HttpStatus.FORBIDDEN, null),
+    OFFER_HAS_NO_CONTRACT("Offer has no contract", HttpStatus.NOT_FOUND, null),
     OWNER_CANNOT_APPLY("Owner cannot apply for offer", HttpStatus.FORBIDDEN, null),
     PHONE_NUMBER_ALREADY_TAKEN("User with this phone number exists", HttpStatus.UNAUTHORIZED, null),
     PROFILE_INCOMPLETE("User profile needs to be completed", HttpStatus.UNAUTHORIZED, null),
