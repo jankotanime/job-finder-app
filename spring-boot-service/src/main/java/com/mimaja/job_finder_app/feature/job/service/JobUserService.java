@@ -3,6 +3,7 @@ package com.mimaja.job_finder_app.feature.job.service;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.job.dto.JobResponseDto;
+import com.mimaja.job_finder_app.feature.job.jobDispatcher.dto.JobDispatcherResponseDto;
 import com.mimaja.job_finder_app.feature.job.mapper.JobMapper;
 import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
@@ -46,6 +47,57 @@ public class JobUserService {
         jobService.deleteJob(jobId);
     }
 
+    public JobDispatcherResponseDto startJob(UUID userId, UUID jobId) {
+        throwErrorIfNotJobContractor(userId, jobId);
+
+        return JobDispatcherResponseDto.from(jobService.startJob(jobId));
+    }
+
+    public JobDispatcherResponseDto getJobDispatcher(UUID userId, UUID jobId) {
+        throwErrorIfNotContractorOrOwner(userId, jobId);
+
+        return JobDispatcherResponseDto.from(jobService.getJobDispatcherByJobId(jobId));
+    }
+
+    public JobDispatcherResponseDto reportProblemTrue(UUID userId, UUID jobId) {
+        Job job = jobService.getJobById(jobId);
+        if (job.getContractor().getId().equals(userId)) {
+            return JobDispatcherResponseDto.from(jobService.reportProblemContractorTrue(jobId));
+        }
+
+        if (job.getOwner().getId().equals(userId)) {
+            return JobDispatcherResponseDto.from(jobService.reportProblemOwnerTrue(jobId));
+        }
+
+        throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
+    }
+
+    public JobDispatcherResponseDto reportProblemFalse(UUID userId, UUID jobId) {
+        Job job = jobService.getJobById(jobId);
+        if (job.getContractor().getId().equals(userId)) {
+            return JobDispatcherResponseDto.from(jobService.reportProblemContractorFalse(jobId));
+        }
+
+        if (job.getOwner().getId().equals(userId)) {
+            return JobDispatcherResponseDto.from(jobService.reportProblemOwnerFalse(jobId));
+        }
+
+        throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
+    }
+
+    public JobResponseDto reportSuccessfulEndJob(UUID userId, UUID jobId) {
+        Job job = jobService.getJobById(jobId);
+        if (job.getContractor().getId().equals(userId)) {
+            return jobMapper.toResponseDto(jobService.reportSuccessfulEndJobContractor(jobId));
+        }
+
+        if (job.getOwner().getId().equals(userId)) {
+            return jobMapper.toResponseDto(jobService.reportSuccessfulEndJobOwner(jobId));
+        }
+
+        throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
+    }
+
     private void throwErrorIfNotContractorOrOwner(UUID userId, UUID jobId) {
         Job job = jobService.getJobById(jobId);
         if (job.getContractor().getId().equals(userId) && !job.getOwner().getId().equals(userId)) {
@@ -64,6 +116,13 @@ public class JobUserService {
         Job job = jobService.getJobById(jobId);
         if (!job.getOwner().getId().equals(userId)) {
             throw new BusinessException(BusinessExceptionReason.USER_NOT_OWNER);
+        }
+    }
+
+    private void throwErrorIfNotJobContractor(UUID userId, UUID jobId) {
+        Job job = jobService.getJobById(jobId);
+        if (!job.getContractor().getId().equals(userId)) {
+            throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR);
         }
     }
 }
