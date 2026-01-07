@@ -10,9 +10,11 @@ import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -59,40 +61,49 @@ public class JobUserService {
         return JobDispatcherResponseDto.from(jobService.getJobDispatcherByJobId(jobId));
     }
 
-    public JobDispatcherResponseDto reportProblemTrue(UUID userId, UUID jobId) {
+    public JobDispatcherResponseDto reportProblemTrue(
+            UUID userId, UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = jobService.getJobById(jobId);
         if (job.getContractor().getId().equals(userId)) {
-            return JobDispatcherResponseDto.from(jobService.reportProblemContractorTrue(jobId));
+            return JobDispatcherResponseDto.from(
+                    jobService.reportProblemContractorTrue(jobId, photo, description));
         }
 
         if (job.getOwner().getId().equals(userId)) {
-            return JobDispatcherResponseDto.from(jobService.reportProblemOwnerTrue(jobId));
+            return JobDispatcherResponseDto.from(
+                    jobService.reportProblemOwnerTrue(jobId, photo, description));
         }
 
         throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
     }
 
-    public JobDispatcherResponseDto reportProblemFalse(UUID userId, UUID jobId) {
+    public JobDispatcherResponseDto reportProblemFalse(
+            UUID userId, UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = jobService.getJobById(jobId);
         if (job.getContractor().getId().equals(userId)) {
-            return JobDispatcherResponseDto.from(jobService.reportProblemContractorFalse(jobId));
+            return JobDispatcherResponseDto.from(
+                    jobService.reportProblemContractorFalse(jobId, photo, description));
         }
 
         if (job.getOwner().getId().equals(userId)) {
-            return JobDispatcherResponseDto.from(jobService.reportProblemOwnerFalse(jobId));
+            return JobDispatcherResponseDto.from(
+                    jobService.reportProblemOwnerFalse(jobId, photo, description));
         }
 
         throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
     }
 
-    public JobResponseDto reportSuccessfulEndJob(UUID userId, UUID jobId) {
+    public JobResponseDto endJobSuccessfuly(
+            UUID userId, UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = jobService.getJobById(jobId);
         if (job.getContractor().getId().equals(userId)) {
-            return jobMapper.toResponseDto(jobService.reportSuccessfulEndJobContractor(jobId));
+            return jobMapper.toResponseDto(
+                    jobService.endJobSuccessfulyContractor(jobId, photo, description));
         }
 
         if (job.getOwner().getId().equals(userId)) {
-            return jobMapper.toResponseDto(jobService.reportSuccessfulEndJobOwner(jobId));
+            return jobMapper.toResponseDto(
+                    jobService.endJobSuccessfulyOwner(jobId, photo, description));
         }
 
         throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);

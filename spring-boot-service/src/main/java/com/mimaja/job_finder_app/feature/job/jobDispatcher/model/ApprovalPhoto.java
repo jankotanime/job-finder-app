@@ -1,5 +1,6 @@
 package com.mimaja.job_finder_app.feature.job.jobDispatcher.model;
 
+import com.mimaja.job_finder_app.feature.job.jobDispatcher.dto.JobDispatcherPhotoCreateRequestDto;
 import com.mimaja.job_finder_app.shared.model.FileBase;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -20,6 +21,15 @@ public class ApprovalPhoto extends FileBase {
                 .mimeType(file.getMimeType())
                 .fileSize(file.getFileSize())
                 .storageKey(file.getStorageKey())
+                .build();
+    }
+
+    public static ApprovalPhoto from(JobDispatcherPhotoCreateRequestDto dto) {
+        return builder()
+                .fileName(dto.fileName())
+                .mimeType(dto.mimeType())
+                .fileSize(dto.fileSize())
+                .storageKey(dto.storageKey())
                 .build();
     }
 }

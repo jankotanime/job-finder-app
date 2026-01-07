@@ -2,6 +2,9 @@ package com.mimaja.job_finder_app.feature.job.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.job.jobDispatcher.dto.JobDispatcherPhotoCreateRequestDto;
+import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.Approval;
+import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.ApprovalPhoto;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcher;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcherIssueStatus;
 import com.mimaja.job_finder_app.feature.job.jobphoto.model.JobPhoto;
@@ -11,16 +14,20 @@ import com.mimaja.job_finder_app.feature.job.repository.JobRepository;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
+import com.mimaja.job_finder_app.shared.adapters.MultipartFileSource;
 import com.mimaja.job_finder_app.shared.adapters.R2FileSource;
 import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
 import com.mimaja.job_finder_app.shared.enums.FileFolderName;
 import com.mimaja.job_finder_app.shared.service.FileManagementService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
@@ -84,7 +91,14 @@ public class JobServiceDefault implements JobService {
 
     @Override
     @Transactional
-    public JobDispatcher reportProblemContractorFalse(UUID jobId) {
+    public JobDispatcher getJobDispatcherByJobId(UUID jobId) {
+        return getOrThrowJobDispatcher(jobId);
+    }
+
+    @Override
+    @Transactional
+    public JobDispatcher reportProblemContractorFalse(
+            UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
 
@@ -96,13 +110,15 @@ public class JobServiceDefault implements JobService {
             resetJobDispatcher(job, jobDispatcher);
         }
 
+        addApprovalToContractorJobDispatcher(job, jobDispatcher, photo, description);
         saveNewJobDispatcher(job, jobDispatcher);
         return jobDispatcher;
     }
 
     @Override
     @Transactional
-    public JobDispatcher reportProblemOwnerFalse(UUID jobId) {
+    public JobDispatcher reportProblemOwnerFalse(
+            UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
 
@@ -113,12 +129,15 @@ public class JobServiceDefault implements JobService {
         if (jobDispatcher.getIssueStatusContractor().equals(JobDispatcherIssueStatus.NO_PROBLEM)) {
             resetJobDispatcher(job, jobDispatcher);
         }
+
+        addApprovalToOwnerJobDispatcher(job, jobDispatcher, photo, description);
         return jobDispatcher;
     }
 
     @Override
     @Transactional
-    public JobDispatcher reportProblemContractorTrue(UUID jobId) {
+    public JobDispatcher reportProblemContractorTrue(
+            UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
         jobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
@@ -130,13 +149,15 @@ public class JobServiceDefault implements JobService {
             setJobFailure(job, jobDispatcher);
         }
 
+        addApprovalToContractorJobDispatcher(job, jobDispatcher, photo, description);
         saveNewJobDispatcher(job, jobDispatcher);
         return jobDispatcher;
     }
 
     @Override
     @Transactional
-    public JobDispatcher reportProblemOwnerTrue(UUID jobId) {
+    public JobDispatcher reportProblemOwnerTrue(
+            UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
         jobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
@@ -149,19 +170,15 @@ public class JobServiceDefault implements JobService {
             setJobFailure(job, jobDispatcher);
         }
 
+        addApprovalToOwnerJobDispatcher(job, jobDispatcher, photo, description);
         saveNewJobDispatcher(job, jobDispatcher);
         return jobDispatcher;
     }
 
     @Override
     @Transactional
-    public JobDispatcher getJobDispatcherByJobId(UUID jobId) {
-        return getOrThrowJobDispatcher(jobId);
-    }
-
-    @Override
-    @Transactional
-    public Job reportSuccessfulEndJobOwner(UUID jobId) {
+    public Job endJobSuccessfulyOwner(
+            UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
 
@@ -169,25 +186,69 @@ public class JobServiceDefault implements JobService {
             throw new BusinessException(BusinessExceptionReason.JOB_NOT_FINISHED);
         }
 
+        addApprovalToOwnerJobDispatcher(job, jobDispatcher, photo, description);
         setJobSuccess(job);
         return job;
     }
 
     @Override
     @Transactional
-    public Job reportSuccessfulEndJobContractor(UUID jobId) {
+    public Job endJobSuccessfulyContractor(
+            UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
         jobDispatcher.setFinishedAt(LocalDateTime.now());
 
-        saveNewJobDispatcher(job, jobDispatcher);
+        addApprovalToContractorJobDispatcher(job, jobDispatcher, photo, description);
         return job;
+    }
+
+    private void fillApproval(
+            Set<Approval> approval, Optional<MultipartFile> photo, String description) {
+        if (photo.isPresent()) {
+            approval.add(new Approval(processPhoto(photo.get()), description));
+        } else {
+            approval.add(new Approval(null, description));
+        }
+    }
+
+    private void addApprovalToContractorJobDispatcher(
+            Job job,
+            JobDispatcher jobDispatcher,
+            Optional<MultipartFile> photo,
+            String description) {
+        Set<Approval> approval = jobDispatcher.getContractiorApprovals();
+        fillApproval(approval, photo, description);
+        saveNewJobDispatcher(job, jobDispatcher);
+    }
+
+    private void addApprovalToOwnerJobDispatcher(
+            Job job,
+            JobDispatcher jobDispatcher,
+            Optional<MultipartFile> photo,
+            String description) {
+        Set<Approval> approval = jobDispatcher.getContractiorApprovals();
+        fillApproval(approval, photo, description);
+        saveNewJobDispatcher(job, jobDispatcher);
     }
 
     private Job getOrThrow(UUID jobId) {
         return jobRepository
                 .findById(jobId)
                 .orElseThrow(() -> new BusinessException(BusinessExceptionReason.JOB_NOT_FOUND));
+    }
+
+    private ApprovalPhoto processPhoto(MultipartFile photo) {
+        MultipartFileSource fileSource = new MultipartFileSource(photo);
+        String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.JOB_DISPATCHER_PHOTO);
+        ProcessedFileDetails fileDetails =
+                fileManagementService.processFileDetails(fileSource, folder);
+
+        fileManagementService.uploadFile(fileDetails);
+
+        JobDispatcherPhotoCreateRequestDto dto =
+                JobDispatcherPhotoCreateRequestDto.from(fileDetails);
+        return ApprovalPhoto.from(dto);
     }
 
     private JobDispatcher getOrThrowJobDispatcher(UUID jobId) {

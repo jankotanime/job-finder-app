@@ -4,7 +4,9 @@ import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcher;
 import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface JobService {
     Job getJobById(UUID jobId);
@@ -21,15 +23,19 @@ public interface JobService {
 
     JobDispatcher getJobDispatcherByJobId(UUID jobId);
 
-    JobDispatcher reportProblemOwnerTrue(UUID jobId);
+    JobDispatcher reportProblemOwnerTrue(
+            UUID jobId, Optional<MultipartFile> photo, String description);
 
-    JobDispatcher reportProblemOwnerFalse(UUID jobId);
+    JobDispatcher reportProblemOwnerFalse(
+            UUID jobId, Optional<MultipartFile> photo, String description);
 
-    JobDispatcher reportProblemContractorTrue(UUID jobId);
+    JobDispatcher reportProblemContractorTrue(
+            UUID jobId, Optional<MultipartFile> photo, String description);
 
-    JobDispatcher reportProblemContractorFalse(UUID jobId);
+    JobDispatcher reportProblemContractorFalse(
+            UUID jobId, Optional<MultipartFile> photo, String description);
 
-    Job reportSuccessfulEndJobOwner(UUID jobId);
+    Job endJobSuccessfulyOwner(UUID jobId, Optional<MultipartFile> photo, String description);
 
-    Job reportSuccessfulEndJobContractor(UUID jobId);
+    Job endJobSuccessfulyContractor(UUID jobId, Optional<MultipartFile> photo, String description);
 }

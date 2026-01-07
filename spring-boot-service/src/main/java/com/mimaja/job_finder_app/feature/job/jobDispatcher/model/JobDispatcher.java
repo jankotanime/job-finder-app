@@ -7,9 +7,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,11 +35,13 @@ public class JobDispatcher {
     @Enumerated(EnumType.STRING)
     private JobDispatcherIssueStatus issueStatusContractor = JobDispatcherIssueStatus.NONE;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private ApprovalPhoto ownerApprovalPhoto;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "job_dispacher_id")
+    private Set<Approval> ownerApprovals;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private ApprovalPhoto contractorApprovalPhoto;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "job_dispacher_id")
+    private Set<Approval> contractiorApprovals;
 
     private LocalDateTime finishedAt;
     @CreationTimestamp private LocalDateTime createdAt;
