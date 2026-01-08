@@ -1,6 +1,261 @@
+@font-face {
+  font-family: 'Lato';
+  src: url('./LatoLatin/fonts/LatoLatin-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'LatoItalic';
+  src: url('./LatoLatin/fonts/LatoLatin-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+
 body {
-  background-color: pink;
+  padding: 0;
+  margin: 0;
+  background-color: rgb(180, 180, 220);
+  font-family: Lato;
+  font-size: 20px;
+}
+
+.title {
+  text-decoration: none;
+  color: black;
+  width: 400px;
+  font-size: 60px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.nav-download {
+  text-decoration: none;
+  color: black;
+  cursor: pointer;
+  font-size: 40px;
+  width: 400px;
+  text-align: left;
+}
+
+.header {
+  padding-left: 40px;
+  padding-right: 40px;
+  z-index: 2;
+  position: fixed;
+  width: calc(100% - 80px);
+  height: 100px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: rgb(160, 160, 200);
+}
+
+.footer {
+  position: relative;
+  min-height: 120px;
+  width: calc(100% - 300px);
+  background-color: rgb(0, 0, 0);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: 20px;
+  justify-items: center;
+  align-items: center;
+  padding: 50px 150px 50px 150px;
+  color: rgb(200, 200, 200);
+}
+
+
+.footer-description {
+  width: 600px;
+}
+
+.footer-elem {
+  cursor: pointer;
+  border: 1px rgb(200, 200, 200) solid;
+  border-radius: 10px;
+  font-size: 20px;
+  height: 30px;
+  width:fit-content;
+  max-width: 300px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding: 5px 20px 5px 20px;
+  gap: 20px;
+}
+
+.footer-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.footer-image, .footer-image-round {
+  object-fit: cover;
+  width: auto;
+  height: 30px;
+}
+
+.footer-image-round {
+  border-radius: 50%;
+}
+
+.main-page {
+  min-height: 100vh;
+  position: relative;
+  font-size: 24px;
+  z-index: 1;
+  margin-top: 100px;
+  padding: 50px;
+  padding-top: 0;
+  width: 800px;
+  background-color: rgb(180, 180, 220);;
+}
+
+.background-photo {
+  width: 100%;
+  height: auto;
+  position:fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.center-window {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.content {
+  padding-bottom: 50px;
+  border-bottom: 1px solid black;
+}
+
+.content-title {
+  padding-top: 50px;
+  padding-bottom: 20px;
+  font-size: 30px;
+}
+
+.header-nav {
+  margin-left: 300px;
+  height: 100px;
+  width: auto;
+  cursor: pointer;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  column-gap: 10px;
+  background-color: rgb(20, 20, 40);
+  position: fixed;
+  z-index: 1;
+  padding-top: 0;
+  margin: 0;
+  top: -150px;
+  padding: 20px;
+  right: 0px;
+  width: 200px;
+  cursor: pointer;
+  transition: top 0.25s ease;
+}
+
+.nav-hover {
+  cursor: pointer;
+  z-index: 3;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 140px;
+  height: 100px;
+}
+
+.nav-hover:hover + .nav {
+  top: 100px;
+}
+
+.nav:hover {
+  top: 100px;
+}
+
+.nav-elem {
+  color: aliceblue;
+}
+
+.download-title {
+  border-bottom: 1px black solid;
+  padding-top: 40px;
+  padding-bottom: 20px;
+  font-size: 48px;
+}
+
+.download-container {
+  padding-top: 80px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.download-elem {
+  cursor: pointer;
+  width: 45%;
+  height: auto;
+}
+
+.licence-elem {
+  cursor: pointer;
+  padding: 10px;
+  border: solid 2px black;
+  border-radius: 10px;
+  width: 80%;
+  height: 30px;
+}
+
+.update-password-page {
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 20px;
+}
+
+.update-password-input {
+  border: 2px solid black;
+  justify-content: center;
+  text-align: left;
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 10px;
+  width: 300px;
+  height: 20px;
+}
+
+.update-password-button {
+  cursor: pointer;
+  background-color: white;
+  border: 2px solid black;
+  justify-content: center;
+  text-align: center;
+  font-size: 20px;
+  border-radius: 10px;
+  width: 200px;
+  height: 60px;
+}
+
+.update-password-error {
+  color: rgb(150, 0, 0);
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 10px;
+  width: 500px;
+  height: 20px;
 }

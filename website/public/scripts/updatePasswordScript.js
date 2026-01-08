@@ -5,14 +5,6 @@ document.getElementById("updatePassword").addEventListener("submit", function(e)
     const password = document.getElementById("password");
     const repeatPassword = document.getElementById("repeatPassword");
     const errorPassword = document.getElementById("errorPassword");
-    const errorRepeatPassword = document.getElementById("errorRepeatPassword");
-    const errorAuth = document.getElementById("errorAuth");
-    const errorServer = document.getElementById("errorServer");
-
-    errorPassword.style.display = "none";
-    errorRepeatPassword.style.display = "none";
-    errorAuth.style.display = "none";
-    errorServer.style.display = "none";
 
     const hasEightCharacters = password.value.length >= 8;
     const hasNumber = /\d/.test(password.value);
@@ -20,12 +12,27 @@ document.getElementById("updatePassword").addEventListener("submit", function(e)
     const hasLowercase = /[a-z]/.test(password.value);
 
     if (password.value !== repeatPassword.value) {
-      errorRepeatPassword.style.display = "block";
+      errorPassword.textContent = "Hasła nie są takie same!";
       return;
     }
 
-    if (!hasEightCharacters || !hasNumber || !hasUppercase || !hasLowercase) {
-      errorPassword.style.display = "block";
+    if (!hasEightCharacters) {
+      errorPassword.textContent = "Hasło powinno zawierać osiem znaków!";
+      return;
+    }
+
+    if (!hasNumber) {
+      errorPassword.textContent = "Hasło powinno zawierać conajmniej jedną cyfrę!";
+      return;
+    }
+
+    if (!hasUppercase) {
+      errorPassword.textContent = "Hasło powinno zawierać conajmniej jedną dużą literę!";
+      return;
+    }
+
+    if (!hasLowercase) {
+      errorPassword.textContent = "Hasło powinno zawierać conajmniej jedną małą literę!";
       return;
     }
 
@@ -46,14 +53,14 @@ document.getElementById("updatePassword").addEventListener("submit", function(e)
       window.location.href = '/update-password-success';
     } else if (res.status === 401) {
       res.json().then(_ => {
-        errorAuth.style.display = "block";
+        errorPassword.textContent = "Problem z autentykacją: Proszę spróbować ponownie wysłać maila do resetowania haseł.";
       });
     } else {
       res.json().then(_ => {
-        errorServer.style.display = "block";
+        errorPassword.textContent = "Wystąpił nieoczekiwany problem, proszę skontaktować się z nami na: majami.technology@gmail.com";
       });
     }
-  }).catch(error => {
-    console.error("Error:", error);
+  }).catch(_ => {
+    errorPassword.textContent = "Wystąpił nieoczekiwany problem, proszę skontaktować się z nami na: majami.technology@gmail.com";
   });
 })

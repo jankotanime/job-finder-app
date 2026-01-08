@@ -1,20 +1,9 @@
-<form name="updatePassword" id="updatePassword">
-  <input id="password" name="password" type="password" placeholder="Enter new password..." />
-  <input id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password..." />
-  <button type="submit">Set password</button>
+<form class="update-password-page" name="updatePassword" id="updatePassword">
+  <input class="update-password-input" id="password" name="password" type="password" placeholder="Enter new password..." />
+  <input class="update-password-input" id="repeatPassword" name="repeatPassword" type="password" placeholder="Repeat password..." />
+  <button class="update-password-button" type="submit">Set password</button>
 
-  <div id="errorPassword" style="display: none; color: red; margin-top: 5px;">
-    Password should have 8 characters, one lower letter, one upper letter and one digit!
-  </div>
-  <div id="errorRepeatPassword" style="display: none; color: red; margin-top: 5px;">
-    Passwords are not the same!
-  </div>
-  <div id="errorAuth" style="display: none; color: red; margin-top: 5px;">
-    Authentication problem: please request update password e-mail again.
-  </div>
-  <div id="errorServer" style="display: none; color: red; margin-top: 5px;">
-    There appeart unusual problem, please contact us on: <!--TODO: Add email-->
-  </div>
+  <div class="update-password-error" id="errorPassword"></div>
 </form>
 
 <script>
