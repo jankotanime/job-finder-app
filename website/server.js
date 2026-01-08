@@ -18,9 +18,24 @@ app.get('/', async (req, res) => {
   res.render('index.ejs');
 });
 
+app.get('/about-us', async (req, res) => {
+  res.render('aboutUs.ejs');
+});
+
+app.get('/download', async (req, res) => {
+  res.render('download.ejs');
+});
+
+app.get('/faq', async (req, res) => {
+  res.render('faq.ejs');
+});
+
+app.get('/licences', async (req, res) => {
+  res.render('licences.ejs');
+});
+
 app.get('/update-password', async (req, res) => {
   const apiUrl = process.env.SSR_API_URL;
-  console.log(apiUrl)
   res.render('updatePassword.ejs', { apiUrl });
 });
 
