@@ -131,7 +131,8 @@
       "maxParticipantsInvalid": "Enter max participants",
       "ownerRequired": "Provide owner",
       "chosenCandidateInvalid": "Chosen candidate must be on the list"
-    }
+    },
+    "contract": "Contract"
   },
   "filter": {
     "apply": "Apply filters",
@@ -143,7 +144,21 @@
   "cv": {
     "title": "CV",
     "openError": "Failed to open candidate CV",
-    "openErrorGeneric": "An error occurred while opening CV"
+    "openErrorGeneric": "An error occurred while opening CV",
+    "selectionUserMissing": "No user - sign in to select CVs",
+    "selectionCvMissing": "No cv - select your CV to apply for offers",
+    "selectionSaved": "CV selection saved",
+    "selectionSaveError": "Failed to save CV selection",
+    "item": "CV",
+    "selectHint": "Select up to 1 CVs",
+    "chooseHeader": "Choose CV",
+    "selectedCount": "Selected: {{count}} / {{max}}",
+    "emptyList": "No CVs available",
+    "confirmSelection": "Confirm selection",
+    "add": "Add CV",
+    "premiumOnly": "Premium users only",
+    "maxReached": "CV limit reached",
+    "applyWith": "Applying with:"
   },
   "profile": {
     "editHeader": "Edit profile",
@@ -163,5 +178,11 @@
   },
   "offerExtra": {
     "candidate": "Candidate"
+  },
+  "chosenApplicants": {
+    "header": "Chosen applicants"
+  },
+  "common": {
+    "emptyApplicants": "No chosen applicants"
   }
 }

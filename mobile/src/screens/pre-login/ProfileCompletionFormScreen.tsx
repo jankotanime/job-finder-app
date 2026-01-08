@@ -101,7 +101,7 @@ const ProfileCompletionFormScreen = () => {
     if (!response?.ok) {
       console.error("something went wrong: ", response?.data.message);
     }
-    navigation.navigate("CvSelect");
+    navigation.navigate("CvSelect", { disableSkip: false });
   };
   return (
     <>
@@ -119,7 +119,7 @@ const ProfileCompletionFormScreen = () => {
                   style={[styles.logoWrapper, styles.placeholderLogo]}
                   onPress={() => setModalVisible(true)}
                 >
-                  <Icon source="camera" size={50} />
+                  <Icon source="camera" size={50} color={colors.onBackground} />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity

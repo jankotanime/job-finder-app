@@ -131,7 +131,8 @@
       "maxParticipantsInvalid": "Podaj maksymalną ilość uczestników",
       "ownerRequired": "Podaj właściciela",
       "chosenCandidateInvalid": "Wybrany kandydat musi być na liście"
-    }
+    },
+    "contract": "Zakontraktuj"
   },
   "filter": {
     "apply": "Zastosuj filtry",
@@ -143,7 +144,21 @@
   "cv": {
     "title": "CV",
     "openError": "Nie udało się otworzyć CV kandydata",
-    "openErrorGeneric": "Wystąpił błąd podczas otwierania CV"
+    "openErrorGeneric": "Wystąpił błąd podczas otwierania CV",
+    "selectionUserMissing": "Brak użytkownika — zaloguj się, aby wybrać CV",
+    "selectionCvMissing": "Brak cv -wybierz swoje CV, aby aplikować do ofert",
+    "selectionSaved": "Zapisano wybór CV",
+    "selectionSaveError": "Nie udało się zapisać wyboru CV",
+    "item": "CV",
+    "selectHint": "Zaznacz maksymalnie 1 CV",
+    "chooseHeader": "Wybierz CV",
+    "selectedCount": "Wybrane: {{count}} / {{max}}",
+    "emptyList": "Brak dostępnych CV",
+    "confirmSelection": "Zatwierdź wybór",
+    "add": "Dodaj CV",
+    "premiumOnly": "Tylko dla użytkowników premium",
+    "maxReached": "Osiągnięto limit CV",
+    "applyWith": "Aplikujesz z:"
   },
   "profile": {
     "editHeader": "Edytuj profil",
@@ -163,5 +178,11 @@
   },
   "offerExtra": {
     "candidate": "Kandydat"
+  },
+  "chosenApplicants": {
+    "header": "Wybrani kandydaci"
+  },
+  "common": {
+    "emptyApplicants": "Brak wybranych kandydatów"
   }
 }

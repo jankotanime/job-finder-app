@@ -54,7 +54,6 @@ export async function handleProfileCompletionSubmit({
     ),
   );
   const data = result?.body;
-  console.log("data: ", data);
   if (backendError || !result || !result.response) {
     return { ok: false, error: backendError || result };
   }

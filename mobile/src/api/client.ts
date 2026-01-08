@@ -97,6 +97,17 @@ export const stopTokenAutoRotate = () => {
     rotationTimer = null;
   }
 };
+
+export const forceSignOut = async () => {
+  try {
+    await EncryptedStorage.removeItem("auth");
+  } catch {}
+  accessToken = null;
+  refreshTokenValue = null;
+  refreshTokenId = null;
+  setTokensApiFetch({ accessToken: "", refreshToken: "", refreshTokenId: "" });
+  stopTokenAutoRotate();
+};
 export const apiFetch = async (
   url: string,
   options: RequestInit = {},
@@ -149,12 +160,14 @@ export const apiFetch = async (
       try {
         response = await fetchWithToken();
       } catch {
+        await forceSignOut();
         return {
           response: { ok: false, status: 0 } as Response,
           body: { code: "NETWORK_ERROR" },
         };
       }
     } else {
+      await forceSignOut();
       return {
         response: { ok: false, status: 0 } as Response,
         body: { code: "NETWORK_ERROR" },
@@ -167,7 +180,6 @@ export const apiFetch = async (
   } catch {
     body = null;
   }
-
   if (
     (body?.code === "INVALID_ACCESS_TOKEN" || response.status === 401) &&
     retry
@@ -181,6 +193,8 @@ export const apiFetch = async (
     }
     if (newToken) {
       return apiFetch(url, options, false);
+    } else {
+      await forceSignOut();
     }
   }
   return { response, body };
