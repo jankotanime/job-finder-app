@@ -12,7 +12,7 @@ const AddOfferButton = () => {
     <TouchableOpacity
       style={[
         styles.button,
-        { backgroundColor: colors.onBackground, borderColor: colors.primary },
+        { backgroundColor: "white", borderColor: colors.primary },
       ]}
       onPress={() => navigation.navigate("AddOffer")}
     >
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    borderRightWidth: 4,
-    borderLeftWidth: 4,
+    borderRightWidth: 3,
+    borderLeftWidth: 3,
   },
 });
