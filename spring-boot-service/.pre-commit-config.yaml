@@ -4,7 +4,7 @@ repos:
     hooks:
       - id: spotless-apply
         name: spotlessApply and git add (spring-boot-service)
-        entry: bash -c "python3 spring-boot-service/scripts/run_gradle.py spotlessApply && git add -A"
+        entry: python3 spring-boot-service/scripts/run_gradle.py spotlessApply && git add -A
         language: system
         pass_filenames: false
         stages: [pre-commit]
