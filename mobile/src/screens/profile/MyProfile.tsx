@@ -1,14 +1,6 @@
 import React from "react";
 import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
-import {
-  Avatar,
-  Text,
-  Button,
-  Card,
-  IconButton,
-  Divider,
-  useTheme,
-} from "react-native-paper";
+import { Avatar, Text, Button, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { buildPhotoUrl } from "../../utils/photoUrl";
@@ -20,7 +12,6 @@ const { height } = Dimensions.get("window");
 const MyProfile = () => {
   const { colors } = useTheme();
   const { userInfo } = useAuth();
-  console.log(userInfo?.profilePhoto);
   const photoUrl = buildPhotoUrl(userInfo?.profilePhoto ?? undefined);
   const { t } = useTranslation();
   const navigation = useNavigation<any>();

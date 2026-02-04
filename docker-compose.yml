@@ -109,6 +109,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    develop:
+      watch:
+        - action: sync
+          path: ./website
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./website/package.json
 
   nginx:
     image: nginx:1.29.1-bookworm-perl

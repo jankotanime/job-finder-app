@@ -25,7 +25,9 @@ public class TagFilterSpecification {
 
             if (dto.categories() != null) {
                 predicates.add(
-                        root.join("category", JoinType.INNER).get("name").in(dto.categories()));
+                        root.join("category", JoinType.INNER)
+                                .get("name")
+                                .in((Object[]) dto.categories()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

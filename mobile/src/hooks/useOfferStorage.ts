@@ -2,8 +2,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect, useCallback } from "react";
 import { tryCatch } from "../utils/try-catch";
 import { Offer } from "../types/Offer";
+import { useAuth } from "../contexts/AuthContext";
 
 export const useOfferStorage = () => {
+  const { userInfo } = useAuth();
+  const userId = userInfo?.userId ? String(userInfo.userId) : null;
+
   const [acceptedOffers, setAcceptedOffers] = useState<Offer[]>([]);
   const [declinedOffers, setDeclinedOffers] = useState<Offer[]>([]);
   const [storageOffers, setStorageOffers] = useState<Offer[]>([]);
@@ -11,44 +15,62 @@ export const useOfferStorage = () => {
 
   const makeOfferKey = (offer: Offer) => `${offer.title}|${offer.dateAndTime}`;
 
+  const keyFor = useCallback(
+    (base: string) => (userId ? `${base}:${userId}` : null),
+    [userId],
+  );
+
   useEffect(() => {
     const loadOffers = async () => {
+      setAcceptedOffers([]);
+      setDeclinedOffers([]);
+      setStorageOffers([]);
+      setSavedOffers([]);
+
+      const acceptedKey = keyFor("acceptedOffers");
+      const declinedKey = keyFor("declinedOffers");
+      const storageKey = keyFor("storageOffers");
+      const savedKey = keyFor("savedOffers");
+
       const [acceptedJson, error] = await tryCatch(
-        AsyncStorage.getItem("acceptedOffers"),
+        acceptedKey ? AsyncStorage.getItem(acceptedKey) : Promise.resolve(null),
       );
       if (acceptedJson) setAcceptedOffers(JSON.parse(acceptedJson));
       if (error) console.error("failed to load accepted offers: ", error);
 
       const [declinedJson, err] = await tryCatch(
-        AsyncStorage.getItem("declinedOffers"),
+        declinedKey ? AsyncStorage.getItem(declinedKey) : Promise.resolve(null),
       );
       if (declinedJson) setDeclinedOffers(JSON.parse(declinedJson));
       if (err) console.error("failed to load declined offers: ", err);
 
       const [storageJson, errS] = await tryCatch(
-        AsyncStorage.getItem("storageOffers"),
+        storageKey ? AsyncStorage.getItem(storageKey) : Promise.resolve(null),
       );
       if (storageJson) setStorageOffers(JSON.parse(storageJson));
       if (errS) console.error("failed to load storage offers: ", errS);
 
       const [savedJson, errSaved] = await tryCatch(
-        AsyncStorage.getItem("savedOffers"),
+        savedKey ? AsyncStorage.getItem(savedKey) : Promise.resolve(null),
       );
       if (savedJson) setSavedOffers(JSON.parse(savedJson));
       if (errSaved) console.error("failed to load saved offers: ", errSaved);
     };
     loadOffers();
-  }, []);
+  }, [keyFor]);
   const addAcceptedOffer = useCallback(
     async (offer: Offer) => {
       const newOffers = [...acceptedOffers, offer];
       setAcceptedOffers(newOffers);
+      const k = keyFor("acceptedOffers");
       const [_, error] = await tryCatch(
-        AsyncStorage.setItem("acceptedOffers", JSON.stringify(newOffers)),
+        k
+          ? AsyncStorage.setItem(k, JSON.stringify(newOffers))
+          : Promise.resolve(),
       );
       if (error) console.error("failed to add accepted offer: ", error);
     },
-    [acceptedOffers],
+    [acceptedOffers, keyFor],
   );
 
   const removeAcceptedOffer = useCallback(
@@ -57,24 +79,30 @@ export const useOfferStorage = () => {
         (acceptedOffer) => acceptedOffer !== offer,
       );
       setAcceptedOffers(newOffers);
+      const k = keyFor("acceptedOffers");
       const [_, error] = await tryCatch(
-        AsyncStorage.setItem("acceptedOffers", JSON.stringify(newOffers)),
+        k
+          ? AsyncStorage.setItem(k, JSON.stringify(newOffers))
+          : Promise.resolve(),
       );
       if (error) console.error("failed to remove accepted offer: ", error);
     },
-    [acceptedOffers],
+    [acceptedOffers, keyFor],
   );
 
   const addDeclinedOffer = useCallback(
     async (offer: Offer) => {
       const newOffers = [...declinedOffers, offer];
       setDeclinedOffers(newOffers);
+      const k = keyFor("declinedOffers");
       const [_, error] = await tryCatch(
-        AsyncStorage.setItem("declinedOffers", JSON.stringify(newOffers)),
+        k
+          ? AsyncStorage.setItem(k, JSON.stringify(newOffers))
+          : Promise.resolve(),
       );
       if (error) console.error("failed to add declined offer: ", error);
     },
-    [declinedOffers],
+    [declinedOffers, keyFor],
   );
 
   const removeDeclinedOffer = useCallback(
@@ -83,24 +111,30 @@ export const useOfferStorage = () => {
         (declinedOffer) => declinedOffer !== offer,
       );
       setDeclinedOffers(newOffers);
+      const k = keyFor("declinedOffers");
       const [_, error] = await tryCatch(
-        AsyncStorage.setItem("declinedOffers", JSON.stringify(newOffers)),
+        k
+          ? AsyncStorage.setItem(k, JSON.stringify(newOffers))
+          : Promise.resolve(),
       );
       if (error) console.error("failed to remove declined offer: ", error);
     },
-    [declinedOffers],
+    [declinedOffers, keyFor],
   );
 
   const addStorageOffer = useCallback(
     async (offer: Offer) => {
       const newOffers = [...storageOffers, offer];
       setStorageOffers(newOffers);
+      const k = keyFor("storageOffers");
       const [_, error] = await tryCatch(
-        AsyncStorage.setItem("storageOffers", JSON.stringify(newOffers)),
+        k
+          ? AsyncStorage.setItem(k, JSON.stringify(newOffers))
+          : Promise.resolve(),
       );
       if (error) console.error("failed to add storage offer: ", error);
     },
-    [storageOffers],
+    [storageOffers, keyFor],
   );
 
   const removeStorageOffer = useCallback(
@@ -109,12 +143,15 @@ export const useOfferStorage = () => {
         (storageOffer) => storageOffer !== offer,
       );
       setStorageOffers(newOffers);
+      const k = keyFor("storageOffers");
       const [_, error] = await tryCatch(
-        AsyncStorage.setItem("storageOffers", JSON.stringify(newOffers)),
+        k
+          ? AsyncStorage.setItem(k, JSON.stringify(newOffers))
+          : Promise.resolve(),
       );
       if (error) console.error("failed to remove storage offer: ", error);
     },
-    [storageOffers],
+    [storageOffers, keyFor],
   );
 
   const addSavedOffer = useCallback(
@@ -123,12 +160,15 @@ export const useOfferStorage = () => {
       const deduped = savedOffers.filter((o) => makeOfferKey(o) !== key);
       const newOffers = [...deduped, offer];
       setSavedOffers(newOffers);
+      const k = keyFor("savedOffers");
       const [_, error] = await tryCatch(
-        AsyncStorage.setItem("savedOffers", JSON.stringify(newOffers)),
+        k
+          ? AsyncStorage.setItem(k, JSON.stringify(newOffers))
+          : Promise.resolve(),
       );
       if (error) console.error("failed to add saved offer: ", error);
     },
-    [savedOffers],
+    [savedOffers, keyFor],
   );
 
   const removeSavedOffer = useCallback(
@@ -136,12 +176,15 @@ export const useOfferStorage = () => {
       const key = makeOfferKey(offer);
       const newOffers = savedOffers.filter((o) => makeOfferKey(o) !== key);
       setSavedOffers(newOffers);
+      const k = keyFor("savedOffers");
       const [_, error] = await tryCatch(
-        AsyncStorage.setItem("savedOffers", JSON.stringify(newOffers)),
+        k
+          ? AsyncStorage.setItem(k, JSON.stringify(newOffers))
+          : Promise.resolve(),
       );
       if (error) console.error("failed to remove saved offer: ", error);
     },
-    [savedOffers],
+    [savedOffers, keyFor],
   );
 
   const resetOfferStorage = useCallback(async () => {
@@ -149,16 +192,17 @@ export const useOfferStorage = () => {
     setDeclinedOffers([]);
     setStorageOffers([]);
     setSavedOffers([]);
+    const keys = [
+      keyFor("acceptedOffers"),
+      keyFor("declinedOffers"),
+      keyFor("storageOffers"),
+      keyFor("savedOffers"),
+    ].filter(Boolean) as string[];
     const [_, error] = await tryCatch(
-      AsyncStorage.multiRemove([
-        "acceptedOffers",
-        "declinedOffers",
-        "storageOffers",
-        "savedOffers",
-      ]),
+      keys.length ? AsyncStorage.multiRemove(keys) : Promise.resolve(),
     );
     if (error) console.error("failed to reset offer storage: ", error);
-  }, []);
+  }, [keyFor]);
 
   return {
     acceptedOffers,

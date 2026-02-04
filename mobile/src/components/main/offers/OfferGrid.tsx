@@ -9,7 +9,7 @@ import {
   Image,
 } from "react-native";
 import { useTheme, Text as PaperText } from "react-native-paper";
-import useOfferStorage from "../../hooks/useOfferStorage";
+import useOfferStorage from "../../../hooks/useOfferStorage";
 
 const { width, height } = Dimensions.get("window");
 

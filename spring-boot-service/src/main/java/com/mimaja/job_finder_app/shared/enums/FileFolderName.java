@@ -11,6 +11,7 @@ public enum FileFolderName {
     JOB_PHOTO("job-photos"),
     CVS("cvs"),
     CONTRACTS("contracts");
+    JOB_DISPATCHER_PHOTO("job-dispatcher-photos"),
 
     private final String folderName;
 

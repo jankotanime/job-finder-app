@@ -137,9 +137,9 @@ export const applyForOffer = async (
 ) => {
   const [response, error] = await tryCatch(
     apiFetch(
-      `/offer/${offerId}`,
+      `/offer/${offerId}/application`,
       {
-        method: "PATCH",
+        method: "POST",
         body: JSON.stringify(payload),
       },
       true,

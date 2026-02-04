@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { Animated, Text, StyleSheet, Dimensions } from "react-native";
 import { useTheme } from "react-native-paper";
 import { createAnimation } from "../../utils/animationHelper";
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 type error = { error: string };
 const ErrorNotification = ({ error }: error) => {
@@ -16,7 +16,7 @@ const ErrorNotification = ({ error }: error) => {
     ]).start();
   }, []);
   const cancel = () => {
-    createAnimation(slideAnim, -100, 500, 0, true).start();
+    createAnimation(slideAnim, -200, 500, 0, true).start();
   };
   return (
     <Animated.View
@@ -40,12 +40,13 @@ export default ErrorNotification;
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    top: 10,
+    top: height * 0.06,
     padding: 10,
     borderRadius: 15,
     width: width * 0.8,
     alignSelf: "center",
     marginBottom: 10,
+    zIndex: 40,
   },
   text: {
     textAlign: "center",

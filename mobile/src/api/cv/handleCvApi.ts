@@ -42,11 +42,16 @@ export const getCvById = async (cvId: string) => {
 };
 
 export const getCvsByUser = async () => {
+  const ts = Date.now();
   const [response, error] = await tryCatch(
     apiFetch(
-      "/cv",
+      `/cv?ts=${ts}`,
       {
         method: "GET",
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
       },
       true,
     ),

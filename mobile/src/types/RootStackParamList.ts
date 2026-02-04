@@ -1,4 +1,5 @@
 import type { Offer } from "./Offer";
+import type { ApplicationItem } from "./Applicants";
 export type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
@@ -18,6 +19,16 @@ export type RootStackParamList = {
   EditProfile: undefined;
   YourOffersScreen: undefined;
   OfferManage: { offer: Offer };
-  CvSelect: undefined;
-  CvPreview: { cvUri: string; cvName?: string };
+  CvSelect: {
+    disableSkip?: boolean;
+  };
+  CvPreview: {
+    cvUri: string;
+    cvName?: string;
+    manage?: boolean;
+    offerId?: string;
+    applicant?: ApplicationItem;
+  };
+  ChosenApplicants: { offerId: string };
+  CvMain: undefined;
 };

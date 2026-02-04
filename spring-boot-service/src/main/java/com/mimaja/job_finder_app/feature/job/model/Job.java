@@ -1,6 +1,7 @@
 package com.mimaja.job_finder_app.feature.job.model;
 
 import com.mimaja.job_finder_app.feature.contract.model.Contract;
+import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcher;
 import com.mimaja.job_finder_app.feature.job.jobphoto.model.JobPhoto;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
@@ -64,6 +65,10 @@ public class Job {
 
     @OneToOne(cascade = CascadeType.ALL)
     private JobPhoto photo;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "job_dispatcher_id")
+    private JobDispatcher jobDispatcher;
 
     @CreationTimestamp private LocalDateTime createdAt;
 
