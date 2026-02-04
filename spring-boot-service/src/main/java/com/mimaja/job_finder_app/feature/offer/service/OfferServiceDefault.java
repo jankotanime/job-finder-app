@@ -2,12 +2,21 @@ package com.mimaja.job_finder_app.feature.offer.service;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.application.dto.ApplicationCreateRequestDto;
+import com.mimaja.job_finder_app.feature.application.mapper.ApplicationMapper;
+import com.mimaja.job_finder_app.feature.application.model.Application;
+import com.mimaja.job_finder_app.feature.contract.model.Contract;
+import com.mimaja.job_finder_app.feature.contract.repository.ContractRepository;
+import com.mimaja.job_finder_app.feature.cv.model.Cv;
+import com.mimaja.job_finder_app.feature.cv.service.CvService;
+import com.mimaja.job_finder_app.feature.offer.dto.OfferApplyRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferFilterRequestDto;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.filterspecification.OfferFilterSpecification;
 import com.mimaja.job_finder_app.feature.offer.mapper.OfferMapper;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
+import com.mimaja.job_finder_app.feature.offer.model.OfferStatus;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.dto.OfferPhotoCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.repository.OfferRepository;
@@ -39,6 +48,9 @@ public class OfferServiceDefault implements OfferService {
     private final UserService userService;
     private final TagService tagService;
     private final FileManagementService fileManagementService;
+    private final ContractRepository contractRepository;
+    private final CvService cvService;
+    private final ApplicationMapper applicationMapper;
 
     @Override
     public Offer getOfferById(UUID offerId) {
@@ -98,6 +110,7 @@ public class OfferServiceDefault implements OfferService {
         if (offer.getPhoto() != null) {
             fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
         }
+        removeContractByOffer(offer);
         offerRepository.delete(offer);
     }
 
@@ -110,6 +123,7 @@ public class OfferServiceDefault implements OfferService {
                     if (offer.getPhoto() != null) {
                         fileManagementService.deleteFile(offer.getPhoto().getStorageKey());
                     }
+                    removeContractByOffer(offer);
                 });
         offerRepository.deleteAll(offersToDelete);
     }
@@ -117,6 +131,42 @@ public class OfferServiceDefault implements OfferService {
     @Override
     public Page<Offer> getFilteredOffers(OfferFilterRequestDto dto, Pageable pageable) {
         return offerRepository.findAll(OfferFilterSpecification.filter(dto), pageable);
+    }
+
+    @Override
+    @Transactional
+    public Offer applyOffer(UUID offerId, UUID userId, OfferApplyRequestDto dto) {
+        Offer offer = getOrThrow(offerId);
+        if (!offer.getStatus().equals(OfferStatus.OPEN)) {
+            throw new BusinessException(BusinessExceptionReason.OFFER_CANDIDATES_LIMIT);
+        }
+        Cv chosenCv = cvService.getCvById(dto.cvId());
+        User candidate = userService.getUserById(userId);
+        Application application =
+                applicationMapper.toEntity(
+                        new ApplicationCreateRequestDto(candidate, offer, chosenCv));
+        offer.getApplications().add(application);
+        return offerRepository.save(offer);
+    }
+
+    @Override
+    @Transactional
+    public void attachContract(Offer offer, Contract contract) {
+        offer.setContract(contract);
+        offerRepository.save(offer);
+        contract.setId(offer.getContract().getId());
+    }
+
+    @Override
+    @Transactional
+    public void removeContractByOffer(Offer offer) {
+        Contract contract = offer.getContract();
+        if (contract != null) {
+            offer.setContract(null);
+            offerRepository.save(offer);
+            contractRepository.delete(contract);
+            fileManagementService.deleteFile(contract.getStorageKey());
+        }
     }
 
     private Offer getOrThrow(UUID offerId) {
