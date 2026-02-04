@@ -10,8 +10,8 @@ public enum FileFolderName {
     OFFER_PHOTO("offer-photos"),
     JOB_PHOTO("job-photos"),
     CVS("cvs"),
-    CONTRACTS("contracts");
-    JOB_DISPATCHER_PHOTO("job-dispatcher-photos"),
+    CONTRACTS("contracts"),
+    JOB_DISPATCHER_PHOTO("job-dispatcher-photos");
 
     private final String folderName;
 
