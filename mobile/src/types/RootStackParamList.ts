@@ -34,4 +34,6 @@ export type RootStackParamList = {
   ChooseJobScreen: undefined;
   JobsContractor: undefined;
   JobsOwner: undefined;
+  JobDetails: { jobId: string; role: "owner" | "contractor" };
+  JobRun: { jobId: string; role: "owner" | "contractor"; startedAt?: number };
 };

@@ -6,11 +6,14 @@ import {
   View,
   Dimensions,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { Card, Text, useTheme, ActivityIndicator } from "react-native-paper";
 import { getJobsAsOwner } from "../../api/jobs/handleJobApi";
 import type { Job } from "../../types/Job";
 import { SafeAreaView } from "react-native-safe-area-context";
+import type { RootStackParamList } from "../../types/RootStackParamList";
 
 const toJobsArray = (payload: any): Job[] => {
   const data = payload?.body?.data;
@@ -24,6 +27,8 @@ const { width, height } = Dimensions.get("window");
 const JobsOwnerScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -92,7 +97,9 @@ const JobsOwnerScreen = () => {
       </Text>
       <FlatList
         data={jobs}
-        keyExtractor={(item, idx) => `${item?.title ?? "job"}-${idx}`}
+        keyExtractor={(item, idx) =>
+          item?.id ?? `${item?.title ?? "job"}-${idx}`
+        }
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={empty}
         refreshControl={
@@ -104,7 +111,15 @@ const JobsOwnerScreen = () => {
           />
         }
         renderItem={({ item }) => (
-          <Card style={[styles.card, { backgroundColor: colors.surface }]}>
+          <Card
+            style={[styles.card, { backgroundColor: colors.surface }]}
+            onPress={() =>
+              navigation.navigate("JobDetails", {
+                jobId: item.id,
+                role: "owner",
+              })
+            }
+          >
             <Card.Content>
               <Text variant="titleMedium">{item.title}</Text>
               <Text

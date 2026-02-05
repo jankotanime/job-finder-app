@@ -117,7 +117,10 @@
       }
     },
     "common": {
-      "loadError": "Could not load jobs."
+      "loadError": "Could not load jobs.",
+      "actionError": "Action failed.",
+      "back": "Back",
+      "retry": "Try again"
     },
     "contractor": {
       "title": "Your jobs (contractor)",
@@ -126,6 +129,44 @@
     "owner": {
       "title": "Your jobs (owner)",
       "empty": "No jobs as owner."
+    },
+    "details": {
+      "title": "Job details",
+      "statusLabel": "Status",
+      "participants": "Participants",
+      "owner": "Owner",
+      "contractor": "Contractor",
+      "acceptedApplicants": "Accepted",
+      "acceptedApplicantsHint": "This job has 1 accepted contractor.",
+      "startJob": "Start job",
+      "openRun": "Open timer",
+      "status": {
+        "ready": "Ready",
+        "inProgress": "In progress",
+        "finishedSuccess": "Finished (success)",
+        "finishedFailure": "Finished (problem)",
+        "unknown": "Unknown"
+      }
+    },
+    "run": {
+      "title": "Job",
+      "job": "Job",
+      "timerTitleOwner": "Elapsed time",
+      "timerTitleContractor": "Elapsed time",
+      "noStartInfo": "No start info on this device.",
+      "reportProblem": "Report problem",
+      "reportNoProblem": "Report no problem",
+      "finishJob": "Finish job",
+      "problemDialogTitle": "Report a problem",
+      "noProblemDialogTitle": "Report no problem",
+      "finishDialogTitle": "Finish the job",
+      "descriptionLabel": "Description",
+      "descriptionRequired": "Description is required.",
+      "photoCamera": "Camera",
+      "photoGallery": "Gallery",
+      "photoSelected": "Photo attached.",
+      "cancel": "Cancel",
+      "send": "Send"
     }
   },
   "offer": {

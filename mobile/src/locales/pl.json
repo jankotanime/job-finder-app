@@ -117,7 +117,10 @@
       }
     },
     "common": {
-      "loadError": "Nie udało się pobrać prac."
+      "loadError": "Nie udało się pobrać prac.",
+      "actionError": "Nie udało się wykonać akcji.",
+      "back": "Wróć",
+      "retry": "Spróbuj ponownie"
     },
     "contractor": {
       "title": "Twoje prace (wykonawca)",
@@ -126,6 +129,44 @@
     "owner": {
       "title": "Twoje prace (zleceniodawca)",
       "empty": "Brak prac jako zleceniodawca."
+    },
+    "details": {
+      "title": "Szczegóły pracy",
+      "statusLabel": "Status",
+      "participants": "Uczestnicy",
+      "owner": "Zleceniodawca",
+      "contractor": "Wykonawca",
+      "acceptedApplicants": "Zaakceptowani",
+      "acceptedApplicantsHint": "W tej pracy jest 1 zaakceptowany wykonawca.",
+      "startJob": "Zacznij pracę",
+      "openRun": "Przejdź do timera",
+      "status": {
+        "ready": "Gotowa do rozpoczęcia",
+        "inProgress": "W trakcie",
+        "finishedSuccess": "Zakończona (sukces)",
+        "finishedFailure": "Zakończona (problem)",
+        "unknown": "Nieznany"
+      }
+    },
+    "run": {
+      "title": "Praca",
+      "job": "Praca",
+      "timerTitleOwner": "Upływający czas",
+      "timerTitleContractor": "Upływający czas",
+      "noStartInfo": "Brak informacji o starcie na tym urządzeniu.",
+      "reportProblem": "Zgłoś problem",
+      "reportNoProblem": "Zgłoś brak problemu",
+      "finishJob": "Zakończ pracę",
+      "problemDialogTitle": "Zgłoszenie problemu",
+      "noProblemDialogTitle": "Zgłoszenie braku problemu",
+      "finishDialogTitle": "Zakończenie pracy",
+      "descriptionLabel": "Opis",
+      "descriptionRequired": "Uzupełnij opis.",
+      "photoCamera": "Kamera",
+      "photoGallery": "Galeria",
+      "photoSelected": "Dodano zdjęcie.",
+      "cancel": "Anuluj",
+      "send": "Wyślij"
     }
   },
   "offer": {

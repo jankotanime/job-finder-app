@@ -29,6 +29,8 @@ import CvMainChose from "./src/screens/main/CvMainChose";
 import ChooseJobScreen from "./src/screens/work/ChooseJobScreen";
 import JobsContractorScreen from "./src/screens/work/JobsContractorScreen";
 import JobsOwnerScreen from "./src/screens/work/JobsOwnerScreen";
+import JobDetailsScreen from "./src/screens/work/JobDetailsScreen";
+import JobRunScreen from "./src/screens/work/JobRunScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -90,6 +92,8 @@ export default function App() {
                 component={JobsContractorScreen}
               />
               <Stack.Screen name="JobsOwner" component={JobsOwnerScreen} />
+              <Stack.Screen name="JobDetails" component={JobDetailsScreen} />
+              <Stack.Screen name="JobRun" component={JobRunScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </OfferStorageProvider>
