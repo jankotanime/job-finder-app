@@ -102,6 +102,32 @@
   "google": {
     "sms_code": "Sms code"
   },
+  "jobs": {
+    "chooseRole": {
+      "title": "Choose a role",
+      "subtitle": "View jobs as an owner or a contractor.",
+      "cta": "Open",
+      "contractor": {
+        "title": "As contractor",
+        "description": "Jobs assigned to you as a contractor."
+      },
+      "owner": {
+        "title": "As owner",
+        "description": "Jobs created from your offers as the owner."
+      }
+    },
+    "common": {
+      "loadError": "Could not load jobs."
+    },
+    "contractor": {
+      "title": "Your jobs (contractor)",
+      "empty": "No jobs as contractor."
+    },
+    "owner": {
+      "title": "Your jobs (owner)",
+      "empty": "No jobs as owner."
+    }
+  },
   "offer": {
     "addHeader": "Add offer",
     "status": "Status",

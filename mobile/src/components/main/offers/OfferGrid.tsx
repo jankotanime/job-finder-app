@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,15 +7,26 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  RefreshControl,
 } from "react-native";
 import { useTheme, Text as PaperText } from "react-native-paper";
-import useOfferStorage from "../../../hooks/useOfferStorage";
+import { useOfferStorageContext } from "../../../contexts/OfferStorageContext";
 
 const { width, height } = Dimensions.get("window");
 
 const OfferGrid = () => {
   const { colors } = useTheme();
-  const { storageOffers } = useOfferStorage();
+  const { storageOffers, refreshOffers } = useOfferStorageContext();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      refreshOffers();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refreshOffers]);
 
   const numColumns = 2;
   const tileWidth = useMemo(() => width * 0.5 - 24, []);
@@ -53,6 +64,14 @@ const OfferGrid = () => {
         keyExtractor={keyFor}
         renderItem={renderItem}
         numColumns={numColumns}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
         columnWrapperStyle={{
           justifyContent: "space-between",
           paddingHorizontal: 12,

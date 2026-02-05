@@ -13,8 +13,8 @@ export const OfferStorageProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const storage = useOfferStorage();
   const [offersVersion, setOffersVersion] = useState(0);
+  const storage = useOfferStorage(offersVersion);
 
   const refreshOffers = () => {
     setOffersVersion((v) => v + 1);

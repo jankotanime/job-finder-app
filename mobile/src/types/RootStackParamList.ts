@@ -31,4 +31,7 @@ export type RootStackParamList = {
   };
   ChosenApplicants: { offerId: string };
   CvMain: undefined;
+  ChooseJobScreen: undefined;
+  JobsContractor: undefined;
+  JobsOwner: undefined;
 };

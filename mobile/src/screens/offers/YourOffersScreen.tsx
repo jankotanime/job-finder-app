@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  RefreshControl,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme, Text } from "react-native-paper";
@@ -22,9 +23,10 @@ const { width } = Dimensions.get("window");
 const YourOfferScreen = () => {
   const navigation = useNavigation<any>();
   const { colors } = useTheme();
-  const { savedOffers } = useOfferStorageContext();
+  const { savedOffers, refreshOffers } = useOfferStorageContext();
   const { userInfo } = useAuth();
   const { t } = useTranslation();
+  const [refreshing, setRefreshing] = useState(false);
   const numColumns = 2;
   const tileWidth = useMemo(() => width * 0.5 - 24, []);
 
@@ -71,6 +73,15 @@ const YourOfferScreen = () => {
     if (!uid) return savedOffers || [];
     return (savedOffers || []).filter((it: any) => String(it?.owner) === uid);
   }, [savedOffers, userInfo?.userId]);
+
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      refreshOffers();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refreshOffers]);
   console.log(myOffers);
   return (
     <SafeAreaView
@@ -92,6 +103,14 @@ const YourOfferScreen = () => {
         keyExtractor={(item) => keyFor(item)}
         renderItem={renderItem}
         numColumns={numColumns}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
         columnWrapperStyle={{
           justifyContent: "space-between",
           paddingHorizontal: 12,
