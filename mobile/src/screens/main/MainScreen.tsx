@@ -63,6 +63,10 @@ const MainScreen = () => {
   const { filters } = useFilter();
   const { selectedIds, reload } = useSelectCv();
   const cvId = selectedIds?.[0];
+  const [page, setPage] = useState(0);
+  const [last, setLast] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const PAGE_SIZE = 20;
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -77,39 +81,55 @@ const MainScreen = () => {
     return `${userInfo?.userId ?? "anon"}-${ids}`;
   }, [userInfo?.userId, offersData]);
 
+  const loadOffers = useCallback(
+    async (reset = false) => {
+      if (fetching) return;
+      if (!reset && last) return;
+      setFetching(true);
+      try {
+        const currentPage = reset ? 0 : page;
+        let response;
+        if (filters.length > 0) {
+          response = await handleFilterOffers(
+            { tags: Array.from(new Set(filters)) },
+            { page: currentPage, size: PAGE_SIZE },
+          );
+        } else {
+          response = await getAllOffers({
+            page: currentPage,
+            size: PAGE_SIZE,
+          });
+        }
+        const pageData = response?.body?.data;
+        const items = Array.isArray(pageData?.content) ? pageData.content : [];
+        const normalized = items
+          .map((it: any) => ({
+            ...it,
+            offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
+          }))
+          .filter((it: any) => it?.owner?.id !== userInfo?.userId);
+        setOffersData((prev) =>
+          reset ? normalized : [...prev, ...normalized],
+        );
+        setLast(pageData?.last ?? true);
+        setPage(currentPage + 1);
+      } catch (e) {
+        console.error("failed to load offers", e);
+      } finally {
+        setFetching(false);
+      }
+    },
+    [filters, page, last, fetching, userInfo?.userId],
+  );
+
   useEffect(() => {
+    if (!tokens || loading || !userInfo?.userId) return;
     setOffersData([]);
     setCurrentIndex(0);
-    if (!tokens || loading || !userInfo?.userId) {
-      return;
-    }
-    let active = true;
-    const load = async () => {
-      let page;
-      if (filters.length > 0) {
-        const next = Array.from(new Set(filters));
-        page = await handleFilterOffers({ tags: next });
-      } else {
-        page = await getAllOffers();
-      }
-      const items = Array.isArray(page?.body?.data?.content)
-        ? page.body.data.content
-        : [];
-
-      const normalized = items.map((it: any) => ({
-        ...it,
-        offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
-      }));
-      const filtered = normalized.filter(
-        (it: any) => it?.owner?.id !== userInfo.userId,
-      );
-      if (active) setOffersData(filtered);
-    };
-    load();
-    return () => {
-      active = false;
-    };
-  }, [tokens, loading, userInfo?.userId, offersVersion, selectedIds]);
+    setPage(0);
+    setLast(false);
+    loadOffers(true);
+  }, [tokens, loading, userInfo?.userId, offersVersion, selectedIds, filters]);
 
   useFocusEffect(
     useCallback(() => {
@@ -210,7 +230,7 @@ const MainScreen = () => {
               onExpand();
             }}
             onSwipedAll={() => {
-              // do zrobienia pozniej
+              loadOffers();
             }}
             disableTopSwipe
             onSwipeLeft={() => {
@@ -221,6 +241,11 @@ const MainScreen = () => {
               collapseCard();
             }}
           />
+          {fetching && (
+            <View style={{ paddingVertical: 20 }}>
+              <ActivityIndicator size="small" />
+            </View>
+          )}
         </View>
         <Footer />
       </GestureHandlerRootView>

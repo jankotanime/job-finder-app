@@ -40,7 +40,7 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
-  const { userInfo } = useAuth();
+  const { userInfo, signOut } = useAuth();
   const { filters, setFiltersList, clearFilters } = useFilter();
 
   useEffect(() => {
@@ -69,6 +69,7 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
       setCategories(grouped);
     } catch (error) {
       console.error("error while getting tags:", error);
+      await signOut();
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,10 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
   const handleApply = async () => {
     const next = Array.from(new Set(selectedTags));
     await setFiltersList(next);
-    const page = await handleFilterOffers({ tags: next });
+    const page = await handleFilterOffers(
+      { tags: next },
+      { page: 0, size: 20 },
+    );
     const body = Array.isArray(page?.body?.data?.content)
       ? page.body.data.content
       : [];
@@ -109,7 +113,10 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
     try {
       await clearFilters();
       setSelectedTags([]);
-      const page = await handleFilterOffers({ tags: [] });
+      const page = await handleFilterOffers(
+        { tags: [] },
+        { page: 0, size: 20 },
+      );
       const body = Array.isArray(page?.body?.data?.content)
         ? page.body.data.content
         : [];

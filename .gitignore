@@ -6,3 +6,4 @@ certs
 .env
 coverage
 todo.md
+.metals

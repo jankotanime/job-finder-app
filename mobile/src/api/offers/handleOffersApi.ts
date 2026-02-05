@@ -3,10 +3,21 @@ import { apiFetch } from "../client";
 import { CreateOffer, UpdateOffer } from "../interfaces/OffersInterfaces";
 import { Offer } from "../../types/Offer";
 
-export const getAllOffers = async () => {
+interface PageableParams {
+  page: number;
+  size: number;
+  sort?: string;
+}
+export const getAllOffers = async ({ page, size, sort }: PageableParams) => {
+  const params = new URLSearchParams();
+  params.append("page", page.toString());
+  params.append("size", size.toString());
+  if (sort) {
+    params.append("sort", sort);
+  }
   const [response, error] = await tryCatch(
     apiFetch(
-      "/offer",
+      `/offer?${params.toString()}`,
       {
         method: "GET",
       },
@@ -17,6 +28,7 @@ export const getAllOffers = async () => {
   if (!response) throw new Error("No response received");
   return response;
 };
+
 export const getOfferById = async (id: string) => {
   const [response, error] = await tryCatch(
     apiFetch(

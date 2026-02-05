@@ -47,7 +47,7 @@ const ProfileCompletionFormScreen = () => {
     profilePhoto: "",
   });
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -119,7 +119,11 @@ const ProfileCompletionFormScreen = () => {
                   style={[styles.logoWrapper, styles.placeholderLogo]}
                   onPress={() => setModalVisible(true)}
                 >
-                  <Icon source="camera" size={50} color={colors.onBackground} />
+                  <Icon
+                    source="camera"
+                    size={50}
+                    color={dark ? colors.onBackground : colors.backdrop}
+                  />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
