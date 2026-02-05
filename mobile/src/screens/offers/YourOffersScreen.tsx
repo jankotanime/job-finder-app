@@ -71,7 +71,7 @@ const YourOfferScreen = () => {
     if (!uid) return savedOffers || [];
     return (savedOffers || []).filter((it: any) => String(it?.owner) === uid);
   }, [savedOffers, userInfo?.userId]);
-
+  console.log(myOffers);
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
