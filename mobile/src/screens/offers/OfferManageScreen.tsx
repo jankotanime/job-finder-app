@@ -86,7 +86,6 @@ const OfferManageScreen = () => {
   };
   const handleAccept = async (offerId: string) => {
     const response = await createJob(offerId);
-    console.log("created job: ", response);
   };
   useEffect(() => {
     const apps = Array.isArray((offer as any)?.applications)

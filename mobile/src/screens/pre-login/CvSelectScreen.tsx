@@ -7,6 +7,7 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 import { useTheme, Button, TextInput } from "react-native-paper";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -75,41 +76,53 @@ const CvSelectScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <TouchableOpacity
-        style={[styles.uploadButton, { borderColor: colors.onSurface }]}
-        onPress={handlePickPDF}
-      >
-        <Text style={[styles.uploadButtonText, { color: colors.onSurface }]}>
-          {cvName ? cvName : "Załącz CV (PDF)"}
-        </Text>
-      </TouchableOpacity>
       <KeyboardAvoidingView
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
-        <Input
-          placeholder="Nazwa CV"
-          mode="outlined"
-          value={name}
-          onChangeText={setNameInput}
-          style={{ top: -height * 0.025 }}
-        />
-        <Button
-          mode="contained"
-          style={styles.nextButton}
-          onPress={handleNext}
-          disabled={!cvUri}
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            paddingVertical: 20,
+          }}
         >
-          Podgląd CV
-        </Button>
-        <Button
-          mode="contained"
-          style={styles.applyButton}
-          onPress={handleSave}
-          disabled={!cvUri || !String(name || "").trim()}
-        >
-          Zapisz
-        </Button>
+          <TouchableOpacity
+            style={[styles.uploadButton, { borderColor: colors.onSurface }]}
+            onPress={handlePickPDF}
+          >
+            <Text
+              style={[styles.uploadButtonText, { color: colors.onSurface }]}
+            >
+              {cvName ? cvName : "Załącz CV (PDF)"}
+            </Text>
+          </TouchableOpacity>
+          <Input
+            placeholder="Nazwa CV"
+            mode="outlined"
+            value={name}
+            onChangeText={setNameInput}
+            style={{ top: -height * 0.025 }}
+          />
+          <Button
+            mode="contained"
+            style={styles.nextButton}
+            onPress={handleNext}
+            disabled={!cvUri}
+          >
+            Podgląd CV
+          </Button>
+          <Button
+            mode="contained"
+            style={styles.applyButton}
+            onPress={handleSave}
+            disabled={!cvUri || !String(name || "").trim()}
+          >
+            Zapisz
+          </Button>
+        </ScrollView>
       </KeyboardAvoidingView>
       {!disabled ? (
         <TouchableOpacity style={styles.skip} onPress={handleSkip}>

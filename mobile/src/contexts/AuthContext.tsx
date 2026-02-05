@@ -319,9 +319,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!registerResult.ok) {
       return { status: AuthStatus.ERROR, error: registerResult.error };
     }
-    const { accessToken, refreshToken, refreshTokenId } = extractTokens(
-      registerResult.data,
-    );
+    const { accessToken, refreshToken, refreshTokenId } = registerResult.data;
 
     await EncryptedStorage.setItem(
       "auth",

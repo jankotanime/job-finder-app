@@ -30,7 +30,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    borderRightWidth: 3,
-    borderLeftWidth: 3,
   },
 });
