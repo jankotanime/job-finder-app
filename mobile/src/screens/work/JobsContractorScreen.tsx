@@ -128,7 +128,7 @@ const JobsContractorScreen = () => {
         }
         renderItem={({ item }) => (
           <Card
-            style={[styles.card, { backgroundColor: colors.surface }]}
+            style={[styles.card, { backgroundColor: colors.onBackground }]}
             onPress={() =>
               navigation.navigate("JobDetails", {
                 jobId: item.id,

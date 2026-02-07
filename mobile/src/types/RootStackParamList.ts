@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Register: undefined;
   Main: undefined;
   Storage: undefined;
+  StorageOfferDetails: { offer: Offer };
   MyProfile: undefined;
   LanguageMenu: undefined;
   ProfileCompletion: undefined;

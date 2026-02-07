@@ -22,6 +22,7 @@ import { OfferStorageProvider } from "./src/contexts/OfferStorageContext";
 import YourOffersScreen from "./src/screens/offers/YourOffersScreen";
 import EditProfileScreen from "./src/screens/profile/EditProfileScreen";
 import OfferManageScreen from "./src/screens/offers/OfferManageScreen";
+import StorageOfferDetailsScreen from "./src/screens/offers/StorageOfferDetailsScreen";
 import CvSelectScreen from "./src/screens/pre-login/CvSelectScreen";
 import CvPreviewScreen from "./src/screens/pre-login/CvPreviewScreen";
 import ChosenApplicantsScreen from "./src/screens/offers/ChosenApplicantsScreen";
@@ -55,6 +56,10 @@ export default function App() {
               <Stack.Screen name="Register" component={RegisterScreen} />
               <Stack.Screen name="Main" component={MainScreen} />
               <Stack.Screen name="Storage" component={StorageScreen} />
+              <Stack.Screen
+                name="StorageOfferDetails"
+                component={StorageOfferDetailsScreen}
+              />
               <Stack.Screen name="MyProfile" component={MyProfile} />
               <Stack.Screen name="LanguageMenu" component={LanguageMenu} />
               <Stack.Screen

@@ -81,6 +81,19 @@
     "saved_offers": "Zapisane oferty",
     "offers": "Twoje oferty"
   },
+  "storageOfferDetails": {
+    "title": "Zapisana oferta",
+    "want": "Chcę",
+    "dontWant": "Nie chcę",
+    "cvMissingTitle": "Wybierz CV",
+    "cvMissingBody": "Aby aplikować na ofertę, wybierz CV.",
+    "chooseCv": "Wybierz CV",
+    "cancel": "Anuluj",
+    "applyError": "Nie udało się wysłać aplikacji.",
+    "error": "Coś poszło nie tak.",
+    "notFound": "Nie znaleziono oferty.",
+    "back": "Wróć"
+  },
   "profileCompletion": {
     "firstName": "Imię",
     "lastName": "Nazwisko",

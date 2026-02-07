@@ -81,6 +81,19 @@
     "saved_offers": "Saved offers",
     "offers": "Your offers"
   },
+  "storageOfferDetails": {
+    "title": "Saved offer",
+    "want": "I want",
+    "dontWant": "I don't want",
+    "cvMissingTitle": "Select CV",
+    "cvMissingBody": "To apply for an offer, select a CV.",
+    "chooseCv": "Choose CV",
+    "cancel": "Cancel",
+    "applyError": "Could not send application.",
+    "error": "Something went wrong.",
+    "notFound": "Offer not found.",
+    "back": "Back"
+  },
   "profileCompletion": {
     "firstName": "First name",
     "lastName": "Last name",
