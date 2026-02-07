@@ -1,5 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -58,6 +65,7 @@ const formatElapsed = (ms: number) => {
 const JobRunScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const { height: windowHeight } = useWindowDimensions();
 
   const route = useRoute<JobRunRoute>();
   const navigation = useNavigation<Nav>();
@@ -218,120 +226,147 @@ const JobRunScreen = () => {
     <SafeAreaView
       style={[styles.screen, { backgroundColor: colors.background }]}
     >
-      <Text variant="headlineSmall" style={styles.header}>
-        {t("jobs.run.title")}
-      </Text>
-
-      {errorMessage ? (
-        <Text style={{ color: colors.error, marginBottom: 8 }}>
-          {errorMessage}
-        </Text>
-      ) : null}
-
-      <Card style={[styles.card, { backgroundColor: colors.surface }]}>
-        <Card.Content>
-          <Text style={{ color: colors.onSurfaceVariant }}>{timerTitle}</Text>
-          <Text style={[styles.timer, { color: colors.primary }]}>
-            {formatElapsed(elapsedMs)}
-          </Text>
-
-          {!startAt ? (
-            <Text style={{ color: colors.onSurfaceVariant, marginTop: 4 }}>
-              {t("jobs.run.noStartInfo")}
-            </Text>
-          ) : null}
-
-          <Divider style={{ marginVertical: 14 }} />
-
-          <Text variant="titleMedium" style={{ fontWeight: "700" }}>
-            {job?.title ?? t("jobs.run.job")}
-          </Text>
-          {job?.description ? (
-            <Text style={{ color: colors.onSurfaceVariant, marginTop: 6 }}>
-              {job.description}
-            </Text>
-          ) : null}
-        </Card.Content>
-      </Card>
-
-      <View style={styles.actions}>
-        <Button mode="contained" onPress={() => openDialog("problem")}>
-          {t("jobs.run.reportProblem")}
-        </Button>
-
-        <Button mode="outlined" onPress={() => openDialog("noProblem")}>
-          {t("jobs.run.reportNoProblem")}
-        </Button>
-
-        {role === "owner" ? (
-          <Button
-            mode="contained"
-            buttonColor={colors.error}
-            onPress={() => openDialog("finish")}
-          >
-            {t("jobs.run.finishJob")}
-          </Button>
-        ) : null}
-
-        <Button
-          mode="text"
-          onPress={() =>
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Main" as any }],
-            })
-          }
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          {t("jobs.common.back")}
-        </Button>
-      </View>
+          <Text variant="headlineSmall" style={styles.header}>
+            {t("jobs.run.title")}
+          </Text>
 
-      <Portal>
-        <Dialog visible={dialogOpen} onDismiss={() => setDialogOpen(false)}>
-          <Dialog.Title>
-            {dialogMode === "finish"
-              ? t("jobs.run.finishDialogTitle")
-              : dialogMode === "noProblem"
-                ? t("jobs.run.noProblemDialogTitle")
-                : t("jobs.run.problemDialogTitle")}
-          </Dialog.Title>
-          <Dialog.Content>
-            <TextInput
-              mode="outlined"
-              label={t("jobs.run.descriptionLabel")}
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              style={{ marginBottom: 12 }}
-            />
+          {errorMessage ? (
+            <Text style={{ color: colors.error, marginBottom: 8 }}>
+              {errorMessage}
+            </Text>
+          ) : null}
 
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <Button mode="outlined" onPress={pickFromCamera}>
-                {t("jobs.run.photoCamera")}
-              </Button>
-              <Button mode="outlined" onPress={pickFromGallery}>
-                {t("jobs.run.photoGallery")}
-              </Button>
-            </View>
-
-            {photoUri ? (
-              <Text style={{ marginTop: 10, color: colors.onSurfaceVariant }}>
-                {t("jobs.run.photoSelected")}
+          <Card style={[styles.card, { backgroundColor: colors.surface }]}>
+            <Card.Content>
+              <Text style={{ color: colors.onSurfaceVariant }}>
+                {timerTitle}
               </Text>
+              <Text style={[styles.timer, { color: colors.primary }]}>
+                {formatElapsed(elapsedMs)}
+              </Text>
+
+              {!startAt ? (
+                <Text style={{ color: colors.onSurfaceVariant, marginTop: 4 }}>
+                  {t("jobs.run.noStartInfo")}
+                </Text>
+              ) : null}
+
+              <Divider style={{ marginVertical: 14 }} />
+
+              <Text variant="titleMedium" style={{ fontWeight: "700" }}>
+                {job?.title ?? t("jobs.run.job")}
+              </Text>
+              {job?.description ? (
+                <Text style={{ color: colors.onSurfaceVariant, marginTop: 6 }}>
+                  {job.description}
+                </Text>
+              ) : null}
+            </Card.Content>
+          </Card>
+
+          <View style={styles.actions}>
+            <Button mode="contained" onPress={() => openDialog("problem")}>
+              {t("jobs.run.reportProblem")}
+            </Button>
+            {role === "owner" ? (
+              <Button
+                mode="contained"
+                buttonColor={colors.error}
+                onPress={() => openDialog("finish")}
+              >
+                {t("jobs.run.finishJob")}
+              </Button>
             ) : null}
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => setDialogOpen(false)}>
-              {t("jobs.run.cancel")}
-            </Button>
+
             <Button
-              loading={submitting}
-              disabled={submitting}
-              onPress={submitDialog}
+              mode="text"
+              onPress={() =>
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "Main" as any }],
+                })
+              }
             >
-              {t("jobs.run.send")}
+              {t("jobs.common.back")}
             </Button>
-          </Dialog.Actions>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      <Portal>
+        <Dialog
+          visible={dialogOpen}
+          onDismiss={() => setDialogOpen(false)}
+          style={{ maxHeight: Math.round(windowHeight * 0.8) }}
+        >
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 24 : 0}
+            style={styles.dialogKav}
+          >
+            <Dialog.Title>
+              {dialogMode === "finish"
+                ? t("jobs.run.finishDialogTitle")
+                : dialogMode === "noProblem"
+                  ? t("jobs.run.noProblemDialogTitle")
+                  : t("jobs.run.problemDialogTitle")}
+            </Dialog.Title>
+
+            <Dialog.Content style={styles.dialogContent}>
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 6 }}
+              >
+                <TextInput
+                  mode="outlined"
+                  label={t("jobs.run.descriptionLabel")}
+                  value={description}
+                  onChangeText={setDescription}
+                  multiline
+                  style={{ marginBottom: 12 }}
+                />
+
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                  <Button mode="outlined" onPress={pickFromCamera}>
+                    {t("jobs.run.photoCamera")}
+                  </Button>
+                  <Button mode="outlined" onPress={pickFromGallery}>
+                    {t("jobs.run.photoGallery")}
+                  </Button>
+                </View>
+
+                {photoUri ? (
+                  <Text
+                    style={{ marginTop: 10, color: colors.onSurfaceVariant }}
+                  >
+                    {t("jobs.run.photoSelected")}
+                  </Text>
+                ) : null}
+              </ScrollView>
+            </Dialog.Content>
+
+            <Dialog.Actions>
+              <Button onPress={() => setDialogOpen(false)}>
+                {t("jobs.run.cancel")}
+              </Button>
+              <Button
+                loading={submitting}
+                disabled={submitting}
+                onPress={submitDialog}
+              >
+                {t("jobs.run.send")}
+              </Button>
+            </Dialog.Actions>
+          </KeyboardAvoidingView>
         </Dialog>
       </Portal>
     </SafeAreaView>
@@ -341,10 +376,24 @@ const JobRunScreen = () => {
 export default JobRunScreen;
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  dialogKav: {
+    flexGrow: 1,
+  },
+  dialogContent: {
+    flexGrow: 1,
+  },
   screen: {
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
+    gap: 12,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 24,
     gap: 12,
   },
   header: {

@@ -16,7 +16,11 @@ import {
 
 import type { RootStackParamList } from "../../types/RootStackParamList";
 import type { Job } from "../../types/Job";
-import { getJobById, startJob } from "../../api/jobs/handleJobApi";
+import {
+  getJobById,
+  getJobsAsOwner,
+  startJob,
+} from "../../api/jobs/handleJobApi";
 import { buildPhotoUrl } from "../../utils/photoUrl";
 import { setActiveJobTimer } from "../../utils/jobTimerStorage";
 
@@ -26,8 +30,59 @@ type Nav = NativeStackNavigationProp<RootStackParamList, "JobDetails">;
 
 const START_KEY = (jobId: string) => `jobStart:${jobId}`;
 
+type Candidate = {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+};
+
+const toArray = <T,>(value: T | T[] | null | undefined): T[] => {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+};
+
+const getJobsArrayFromPayload = (payload: any): any[] => {
+  const data = payload?.body?.data;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(payload?.body)) return payload.body;
+  if (Array.isArray(payload)) return payload;
+  return [];
+};
+
+const extractAcceptedCandidatesFromOwnerJob = (ownerJob: any): Candidate[] => {
+  const chosenRaw = toArray(ownerJob?.contractor);
+  const chosen = chosenRaw.filter((c): c is Candidate => Boolean(c));
+
+  const appsRaw = toArray(ownerJob?.applications);
+  const acceptedFromApps = appsRaw
+    .filter((a: any) => {
+      const status = typeof a?.status === "string" ? a.status : undefined;
+      return (
+        a?.accepted === true ||
+        a?.isAccepted === true ||
+        a?.chosen === true ||
+        a?.isChosen === true ||
+        status === "ACCEPTED" ||
+        status === "CHOSEN" ||
+        status === "SELECTED"
+      );
+    })
+    .filter((c): c is Candidate => Boolean(c));
+
+  const combined = (chosen.length ? chosen : acceptedFromApps).filter(Boolean);
+  const dedup = new Map<string, Candidate>();
+  for (const c of combined) {
+    const key =
+      c.username ?? c.id ?? `${c.firstName ?? ""}:${c.lastName ?? ""}`;
+    if (!dedup.has(key)) dedup.set(key, c);
+  }
+  return [...dedup.values()];
+};
+
 const getJobFromPayload = (payload: any): Job | null => {
   const data = payload?.body?.data;
+  console.log("data: ", data);
   if (data && typeof data === "object") return data as Job;
   if (payload?.body && typeof payload.body === "object")
     return payload.body as Job;
@@ -65,14 +120,40 @@ const JobDetailsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [acceptedCandidates, setAcceptedCandidates] = useState<Candidate[]>([]);
+  const [acceptedLoading, setAcceptedLoading] = useState(false);
 
   const fetchJob = useCallback(async () => {
     setErrorMessage(null);
-    const res = await getJobById(jobId);
-    const parsed = getJobFromPayload(res);
+    setAcceptedCandidates([]);
+
+    const shouldLoadAccepted = role === "owner";
+    setAcceptedLoading(shouldLoadAccepted);
+
+    const [jobRes, ownerJobsRes] = await Promise.all([
+      getJobById(jobId),
+      shouldLoadAccepted ? getJobsAsOwner() : Promise.resolve(null),
+    ]);
+    console.log("jobRes: ", jobRes);
+
+    const parsed = getJobFromPayload(jobRes);
     if (!parsed) throw new Error("Invalid job payload");
     setJob(parsed);
-  }, [jobId]);
+
+    if (shouldLoadAccepted && ownerJobsRes) {
+      const ownerJobs = getJobsArrayFromPayload(ownerJobsRes);
+      const matching = ownerJobs.find((j: any) => {
+        const candidateId =
+          j?.id ?? j?.jobId ?? j?.job?.id ?? j?.offerId ?? j?.offer?.id;
+        return candidateId != null && String(candidateId) === String(jobId);
+      });
+      if (matching) {
+        setAcceptedCandidates(extractAcceptedCandidatesFromOwnerJob(matching));
+      }
+    }
+
+    setAcceptedLoading(false);
+  }, [jobId, role]);
 
   useEffect(() => {
     (async () => {
@@ -96,7 +177,7 @@ const JobDetailsScreen = () => {
     try {
       setSubmitting(true);
       const startedAt = Date.now();
-      const response = await startJob(job.id);
+      await startJob(job.id);
       await AsyncStorage.setItem(START_KEY(job.id), String(startedAt));
       await setActiveJobTimer({ jobId: job.id, role, startedAt });
       navigation.navigate("JobRun", { jobId: job.id, role, startedAt });
@@ -152,13 +233,11 @@ const JobDetailsScreen = () => {
       <Text variant="headlineSmall" style={styles.header}>
         {t("jobs.details.title")}
       </Text>
-
       {errorMessage ? (
         <Text style={{ color: colors.error, marginBottom: 8 }}>
           {errorMessage}
         </Text>
       ) : null}
-
       {photoUri ? (
         <Image
           source={{ uri: photoUri }}
@@ -172,7 +251,6 @@ const JobDetailsScreen = () => {
           ]}
         />
       )}
-
       <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <Card.Content>
           <Text variant="titleLarge" style={{ fontWeight: "800" }}>
@@ -181,16 +259,13 @@ const JobDetailsScreen = () => {
           <Text style={{ color: colors.onSurfaceVariant, marginTop: 8 }}>
             {job.description}
           </Text>
-
           <Divider style={{ marginVertical: 14 }} />
-
           <Text variant="titleMedium" style={{ fontWeight: "700" }}>
             {t("jobs.details.statusLabel")}
           </Text>
           <Text style={{ marginTop: 4 }}>{t(statusKey(job.status))}</Text>
         </Card.Content>
       </Card>
-
       <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <Card.Content>
           <Text variant="titleMedium" style={{ fontWeight: "700" }}>
@@ -199,19 +274,35 @@ const JobDetailsScreen = () => {
           <Text style={{ color: colors.onSurfaceVariant, marginTop: 6 }}>
             {t("jobs.details.acceptedApplicantsHint")}
           </Text>
-
           <Divider style={{ marginVertical: 12 }} />
-
-          <Text style={{ color: colors.onSurfaceVariant }}>
-            {t("jobs.details.contractor")}
-          </Text>
-          <Text>
-            {job.contractor?.firstName} {job.contractor?.lastName} (@
-            {job.contractor?.username})
-          </Text>
+          {role === "owner" ? (
+            acceptedLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : acceptedCandidates.length ? (
+              acceptedCandidates.map((c, idx) => (
+                <Text key={`${c.username ?? c.id ?? idx}`}>
+                  {c.firstName ?? ""} {c.lastName ?? ""}
+                  {c.username ? ` (@${c.username})` : ""}
+                </Text>
+              ))
+            ) : (
+              <Text style={{ color: colors.onSurfaceVariant }}>
+                {t("jobs.details.noAcceptedApplicants")}
+              </Text>
+            )
+          ) : (
+            <>
+              <Text style={{ color: colors.onSurfaceVariant }}>
+                {t("jobs.details.contractor")}
+              </Text>
+              <Text>
+                {job.contractor?.firstName} {job.contractor?.lastName} (@
+                {job.contractor?.username})
+              </Text>
+            </>
+          )}
         </Card.Content>
       </Card>
-
       <View style={styles.actions}>
         {canStart ? (
           <Button
@@ -227,7 +318,6 @@ const JobDetailsScreen = () => {
             {t("jobs.details.startJob")}
           </Button>
         )}
-
         <Button mode="outlined" onPress={() => navigation.goBack()}>
           {t("jobs.common.back")}
         </Button>

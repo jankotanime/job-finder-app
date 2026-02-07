@@ -9,7 +9,7 @@ const { width, height } = Dimensions.get("window");
 const Footer = () => {
   const { colors } = useTheme();
   return (
-    <View style={[styles.footer, { backgroundColor: "white" }]}>
+    <View style={[styles.footer, { backgroundColor: colors.onBackground }]}>
       <CvChoseButton />
       <AddOfferButton />
       <JobManageButton />

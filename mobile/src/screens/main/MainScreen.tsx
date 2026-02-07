@@ -40,6 +40,7 @@ import useSelectCv from "../../hooks/useSelectCv";
 import Footer from "../../components/main/Footer";
 import CvInfo from "../../components/main/CvInfo";
 import ErrorNotification from "../../components/reusable/ErrorNotification";
+import ActiveJobTimerFloating from "../../components/jobs/ActiveJobTimerFloating";
 
 const { width, height } = Dimensions.get("window");
 
@@ -241,13 +242,10 @@ const MainScreen = () => {
               collapseCard();
             }}
           />
-          {fetching && (
-            <View style={{ paddingVertical: 20 }}>
-              <ActivityIndicator size="small" />
-            </View>
-          )}
         </View>
         <Footer />
+
+        <ActiveJobTimerFloating />
       </GestureHandlerRootView>
     </View>
   );

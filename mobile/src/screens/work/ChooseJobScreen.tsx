@@ -12,12 +12,12 @@ const { height, width } = Dimensions.get("window");
 type Nav = NativeStackNavigationProp<RootStackParamList, "ChooseJobScreen">;
 
 const ChooseJobScreen = () => {
-  const theme = useTheme();
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
 
   return (
-    <View style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+    <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -28,22 +28,24 @@ const ChooseJobScreen = () => {
           </Text>
           <Text
             variant="bodyMedium"
-            style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
+            style={[styles.subtitle, { color: colors.onSurfaceVariant }]}
           >
             {t("jobs.chooseRole.subtitle")}
           </Text>
         </View>
 
         <Card
-          style={[styles.card, { backgroundColor: theme.colors.surface }]}
+          style={[styles.card, { backgroundColor: colors.onBackground }]}
           onPress={() => navigation.navigate("JobsContractor")}
         >
           <Card.Content style={styles.cardContent}>
-            <View style={styles.iconWrap}>
+            <View
+              style={[styles.iconWrap, { backgroundColor: colors.background }]}
+            >
               <MaterialCommunityIcons
                 name="account-wrench"
                 size={34}
-                color={theme.colors.primary}
+                color={colors.primary}
               />
             </View>
             <View style={styles.cardText}>
@@ -52,7 +54,7 @@ const ChooseJobScreen = () => {
               </Text>
               <Text
                 variant="bodySmall"
-                style={{ color: theme.colors.onSurfaceVariant }}
+                style={{ color: colors.onSurfaceVariant }}
               >
                 {t("jobs.chooseRole.contractor.description")}
               </Text>
@@ -69,15 +71,17 @@ const ChooseJobScreen = () => {
         </Card>
 
         <Card
-          style={[styles.card, { backgroundColor: theme.colors.surface }]}
+          style={[styles.card, { backgroundColor: colors.onBackground }]}
           onPress={() => navigation.navigate("JobsOwner")}
         >
           <Card.Content style={styles.cardContent}>
-            <View style={styles.iconWrap}>
+            <View
+              style={[styles.iconWrap, { backgroundColor: colors.background }]}
+            >
               <MaterialCommunityIcons
                 name="briefcase-account"
                 size={34}
-                color={theme.colors.primary}
+                color={colors.primary}
               />
             </View>
             <View style={styles.cardText}>
@@ -86,7 +90,7 @@ const ChooseJobScreen = () => {
               </Text>
               <Text
                 variant="bodySmall"
-                style={{ color: theme.colors.onSurfaceVariant }}
+                style={{ color: colors.onSurfaceVariant }}
               >
                 {t("jobs.chooseRole.owner.description")}
               </Text>

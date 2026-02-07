@@ -103,6 +103,10 @@
     "sms_code": "Kod sms"
   },
   "jobs": {
+    "timerBanner": {
+      "title": "Aktywna praca",
+      "cta": "Wróć"
+    },
     "chooseRole": {
       "title": "Wybierz rolę",
       "subtitle": "Zobacz prace jako zleceniodawca lub wykonawca.",
@@ -138,6 +142,7 @@
       "contractor": "Wykonawca",
       "acceptedApplicants": "Zaakceptowani",
       "acceptedApplicantsHint": "W tej pracy jest 1 zaakceptowany wykonawca.",
+      "noAcceptedApplicants": "Brak zaakceptowanych kandydatów.",
       "startJob": "Zacznij pracę",
       "openRun": "Przejdź do timera",
       "status": {

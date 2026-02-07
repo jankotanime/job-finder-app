@@ -103,6 +103,10 @@
     "sms_code": "Sms code"
   },
   "jobs": {
+    "timerBanner": {
+      "title": "Active job",
+      "cta": "Open"
+    },
     "chooseRole": {
       "title": "Choose a role",
       "subtitle": "View jobs as an owner or a contractor.",
@@ -138,6 +142,7 @@
       "contractor": "Contractor",
       "acceptedApplicants": "Accepted",
       "acceptedApplicantsHint": "This job has 1 accepted contractor.",
+      "noAcceptedApplicants": "No accepted candidates.",
       "startJob": "Start job",
       "openRun": "Open timer",
       "status": {
