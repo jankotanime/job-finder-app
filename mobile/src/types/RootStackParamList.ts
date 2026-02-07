@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Register: undefined;
   Main: undefined;
   Storage: undefined;
+  StorageOfferDetails: { offer: Offer };
   MyProfile: undefined;
   LanguageMenu: undefined;
   ProfileCompletion: undefined;
@@ -31,4 +32,9 @@ export type RootStackParamList = {
   };
   ChosenApplicants: { offerId: string };
   CvMain: undefined;
+  ChooseJobScreen: undefined;
+  JobsContractor: undefined;
+  JobsOwner: undefined;
+  JobDetails: { jobId: string; role: "owner" | "contractor" };
+  JobRun: { jobId: string; role: "owner" | "contractor"; startedAt?: number };
 };

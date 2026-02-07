@@ -50,7 +50,7 @@ public class JobUserService {
     }
 
     public JobDispatcherResponseDto startJob(UUID userId, UUID jobId) {
-        throwErrorIfNotJobContractor(userId, jobId);
+        throwErrorIfNotJobOwner(userId, jobId);
 
         return JobDispatcherResponseDto.from(jobService.startJob(jobId));
     }

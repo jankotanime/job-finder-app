@@ -26,6 +26,11 @@ import RenderApplicant from "../../components/main/offers/RenderApplicant";
 import { ApplicationItem } from "../../types/Applicants";
 import { useApplicants } from "../../hooks/useApplicants";
 import { createJob } from "../../api/jobs/handleJobApi";
+import {
+  acceptApplication,
+  rejectApplication,
+} from "../../api/applications/handleApplicationApi";
+import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -48,6 +53,11 @@ const OfferManageScreen = () => {
   const photoUri = buildPhotoUrl(offer?.photo?.storageKey ?? undefined);
   const offerId = offer?.id as string;
   const { chosenApplicants, reload, isReady } = useApplicants({ offerId });
+  const chosenApplicantsIds = chosenApplicants.map((app) => app.id);
+  const { removeSavedOffer } = useOfferStorageContext();
+  const notChosenApplicantsIds = applicants
+    .filter((app) => !chosenApplicants.some((chosen) => chosen.id === app.id))
+    .map((app) => app.id);
 
   useFocusEffect(
     useCallback(() => {
@@ -85,7 +95,19 @@ const OfferManageScreen = () => {
     }
   };
   const handleAccept = async (offerId: string) => {
-    const response = await createJob(offerId);
+    await Promise.all(
+      chosenApplicantsIds.map((applicationId) =>
+        acceptApplication(offerId, applicationId),
+      ),
+    );
+    await Promise.all(
+      notChosenApplicantsIds.map((applicationId) =>
+        rejectApplication(offerId, applicationId),
+      ),
+    );
+    await createJob(offerId);
+    await removeSavedOffer(offer);
+    navigation.goBack();
   };
   useEffect(() => {
     const apps = Array.isArray((offer as any)?.applications)

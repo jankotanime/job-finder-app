@@ -11,7 +11,7 @@ const JobManageButton = () => {
   return (
     <TouchableOpacity
       style={[styles.button]}
-      onPress={() => navigation.navigate("CvMain")}
+      onPress={() => navigation.navigate("ChooseJobScreen")}
     >
       <Entypo name="briefcase" size={35} color={colors.primary} />
     </TouchableOpacity>

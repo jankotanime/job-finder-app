@@ -22,10 +22,16 @@ import { OfferStorageProvider } from "./src/contexts/OfferStorageContext";
 import YourOffersScreen from "./src/screens/offers/YourOffersScreen";
 import EditProfileScreen from "./src/screens/profile/EditProfileScreen";
 import OfferManageScreen from "./src/screens/offers/OfferManageScreen";
+import StorageOfferDetailsScreen from "./src/screens/offers/StorageOfferDetailsScreen";
 import CvSelectScreen from "./src/screens/pre-login/CvSelectScreen";
 import CvPreviewScreen from "./src/screens/pre-login/CvPreviewScreen";
 import ChosenApplicantsScreen from "./src/screens/offers/ChosenApplicantsScreen";
 import CvMainChose from "./src/screens/main/CvMainChose";
+import ChooseJobScreen from "./src/screens/work/ChooseJobScreen";
+import JobsContractorScreen from "./src/screens/work/JobsContractorScreen";
+import JobsOwnerScreen from "./src/screens/work/JobsOwnerScreen";
+import JobDetailsScreen from "./src/screens/work/JobDetailsScreen";
+import JobRunScreen from "./src/screens/work/JobRunScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
@@ -50,6 +56,10 @@ export default function App() {
               <Stack.Screen name="Register" component={RegisterScreen} />
               <Stack.Screen name="Main" component={MainScreen} />
               <Stack.Screen name="Storage" component={StorageScreen} />
+              <Stack.Screen
+                name="StorageOfferDetails"
+                component={StorageOfferDetailsScreen}
+              />
               <Stack.Screen name="MyProfile" component={MyProfile} />
               <Stack.Screen name="LanguageMenu" component={LanguageMenu} />
               <Stack.Screen
@@ -78,6 +88,17 @@ export default function App() {
                 component={ChosenApplicantsScreen}
               />
               <Stack.Screen name="CvMain" component={CvMainChose} />
+              <Stack.Screen
+                name="ChooseJobScreen"
+                component={ChooseJobScreen}
+              />
+              <Stack.Screen
+                name="JobsContractor"
+                component={JobsContractorScreen}
+              />
+              <Stack.Screen name="JobsOwner" component={JobsOwnerScreen} />
+              <Stack.Screen name="JobDetails" component={JobDetailsScreen} />
+              <Stack.Screen name="JobRun" component={JobRunScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </OfferStorageProvider>

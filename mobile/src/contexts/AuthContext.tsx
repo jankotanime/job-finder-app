@@ -20,6 +20,7 @@ import { registerWithGoogle } from "../auth/google/registerWithGoogle";
 import { AuthStatus } from "../enums/authStatus";
 import getUserInfo, { User } from "../auth/tokens/getUserInfo";
 import { setTokensApiFetch } from "../api/client";
+import { clearActiveJobTimer } from "../utils/jobTimerStorage";
 
 type AuthContextType = {
   user: string;
@@ -186,6 +187,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { ok: true, status: AuthStatus.LOGGED_IN };
   };
   const signOut = async () => {
+    // try {
+    //   await clearActiveJobTimer(undefined, userInfo?.username ?? user);
+    // } catch {
+    // }
     await EncryptedStorage.removeItem("auth");
     setTokens(null);
     setTokensApiFetch({

@@ -81,6 +81,19 @@
     "saved_offers": "Zapisane oferty",
     "offers": "Twoje oferty"
   },
+  "storageOfferDetails": {
+    "title": "Zapisana oferta",
+    "want": "Chcę",
+    "dontWant": "Nie chcę",
+    "cvMissingTitle": "Wybierz CV",
+    "cvMissingBody": "Aby aplikować na ofertę, wybierz CV.",
+    "chooseCv": "Wybierz CV",
+    "cancel": "Anuluj",
+    "applyError": "Nie udało się wysłać aplikacji.",
+    "error": "Coś poszło nie tak.",
+    "notFound": "Nie znaleziono oferty.",
+    "back": "Wróć"
+  },
   "profileCompletion": {
     "firstName": "Imię",
     "lastName": "Nazwisko",
@@ -101,6 +114,89 @@
   },
   "google": {
     "sms_code": "Kod sms"
+  },
+  "jobs": {
+    "timerBanner": {
+      "title": "Aktywna praca",
+      "cta": "Wróć"
+    },
+    "chooseRole": {
+      "title": "Wybierz rolę",
+      "subtitle": "Zobacz prace jako zleceniodawca lub wykonawca.",
+      "cta": "Przejdź",
+      "contractor": {
+        "title": "Jako wykonawca",
+        "description": "Prace, do których zostałeś przypisany jako wykonawca."
+      },
+      "owner": {
+        "title": "Jako zleceniodawca",
+        "description": "Prace utworzone z Twoich ofert jako zleceniodawca."
+      }
+    },
+    "common": {
+      "loadError": "Nie udało się pobrać prac.",
+      "actionError": "Nie udało się wykonać akcji.",
+      "noAccess": "Nie masz dostępu do tej pracy.",
+      "back": "Wróć",
+      "retry": "Spróbuj ponownie"
+    },
+    "contractor": {
+      "title": "Twoje prace (wykonawca)",
+      "empty": "Brak prac jako wykonawca."
+    },
+    "owner": {
+      "title": "Twoje prace (zleceniodawca)",
+      "empty": "Brak prac jako zleceniodawca."
+    },
+    "details": {
+      "title": "Szczegóły pracy",
+      "statusLabel": "Status",
+      "participants": "Uczestnicy",
+      "owner": "Zleceniodawca",
+      "contractor": "Wykonawca",
+      "acceptedApplicants": "Zaakceptowani",
+      "acceptedApplicantsHint": "W tej pracy jest 1 zaakceptowany wykonawca.",
+      "noAcceptedApplicants": "Brak zaakceptowanych kandydatów.",
+      "startJob": "Zacznij pracę",
+      "openRun": "Przejdź do timera",
+      "waitForOwnerStart": "Oczekuje na rozpoczęcie przez zleceniodawcę",
+      "status": {
+        "ready": "Gotowa do rozpoczęcia",
+        "inProgress": "W trakcie",
+        "finishedSuccess": "Zakończona (sukces)",
+        "finishedFailure": "Zakończona (problem)",
+        "unknown": "Nieznany"
+      }
+    },
+    "run": {
+      "title": "Praca",
+      "job": "Praca",
+      "timerTitleOwner": "Upływający czas",
+      "timerTitleContractor": "Upływający czas",
+      "noStartInfo": "Brak informacji o starcie na tym urządzeniu.",
+      "waitingForOwnerStart": "Praca nie została jeszcze rozpoczęta przez zleceniodawcę.",
+      "reportProblem": "Zgłoś problem",
+      "reportNoProblem": "Zgłoś brak problemu",
+      "finishJob": "Zakończ pracę",
+      "contractorFinishedInline": "Wykonawca kliknął zakończ — możesz teraz sfinalizować.",
+      "contractorFinishLocalHint": "Zakończenie zostanie wysłane do serwera. Zleceniodawca potwierdzi i sfinalizuje zakończenie osobno.",
+      "finishSentWaitingForOwner": "Wysłałeś(aś) zakończenie — czekam na potwierdzenie zleceniodawcy.",
+      "ownerFinalizedInline": "Zleceniodawca potwierdził zakończenie.",
+      "contractorFinishedTitle": "{{nickname}} zakończył(a) pracę",
+      "contractorFinishedBody": "Czy Ty też chcesz zakończyć pracę?",
+      "contractorFinishedDismiss": "Jeszcze nie",
+      "contractorFinishedCta": "Tak, zakończ",
+      "problemDialogTitle": "Zgłoszenie problemu",
+      "noProblemDialogTitle": "Zgłoszenie braku problemu",
+      "finishDialogTitle": "Zakończenie pracy",
+      "descriptionLabel": "Opis",
+      "descriptionRequired": "Uzupełnij opis.",
+      "photoCamera": "Kamera",
+      "photoGallery": "Galeria",
+      "photoSelected": "Dodano zdjęcie.",
+      "cancel": "Anuluj",
+      "send": "Wyślij"
+    }
   },
   "offer": {
     "addHeader": "Dodaj ofertę",

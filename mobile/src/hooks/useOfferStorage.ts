@@ -4,7 +4,7 @@ import { tryCatch } from "../utils/try-catch";
 import { Offer } from "../types/Offer";
 import { useAuth } from "../contexts/AuthContext";
 
-export const useOfferStorage = () => {
+export const useOfferStorage = (reloadKey?: unknown) => {
   const { userInfo } = useAuth();
   const userId = userInfo?.userId ? String(userInfo.userId) : null;
 
@@ -57,7 +57,7 @@ export const useOfferStorage = () => {
       if (errSaved) console.error("failed to load saved offers: ", errSaved);
     };
     loadOffers();
-  }, [keyFor]);
+  }, [keyFor, reloadKey]);
   const addAcceptedOffer = useCallback(
     async (offer: Offer) => {
       const newOffers = [...acceptedOffers, offer];

@@ -81,6 +81,19 @@
     "saved_offers": "Saved offers",
     "offers": "Your offers"
   },
+  "storageOfferDetails": {
+    "title": "Saved offer",
+    "want": "I want",
+    "dontWant": "I don't want",
+    "cvMissingTitle": "Select CV",
+    "cvMissingBody": "To apply for an offer, select a CV.",
+    "chooseCv": "Choose CV",
+    "cancel": "Cancel",
+    "applyError": "Could not send application.",
+    "error": "Something went wrong.",
+    "notFound": "Offer not found.",
+    "back": "Back"
+  },
   "profileCompletion": {
     "firstName": "First name",
     "lastName": "Last name",
@@ -101,6 +114,89 @@
   },
   "google": {
     "sms_code": "Sms code"
+  },
+  "jobs": {
+    "timerBanner": {
+      "title": "Active job",
+      "cta": "Open"
+    },
+    "chooseRole": {
+      "title": "Choose a role",
+      "subtitle": "View jobs as an owner or a contractor.",
+      "cta": "Open",
+      "contractor": {
+        "title": "As contractor",
+        "description": "Jobs assigned to you as a contractor."
+      },
+      "owner": {
+        "title": "As owner",
+        "description": "Jobs created from your offers as the owner."
+      }
+    },
+    "common": {
+      "loadError": "Could not load jobs.",
+      "actionError": "Action failed.",
+      "noAccess": "You don't have access to this job.",
+      "back": "Back",
+      "retry": "Try again"
+    },
+    "contractor": {
+      "title": "Your jobs (contractor)",
+      "empty": "No jobs as contractor."
+    },
+    "owner": {
+      "title": "Your jobs (owner)",
+      "empty": "No jobs as owner."
+    },
+    "details": {
+      "title": "Job details",
+      "statusLabel": "Status",
+      "participants": "Participants",
+      "owner": "Owner",
+      "contractor": "Contractor",
+      "acceptedApplicants": "Accepted",
+      "acceptedApplicantsHint": "This job has 1 accepted contractor.",
+      "noAcceptedApplicants": "No accepted candidates.",
+      "startJob": "Start job",
+      "openRun": "Open timer",
+      "waitForOwnerStart": "Waiting for the owner to start",
+      "status": {
+        "ready": "Ready",
+        "inProgress": "In progress",
+        "finishedSuccess": "Finished (success)",
+        "finishedFailure": "Finished (problem)",
+        "unknown": "Unknown"
+      }
+    },
+    "run": {
+      "title": "Job",
+      "job": "Job",
+      "timerTitleOwner": "Elapsed time",
+      "timerTitleContractor": "Elapsed time",
+      "noStartInfo": "No start info on this device.",
+      "waitingForOwnerStart": "The owner hasn't started the job yet.",
+      "reportProblem": "Report problem",
+      "reportNoProblem": "Report no problem",
+      "finishJob": "Finish job",
+      "contractorFinishedInline": "The contractor clicked finish — you can finalize now.",
+      "contractorFinishLocalHint": "Your finish will be sent to the server. The owner will confirm and finalize it separately.",
+      "finishSentWaitingForOwner": "You sent the finish — waiting for the owner to confirm.",
+      "ownerFinalizedInline": "The owner confirmed the finish.",
+      "contractorFinishedTitle": "{{nickname}} has finished",
+      "contractorFinishedBody": "Do you want to finish the job too?",
+      "contractorFinishedDismiss": "Not yet",
+      "contractorFinishedCta": "Yes, finish",
+      "problemDialogTitle": "Report a problem",
+      "noProblemDialogTitle": "Report no problem",
+      "finishDialogTitle": "Finish the job",
+      "descriptionLabel": "Description",
+      "descriptionRequired": "Description is required.",
+      "photoCamera": "Camera",
+      "photoGallery": "Gallery",
+      "photoSelected": "Photo attached.",
+      "cancel": "Cancel",
+      "send": "Send"
+    }
   },
   "offer": {
     "addHeader": "Add offer",
