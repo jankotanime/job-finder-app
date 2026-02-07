@@ -4,42 +4,88 @@ export type ActiveJobTimer = {
   jobId: string;
   role: "owner" | "contractor";
   startedAt: number;
+  username: string;
 };
 
-const ACTIVE_JOB_KEY = "activeJobTimer";
-const startKey = (jobId: string) => `jobStart:${jobId}`;
+const LEGACY_ACTIVE_JOB_KEY = "activeJobTimer";
+const activeKey = (username: string) => `activeJobTimer:${username}`;
+const startKey = (jobId: string, username: string) =>
+  `jobStart:${jobId}:${username}`;
 
-export const setJobStartAt = async (jobId: string, startedAt: number) => {
-  await AsyncStorage.setItem(startKey(jobId), String(startedAt));
+const safeUsername = (username?: string | null) => {
+  const v = (username ?? "").trim();
+  return v.length ? v : "anon";
 };
 
-export const getJobStartAt = async (jobId: string): Promise<number | null> => {
-  const saved = await AsyncStorage.getItem(startKey(jobId));
+export const setJobStartAt = async (
+  jobId: string,
+  startedAt: number,
+  username?: string | null,
+) => {
+  const u = safeUsername(username);
+  await AsyncStorage.setItem(startKey(jobId, u), String(startedAt));
+};
+
+export const getJobStartAt = async (
+  jobId: string,
+  username?: string | null,
+): Promise<number | null> => {
+  const u = safeUsername(username);
+  const saved = await AsyncStorage.getItem(startKey(jobId, u));
   if (!saved) return null;
   const parsed = Number(saved);
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-export const setActiveJobTimer = async (active: ActiveJobTimer) => {
-  await AsyncStorage.setItem(ACTIVE_JOB_KEY, JSON.stringify(active));
-  await setJobStartAt(active.jobId, active.startedAt);
+export const setActiveJobTimer = async (
+  active: Omit<ActiveJobTimer, "username">,
+  username?: string | null,
+) => {
+  const u = safeUsername(username);
+  const full: ActiveJobTimer = { ...active, username: u };
+  await AsyncStorage.setItem(activeKey(u), JSON.stringify(full));
+  await setJobStartAt(full.jobId, full.startedAt, u);
 };
 
-export const getActiveJobTimer = async (): Promise<ActiveJobTimer | null> => {
-  const raw = await AsyncStorage.getItem(ACTIVE_JOB_KEY);
+export const getActiveJobTimer = async (
+  username?: string | null,
+): Promise<ActiveJobTimer | null> => {
+  const u = safeUsername(username);
+
+  // legacy cleanup (older builds)
+  const legacy = await AsyncStorage.getItem(LEGACY_ACTIVE_JOB_KEY);
+  if (legacy) {
+    await AsyncStorage.removeItem(LEGACY_ACTIVE_JOB_KEY);
+  }
+
+  const raw = await AsyncStorage.getItem(activeKey(u));
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
     if (!parsed?.jobId || !parsed?.role || !parsed?.startedAt) return null;
-    return parsed as ActiveJobTimer;
+    if (parsed?.username && String(parsed.username) !== String(u)) return null;
+    return { ...parsed, username: u } as ActiveJobTimer;
   } catch {
     return null;
   }
 };
 
-export const clearActiveJobTimer = async (jobId?: string) => {
-  await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-  if (jobId) {
-    await AsyncStorage.removeItem(startKey(jobId));
+export const clearActiveJobTimer = async (
+  jobId?: string,
+  username?: string | null,
+) => {
+  const u = safeUsername(username);
+
+  if (!jobId) {
+    await AsyncStorage.removeItem(activeKey(u));
+    await AsyncStorage.removeItem(LEGACY_ACTIVE_JOB_KEY);
+    return;
   }
+
+  const active = await getActiveJobTimer(u);
+  if (!active || active.jobId === jobId) {
+    await AsyncStorage.removeItem(activeKey(u));
+  }
+
+  await AsyncStorage.removeItem(startKey(jobId, u));
 };

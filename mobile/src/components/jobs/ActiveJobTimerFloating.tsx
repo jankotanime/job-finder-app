@@ -12,10 +12,13 @@ import { IconButton, Text, useTheme } from "react-native-paper";
 import { useTranslation } from "react-i18next";
 
 import type { RootStackParamList } from "../../types/RootStackParamList";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   type ActiveJobTimer,
+  clearActiveJobTimer,
   getActiveJobTimer,
 } from "../../utils/jobTimerStorage";
+import { getContractorFinishedLocally } from "../../utils/jobLocalCompletion";
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
@@ -36,6 +39,8 @@ const ActiveJobTimerFloating = () => {
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { userInfo, user } = useAuth();
+  const username = (userInfo?.username ?? user ?? "").trim();
 
   const [active, setActive] = useState<ActiveJobTimer | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
@@ -46,14 +51,26 @@ const ActiveJobTimerFloating = () => {
 
   const refresh = useCallback(async () => {
     try {
-      const next = await getActiveJobTimer();
+      const next = await getActiveJobTimer(username);
+
+      // jeśli wykonawca już kliknął zakończenie, nie pokazuj timera
+      if (next?.role === "contractor") {
+        const finishedLocal = await getContractorFinishedLocally(next.jobId);
+        if (finishedLocal) {
+          await clearActiveJobTimer(next.jobId, username);
+          setActive(null);
+          setOpen(false);
+          return;
+        }
+      }
+
       setActive(next);
       if (!next) setOpen(false);
     } catch {
       setActive(null);
       setOpen(false);
     }
-  }, []);
+  }, [username]);
 
   useFocusEffect(
     useCallback(() => {
@@ -234,7 +251,7 @@ const styles = StyleSheet.create({
     right: -15,
     top: "50%",
     transform: [{ translateY: -HEIGHT / 2 }],
-    zIndex: 100,
+    zIndex: 14,
     elevation: 10,
   },
   container: {

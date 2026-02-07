@@ -6,7 +6,7 @@ import {
   View,
   Dimensions,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { Card, Text, useTheme, ActivityIndicator } from "react-native-paper";
@@ -37,7 +37,12 @@ const JobsOwnerScreen = () => {
   const fetchJobs = useCallback(async () => {
     setErrorMessage(null);
     const res = await getJobsAsOwner();
-    setJobs(toJobsArray(res));
+    setJobs(
+      toJobsArray(res).filter(
+        (j) =>
+          j.status !== "FINISHED_FAILURE" && j.status !== "FINISHED_SUCCESS",
+      ),
+    );
   }, []);
 
   useEffect(() => {
@@ -52,6 +57,14 @@ const JobsOwnerScreen = () => {
       }
     })();
   }, [fetchJobs, t]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobs().catch(() => {
+        setErrorMessage(t("jobs.common.loadError"));
+      });
+    }, [fetchJobs, t]),
+  );
 
   const onRefresh = useCallback(async () => {
     try {
@@ -100,6 +113,7 @@ const JobsOwnerScreen = () => {
         keyExtractor={(item, idx) =>
           item?.id ?? `${item?.title ?? "job"}-${idx}`
         }
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={empty}
         refreshControl={

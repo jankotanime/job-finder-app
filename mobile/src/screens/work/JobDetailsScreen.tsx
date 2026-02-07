@@ -1,9 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleSheet, View, Image, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Image,
+  Dimensions,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -16,19 +22,24 @@ import {
 
 import type { RootStackParamList } from "../../types/RootStackParamList";
 import type { Job } from "../../types/Job";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   getJobById,
+  getJobDispatcher,
+  getJobsAsContractor,
   getJobsAsOwner,
   startJob,
 } from "../../api/jobs/handleJobApi";
 import { buildPhotoUrl } from "../../utils/photoUrl";
-import { setActiveJobTimer } from "../../utils/jobTimerStorage";
+import {
+  getJobStartAt,
+  setActiveJobTimer,
+  setJobStartAt,
+} from "../../utils/jobTimerStorage";
 
 type JobDetailsRoute = RouteProp<RootStackParamList, "JobDetails">;
 
 type Nav = NativeStackNavigationProp<RootStackParamList, "JobDetails">;
-
-const START_KEY = (jobId: string) => `jobStart:${jobId}`;
 
 type Candidate = {
   id?: string;
@@ -45,9 +56,24 @@ const toArray = <T,>(value: T | T[] | null | undefined): T[] => {
 const getJobsArrayFromPayload = (payload: any): any[] => {
   const data = payload?.body?.data;
   if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.content)) return data.content;
   if (Array.isArray(payload?.body)) return payload.body;
   if (Array.isArray(payload)) return payload;
   return [];
+};
+
+const getIdFromListItem = (item: any): string | null => {
+  const raw =
+    item?.id ??
+    item?.jobId ??
+    item?.job?.id ??
+    item?.job?.jobId ??
+    item?.offerId ??
+    item?.offer?.id ??
+    item?.offer?.jobId ??
+    item?.offer?.job?.id;
+  if (raw == null) return null;
+  return String(raw);
 };
 
 const extractAcceptedCandidatesFromOwnerJob = (ownerJob: any): Candidate[] => {
@@ -82,10 +108,22 @@ const extractAcceptedCandidatesFromOwnerJob = (ownerJob: any): Candidate[] => {
 
 const getJobFromPayload = (payload: any): Job | null => {
   const data = payload?.body?.data;
-  console.log("data: ", data);
   if (data && typeof data === "object") return data as Job;
   if (payload?.body && typeof payload.body === "object")
     return payload.body as Job;
+  return null;
+};
+
+const getJobFromListItem = (item: any): Job | null => {
+  const first = item?.job ?? item?.offer?.job ?? item?.offer ?? item;
+  if (!first || typeof first !== "object") return null;
+
+  const direct = first as any;
+  if (direct?.id && typeof direct?.title === "string") return direct as Job;
+
+  const nested = direct?.job;
+  if (nested?.id && typeof nested?.title === "string") return nested as Job;
+
   return null;
 };
 
@@ -107,6 +145,8 @@ const statusKey = (status: Job["status"]) => {
 const JobDetailsScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const { userInfo, user } = useAuth();
+  const username = (userInfo?.username ?? user ?? "").trim();
   const imageHeight = useMemo(
     () => Math.round(Dimensions.get("window").width * 0.55),
     [],
@@ -118,75 +158,230 @@ const JobDetailsScreen = () => {
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [acceptedCandidates, setAcceptedCandidates] = useState<Candidate[]>([]);
   const [acceptedLoading, setAcceptedLoading] = useState(false);
+  const [localStartedAt, setLocalStartedAt] = useState<number | null>(null);
+  const [ownerStartedForContractor, setOwnerStartedForContractor] =
+    useState<boolean>(false);
+
+  const checkOwnerStarted = useCallback(async () => {
+    if (role !== "contractor") {
+      setOwnerStartedForContractor(false);
+      return;
+    }
+    try {
+      const res = await getJobDispatcher(jobId);
+      if (!res?.response?.ok) {
+        setOwnerStartedForContractor(false);
+        return;
+      }
+      const data = res?.body?.data ?? res?.body;
+      const startedAt =
+        data?.startedAt ?? data?.startAt ?? data?.jobStartedAt ?? null;
+      const startedFlag = data?.started;
+      setOwnerStartedForContractor(Boolean(startedAt) || startedFlag === true);
+    } catch {
+      setOwnerStartedForContractor(false);
+    }
+  }, [jobId, role]);
 
   const fetchJob = useCallback(async () => {
     setErrorMessage(null);
     setAcceptedCandidates([]);
 
-    const shouldLoadAccepted = role === "owner";
+    const shouldLoadAcceptedOwner = role === "owner";
+    const shouldLoadAcceptedContractor = role === "contractor";
+    const shouldLoadAccepted =
+      shouldLoadAcceptedOwner || shouldLoadAcceptedContractor;
     setAcceptedLoading(shouldLoadAccepted);
 
-    const [jobRes, ownerJobsRes] = await Promise.all([
-      getJobById(jobId),
-      shouldLoadAccepted ? getJobsAsOwner() : Promise.resolve(null),
-    ]);
-    console.log("jobRes: ", jobRes);
+    const jobRes = await getJobById(jobId);
+    const jobsRes = shouldLoadAcceptedOwner
+      ? await getJobsAsOwner()
+      : shouldLoadAcceptedContractor
+        ? await getJobsAsContractor()
+        : null;
+
+    const jobs = jobsRes ? getJobsArrayFromPayload(jobsRes) : [];
+    const matchingFromList = jobs.find((j: any) => {
+      const candidateId = getIdFromListItem(j);
+      return candidateId != null && candidateId === String(jobId);
+    });
+    const fallbackJobFromList = matchingFromList
+      ? getJobFromListItem(matchingFromList)
+      : null;
+
+    if (!jobRes?.response?.ok) {
+      const code = jobRes?.body?.code;
+      if (code === "USER_NOT_CONTRACTOR_OR_OWNER") {
+        if (fallbackJobFromList) {
+          if (shouldLoadAcceptedOwner && matchingFromList) {
+            setAcceptedCandidates(
+              extractAcceptedCandidatesFromOwnerJob(matchingFromList),
+            );
+          }
+          setJob(fallbackJobFromList);
+          setAcceptedLoading(false);
+          setErrorMessage(null);
+          return;
+        }
+
+        setJob(null);
+        setAcceptedLoading(false);
+        setErrorMessage(t("jobs.common.noAccess"));
+        return;
+      }
+
+      setJob(null);
+      setAcceptedLoading(false);
+      setErrorMessage(jobRes?.body?.message ?? t("jobs.common.loadError"));
+      return;
+    }
 
     const parsed = getJobFromPayload(jobRes);
     if (!parsed) throw new Error("Invalid job payload");
-    setJob(parsed);
 
-    if (shouldLoadAccepted && ownerJobsRes) {
-      const ownerJobs = getJobsArrayFromPayload(ownerJobsRes);
-      const matching = ownerJobs.find((j: any) => {
-        const candidateId =
-          j?.id ?? j?.jobId ?? j?.job?.id ?? j?.offerId ?? j?.offer?.id;
-        return candidateId != null && String(candidateId) === String(jobId);
-      });
-      if (matching) {
-        setAcceptedCandidates(extractAcceptedCandidatesFromOwnerJob(matching));
+    let finalJob: Job = parsed;
+
+    if (shouldLoadAccepted && jobsRes) {
+      if (matchingFromList) {
+        if (shouldLoadAcceptedOwner) {
+          setAcceptedCandidates(
+            extractAcceptedCandidatesFromOwnerJob(matchingFromList),
+          );
+        }
+
+        if (shouldLoadAcceptedContractor) {
+          const contractorCandidate =
+            matchingFromList?.contractor ??
+            matchingFromList?.job?.contractor ??
+            matchingFromList?.offer?.chosenCandidate ??
+            matchingFromList?.offer?.contractor;
+
+          if (contractorCandidate && !finalJob?.contractor) {
+            finalJob = {
+              ...finalJob,
+              contractor: contractorCandidate,
+            };
+          }
+        }
       }
     }
+    setJob(finalJob);
 
     setAcceptedLoading(false);
-  }, [jobId, role]);
+  }, [jobId, role, t]);
+
+  const refreshLocalStart = useCallback(async () => {
+    if (role !== "contractor") {
+      setLocalStartedAt(null);
+      return;
+    }
+    const v = await getJobStartAt(jobId, username);
+    setLocalStartedAt(v);
+  }, [jobId, role, username]);
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
         await fetchJob();
+        await refreshLocalStart();
+        await checkOwnerStarted();
       } catch {
         setErrorMessage(t("jobs.common.loadError"));
       } finally {
         setLoading(false);
       }
     })();
-  }, [fetchJob, t]);
+  }, [checkOwnerStarted, fetchJob, refreshLocalStart, t]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchJob().catch(() => {
+        setErrorMessage(t("jobs.common.loadError"));
+      });
+      refreshLocalStart().catch(() => {});
+      checkOwnerStarted().catch(() => {});
+    });
+    return unsubscribe;
+  }, [checkOwnerStarted, fetchJob, navigation, refreshLocalStart, t]);
 
   const canStart = useMemo(() => {
-    return role === "contractor" && job?.status === "READY";
+    return role === "owner" && job?.status === "READY";
   }, [job?.status, role]);
+
+  const canStartContractor = useMemo(() => {
+    return (
+      role === "contractor" &&
+      (job?.status === "IN_PROGRESS" || ownerStartedForContractor) &&
+      !localStartedAt
+    );
+  }, [job?.status, localStartedAt, ownerStartedForContractor, role]);
 
   const onStart = useCallback(async () => {
     if (!job) return;
     try {
       setSubmitting(true);
       const startedAt = Date.now();
-      await startJob(job.id);
-      await AsyncStorage.setItem(START_KEY(job.id), String(startedAt));
-      await setActiveJobTimer({ jobId: job.id, role, startedAt });
+      const response = await startJob(job.id);
+      console.log("response: ", response);
+      if (!response?.response?.ok) {
+        setErrorMessage(
+          response?.body?.message ?? t("jobs.common.actionError"),
+        );
+        return;
+      }
+      await setJobStartAt(job.id, startedAt, username);
+      await setActiveJobTimer({ jobId: job.id, role, startedAt }, username);
       navigation.navigate("JobRun", { jobId: job.id, role, startedAt });
     } catch (e) {
       setErrorMessage(t("jobs.common.actionError"));
     } finally {
       setSubmitting(false);
     }
-  }, [job, navigation, role, t]);
+  }, [job, navigation, role, t, username]);
+
+  const onStartAsContractor = useCallback(async () => {
+    if (!job) return;
+    if (!canStartContractor) return;
+    try {
+      setSubmitting(true);
+      setErrorMessage(null);
+      const startedAt = Date.now();
+      await setJobStartAt(job.id, startedAt, username);
+      await setActiveJobTimer(
+        { jobId: job.id, role: "contractor", startedAt },
+        username,
+      );
+      setLocalStartedAt(startedAt);
+      navigation.navigate("JobRun", {
+        jobId: job.id,
+        role: "contractor",
+        startedAt,
+      });
+    } catch {
+      setErrorMessage(t("jobs.common.actionError"));
+    } finally {
+      setSubmitting(false);
+    }
+  }, [canStartContractor, job, navigation, t, username]);
+
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      await fetchJob();
+      await refreshLocalStart();
+      await checkOwnerStarted();
+    } catch {
+      setErrorMessage(t("jobs.common.loadError"));
+    } finally {
+      setRefreshing(false);
+    }
+  }, [checkOwnerStarted, fetchJob, refreshLocalStart, t]);
 
   const onOpenRun = useCallback(() => {
     navigation.navigate("JobRun", { jobId, role });
@@ -230,98 +425,127 @@ const JobDetailsScreen = () => {
     <SafeAreaView
       style={[styles.screen, { backgroundColor: colors.background }]}
     >
-      <Text variant="headlineSmall" style={styles.header}>
-        {t("jobs.details.title")}
-      </Text>
-      {errorMessage ? (
-        <Text style={{ color: colors.error, marginBottom: 8 }}>
-          {errorMessage}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
+        contentContainerStyle={styles.scrollContent}
+      >
+        <Text variant="headlineSmall" style={styles.header}>
+          {t("jobs.details.title")}
         </Text>
-      ) : null}
-      {photoUri ? (
-        <Image
-          source={{ uri: photoUri }}
-          style={[styles.image, { height: imageHeight }]}
-        />
-      ) : (
-        <View
-          style={[
-            styles.image,
-            { height: imageHeight, backgroundColor: colors.surfaceVariant },
-          ]}
-        />
-      )}
-      <Card style={[styles.card, { backgroundColor: colors.surface }]}>
-        <Card.Content>
-          <Text variant="titleLarge" style={{ fontWeight: "800" }}>
-            {job.title}
+        {errorMessage ? (
+          <Text style={{ color: colors.error, marginBottom: 8 }}>
+            {errorMessage}
           </Text>
-          <Text style={{ color: colors.onSurfaceVariant, marginTop: 8 }}>
-            {job.description}
-          </Text>
-          <Divider style={{ marginVertical: 14 }} />
-          <Text variant="titleMedium" style={{ fontWeight: "700" }}>
-            {t("jobs.details.statusLabel")}
-          </Text>
-          <Text style={{ marginTop: 4 }}>{t(statusKey(job.status))}</Text>
-        </Card.Content>
-      </Card>
-      <Card style={[styles.card, { backgroundColor: colors.surface }]}>
-        <Card.Content>
-          <Text variant="titleMedium" style={{ fontWeight: "700" }}>
-            {t("jobs.details.acceptedApplicants")}
-          </Text>
-          <Text style={{ color: colors.onSurfaceVariant, marginTop: 6 }}>
-            {t("jobs.details.acceptedApplicantsHint")}
-          </Text>
-          <Divider style={{ marginVertical: 12 }} />
-          {role === "owner" ? (
-            acceptedLoading ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : acceptedCandidates.length ? (
-              acceptedCandidates.map((c, idx) => (
-                <Text key={`${c.username ?? c.id ?? idx}`}>
-                  {c.firstName ?? ""} {c.lastName ?? ""}
-                  {c.username ? ` (@${c.username})` : ""}
-                </Text>
-              ))
-            ) : (
-              <Text style={{ color: colors.onSurfaceVariant }}>
-                {t("jobs.details.noAcceptedApplicants")}
-              </Text>
-            )
-          ) : (
-            <>
-              <Text style={{ color: colors.onSurfaceVariant }}>
-                {t("jobs.details.contractor")}
-              </Text>
-              <Text>
-                {job.contractor?.firstName} {job.contractor?.lastName} (@
-                {job.contractor?.username})
-              </Text>
-            </>
-          )}
-        </Card.Content>
-      </Card>
-      <View style={styles.actions}>
-        {canStart ? (
-          <Button
-            mode="contained"
-            onPress={onStart}
-            loading={submitting}
-            disabled={submitting}
-          >
-            {t("jobs.details.startJob")}
-          </Button>
+        ) : null}
+        {photoUri ? (
+          <Image
+            source={{ uri: photoUri }}
+            style={[styles.image, { height: imageHeight }]}
+          />
         ) : (
-          <Button mode="contained" onPress={onOpenRun}>
-            {t("jobs.details.startJob")}
-          </Button>
+          <View
+            style={[
+              styles.image,
+              { height: imageHeight, backgroundColor: colors.surfaceVariant },
+            ]}
+          />
         )}
-        <Button mode="outlined" onPress={() => navigation.goBack()}>
-          {t("jobs.common.back")}
-        </Button>
-      </View>
+        <Card style={[styles.card, { backgroundColor: colors.surface }]}>
+          <Card.Content>
+            <Text variant="titleLarge" style={{ fontWeight: "800" }}>
+              {job.title}
+            </Text>
+            <Text style={{ color: colors.onSurfaceVariant, marginTop: 8 }}>
+              {job.description}
+            </Text>
+            <Divider style={{ marginVertical: 14 }} />
+            <Text variant="titleMedium" style={{ fontWeight: "700" }}>
+              {t("jobs.details.statusLabel")}
+            </Text>
+            <Text style={{ marginTop: 4 }}>{t(statusKey(job.status))}</Text>
+          </Card.Content>
+        </Card>
+        <Card style={[styles.card, { backgroundColor: colors.surface }]}>
+          <Card.Content>
+            <Text variant="titleMedium" style={{ fontWeight: "700" }}>
+              {t("jobs.details.acceptedApplicants")}
+            </Text>
+            <Text style={{ color: colors.onSurfaceVariant, marginTop: 6 }}>
+              {t("jobs.details.acceptedApplicantsHint")}
+            </Text>
+            <Divider style={{ marginVertical: 12 }} />
+            {role === "owner" ? (
+              acceptedLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : acceptedCandidates.length ? (
+                acceptedCandidates.map((c, idx) => (
+                  <Text key={`${c.username ?? c.id ?? idx}`}>
+                    {c.firstName ?? ""} {c.lastName ?? ""}
+                    {c.username ? ` (@${c.username})` : ""}
+                  </Text>
+                ))
+              ) : (
+                <Text style={{ color: colors.onSurfaceVariant }}>
+                  {t("jobs.details.noAcceptedApplicants")}
+                </Text>
+              )
+            ) : (
+              <>
+                <Text style={{ color: colors.onSurfaceVariant }}>
+                  {t("jobs.details.contractor")}
+                </Text>
+                <Text>
+                  {job.contractor?.firstName} {job.contractor?.lastName} (@
+                  {job.contractor?.username})
+                </Text>
+              </>
+            )}
+          </Card.Content>
+        </Card>
+        <View style={styles.actions}>
+          {canStart ? (
+            <Button
+              mode="contained"
+              onPress={onStart}
+              loading={submitting}
+              disabled={submitting}
+            >
+              {t("jobs.details.startJob")}
+            </Button>
+          ) : role === "contractor" &&
+            job.status === "READY" &&
+            !ownerStartedForContractor &&
+            !localStartedAt ? (
+            <Button mode="contained" disabled>
+              {t("jobs.details.waitForOwnerStart")}
+            </Button>
+          ) : canStartContractor ? (
+            <Button
+              mode="contained"
+              onPress={onStartAsContractor}
+              loading={submitting}
+              disabled={submitting}
+            >
+              {t("jobs.details.startJob")}
+            </Button>
+          ) : (
+            <Button mode="contained" onPress={onOpenRun}>
+              {t("jobs.details.openRun")}
+            </Button>
+          )}
+          <Button mode="outlined" onPress={() => navigation.goBack()}>
+            {t("jobs.common.back")}
+          </Button>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -333,6 +557,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
+  },
+  scrollContent: {
+    paddingBottom: 24,
     gap: 12,
   },
   header: {

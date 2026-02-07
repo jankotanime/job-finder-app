@@ -6,7 +6,7 @@ import {
   View,
   Dimensions,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { Card, Text, useTheme, ActivityIndicator } from "react-native-paper";
@@ -14,6 +14,7 @@ import { getJobsAsContractor } from "../../api/jobs/handleJobApi";
 import type { Job } from "../../types/Job";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { RootStackParamList } from "../../types/RootStackParamList";
+import { filterOutLocallyFinishedContractorJobs } from "../../utils/jobLocalCompletion";
 
 const toJobsArray = (payload: any): Job[] => {
   const data = payload?.body?.data;
@@ -38,7 +39,11 @@ const JobsContractorScreen = () => {
   const fetchJobs = useCallback(async () => {
     setErrorMessage(null);
     const res = await getJobsAsContractor();
-    setJobs(toJobsArray(res));
+    const serverJobs = toJobsArray(res).filter(
+      (j) => j.status !== "FINISHED_FAILURE" && j.status !== "FINISHED_SUCCESS",
+    );
+    const filtered = await filterOutLocallyFinishedContractorJobs(serverJobs);
+    setJobs(filtered);
   }, []);
 
   useEffect(() => {
@@ -53,6 +58,14 @@ const JobsContractorScreen = () => {
       }
     })();
   }, [fetchJobs, t]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobs().catch(() => {
+        setErrorMessage(t("jobs.common.loadError"));
+      });
+    }, [fetchJobs, t]),
+  );
 
   const onRefresh = useCallback(async () => {
     try {
@@ -102,6 +115,7 @@ const JobsContractorScreen = () => {
         keyExtractor={(item, idx) =>
           item?.id ?? `${item?.title ?? "job"}-${idx}`
         }
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={empty}
         refreshControl={

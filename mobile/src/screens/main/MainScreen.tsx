@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 10,
+    zIndex: 0,
   },
   footer: {
     position: "absolute",
