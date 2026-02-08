@@ -132,7 +132,7 @@ public class UserUpdateServiceDefault implements UserUpdateService {
         String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.PROFILE_PHOTOS);
         ProcessedFileDetails fileDetails =
                 fileManagementService.processFileDetails(fileSource, folder);
-
+        fileManagementService.uploadFile(fileDetails);
         ProfilePhotoCreateRequestDto dto = ProfilePhotoCreateRequestDto.from(fileDetails);
         return ProfilePhoto.from(dto);
     }

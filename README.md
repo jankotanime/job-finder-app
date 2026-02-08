@@ -1,218 +1,91 @@
-# job-finder-app
+# Fuchacz
+### Version: Pre-alpha 1.0
 
-# JobFinderApp – uruchamianie i synchronizacja bazy danych przez Docker Compose
+**Fuchacz** is an application for easy searching of contract-for-task jobs. It helps employers find workers through automated features and helps job seekers with a friendly swipe interface.
 
-## Spis treści
+> Go to english setup: [SETUP-en.md](./SETUP-en.md)
 
-- [Wymagania](#wymagania)
-- [Struktura projektu](#struktura-projektu)
-- [Uruchamianie aplikacji i bazy danych](#uruchamianie-aplikacji-i-bazy-danych)
-- [Uruchamianie aplikacji mobilnej](#uruchamianie-aplikacji-mobilnej)
-- [Aktualizacja danych w bazie](#aktualizacja-danych-w-bazie)
-- [Eksport aktualnych danych do pliku `data.sql`](#eksport-aktualnych-danych-do-pliku-datasql)
-- [Synchronizacja danych w zespole](#synchronizacja-danych-w-zespole)
-- [Najczęstsze problemy](#najczęstsze-problemy)
+> Go to polish setup: [SETUP-pl.md](./SETUP-pl.md)
 
----
+## Table of contents
+- [Project structure](#project-structure)
+- [Features](#features)
+- [Preview](#preview)
+- [Contact](#contact)
 
-## Wymagania
+## Project structure
 
-- Docker i Docker Compose (zalecana najnowsza wersja)
-- Git
-- Bash (do uruchamiania skryptów)
-- IntelliJ IDEA (lub inne IDE obsługujące Spring Boot i PostgreSQL)
-
----
-
-## Struktura projektu
+### Project tree
 
 ```
 JobFinderApp/
 ├── docker-compose.yml
 ├── data.sql
-├── scripts/
-    ├── extract_db.sh
-    ├── wait-for-it.sh
 ├── spring-boot-service/
+│   └── ...
+├── mobile/
+│   └── ...
+├── website/
+│   └── ...
+├── admin-panel/projekt/
 │   └── ...
 └── ...
 ```
 
-- `docker-compose.yml` – konfiguracja usług Docker Compose (baza, aplikacja, inicjalizacja).
-- `data.sql` – plik z przykładowymi danymi do inicjalizacji bazy.
-- `extract_db.sh` – skrypt do eksportu danych z bazy do pliku `data.sql`.
-- `wait-for-it.sh` - skrypt oczekujący na uruchomienie wybranego serwisu.
+### Technology stack
+- API: Spring Boot (Java 21)
+- Mobile application: React Native, TypeScript, StyleSheet
+- Admin panel (SPA): Angular 21, TypeScript, SCSS
+- SSR: EJS, JavaScript, CSS
+- Database: PostgreSQL
+- Additional storage (tokens, codes): Redis
+- Cloud storage: Cloudflare
+- OAuth 2.0: Google
+- Scripts: Bash, Python
+- Infrastructure: Docker, NGINX
 
----
+## Features
 
-## Uruchamianie aplikacji i bazy danych
+- Swipe UI (Mobile) — Intuitive browsing of job offers in the mobile app.
+- Offer management (Mobile) — Users can create and manage offers.
+- Dual role usage — A user can be both an employer and a worker.
+- Job state logic — Careful state management secured for both sides to avoid bias.
+- Admin Panel (SPA) — Angular admin panel for easy monitoring and database management.
+- Spring Boot API — Java 21 backend API for business logic and database communication.
+- Custom Spring Security — Custom, strict backend security.
+- SSR Website — EJS-based SSR site for fast rendering and SEO.
+- PostgreSQL — Persistent data with a rich structure (users, offers, jobs).
+- Redis — Fast storage of tokens/codes with automatic expiration.
+- Cloudflare — Storage for images and documents (CVs, contracts).
+- Pipeline and spotless — Automated formatting and checks to avoid errors on `main` branch.
+- Custom Google authorization — Dedicated authorization process integrated with Google OAuth 2.0.
+- User profiles — Required profile data and preferences.
+- Role system — Permission separation between users and admins.
+- Docker Compose — Consistent containerized runtime environment.
+- Data management — Export and import with `data.sql`.
+- Hot reload — Faster development with live updates.
+- Mobile integration — Dedicated React Native client.
+- Web integration — SSR website for presentation and indexing.
+- Tooling scripts — Bash/Python automation.
+- Proxy/Reverse proxy — NGINX infrastructure layer.
+- Admin panel submodule — Separate admin panel as a git submodule.
 
-1. **Sklonuj repozytorium:**
+## Preview
+### App entry
+<!-- TODO: Add gif -->
+### Swipe home screen
+<!-- TODO: Add gif -->
+### Job creation
+<!-- TODO: Add gif -->
+### Job Dispatcher
+<!-- TODO: Add gif -->
+### Landing page
+<!-- TODO: Add gif -->
+### Admin panel
+<!-- TODO: Add gif -->
 
-    ```sh
-    git clone repo-url
-    cd JobFinderApp
-    ```
-2. **Dodaj zmienne:**
-   + Utwórz folder z sekretami `secrets` zgodnie z folderem `secrets.template`. Każdy plik powinien zawierać sekretny ciąg znaków w jednej linii (np. aaa).
-   + Utwórz plik `.env` zgodnie z plikiem `.env.template`. Każda zmienna powinna przechowywać odpowiednią wartość.
+## Contact
 
-3. **Uruchom usługi:**
-  + Pierwsze uruchomienie: baza zostanie zainicjalizowana danymi z `data.sql` za pomocą usługi `db-update`.
-
-      ```sh
-      docker compose --profile init up --build
-      ```
-    
-  + Każde następne uruchomienie wykonujemy (bez serwisu db-update)
-      ```sh
-      docker compose up --build
-      ```
-
----
-
-## Uruchamianie aplikacji mobilnej
-
-Uruchamianie za pomoca npx expo run:ios dla symulatora ios i :android dla androida, mozna uruchomic na swoim telefonie:
-   1. Wejsc w folder mobile/
-   2. ```npm install```
-   3. Wlaczyc w ustawieniach telefonu tryb dewelopera
-   4. Podlaczyc telefon do laptopa przez kabel
-   5. Wpisac npx expo run:(ios/android) --device i zaznaczyc swoj telefon
-   6. Dla macOS: npx expo run:ios wlaczy symulator
-
-Zobacz dokumentację mobilną [tutaj](mobile/README.md)
-
----
-
-## Aktualizacja danych w bazie
-
-Po zmianie pliku `data.sql` (np. po spullowaniu z repozytorium):
-
-1. **Załaduj nowe dane do bazy:**
-
-   ```sh
-   docker compose up db-update
-   ```
-
-   lub
-
-   ```sh
-   docker exec -i database psql -U admin -d jobFinderApp < data.sql
-   ```
-
----
-
-## Eksport aktualnych danych do pliku `data.sql`
-
-Aby zrzucić aktualne dane z bazy do pliku `data.sql`:
-
-1. **Uruchom skrypt eksportujący:**
-
-   ```sh
-   ./scripts/extract_db.sh
-   ```
-
-   - Skrypt utworzy/nadpisze plik `data.sql` aktualnymi danymi z bazy.
-2. **Zacommituj plik na repo:**
-
-   ```sh
-   git add data.sql
-   git commit -m "Aktualizacja danych w bazie"
-   git push
-   ```
-
----
-
-## Synchronizacja danych w zespole
-
-1. **Pulluj najnowszy kod i plik `data.sql`:**
-
-   ```sh
-   git pull
-   ```
-2. **Załaduj dane do swojej bazy:**
-
-   ```sh
-   docker compose up db-update
-   ```
-
-   lub
-
-   ```sh
-   docker exec -i database psql -U admin -d jobFinderApp < data.sql
-   ```
-
-**Efekt:**
-Każdy członek zespołu ma lokalnie tę samą bazę danych i rekordy, co w repozytorium.
-
----
-
-## Najczęstsze problemy
-
-- **Brak danych po restarcie kontenera:** Upewnij się, że wolumen `db-volume` jest skonfigurowany w `docker-compose.yml`.
-- **Brak nowych rekordów po zmianie `data.sql`:** Uruchom usługę `db-update` lub wykonaj załadunek ręcznie.
-- **Konflikty danych:** Przed eksportem danych wykonaj pull repozytorium, aby nie nadpisać zmian innych osób.
-- **Brak tabel lub błędy SQL:** Sprawdź, czy plik `data.sql` jest poprawny (średniki, składnia, typy pól).
-
----
-
-## Workflow gałęzi: `main` → `production`
-
-Ten fragment opisuje sposób aktualizowania gałęzi `production`, która służy **wyłącznie do deployu**.
-
----
-
-###  Struktura gałęzi
-
-### `main`
-- gałąź **rozwojowa**
-- trafiają tu wszystkie nowe funkcjonalności i poprawki
-- na niej pracuje cały zespół
-
-### `production`
-- gałąź **deployowa**
-- **nikt nie pracuje na niej bezpośrednio**
-- zawiera **kod aktualnie wdrażany na produkcję**
-- jest aktualizowana wyłącznie na podstawie `main`
-
----
-
-###  Aktualizacja `production`
-
-Z racji, że `production` **nie zawiera** własnych commitów i służy tylko do **deployu** to aktualizacja `production` jest prosta:
-
-```bash
-git fetch origin
-git checkout production
-git reset --hard origin/main
-git push origin production --force
-```
-
----
-
-## FAQ
-
-**Jak mogę sprawdzić dane w bazie z terminala?**
-
-```sh
-    docker exec -it database psql -U admin jobFinderApp
-    # W środku psql:
-    SELECT * FROM nazwa_tabeli;
-```
-
-**Jak zresetować bazę do stanu z `data.sql`?**
-
-- Usuń wolumen:
-  ```sh
-  docker compose down -v
-  docker compose up --build
-  ```
-
----
-
-## Kontakt
-
-W razie pytań lub problemów – skontaktuj się z właścicielami repozytorium lub zostaw issue w GitHub.
+If you have questions or issues, contact the repository owners or open a GitHub issue.
 
 ### Created by Jan Gasztold, Maciej Adamski and Mikołaj Kalejta
