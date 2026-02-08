@@ -119,6 +119,28 @@ services:
         - action: rebuild
           path: ./website/package.json
 
+  admin-panel:
+    container_name: admin-panel
+    build:
+      context: ./admin-panel/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      spring-boot-service:
+        condition: service_healthy
+    networks:
+      - job-finder-app
+    develop:
+      watch:
+        - action: sync
+          path: ./admin-panel/frontend
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./admin-panel/frontend/package.json
+
   nginx:
     image: nginx:1.29.1-bookworm-perl
     container_name: nginx
