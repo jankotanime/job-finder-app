@@ -38,7 +38,7 @@ type UpdateUserDataParams = {
   newUsername: string;
   newFirstName: string;
   newLastName: string;
-  newProfileDescription: string;
+  newProfileDescription?: string;
   password?: string;
 };
 
@@ -62,7 +62,10 @@ export const updateUserData = async (params: UpdateUserDataParams) => {
   form.append("newUsername", params.newUsername);
   form.append("newFirstName", params.newFirstName);
   form.append("newLastName", params.newLastName);
-  form.append("newProfileDescription", params.newProfileDescription);
+  if (typeof params.newProfileDescription === "string") {
+    const desc = params.newProfileDescription.trim();
+    if (desc.length > 0) form.append("newProfileDescription", desc);
+  }
   if (params.password) {
     form.append("password", params.password);
   }

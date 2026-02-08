@@ -92,7 +92,6 @@ export const createOffer = async (
   else if (Array.isArray(photosArray) && photosArray.length > 0) {
     photosArray.forEach((p: string) => appendPhoto(p));
   }
-
   const [response, error] = await tryCatch(
     apiFetch(
       `/offer`,

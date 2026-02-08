@@ -328,7 +328,6 @@ const JobDetailsScreen = () => {
       setSubmitting(true);
       const startedAt = Date.now();
       const response = await startJob(job.id);
-      console.log("response: ", response);
       if (!response?.response?.ok) {
         setErrorMessage(
           response?.body?.message ?? t("jobs.common.actionError"),

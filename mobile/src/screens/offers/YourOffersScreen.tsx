@@ -82,7 +82,6 @@ const YourOfferScreen = () => {
       setRefreshing(false);
     }
   }, [refreshOffers]);
-  console.log(myOffers);
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
