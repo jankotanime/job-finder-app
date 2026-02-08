@@ -27,13 +27,14 @@ import Input from "../../components/reusable/Input";
 import { fieldsEditProfile } from "../../constans/formFields";
 import { updateUserData } from "../../api/userUpdate/handleUserUpdate";
 import { refreshAccessToken } from "../../api/client";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
-
 const EditProfileScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { userInfo, refreshAuth } = useAuth();
+  const navigation = useNavigation();
 
   const [form, setForm] = useState({
     newUsername: String(userInfo?.username ?? ""),
@@ -89,11 +90,11 @@ const EditProfileScreen = () => {
     }
     setSubmitting(true);
     try {
-      await updateUserData({
+      const response = await updateUserData({
         newUsername: form.newUsername.trim(),
         newFirstName: form.newFirstName.trim(),
         newLastName: form.newLastName.trim(),
-        newProfileDescription: form.newProfileDescription.trim(),
+        newProfileDescription: form.newProfileDescription.trim() || undefined,
         profilePhoto: form.profilePhoto,
         password: passwordInput.trim(),
       });
@@ -101,6 +102,7 @@ const EditProfileScreen = () => {
       await refreshAuth();
       setConfirmVisible(false);
       setPasswordInput("");
+      navigation.goBack();
     } catch (e) {
       console.error("error while saving profile: ", e);
     } finally {

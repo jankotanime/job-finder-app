@@ -565,7 +565,6 @@ const JobRunScreen = () => {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
-        console.log("finish job: ", response);
         if (!response?.response?.ok) {
           setErrorMessage(
             response?.body?.message ?? t("jobs.common.actionError"),
