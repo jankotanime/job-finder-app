@@ -94,7 +94,7 @@ JobFinderApp/
 
 | App entry | Swipe home screen | Job creation |
 |-----------|------------------|--------------|
-| <img src="images/welcome.gif" width="300"/> | <img src="images/swipe.gif" width="300"/> | <img src="images/create-offer.gif" width="300"/> |
+| <img src="images/welcome.gif" width="250"/> | <img src="images/swipe.gif" width="250"/> | <img src="images/create-offer.gif" width="250"/> |
   
 </div>
 
