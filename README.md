@@ -18,7 +18,7 @@
 3. Update admin panel `git submodule update --init --recursive`
 4. Run containers with `docker compose --profile init up --build`
 5. Go to mobile folder `cd mobile`
-6. Run mobile app with `npm start`
+6. Run mobile app with `npx expo run:ios or npx expo run:android`
 
 ### Full english setup: [SETUP-en.md](./SETUP-en.md)
 
@@ -94,7 +94,7 @@ JobFinderApp/
 
 | App entry | Swipe home screen | Job creation |
 |-----------|------------------|--------------|
-| <img src="images/welcome.gif" width="250"/> | <img src="images/swipe.gif" width="250"/> | <img src="images/create-offer.gif" width="250"/> |
+| <img src="images/welcome.gif" width="240"/> | <img src="images/swipe.gif" width="240"/> | <img src="images/create-offer.gif" width="240"/> |
   
 </div>
 
