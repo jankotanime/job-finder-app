@@ -91,7 +91,7 @@ JobFinderApp/
 ### App entry
 <!-- TODO: Add gif -->
 ### Swipe home screen
-<!-- TODO: Add gif -->
+<img src="images/swipe.gif" width="200"/>
 ### Job creation
 <!-- TODO: Add gif -->
 ### Job Dispatcher
