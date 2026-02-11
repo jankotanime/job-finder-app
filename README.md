@@ -14,7 +14,7 @@
 
 ### Quick setup
 1. Clone the repository `git clone repo-url`
-2. Create `secrets` folder and `.env` file
+2. Create `secrets` folder, `certs` folder and `.env` file
 3. Update admin panel `git submodule update --init --recursive`
 4. Run containers with `docker compose --profile init up --build`
 5. Go to mobile folder `cd mobile`
@@ -101,9 +101,10 @@ JobFinderApp/
 </div>
 
 ### Landing page
-<!-- TODO: Add gif -->
+![0210 (1)](https://github.com/user-attachments/assets/7de3d027-8115-46d1-a0b7-177c1eedb853)
+
 ### Admin panel
-<!-- TODO: Add gif -->
+![0210 (1)(1)](https://github.com/user-attachments/assets/d9994dd2-e3c6-42d6-8e60-571c6d49dfe0)
 
 ## Contact
 
