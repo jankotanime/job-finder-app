@@ -88,14 +88,18 @@ JobFinderApp/
 - Admin panel submodule — Separate admin panel as a git submodule.
 
 ## Preview
+<div align="center">
+  
 ### App entry
-<!-- TODO: Add gif -->
+  <img src="images/welcome.gif" width="200"/>
+  
 ### Swipe home screen
-<img src="images/swipe.gif" width="200"/>
+  <img src="images/swipe.gif" width="200"/>
+
 ### Job creation
-<!-- TODO: Add gif -->
-### Job Dispatcher
-<!-- TODO: Add gif -->
+  <img src="images/create-offer.gif" width="200"/>
+</div>
+
 ### Landing page
 <!-- TODO: Add gif -->
 ### Admin panel
