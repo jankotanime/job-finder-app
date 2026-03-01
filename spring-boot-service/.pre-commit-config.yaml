@@ -16,9 +16,9 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
-      - id: pmdLinting
-        name: pmdMain(lint)
-        entry: python3 spring-boot-service/scripts/run_gradle.py --info --stacktrace pmdMain
+      - id: pmdTest
+        name: pmdTest
+        entry: python3 spring-boot-service/scripts/run_gradle.py pmdTest
         language: system
         pass_filenames: false
         stages: [pre-commit]

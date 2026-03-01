@@ -24,7 +24,7 @@ jacoco {
 spotless {
     java {
         target("src/*/java/**/*.java")
-        cleanthat().excludeMutator("ModifierOrder")
+        cleanthat()
         importOrder()
         removeUnusedImports()
 
