@@ -14,11 +14,11 @@
 
 ### Quick setup
 1. Clone the repository `git clone repo-url`
-2. Create `secrets` folder and `.env` file
+2. Create `secrets` folder, `certs` folder and `.env` file
 3. Update admin panel `git submodule update --init --recursive`
 4. Run containers with `docker compose --profile init up --build`
 5. Go to mobile folder `cd mobile`
-6. Run mobile app with `npm start`
+6. Run mobile app with `npx expo run:ios` or `npx expo run:android`
 
 ### Full english setup: [SETUP-en.md](./SETUP-en.md)
 
@@ -88,18 +88,21 @@ JobFinderApp/
 - Admin panel submodule — Separate admin panel as a git submodule.
 
 ## Preview
-### App entry
-<!-- TODO: Add gif -->
-### Swipe home screen
-<img src="images/swipe.gif" width="200"/>
-### Job creation
-<!-- TODO: Add gif -->
-### Job Dispatcher
-<!-- TODO: Add gif -->
+
+### Mobile App
+<div align="center">
+
+| App entry | Swipe home screen | Job creation |
+|-----------|------------------|--------------|
+| <img src="images/welcome.gif" width="220"/> | <img src="images/swipe.gif" width="220"/> | <img src="images/create-offer.gif" width="220"/> |
+  
+</div>
+
 ### Landing page
-<!-- TODO: Add gif -->
+![0210 (1)](https://github.com/user-attachments/assets/7de3d027-8115-46d1-a0b7-177c1eedb853)
+
 ### Admin panel
-<!-- TODO: Add gif -->
+![0210 (1)(1)](https://github.com/user-attachments/assets/d9994dd2-e3c6-42d6-8e60-571c6d49dfe0)
 
 ## Contact
 

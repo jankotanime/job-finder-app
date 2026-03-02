@@ -2,31 +2,30 @@ import os
 import subprocess
 import sys
 
-def run_program(cmd_list, cwd):
-    result = subprocess.run(cmd_list, cwd=cwd)
+
+def run_program(
+    program: str | os.PathLike, arguments: list[str] | None = None, cwd: str | None = None
+) -> int:
+    args = arguments or []
+    result = subprocess.run([program] + args, cwd=cwd)
     return result.returncode
+
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python run_gradle.py <gradle-task-or-args...>")
+        print("Usage: python run_gradle.py <task>")
         sys.exit(1)
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+    project_dir = os.path.abspath(os.path.join(script_dir, ".."))
+    gradlew = "gradlew.bat" if os.name == "nt" else "gradlew"
+    gradlew_path = os.path.join(project_dir, gradlew)
 
-    gradlew_name = "gradlew.bat" if os.name == "nt" else "gradlew"
-    gradlew_path = os.path.join(project_dir, gradlew_name)
+    run_program(gradlew_path, ["spotlessApply"], cwd=project_dir)
+    return_code = run_program(gradlew_path, sys.argv[1:], cwd=project_dir)
 
-    if not os.path.exists(gradlew_path):
-        print(f"Gradle wrapper not found at {gradlew_path}")
-        sys.exit(1)
+    sys.exit(return_code)
 
-    rc = run_program([gradlew_path, "spotlessApply"], cwd=project_dir)
-    if rc != 0:
-        print("spotlessApply returned non-zero exit code:", rc)
-
-    rc = run_program([gradlew_path] + sys.argv[1:], cwd=project_dir)
-    sys.exit(rc)
 
 if __name__ == "__main__":
     main()

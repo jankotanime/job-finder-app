@@ -26,6 +26,7 @@
 
 2. **Add variables:**
    + Create a `secrets` folder based on `secrets.template`. Each file should contain a secret string in a single line (e.g., example).
+   + Create a `certs` folder based on `certs.template`. Provide your own `cert.pem` and `key.pem` files or generate them using a tool such as OpenSSL.
    + Create a `.env` file based on `.env.template`. Each variable should store the appropriate value.
 
 3. **Clone the admin panel:**

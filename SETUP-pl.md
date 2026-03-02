@@ -27,7 +27,7 @@
 
 2. **Dodaj zmienne:**
    + Utwórz folder z sekretami `secrets` zgodnie z folderem `secrets.template`. Każdy plik powinien zawierać sekretny ciąg znaków w jednej linii (np. example).
-
+   + Utwórz folder z certyfikatami `certs` zgodnie z folderem `certs.template`. Umieść własne pliki `cert.pem` i `key.pem` lub wygeneruj je za pomocą narzędzia (np. OpenSSL).
    + Utwórz plik `.env` zgodnie z plikiem `.env.template`. Każda zmienna powinna przechowywać odpowiednią wartość.
 
 3. **Sklonuj admin-panel:**
@@ -60,7 +60,7 @@
    docker compose up --build --watch
    ```
 
-4. Aby uruchomić zaaktulizator bazy danych z `data.sql` wykonujemy (kontenery muszą być uruchomione):
+4. Aby uruchomić aktulizator bazy danych z `data.sql` wykonujemy (kontenery muszą być uruchomione):
    ```sh
    docker compose up db-update
    ```
