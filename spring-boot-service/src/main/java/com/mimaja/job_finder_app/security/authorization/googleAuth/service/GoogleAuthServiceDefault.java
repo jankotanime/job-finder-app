@@ -97,6 +97,7 @@ public class GoogleAuthServiceDefault implements GoogleAuthService {
 
         if (user.getEmail() != email) {
             user.setEmail(email);
+            userRepository.save(user);
             changedEmail = true;
         }
 
