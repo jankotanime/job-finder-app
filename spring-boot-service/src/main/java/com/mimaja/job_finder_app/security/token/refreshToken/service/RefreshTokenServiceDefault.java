@@ -114,7 +114,7 @@ public class RefreshTokenServiceDefault implements RefreshTokenService {
     public void deleteAllUserTokens(UUID userId) {
         Set<String> tokenIds = redisTemplate.opsForSet().members("userTokens:" + userId);
 
-        if (tokenIds != null && !tokenIds.isEmpty()) {
+        if (!tokenIds.isEmpty()) {
             List<String> keysToDelete = tokenIds.stream().map(id -> "refreshToken:" + id).toList();
 
             redisTemplate.delete(keysToDelete);
