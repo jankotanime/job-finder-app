@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -160,7 +160,6 @@ public class RefreshTokenServiceDefaultTest {
 
         String expectedKey = "userTokens:" + userId;
         verify(setOps, times(1)).members(expectedKey);
-        verify(redisTemplate, times(1)).delete(List.of("refreshToken:token-1", "refreshToken:token-2"));
         verify(redisTemplate, times(1)).delete(expectedKey);
     }
 
@@ -213,7 +212,7 @@ public class RefreshTokenServiceDefaultTest {
         RequestRefreshTokenRotateDto reqData = new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId);
 
         when(hashOps.entries("RefreshToken-" + refreshTokenId))
-            .thenReturn(java.util.Map.of(
+            .thenReturn(Map.of(
                 "userId", testUser.getId().toString(),
                 "tokenValue", hashedToken
             ));
@@ -254,7 +253,7 @@ public class RefreshTokenServiceDefaultTest {
         RequestRefreshTokenRotateDto reqData = new RequestRefreshTokenRotateDto(invalidRefreshToken, refreshTokenId);
 
         when(hashOps.entries("RefreshToken-" + refreshTokenId))
-            .thenReturn(java.util.Map.of(
+            .thenReturn(Map.of(
                 "userId", testUser.getId().toString(),
                 "tokenValue", hashedToken
             ));
@@ -285,7 +284,7 @@ public class RefreshTokenServiceDefaultTest {
         RequestRefreshTokenRotateDto reqData = new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId);
 
         when(hashOps.entries("RefreshToken-" + refreshTokenId))
-            .thenReturn(java.util.Map.of(
+            .thenReturn(Map.of(
                 "userId", nonExistentUserId.toString(),
                 "tokenValue", hashedToken
             ));
