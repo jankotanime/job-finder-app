@@ -111,7 +111,7 @@ public class JobUserService {
 
     private void throwErrorIfNotContractorOrOwner(UUID userId, UUID jobId) {
         Job job = jobService.getJobById(jobId);
-        if (job.getContractor().getId().equals(userId) && !job.getOwner().getId().equals(userId)) {
+        if (!job.getContractor().getId().equals(userId) && !job.getOwner().getId().equals(userId)) {
             throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
         }
     }
