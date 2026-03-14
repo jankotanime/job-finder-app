@@ -130,10 +130,10 @@ public class JobUserService {
         }
     }
 
-    private void throwErrorIfNotJobContractor(UUID userId, UUID jobId) {
-        Job job = jobService.getJobById(jobId);
-        if (!job.getContractor().getId().equals(userId)) {
-            throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR);
-        }
-    }
+    // private void throwErrorIfNotJobContractor(UUID userId, UUID jobId) {
+    //     Job job = jobService.getJobById(jobId);
+    //     if (!job.getContractor().getId().equals(userId)) {
+    //         throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR);
+    //     }
+    // }
 }
