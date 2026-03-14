@@ -1,18 +1,25 @@
 package com.mimaja.job_finder_app.feature.unit.user.service;
 
+import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.DEFAULT_EMAIL;
+import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.DEFAULT_FIRST_NAME;
+import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.DEFAULT_LAST_NAME;
+import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.DEFAULT_PHONE_NUMBER;
+import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.DEFAULT_USERNAME;
+import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.createDefaultUser;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +45,20 @@ import com.mimaja.job_finder_app.feature.user.service.UserServiceAdmin;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserServiceAdmin - Unit Tests")
 public class UserServiceAdminTest {
+    private static final String NEW_USER_USERNAME = "newuser";
+    private static final String NEW_USER_EMAIL = "newuser@example.com";
+    private static final int NEW_USER_PHONE_NUMBER = 987654321;
+    private static final String NEW_USER_PASSWORD = "rawPassword";
+    private static final String NEW_USER_FIRST_NAME = "Jane";
+    private static final String NEW_USER_LAST_NAME = "Smith";
+    private static final String NEW_USER_PROFILE_DESCRIPTION = "New user profile";
+    private static final String UPDATED_USERNAME = "updateduser";
+    private static final String UPDATED_EMAIL = "updated@example.com";
+    private static final int UPDATED_PHONE_NUMBER = 111111111;
+    private static final String UPDATED_FIRST_NAME = "Updated";
+    private static final String UPDATED_LAST_NAME = "User";
+    private static final String UPDATED_PROFILE_DESCRIPTION = "Updated profile";
+    private static final String ADMIN_PROFILE_DESCRIPTION = "Test admin profile description";
 
     @Mock
     private UserService userService;
@@ -49,53 +70,35 @@ public class UserServiceAdminTest {
     private UserMapper userMapper;
 
     private UserServiceAdmin userServiceAdmin;
-
     private User testUser;
-
     private UserAdminPanelResponseDto testResponseDto;
 
+    @BeforeEach
     void setUp() {
-        testUser = createTestUser();
+        testUser = createDefaultUser();
         testResponseDto = createTestResponseDto();
-
         userServiceAdmin = new UserServiceAdmin(userService, userDeletionService, userMapper);
-    }
-
-    private User createTestUser() {
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        user.setUsername("testuser");
-        user.setEmail("user@example.com");
-        user.setPhoneNumber(123456789);
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setProfileDescription("Test profile description");
-        return user;
     }
 
     private UserAdminPanelResponseDto createTestResponseDto() {
         return new UserAdminPanelResponseDto(
             UUID.randomUUID(),
-            "testuser",
-            "user@example.com",
-            "John",
-            "Doe",
-            123456789,
-            "Test admin profile description",
+            DEFAULT_USERNAME,
+            DEFAULT_EMAIL,
+            DEFAULT_FIRST_NAME,
+            DEFAULT_LAST_NAME,
+            DEFAULT_PHONE_NUMBER,
+            ADMIN_PROFILE_DESCRIPTION,
             null,
             LocalDateTime.now(),
             LocalDateTime.now()
         );
-
-
     }
 
     @Test
     @DisplayName("Should get all users with pagination and map to response DTOs")
-    void testGetAllUsers_WithValidPageable_ShouldReturnPageOfUserAdminPanelResponseDtos() {
-        setUp();
-
-        UserFilterRequestDto filterDto = new UserFilterRequestDto("testuser", "user@example.com", null, null);
+    void shouldReturnResponseDtoPage_WhenGetAllUsersWithValidPageable() {
+        UserFilterRequestDto filterDto = new UserFilterRequestDto(DEFAULT_USERNAME, DEFAULT_EMAIL, null, null);
         Pageable pageable = PageRequest.of(0, 10);
         Page<User> expectedPage = new PageImpl<>(List.of(testUser), pageable, 1);
 
@@ -106,7 +109,7 @@ public class UserServiceAdminTest {
 
         assertNotNull(result, "Page of response DTOs should not be null");
         assertThat(result.getTotalElements()).isEqualTo(1);
-        assertThat(result.getContent().get(0).username()).isEqualTo("testuser");
+        assertThat(result.getContent().get(0).username()).isEqualTo(DEFAULT_USERNAME);
 
         verify(userService, times(1)).getAllUsers(filterDto, pageable);
         verify(userMapper, times(1)).toUserAdminPanelResponseDto(testUser);
@@ -114,9 +117,7 @@ public class UserServiceAdminTest {
 
     @Test
     @DisplayName("Should get all users with empty result")
-    void testGetAllUsers_WithNoUsers_ShouldReturnEmptyPage() {
-        setUp();
-
+    void shouldReturnEmptyPage_WhenGetAllUsersWithNoUsers() {
         UserFilterRequestDto filterDto = new UserFilterRequestDto(null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
         Page<User> expectedPage = new PageImpl<>(List.of(), pageable, 0);
@@ -135,17 +136,15 @@ public class UserServiceAdminTest {
 
     @Test
     @DisplayName("Should create user successfully and map to response DTO")
-    void testCreateUser_WithValidData_ShouldReturnUserAdminPanelResponseDto() {
-        setUp();
-
+    void shouldReturnResponseDto_WhenCreateUserWithValidData() {
         UserAdminPanelCreateRequestDto createDto = new UserAdminPanelCreateRequestDto(
-            "newuser",
-            "newuser@example.com",
-            987654321,
-            "rawPassword",
-            "Jane",
-            "Smith",
-            "New user profile"
+            NEW_USER_USERNAME,
+            NEW_USER_EMAIL,
+            NEW_USER_PHONE_NUMBER,
+            NEW_USER_PASSWORD,
+            NEW_USER_FIRST_NAME,
+            NEW_USER_LAST_NAME,
+            NEW_USER_PROFILE_DESCRIPTION
         );
 
         when(userService.createUser(createDto)).thenReturn(testUser);
@@ -154,8 +153,9 @@ public class UserServiceAdminTest {
         UserAdminPanelResponseDto result = userServiceAdmin.createUser(createDto);
 
         assertNotNull(result, "Response DTO should not be null");
-        assertThat(result.username()).isEqualTo("testuser");
-        assertThat(result.email()).isEqualTo("user@example.com");
+        assertThat(result)
+            .extracting(UserAdminPanelResponseDto::username, UserAdminPanelResponseDto::email)
+            .containsExactly(DEFAULT_USERNAME, DEFAULT_EMAIL);
 
         verify(userService, times(1)).createUser(createDto);
         verify(userMapper, times(1)).toUserAdminPanelResponseDto(testUser);
@@ -163,17 +163,15 @@ public class UserServiceAdminTest {
 
     @Test
     @DisplayName("Should throw BusinessException when user creation fails")
-    void testCreateUser_WhenUserServiceThrowsException_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenCreateUserFailsInUserService() {
         UserAdminPanelCreateRequestDto createDto = new UserAdminPanelCreateRequestDto(
-            "newuser",
-            "newuser@example.com",
-            987654321,
-            "rawPassword",
-            "Jane",
-            "Smith",
-            "New user profile"
+            NEW_USER_USERNAME,
+            NEW_USER_EMAIL,
+            NEW_USER_PHONE_NUMBER,
+            NEW_USER_PASSWORD,
+            NEW_USER_FIRST_NAME,
+            NEW_USER_LAST_NAME,
+            NEW_USER_PROFILE_DESCRIPTION
         );
 
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
@@ -192,17 +190,15 @@ public class UserServiceAdminTest {
 
     @Test
     @DisplayName("Should update user successfully and map to response DTO")
-    void testUpdateUser_WithValidData_ShouldReturnUserAdminPanelResponseDto() {
-        setUp();
-
+    void shouldReturnResponseDto_WhenUpdateUserWithValidData() {
         UUID userId = testUser.getId();
         UserAdminPanelUpdateRequestDto updateDto = new UserAdminPanelUpdateRequestDto(
-            "updateduser",
-            "updated@example.com",
-            111111111,
-            "Updated",
-            "User",
-            "Updated profile"
+            UPDATED_USERNAME,
+            UPDATED_EMAIL,
+            UPDATED_PHONE_NUMBER,
+            UPDATED_FIRST_NAME,
+            UPDATED_LAST_NAME,
+            UPDATED_PROFILE_DESCRIPTION
         );
 
         when(userService.updateUser(userId, updateDto)).thenReturn(testUser);
@@ -219,17 +215,15 @@ public class UserServiceAdminTest {
 
     @Test
     @DisplayName("Should throw BusinessException when user update fails")
-    void testUpdateUser_WhenUserServiceThrowsException_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenUpdateUserFailsInUserService() {
         UUID userId = UUID.randomUUID();
         UserAdminPanelUpdateRequestDto updateDto = new UserAdminPanelUpdateRequestDto(
-            "updateduser",
-            "updated@example.com",
-            111111111,
-            "Updated",
-            "User",
-            "Updated profile"
+            UPDATED_USERNAME,
+            UPDATED_EMAIL,
+            UPDATED_PHONE_NUMBER,
+            UPDATED_FIRST_NAME,
+            UPDATED_LAST_NAME,
+            UPDATED_PROFILE_DESCRIPTION
         );
 
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
@@ -248,9 +242,7 @@ public class UserServiceAdminTest {
 
     @Test
     @DisplayName("Should delete user successfully")
-    void testDeleteUser_WithValidUserId_ShouldDeleteUser() {
-        setUp();
-
+    void shouldDeleteUser_WhenDeleteUserWithValidUserId() {
         UUID userId = testUser.getId();
 
         userServiceAdmin.deleteUser(userId);
@@ -260,9 +252,7 @@ public class UserServiceAdminTest {
 
     @Test
     @DisplayName("Should throw BusinessException when user deletion fails")
-    void testDeleteUser_WhenDeletionServiceThrowsException_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenDeleteUserFailsInDeletionService() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
             .when(userDeletionService)

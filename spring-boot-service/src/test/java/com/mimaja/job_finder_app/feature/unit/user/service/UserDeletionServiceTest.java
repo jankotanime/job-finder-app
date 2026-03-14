@@ -1,15 +1,18 @@
 package com.mimaja.job_finder_app.feature.unit.user.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doThrow;
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -35,15 +38,14 @@ public class UserDeletionServiceTest {
 
     private UserDeletionService userDeletionService;
 
+    @BeforeEach
     void setUp() {
         userDeletionService = new UserDeletionService(cvService, offerService, userService);
     }
 
     @Test
     @DisplayName("Should delete user successfully with all related data")
-    void testDeleteUser_WithValidUserId_ShouldDeleteUserAndRelatedData() {
-        setUp();
-
+    void shouldDeleteUserAndRelatedData_WhenUserIdIsValid() {
         UUID userId = UUID.randomUUID();
 
         userDeletionService.deleteUser(userId);
@@ -55,23 +57,20 @@ public class UserDeletionServiceTest {
 
     @Test
     @DisplayName("Should delete user CVs before deleting offers and user")
-    void testDeleteUser_ShouldDeleteCvsFirst() {
-        setUp();
-
+    void shouldDeleteCvsBeforeOffersAndUser() {
         UUID userId = UUID.randomUUID();
 
         userDeletionService.deleteUser(userId);
 
-        verify(cvService, times(1)).deleteAllCvsForUser(userId);
-        verify(offerService, times(1)).deleteOffersByOwnerId(userId);
-        verify(userService, times(1)).deleteUser(userId);
+        InOrder inOrder = inOrder(cvService, offerService, userService);
+        inOrder.verify(cvService, times(1)).deleteAllCvsForUser(userId);
+        inOrder.verify(offerService, times(1)).deleteOffersByOwnerId(userId);
+        inOrder.verify(userService, times(1)).deleteUser(userId);
     }
 
     @Test
     @DisplayName("Should throw BusinessException when CV deletion fails")
-    void testDeleteUser_WhenCvDeletionFails_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenCvDeletionFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.CV_NOT_FOUND))
             .when(cvService)
@@ -90,9 +89,7 @@ public class UserDeletionServiceTest {
 
     @Test
     @DisplayName("Should throw BusinessException when offer deletion fails")
-    void testDeleteUser_WhenOfferDeletionFails_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenOfferDeletionFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.OFFER_NOT_FOUND))
             .when(offerService)
@@ -111,9 +108,7 @@ public class UserDeletionServiceTest {
 
     @Test
     @DisplayName("Should throw BusinessException when user deletion fails")
-    void testDeleteUser_WhenUserDeletionFails_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenUserDeletionFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
             .when(userService)

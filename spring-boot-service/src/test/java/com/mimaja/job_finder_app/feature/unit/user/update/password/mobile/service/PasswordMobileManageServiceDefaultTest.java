@@ -1,19 +1,22 @@
 package com.mimaja.job_finder_app.feature.unit.user.update.password.mobile.service;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.createDefaultUserWithPasswordHash;
+import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.createPrincipal;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 
-import java.util.UUID;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,6 +33,12 @@ import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PasswordMobileManageServiceDefault - Unit Tests")
 public class PasswordMobileManageServiceDefaultTest {
+    private static final String OLD_PASSWORD = "oldPassword";
+    private static final String WRONG_PASSWORD = "wrongPassword";
+    private static final String NEW_PASSWORD = "newPassword123";
+    private static final String WEAK_PASSWORD = "weak";
+    private static final String OLD_HASHED_PASSWORD = "old-hashed-password";
+    private static final String NEW_HASHED_PASSWORD = "new-hashed-password";
 
     @Mock
     private UserRepository userRepository;
@@ -41,15 +50,13 @@ public class PasswordMobileManageServiceDefaultTest {
     private PasswordManageDataManager passwordManageDataManager;
 
     private PasswordMobileManageServiceDefault passwordService;
-
     private User testUser;
-
     private JwtPrincipal testPrincipal;
 
+    @BeforeEach
     void setUp() {
-        testUser = createTestUser();
-        testPrincipal = createTestPrincipal(testUser);
-
+        testUser = createDefaultUserWithPasswordHash(OLD_HASHED_PASSWORD);
+        testPrincipal = createPrincipal(testUser);
         passwordService = new PasswordMobileManageServiceDefault(
             userRepository,
             passwordConfiguration,
@@ -57,78 +64,60 @@ public class PasswordMobileManageServiceDefaultTest {
         );
     }
 
-    private User createTestUser() {
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        user.setUsername("testuser");
-        user.setEmail("user@example.com");
-        user.setPhoneNumber(123456789);
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setProfileDescription("Test profile description");
-        user.setPasswordHash("old-hashed-password");
-        return user;
-    }
-
-    private JwtPrincipal createTestPrincipal(User user) {
-        return JwtPrincipal.from(user);
-    }
-
     @Test
     @DisplayName("Should update password successfully")
-    void testUpdatePassword_WithValidData_ShouldUpdatePasswordHash() {
-        setUp();
-
+    void shouldUpdatePasswordHash_WhenUpdatePasswordWithValidData() {
         UpdatePasswordRequestDto requestDto = new UpdatePasswordRequestDto(
-            "oldPassword",
-            "newPassword123"
+            OLD_PASSWORD,
+            NEW_PASSWORD
         );
 
-        String newHashedPassword = "new-hashed-password";
-
-        when(passwordConfiguration.verifyPassword("oldPassword", testUser.getPasswordHash()))
+        when(passwordConfiguration.verifyPassword(OLD_PASSWORD, testUser.getPasswordHash()))
             .thenReturn(true);
-        when(passwordConfiguration.encodePassword("newPassword123"))
-            .thenReturn(newHashedPassword);
+        when(passwordConfiguration.encodePassword(NEW_PASSWORD))
+            .thenReturn(NEW_HASHED_PASSWORD);
 
         passwordService.updatePassword(requestDto, testPrincipal);
 
-        assertThat(testUser.getPasswordHash()).isEqualTo(newHashedPassword);
+        assertThat(testUser.getPasswordHash()).isEqualTo(NEW_HASHED_PASSWORD);
 
-        verify(passwordManageDataManager, times(1)).checkDataPatterns("newPassword123");
-        verify(passwordConfiguration, times(1)).encodePassword("newPassword123");
+        verify(passwordManageDataManager, times(1)).checkDataPatterns(NEW_PASSWORD);
+        verify(passwordConfiguration, times(1)).encodePassword(NEW_PASSWORD);
         verify(userRepository, times(1)).save(testUser);
     }
 
     @Test
     @DisplayName("Should verify old password before updating")
-    void testUpdatePassword_ShouldVerifyOldPasswordFirst() {
-        setUp();
-
+    void shouldVerifyOldPasswordFirst_WhenUpdatingPassword() {
         UpdatePasswordRequestDto requestDto = new UpdatePasswordRequestDto(
-            "oldPassword",
-            "newPassword123"
+            OLD_PASSWORD,
+            NEW_PASSWORD
         );
 
-        when(passwordConfiguration.verifyPassword("oldPassword", testUser.getPasswordHash()))
+        when(passwordConfiguration.verifyPassword(OLD_PASSWORD, testUser.getPasswordHash()))
             .thenReturn(true);
-        when(passwordConfiguration.encodePassword("newPassword123"))
-            .thenReturn("new-hashed-password");
+        when(passwordConfiguration.encodePassword(NEW_PASSWORD))
+            .thenReturn(NEW_HASHED_PASSWORD);
 
         passwordService.updatePassword(requestDto, testPrincipal);
+
+        InOrder inOrder = inOrder(passwordConfiguration, passwordManageDataManager, userRepository);
+        inOrder.verify(passwordConfiguration, times(1))
+            .verifyPassword(OLD_PASSWORD, OLD_HASHED_PASSWORD);
+        inOrder.verify(passwordManageDataManager, times(1)).checkDataPatterns(NEW_PASSWORD);
+        inOrder.verify(passwordConfiguration, times(1)).encodePassword(NEW_PASSWORD);
+        inOrder.verify(userRepository, times(1)).save(testUser);
     }
 
     @Test
     @DisplayName("Should throw BusinessException when old password is wrong")
-    void testUpdatePassword_WithWrongOldPassword_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenUpdatePasswordWithWrongOldPassword() {
         UpdatePasswordRequestDto requestDto = new UpdatePasswordRequestDto(
-            "wrongPassword",
-            "newPassword123"
+            WRONG_PASSWORD,
+            NEW_PASSWORD
         );
 
-        when(passwordConfiguration.verifyPassword("wrongPassword", testUser.getPasswordHash()))
+        when(passwordConfiguration.verifyPassword(WRONG_PASSWORD, testUser.getPasswordHash()))
             .thenReturn(false);
 
         BusinessException exception = assertThrows(
@@ -142,26 +131,24 @@ public class PasswordMobileManageServiceDefaultTest {
             .isEqualTo(BusinessExceptionReason.WRONG_PASSWORD.getCode());
 
         verify(passwordConfiguration, times(1))
-            .verifyPassword("wrongPassword", testUser.getPasswordHash());
+            .verifyPassword(WRONG_PASSWORD, testUser.getPasswordHash());
         verify(passwordManageDataManager, times(0)).checkDataPatterns(anyString());
         verify(userRepository, times(0)).save(any());
     }
 
     @Test
     @DisplayName("Should throw BusinessException when new password pattern validation fails")
-    void testUpdatePassword_WhenPasswordPatternValidationFails_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenPasswordPatternValidationFailsDuringUpdatePassword() {
         UpdatePasswordRequestDto requestDto = new UpdatePasswordRequestDto(
-            "oldPassword",
-            "weak"
+            OLD_PASSWORD,
+            WEAK_PASSWORD
         );
 
-        when(passwordConfiguration.verifyPassword("oldPassword", testUser.getPasswordHash()))
+        when(passwordConfiguration.verifyPassword(OLD_PASSWORD, testUser.getPasswordHash()))
             .thenReturn(true);
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_PATTERN))
             .when(passwordManageDataManager)
-            .checkDataPatterns("weak");
+            .checkDataPatterns(WEAK_PASSWORD);
 
         assertThrows(
             BusinessException.class,
@@ -170,28 +157,24 @@ public class PasswordMobileManageServiceDefaultTest {
         );
 
         verify(passwordConfiguration, times(1))
-            .verifyPassword("oldPassword", testUser.getPasswordHash());
-        verify(passwordManageDataManager, times(1)).checkDataPatterns("weak");
+            .verifyPassword(OLD_PASSWORD, testUser.getPasswordHash());
+        verify(passwordManageDataManager, times(1)).checkDataPatterns(WEAK_PASSWORD);
         verify(passwordConfiguration, times(0)).encodePassword(anyString());
         verify(userRepository, times(0)).save(any());
     }
 
     @Test
     @DisplayName("Should throw BusinessException when user save fails")
-    void testUpdatePassword_WhenUserSaveFails_ShouldThrowBusinessException() {
-        setUp();
-
+    void shouldThrowBusinessException_WhenUserSaveFailsDuringUpdatePassword() {
         UpdatePasswordRequestDto requestDto = new UpdatePasswordRequestDto(
-            "oldPassword",
-            "newPassword123"
+            OLD_PASSWORD,
+            NEW_PASSWORD
         );
 
-        String newHashedPassword = "new-hashed-password";
-
-        when(passwordConfiguration.verifyPassword("oldPassword", testUser.getPasswordHash()))
+        when(passwordConfiguration.verifyPassword(OLD_PASSWORD, testUser.getPasswordHash()))
             .thenReturn(true);
-        when(passwordConfiguration.encodePassword("newPassword123"))
-            .thenReturn(newHashedPassword);
+        when(passwordConfiguration.encodePassword(NEW_PASSWORD))
+            .thenReturn(NEW_HASHED_PASSWORD);
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
             .when(userRepository)
             .save(testUser);
@@ -202,51 +185,45 @@ public class PasswordMobileManageServiceDefaultTest {
             "Should throw BusinessException when user save fails"
         );
 
-        verify(passwordManageDataManager, times(1)).checkDataPatterns("newPassword123");
-        verify(passwordConfiguration, times(1)).encodePassword("newPassword123");
+        verify(passwordManageDataManager, times(1)).checkDataPatterns(NEW_PASSWORD);
+        verify(passwordConfiguration, times(1)).encodePassword(NEW_PASSWORD);
         verify(userRepository, times(1)).save(testUser);
     }
 
     @Test
     @DisplayName("Should encode new password before saving user")
-    void testUpdatePassword_ShouldEncodePasswordBeforeSaving() {
-        setUp();
-
+    void shouldEncodePasswordBeforeSaving_WhenUpdatingPassword() {
         UpdatePasswordRequestDto requestDto = new UpdatePasswordRequestDto(
-            "oldPassword",
-            "newPassword123"
+            OLD_PASSWORD,
+            NEW_PASSWORD
         );
 
-        String newHashedPassword = "new-hashed-password";
-
-        when(passwordConfiguration.verifyPassword("oldPassword", testUser.getPasswordHash()))
+        when(passwordConfiguration.verifyPassword(OLD_PASSWORD, testUser.getPasswordHash()))
             .thenReturn(true);
-        when(passwordConfiguration.encodePassword("newPassword123"))
-            .thenReturn(newHashedPassword);
+        when(passwordConfiguration.encodePassword(NEW_PASSWORD))
+            .thenReturn(NEW_HASHED_PASSWORD);
 
         passwordService.updatePassword(requestDto, testPrincipal);
 
-        verify(passwordConfiguration, times(1)).encodePassword("newPassword123");
-        assertThat(testUser.getPasswordHash()).isEqualTo(newHashedPassword);
+        verify(passwordConfiguration, times(1)).encodePassword(NEW_PASSWORD);
+        assertThat(testUser.getPasswordHash()).isEqualTo(NEW_HASHED_PASSWORD);
     }
 
     @Test
     @DisplayName("Should validate data patterns for new password")
-    void testUpdatePassword_ShouldValidateNewPasswordPatterns() {
-        setUp();
-
+    void shouldValidateNewPasswordPatterns_WhenUpdatingPassword() {
         UpdatePasswordRequestDto requestDto = new UpdatePasswordRequestDto(
-            "oldPassword",
-            "newPassword123"
+            OLD_PASSWORD,
+            NEW_PASSWORD
         );
 
-        when(passwordConfiguration.verifyPassword("oldPassword", testUser.getPasswordHash()))
+        when(passwordConfiguration.verifyPassword(OLD_PASSWORD, testUser.getPasswordHash()))
             .thenReturn(true);
-        when(passwordConfiguration.encodePassword("newPassword123"))
-            .thenReturn("new-hashed-password");
+        when(passwordConfiguration.encodePassword(NEW_PASSWORD))
+            .thenReturn(NEW_HASHED_PASSWORD);
 
         passwordService.updatePassword(requestDto, testPrincipal);
 
-        verify(passwordManageDataManager, times(1)).checkDataPatterns("newPassword123");
+        verify(passwordManageDataManager, times(1)).checkDataPatterns(NEW_PASSWORD);
     }
 }
