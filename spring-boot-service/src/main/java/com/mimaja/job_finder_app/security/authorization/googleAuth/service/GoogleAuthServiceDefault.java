@@ -59,7 +59,7 @@ public class GoogleAuthServiceDefault implements GoogleAuthService {
         GoogleIdToken verifiedToken;
         try {
             verifiedToken = verifier.verify(googleIdToken);
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException | IOException | IllegalArgumentException e) {
             throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
         }
 
@@ -113,7 +113,7 @@ public class GoogleAuthServiceDefault implements GoogleAuthService {
         GoogleIdToken verifiedToken;
         try {
             verifiedToken = verifier.verify(googleIdToken);
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException | IOException | IllegalArgumentException e) {
             throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
         }
 
@@ -150,7 +150,7 @@ public class GoogleAuthServiceDefault implements GoogleAuthService {
         GoogleIdToken verifiedToken;
         try {
             verifiedToken = verifier.verify(googleIdToken);
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException | IOException | IllegalArgumentException e) {
             throw new BusinessException(BusinessExceptionReason.INVALID_GOOGLE_ID);
         }
 

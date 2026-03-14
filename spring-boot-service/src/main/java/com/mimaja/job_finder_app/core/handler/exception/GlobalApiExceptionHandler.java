@@ -97,15 +97,20 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             log.error(exception.getMessage(), exception);
         }
 
+        String message = exception.getMessage();
+        if (message == null || message.isBlank()) {
+            message = HttpStatus.BAD_REQUEST.getReasonPhrase();
+        }
+
         ErrorCode code;
-        if (exception.getMessage().contains("not found")) {
+        if (message.contains("not found")) {
             code = ErrorCode.NOT_FOUND;
         } else {
             code = ErrorCode.BAD_REQUEST;
         }
 
         final ErrorResponseDto errorResponseDto =
-                ErrorResponseBuilder.build(code.getName(), exception.getMessage());
+                ErrorResponseBuilder.build(code.getName(), message);
         return ResponseEntity.status(code.getHttpStatus()).body(errorResponseDto);
     }
 
