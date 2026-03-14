@@ -2,9 +2,29 @@
 
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
+import { Animated } from "react-native";
 import FilterCollapsibleSection from "../../../components/filter/FilterCollapsibleSection";
 
+jest.mock("@expo/vector-icons", () => ({
+  MaterialIcons: "MaterialIcons",
+}));
+
 describe("FilterCollapsibleSection component", () => {
+  let animatedTimingSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    animatedTimingSpy = jest.spyOn(Animated, "timing").mockReturnValue({
+      start: (cb?: (result: { finished: boolean }) => void) =>
+        cb && cb({ finished: true }),
+      stop: jest.fn(),
+      reset: jest.fn(),
+    } as any);
+  });
+
+  afterEach(() => {
+    animatedTimingSpy.mockRestore();
+  });
+
   it("expands section and toggles selected tag", () => {
     const toggleTag = jest.fn();
 

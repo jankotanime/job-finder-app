@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
+import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
 import { Animated } from "react-native";
 import ActiveJobTimerFloating from "../../../components/jobs/ActiveJobTimerFloating";
 
@@ -62,9 +62,20 @@ describe("ActiveJobTimerFloating component", () => {
   });
 
   it("renders nothing when there is no active timer", async () => {
-    mockGetActiveJobTimer.mockResolvedValue(null);
+    let resolveTimerFetch: (value: any) => void;
+    mockGetActiveJobTimer.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveTimerFetch = resolve;
+        }),
+    );
 
     const { queryByLabelText } = render(<ActiveJobTimerFloating />);
+
+    await act(async () => {
+      resolveTimerFetch!(null);
+      await Promise.resolve();
+    });
 
     await waitFor(() => {
       expect(queryByLabelText("jobs.timerBanner.title")).toBeNull();
@@ -73,13 +84,24 @@ describe("ActiveJobTimerFloating component", () => {
 
   it("opens and navigates to running job", async () => {
     mockGetContractorFinishedLocally.mockResolvedValue(false);
-    mockGetActiveJobTimer.mockResolvedValue({
-      jobId: "job-1",
-      role: "owner",
-      startedAt: Date.now() - 5000,
-    });
+    let resolveTimerFetch: (value: any) => void;
+    mockGetActiveJobTimer.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveTimerFetch = resolve;
+        }),
+    );
 
     const { getByLabelText, getByText } = render(<ActiveJobTimerFloating />);
+
+    await act(async () => {
+      resolveTimerFetch!({
+        jobId: "job-1",
+        role: "owner",
+        startedAt: Date.now() - 5000,
+      });
+      await Promise.resolve();
+    });
 
     await waitFor(() => {
       expect(getByLabelText("jobs.timerBanner.title")).toBeTruthy();
