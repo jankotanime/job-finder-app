@@ -2,7 +2,7 @@
 
 import React from "react";
 import { render } from "@testing-library/react-native";
-import ImageBackground from "../components/reusable/ImageBackground";
+import ImageBackground from "../../../components/reusable/ImageBackground";
 import { Dimensions } from "react-native";
 
 jest.mock("@react-native-async-storage/async-storage", () =>
