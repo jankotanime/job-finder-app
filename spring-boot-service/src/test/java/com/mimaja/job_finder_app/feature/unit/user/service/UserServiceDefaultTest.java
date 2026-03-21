@@ -12,10 +12,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
+import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelUpdateRequestDto;
+import com.mimaja.job_finder_app.feature.user.dto.UserFilterRequestDto;
+import com.mimaja.job_finder_app.feature.user.mapper.UserMapper;
+import com.mimaja.job_finder_app.feature.user.model.User;
+import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
+import com.mimaja.job_finder_app.feature.user.service.UserServiceDefault;
+import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
+import com.mimaja.job_finder_app.security.shared.utils.RegisterDataManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,24 +38,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
-import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
-import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelUpdateRequestDto;
-import com.mimaja.job_finder_app.feature.user.dto.UserFilterRequestDto;
-import com.mimaja.job_finder_app.feature.user.mapper.UserMapper;
-import com.mimaja.job_finder_app.feature.user.model.User;
-import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
-import com.mimaja.job_finder_app.feature.user.service.UserServiceDefault;
-import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
-import com.mimaja.job_finder_app.security.shared.utils.RegisterDataManager;
-
 @ExtendWith(MockitoExtension.class)
 class UserServiceDefaultTest {
-
     private static final String TEST_NEW_USERNAME = "newuser";
-    private static final String TEST_NEW_EMAIL    = "newuser@example.com";
-    private static final int    TEST_NEW_PHONE    = 987654321;
+    private static final String TEST_NEW_EMAIL = "newuser@example.com";
+    private static final int TEST_NEW_PHONE = 987654321;
     private static final String TEST_RAW_PASSWORD = "rawPassword";
 
     @Mock private UserRepository userRepository;
@@ -60,13 +57,16 @@ class UserServiceDefaultTest {
     @BeforeEach
     void setUp() {
         testUser = createTestUser();
-        userService = new UserServiceDefault(userRepository, userMapper, registerDataManager, passwordConfiguration);
+        userService =
+                new UserServiceDefault(
+                        userRepository, userMapper, registerDataManager, passwordConfiguration);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     void getAllUsers_shouldReturnNonEmptyPage_whenUsersExist() {
-        UserFilterRequestDto filterDto = new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
+        UserFilterRequestDto filterDto =
+                new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
         Pageable pageable = PageRequest.of(0, 10);
         when(userRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(testUser), pageable, 1));
@@ -77,7 +77,8 @@ class UserServiceDefaultTest {
     @SuppressWarnings("unchecked")
     @Test
     void getAllUsers_shouldCallFindAll_whenGettingUsers() {
-        UserFilterRequestDto filterDto = new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
+        UserFilterRequestDto filterDto =
+                new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
         Pageable pageable = PageRequest.of(0, 10);
         when(userRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(testUser), pageable, 1));
@@ -113,7 +114,8 @@ class UserServiceDefaultTest {
         when(userMapper.toEntity(any(UserAdminPanelCreateRequestDto.class))).thenReturn(testUser);
         when(userRepository.save(any(User.class))).thenReturn(testUser);
         userService.createUser(createValidCreateDto());
-        verify(registerDataManager, times(1)).checkRegisterDataAdminPanel(any(UserAdminPanelCreateRequestDto.class));
+        verify(registerDataManager, times(1))
+                .checkRegisterDataAdminPanel(any(UserAdminPanelCreateRequestDto.class));
     }
 
     @Test
@@ -167,8 +169,10 @@ class UserServiceDefaultTest {
     void updateUser_shouldThrowExceptionWithUserNotFoundCode_whenUserNotFound() {
         UUID userId = UUID.randomUUID();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> userService.updateUser(userId, createValidUpdateDto()));
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> userService.updateUser(userId, createValidUpdateDto()));
         assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.USER_NOT_FOUND.getCode());
     }
 
@@ -176,7 +180,9 @@ class UserServiceDefaultTest {
     void updateUser_shouldCallFindById_whenUserNotFound() {
         UUID userId = UUID.randomUUID();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        assertThrows(BusinessException.class, () -> userService.updateUser(userId, createValidUpdateDto()));
+        assertThrows(
+                BusinessException.class,
+                () -> userService.updateUser(userId, createValidUpdateDto()));
         verify(userRepository, times(1)).findById(userId);
     }
 
@@ -200,8 +206,8 @@ class UserServiceDefaultTest {
     void deleteUser_shouldThrowExceptionWithUserNotFoundCode_whenUserNotFound() {
         UUID userId = UUID.randomUUID();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> userService.deleteUser(userId));
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> userService.deleteUser(userId));
         assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.USER_NOT_FOUND.getCode());
     }
 
@@ -241,8 +247,8 @@ class UserServiceDefaultTest {
     void getUserById_shouldThrowExceptionWithUserNotFoundCode_whenUserNotFound() {
         UUID userId = UUID.randomUUID();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> userService.getUserById(userId));
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> userService.getUserById(userId));
         assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.USER_NOT_FOUND.getCode());
     }
 
@@ -256,13 +262,22 @@ class UserServiceDefaultTest {
 
     private UserAdminPanelCreateRequestDto createValidCreateDto() {
         return new UserAdminPanelCreateRequestDto(
-                TEST_NEW_USERNAME, TEST_NEW_EMAIL, TEST_NEW_PHONE,
-                TEST_RAW_PASSWORD, "Jane", "Smith", "New user profile");
+                TEST_NEW_USERNAME,
+                TEST_NEW_EMAIL,
+                TEST_NEW_PHONE,
+                TEST_RAW_PASSWORD,
+                "Jane",
+                "Smith",
+                "New user profile");
     }
 
     private UserAdminPanelUpdateRequestDto createValidUpdateDto() {
         return new UserAdminPanelUpdateRequestDto(
-                "updateduser", "updated@example.com", 111111111,
-                "Updated", "User", "Updated profile");
+                "updateduser",
+                "updated@example.com",
+                111111111,
+                "Updated",
+                "User",
+                "Updated profile");
     }
 }

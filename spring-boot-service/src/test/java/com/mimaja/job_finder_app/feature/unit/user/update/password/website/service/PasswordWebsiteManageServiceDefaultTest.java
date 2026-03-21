@@ -14,14 +14,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
@@ -34,13 +26,18 @@ import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.UpdatePas
 import com.mimaja.job_finder_app.feature.user.update.shared.responseDto.SendEmailToUpdatePasswordResponseDto;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
 import com.mimaja.job_finder_app.security.token.resetToken.service.ResetTokenServiceDefault;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class PasswordWebsiteManageServiceDefaultTest {
-
-    private static final String TEST_RESET_TOKEN    = "valid-reset-token";
-    private static final String TEST_INVALID_TOKEN  = "invalid-token";
-    private static final String TEST_WEAK_PASSWORD  = "weak";
+    private static final String TEST_RESET_TOKEN = "valid-reset-token";
+    private static final String TEST_INVALID_TOKEN = "invalid-token";
+    private static final String TEST_WEAK_PASSWORD = "weak";
 
     @Mock private PasswordWebsiteManager passwordWebsiteManager;
     @Mock private ResetTokenServiceDefault resetTokenServiceDefault;
@@ -54,9 +51,13 @@ class PasswordWebsiteManageServiceDefaultTest {
     @BeforeEach
     void setUp() {
         testUser = createTestUserWithPassword();
-        passwordService = new PasswordWebsiteManageServiceDefault(
-                passwordWebsiteManager, resetTokenServiceDefault,
-                passwordManageDataManager, passwordConfiguration, userRepository);
+        passwordService =
+                new PasswordWebsiteManageServiceDefault(
+                        passwordWebsiteManager,
+                        resetTokenServiceDefault,
+                        passwordManageDataManager,
+                        passwordConfiguration,
+                        userRepository);
     }
 
     @Test
@@ -92,19 +93,27 @@ class PasswordWebsiteManageServiceDefaultTest {
     @Test
     void sendEmailWithUpdatePasswordRequest_shouldThrowBusinessException_whenUserNotFound() {
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(passwordWebsiteManager).findUser("nonexistent@example.com");
-        assertThrows(BusinessException.class,
-                () -> passwordService.sendEmailWithUpdatePasswordRequest(
-                        new SendEmailToUpdatePasswordRequestDto("nonexistent@example.com")));
+                .when(passwordWebsiteManager)
+                .findUser("nonexistent@example.com");
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.sendEmailWithUpdatePasswordRequest(
+                                new SendEmailToUpdatePasswordRequestDto(
+                                        "nonexistent@example.com")));
     }
 
     @Test
     void sendEmailWithUpdatePasswordRequest_shouldNotCallSendEmail_whenUserNotFound() {
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(passwordWebsiteManager).findUser("nonexistent@example.com");
-        assertThrows(BusinessException.class,
-                () -> passwordService.sendEmailWithUpdatePasswordRequest(
-                        new SendEmailToUpdatePasswordRequestDto("nonexistent@example.com")));
+                .when(passwordWebsiteManager)
+                .findUser("nonexistent@example.com");
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.sendEmailWithUpdatePasswordRequest(
+                                new SendEmailToUpdatePasswordRequestDto(
+                                        "nonexistent@example.com")));
         verify(passwordWebsiteManager, never()).sendEmail(any());
     }
 
@@ -112,8 +121,10 @@ class PasswordWebsiteManageServiceDefaultTest {
     void sendEmailWithUpdatePasswordRequest_shouldThrowBusinessException_whenSendEmailFails() {
         when(passwordWebsiteManager.findUser(TEST_EMAIL)).thenReturn(testUser);
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_SMS_CODE))
-                .when(passwordWebsiteManager).sendEmail(testUser.getId());
-        assertThrows(BusinessException.class,
+                .when(passwordWebsiteManager)
+                .sendEmail(testUser.getId());
+        assertThrows(
+                BusinessException.class,
                 () -> passwordService.sendEmailWithUpdatePasswordRequest(createSendEmailRequest()));
     }
 
@@ -163,20 +174,28 @@ class PasswordWebsiteManageServiceDefaultTest {
     void updatePasswordByEmail_shouldThrowBusinessException_whenTokenIsInvalid() {
         String tokenId = UUID.randomUUID().toString();
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_RESET_TOKEN))
-                .when(resetTokenServiceDefault).validateToken(TEST_INVALID_TOKEN, tokenId);
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePasswordByEmail(
-                        new UpdatePasswordByEmailRequestDto(TEST_NEW_PASSWORD, TEST_INVALID_TOKEN, tokenId)));
+                .when(resetTokenServiceDefault)
+                .validateToken(TEST_INVALID_TOKEN, tokenId);
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePasswordByEmail(
+                                new UpdatePasswordByEmailRequestDto(
+                                        TEST_NEW_PASSWORD, TEST_INVALID_TOKEN, tokenId)));
     }
 
     @Test
     void updatePasswordByEmail_shouldNotCheckPatterns_whenTokenIsInvalid() {
         String tokenId = UUID.randomUUID().toString();
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_RESET_TOKEN))
-                .when(resetTokenServiceDefault).validateToken(TEST_INVALID_TOKEN, tokenId);
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePasswordByEmail(
-                        new UpdatePasswordByEmailRequestDto(TEST_NEW_PASSWORD, TEST_INVALID_TOKEN, tokenId)));
+                .when(resetTokenServiceDefault)
+                .validateToken(TEST_INVALID_TOKEN, tokenId);
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePasswordByEmail(
+                                new UpdatePasswordByEmailRequestDto(
+                                        TEST_NEW_PASSWORD, TEST_INVALID_TOKEN, tokenId)));
         verify(passwordManageDataManager, never()).checkDataPatterns(anyString());
     }
 
@@ -184,33 +203,47 @@ class PasswordWebsiteManageServiceDefaultTest {
     void updatePasswordByEmail_shouldNotDeleteToken_whenTokenIsInvalid() {
         String tokenId = UUID.randomUUID().toString();
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_RESET_TOKEN))
-                .when(resetTokenServiceDefault).validateToken(TEST_INVALID_TOKEN, tokenId);
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePasswordByEmail(
-                        new UpdatePasswordByEmailRequestDto(TEST_NEW_PASSWORD, TEST_INVALID_TOKEN, tokenId)));
+                .when(resetTokenServiceDefault)
+                .validateToken(TEST_INVALID_TOKEN, tokenId);
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePasswordByEmail(
+                                new UpdatePasswordByEmailRequestDto(
+                                        TEST_NEW_PASSWORD, TEST_INVALID_TOKEN, tokenId)));
         verify(resetTokenServiceDefault, never()).deleteToken(tokenId);
     }
 
     @Test
     void updatePasswordByEmail_shouldThrowBusinessException_whenPatternValidationFails() {
         String tokenId = UUID.randomUUID().toString();
-        when(resetTokenServiceDefault.validateToken(TEST_RESET_TOKEN, tokenId)).thenReturn(testUser);
+        when(resetTokenServiceDefault.validateToken(TEST_RESET_TOKEN, tokenId))
+                .thenReturn(testUser);
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_PATTERN))
-                .when(passwordManageDataManager).checkDataPatterns(TEST_WEAK_PASSWORD);
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePasswordByEmail(
-                        new UpdatePasswordByEmailRequestDto(TEST_WEAK_PASSWORD, TEST_RESET_TOKEN, tokenId)));
+                .when(passwordManageDataManager)
+                .checkDataPatterns(TEST_WEAK_PASSWORD);
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePasswordByEmail(
+                                new UpdatePasswordByEmailRequestDto(
+                                        TEST_WEAK_PASSWORD, TEST_RESET_TOKEN, tokenId)));
     }
 
     @Test
     void updatePasswordByEmail_shouldNotEncodePassword_whenPatternValidationFails() {
         String tokenId = UUID.randomUUID().toString();
-        when(resetTokenServiceDefault.validateToken(TEST_RESET_TOKEN, tokenId)).thenReturn(testUser);
+        when(resetTokenServiceDefault.validateToken(TEST_RESET_TOKEN, tokenId))
+                .thenReturn(testUser);
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_PATTERN))
-                .when(passwordManageDataManager).checkDataPatterns(TEST_WEAK_PASSWORD);
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePasswordByEmail(
-                        new UpdatePasswordByEmailRequestDto(TEST_WEAK_PASSWORD, TEST_RESET_TOKEN, tokenId)));
+                .when(passwordManageDataManager)
+                .checkDataPatterns(TEST_WEAK_PASSWORD);
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePasswordByEmail(
+                                new UpdatePasswordByEmailRequestDto(
+                                        TEST_WEAK_PASSWORD, TEST_RESET_TOKEN, tokenId)));
         verify(passwordConfiguration, never()).encodePassword(anyString());
     }
 
@@ -218,8 +251,10 @@ class PasswordWebsiteManageServiceDefaultTest {
     void updatePasswordByEmail_shouldThrowBusinessException_whenSaveFails() {
         String tokenId = setupValidTokenMocks();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userRepository).save(testUser);
-        assertThrows(BusinessException.class,
+                .when(userRepository)
+                .save(testUser);
+        assertThrows(
+                BusinessException.class,
                 () -> passwordService.updatePasswordByEmail(createValidEmailRequest(tokenId)));
     }
 
@@ -227,16 +262,20 @@ class PasswordWebsiteManageServiceDefaultTest {
     void updatePasswordByEmail_shouldNotDeleteToken_whenSaveFails() {
         String tokenId = setupValidTokenMocks();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userRepository).save(testUser);
-        assertThrows(BusinessException.class,
+                .when(userRepository)
+                .save(testUser);
+        assertThrows(
+                BusinessException.class,
                 () -> passwordService.updatePasswordByEmail(createValidEmailRequest(tokenId)));
         verify(resetTokenServiceDefault, never()).deleteToken(tokenId);
     }
 
     private String setupValidTokenMocks() {
         String tokenId = UUID.randomUUID().toString();
-        when(resetTokenServiceDefault.validateToken(TEST_RESET_TOKEN, tokenId)).thenReturn(testUser);
-        when(passwordConfiguration.encodePassword(TEST_NEW_PASSWORD)).thenReturn(TEST_NEW_HASHED_PASSWORD);
+        when(resetTokenServiceDefault.validateToken(TEST_RESET_TOKEN, tokenId))
+                .thenReturn(testUser);
+        when(passwordConfiguration.encodePassword(TEST_NEW_PASSWORD))
+                .thenReturn(TEST_NEW_HASHED_PASSWORD);
         return tokenId;
     }
 

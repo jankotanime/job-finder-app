@@ -10,12 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
@@ -26,14 +20,18 @@ import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.token.accessToken.dto.response.CreateAccessTokenResponseDto;
 import com.mimaja.job_finder_app.security.token.accessToken.service.AccessTokenService;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class FormServiceDefaultTest {
-
-    private static final String TEST_NEW_FIRST_NAME  = "Jane";
-    private static final String TEST_NEW_LAST_NAME   = "Smith";
+    private static final String TEST_NEW_FIRST_NAME = "Jane";
+    private static final String TEST_NEW_LAST_NAME = "Smith";
     private static final String TEST_NEW_DESCRIPTION = "Updated profile description";
-    private static final String TEST_ACCESS_TOKEN    = "new-access-token";
+    private static final String TEST_ACCESS_TOKEN = "new-access-token";
 
     @Mock private UserRepository userRepository;
     @Mock private AccessTokenService accessTokenService;
@@ -52,14 +50,16 @@ class FormServiceDefaultTest {
     @Test
     void sendForm_shouldReturnNonNullResponse_whenDataIsValid() {
         setupValidFormMocks();
-        ProfileCompletionFormResponseDto result = formService.sendForm(createValidRequest(), testPrincipal);
+        ProfileCompletionFormResponseDto result =
+                formService.sendForm(createValidRequest(), testPrincipal);
         assertThat(result).isNotNull();
     }
 
     @Test
     void sendForm_shouldReturnCorrectAccessToken_whenDataIsValid() {
         setupValidFormMocks();
-        ProfileCompletionFormResponseDto result = formService.sendForm(createValidRequest(), testPrincipal);
+        ProfileCompletionFormResponseDto result =
+                formService.sendForm(createValidRequest(), testPrincipal);
         assertThat(result.accessToken()).isEqualTo(TEST_ACCESS_TOKEN);
     }
 
@@ -101,16 +101,20 @@ class FormServiceDefaultTest {
     @Test
     void sendForm_shouldThrowBusinessException_whenSaveFails() {
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userRepository).save(testUser);
-        assertThrows(BusinessException.class,
+                .when(userRepository)
+                .save(testUser);
+        assertThrows(
+                BusinessException.class,
                 () -> formService.sendForm(createValidRequest(), testPrincipal));
     }
 
     @Test
     void sendForm_shouldNotCallCreateToken_whenSaveFails() {
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userRepository).save(testUser);
-        assertThrows(BusinessException.class,
+                .when(userRepository)
+                .save(testUser);
+        assertThrows(
+                BusinessException.class,
                 () -> formService.sendForm(createValidRequest(), testPrincipal));
         verify(accessTokenService, never()).createToken(any());
     }
@@ -119,8 +123,10 @@ class FormServiceDefaultTest {
     void sendForm_shouldThrowBusinessException_whenTokenCreationFails() {
         when(userRepository.save(testUser)).thenReturn(testUser);
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(accessTokenService).createToken(testUser);
-        assertThrows(BusinessException.class,
+                .when(accessTokenService)
+                .createToken(testUser);
+        assertThrows(
+                BusinessException.class,
                 () -> formService.sendForm(createValidRequest(), testPrincipal));
     }
 
