@@ -1,19 +1,21 @@
 package com.mimaja.job_finder_app.feature.unit.user.update.service;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_CURRENT_PASSWORD;
+import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.any;
-import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -42,394 +44,307 @@ import com.mimaja.job_finder_app.shared.service.FileManagementService;
 import com.mimaja.job_finder_app.shared.utils.CheckDataValidity;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UserUpdateServiceDefault - Unit Tests")
-public class UserUpdateServiceDefaultTest {
+class UserUpdateServiceDefaultTest {
 
-    @Mock
-    private CheckDataValidity checkDataValidity;
+    private static final String TEST_HASHED_PASSWORD = "hashed-password";
+    private static final String TEST_NEW_USERNAME    = "newusername";
+    private static final String TEST_NEW_EMAIL       = "newemail@example.com";
+    private static final int    TEST_NEW_PHONE       = 987654321;
+    private static final String TEST_NEW_ACCESS_TOKEN = "new-access-token";
+    private static final String TEST_WRONG_PASSWORD  = "wrongPassword";
 
-    @Mock
-    private PasswordConfiguration passwordConfiguration;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private AccessTokenService accessTokenService;
-
-    @Mock
-    private ProfilePhotoRepository profilePhotoRepository;
-
-    @Mock
-    private FileManagementService fileManagementService;
+    @Mock private CheckDataValidity checkDataValidity;
+    @Mock private PasswordConfiguration passwordConfiguration;
+    @Mock private UserRepository userRepository;
+    @Mock private AccessTokenService accessTokenService;
+    @Mock private ProfilePhotoRepository profilePhotoRepository;
+    @Mock private FileManagementService fileManagementService;
 
     private UserUpdateServiceDefault userUpdateService;
-
     private User testUser;
-
     private JwtPrincipal testPrincipal;
 
+    @BeforeEach
     void setUp() {
         testUser = createTestUser();
-        testPrincipal = createTestPrincipal(testUser);
-
+        testUser.setPasswordHash(TEST_HASHED_PASSWORD);
+        testUser.setProfilePhoto(null);
+        testPrincipal = JwtPrincipal.from(testUser);
         userUpdateService = new UserUpdateServiceDefault(
-            checkDataValidity,
-            passwordConfiguration,
-            userRepository,
-            accessTokenService,
-            profilePhotoRepository,
-            fileManagementService
-        );
-    }
-
-    private User createTestUser() {
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        user.setUsername("testuser");
-        user.setEmail("user@example.com");
-        user.setPhoneNumber(123456789);
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setProfileDescription("Test profile description");
-        user.setPasswordHash("hashed-password");
-        user.setProfilePhoto(null);
-        return user;
-    }
-
-    private JwtPrincipal createTestPrincipal(User user) {
-        return JwtPrincipal.from(user);
+                checkDataValidity, passwordConfiguration, userRepository,
+                accessTokenService, profilePhotoRepository, fileManagementService);
     }
 
     @Test
-    @DisplayName("Should update user data successfully without profile photo")
-    void testUpdateUserdata_WithValidDataNoPhoto_ShouldReturnAccessToken() {
-        setUp();
-
-        UpdateUserDataRequestDto requestDto = new UpdateUserDataRequestDto(
-            "newusername",
-            "Jane",
-            "Smith",
-            "New profile description",
-            "password"
-        );
-
-        String newAccessToken = "new-access-token";
-        CreateAccessTokenResponseDto tokenDto = new CreateAccessTokenResponseDto(newAccessToken);
-
-        when(passwordConfiguration.verifyPassword("password", testUser.getPasswordHash())).thenReturn(true);
-        when(accessTokenService.createToken(testUser)).thenReturn(tokenDto);
-
+    void updateUserdata_shouldReturnNonNullResponse_whenDataIsValidWithNoPhoto() {
+        setupValidUserDataMocks();
         UpdateUserDataResponseDto result = userUpdateService.updateUserdata(
-            Optional.empty(),
-            requestDto,
-            testPrincipal
-        );
+                Optional.empty(), createValidUserDataRequest(), testPrincipal);
+        assertThat(result).isNotNull();
+    }
 
-        assertNotNull(result, "Response DTO should not be null");
-        assertThat(result.accessToken()).isEqualTo(newAccessToken);
+    @Test
+    void updateUserdata_shouldReturnCorrectAccessToken_whenDataIsValidWithNoPhoto() {
+        setupValidUserDataMocks();
+        UpdateUserDataResponseDto result = userUpdateService.updateUserdata(
+                Optional.empty(), createValidUserDataRequest(), testPrincipal);
+        assertThat(result.accessToken()).isEqualTo(TEST_NEW_ACCESS_TOKEN);
+    }
 
-        verify(passwordConfiguration, times(1)).verifyPassword("password", testUser.getPasswordHash());
-        verify(checkDataValidity, times(1)).checkUsername(testUser.getId(), "newusername");
-        verify(checkDataValidity, times(1)).checkRestData("Jane");
-        verify(checkDataValidity, times(1)).checkRestData("Smith");
-        verify(checkDataValidity, times(1)).checkRestData("New profile description");
+    @Test
+    void updateUserdata_shouldVerifyPassword_whenUpdatingUserData() {
+        setupValidUserDataMocks();
+        userUpdateService.updateUserdata(Optional.empty(), createValidUserDataRequest(), testPrincipal);
+        verify(passwordConfiguration, times(1)).verifyPassword(TEST_CURRENT_PASSWORD, TEST_HASHED_PASSWORD);
+    }
+
+    @Test
+    void updateUserdata_shouldCheckUsername_whenUpdatingUserData() {
+        setupValidUserDataMocks();
+        userUpdateService.updateUserdata(Optional.empty(), createValidUserDataRequest(), testPrincipal);
+        verify(checkDataValidity, times(1)).checkUsername(testUser.getId(), TEST_NEW_USERNAME);
+    }
+
+    @Test
+    void updateUserdata_shouldSaveUser_whenUpdatingUserData() {
+        setupValidUserDataMocks();
+        userUpdateService.updateUserdata(Optional.empty(), createValidUserDataRequest(), testPrincipal);
         verify(userRepository, times(1)).save(testUser);
+    }
+
+    @Test
+    void updateUserdata_shouldCallCreateToken_whenUpdatingUserData() {
+        setupValidUserDataMocks();
+        userUpdateService.updateUserdata(Optional.empty(), createValidUserDataRequest(), testPrincipal);
         verify(accessTokenService, times(1)).createToken(testUser);
     }
 
     @Test
-    @DisplayName("Should update user data with new profile photo")
-    void testUpdateUserdata_WithValidDataAndNewPhoto_ShouldUpdatePhotoAndReturnToken() {
-        setUp();
-
-        UpdateUserDataRequestDto requestDto = new UpdateUserDataRequestDto(
-            "newusername",
-            "Jane",
-            "Smith",
-            "New profile description",
-            "password"
-        );
-
-        MultipartFile mockPhoto = org.mockito.Mockito.mock(MultipartFile.class);
-        ProcessedFileDetails mockFileDetails = org.mockito.Mockito.mock(ProcessedFileDetails.class);
-
-        String newAccessToken = "new-access-token";
-        CreateAccessTokenResponseDto tokenDto = new CreateAccessTokenResponseDto(newAccessToken);
-
-        when(passwordConfiguration.verifyPassword("password", testUser.getPasswordHash())).thenReturn(true);
+    void updateUserdata_shouldProcessFile_whenPhotoProvided() {
+        setupValidUserDataMocks();
+        ProcessedFileDetails mockFileDetails = createMockFileDetails();
         when(fileManagementService.processFileDetails(any(), anyString())).thenReturn(mockFileDetails);
-        when(accessTokenService.createToken(testUser)).thenReturn(tokenDto);
-
-        UpdateUserDataResponseDto result = userUpdateService.updateUserdata(
-            Optional.of(mockPhoto),
-            requestDto,
-            testPrincipal
-        );
-
-        assertNotNull(result, "Response DTO should not be null");
-        assertThat(result.accessToken()).isEqualTo(newAccessToken);
-
-        verify(passwordConfiguration, times(1)).verifyPassword("password", testUser.getPasswordHash());
+        userUpdateService.updateUserdata(
+                Optional.of(createMockPhoto()), createValidUserDataRequest(), testPrincipal);
         verify(fileManagementService, times(1)).processFileDetails(any(), anyString());
-        verify(fileManagementService, times(1)).uploadFile(mockFileDetails);
-        verify(userRepository, times(1)).save(testUser);
-        verify(accessTokenService, times(1)).createToken(testUser);
     }
 
     @Test
-    @DisplayName("Should remove existing profile photo when updating user data")
-    void testUpdateUserdata_WithExistingPhoto_ShouldDeleteOldPhotoAndAddNew() {
-        setUp();
-
-        ProfilePhoto existingPhoto = new ProfilePhoto();
-        existingPhoto.setId(UUID.randomUUID());
-        existingPhoto.setStorageKey("old-storage-key");
-        testUser.setProfilePhoto(existingPhoto);
-
-        UpdateUserDataRequestDto requestDto = new UpdateUserDataRequestDto(
-            "newusername",
-            "Jane",
-            "Smith",
-            "New profile description",
-            "password"
-        );
-
-        MultipartFile mockPhoto = org.mockito.Mockito.mock(MultipartFile.class);
-        ProcessedFileDetails mockFileDetails = org.mockito.Mockito.mock(ProcessedFileDetails.class);
-
-        String newAccessToken = "new-access-token";
-        CreateAccessTokenResponseDto tokenDto = new CreateAccessTokenResponseDto(newAccessToken);
-
-        when(passwordConfiguration.verifyPassword("password", testUser.getPasswordHash())).thenReturn(true);
+    void updateUserdata_shouldUploadFile_whenPhotoProvided() {
+        setupValidUserDataMocks();
+        ProcessedFileDetails mockFileDetails = createMockFileDetails();
         when(fileManagementService.processFileDetails(any(), anyString())).thenReturn(mockFileDetails);
-        when(accessTokenService.createToken(testUser)).thenReturn(tokenDto);
-
-        UpdateUserDataResponseDto result = userUpdateService.updateUserdata(
-            Optional.of(mockPhoto),
-            requestDto,
-            testPrincipal
-        );
-
-        assertNotNull(result, "Response DTO should not be null");
-
-        verify(fileManagementService, times(1)).deleteFile("old-storage-key");
-        verify(profilePhotoRepository, times(1)).deleteById(existingPhoto.getId());
+        userUpdateService.updateUserdata(
+                Optional.of(createMockPhoto()), createValidUserDataRequest(), testPrincipal);
         verify(fileManagementService, times(1)).uploadFile(mockFileDetails);
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when password is wrong")
-    void testUpdateUserdata_WithWrongPassword_ShouldThrowBusinessException() {
-        setUp();
-
-        UpdateUserDataRequestDto requestDto = new UpdateUserDataRequestDto(
-            "newusername",
-            "Jane",
-            "Smith",
-            "New profile description",
-            "wrongPassword"
-        );
-
-        when(passwordConfiguration.verifyPassword("wrongPassword", testUser.getPasswordHash())).thenReturn(false);
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> userUpdateService.updateUserdata(Optional.empty(), requestDto, testPrincipal),
-            "Should throw BusinessException when password is wrong"
-        );
-
-        assertThat(exception.getCode())
-            .as("Exception code should indicate wrong password")
-            .isEqualTo(BusinessExceptionReason.WRONG_PASSWORD.getCode());
-
-        verify(passwordConfiguration, times(1)).verifyPassword("wrongPassword", testUser.getPasswordHash());
-        verify(userRepository, times(0)).save(any());
+    void updateUserdata_shouldDeleteOldPhoto_whenExistingPhotoAndNewPhotoProvided() {
+        ProfilePhoto existingPhoto = createExistingPhoto();
+        testUser.setProfilePhoto(existingPhoto);
+        setupValidUserDataMocks();
+        ProcessedFileDetails mockFileDetails = createMockFileDetails();
+        when(fileManagementService.processFileDetails(any(), anyString())).thenReturn(mockFileDetails);
+        userUpdateService.updateUserdata(
+                Optional.of(createMockPhoto()), createValidUserDataRequest(), testPrincipal);
+        verify(fileManagementService, times(1)).deleteFile("old-storage-key");
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when username validation fails")
-    void testUpdateUserdata_WhenUsernameValidationFails_ShouldThrowBusinessException() {
-        setUp();
+    void updateUserdata_shouldDeleteOldPhotoFromRepository_whenExistingPhotoAndNewPhotoProvided() {
+        ProfilePhoto existingPhoto = createExistingPhoto();
+        testUser.setProfilePhoto(existingPhoto);
+        setupValidUserDataMocks();
+        ProcessedFileDetails mockFileDetails = createMockFileDetails();
+        when(fileManagementService.processFileDetails(any(), anyString())).thenReturn(mockFileDetails);
+        userUpdateService.updateUserdata(
+                Optional.of(createMockPhoto()), createValidUserDataRequest(), testPrincipal);
+        verify(profilePhotoRepository, times(1)).deleteById(existingPhoto.getId());
+    }
 
-        UpdateUserDataRequestDto requestDto = new UpdateUserDataRequestDto(
-            "invalid-username",
-            "Jane",
-            "Smith",
-            "New profile description",
-            "password"
-        );
+    @Test
+    void updateUserdata_shouldThrowExceptionWithWrongPasswordCode_whenPasswordIsWrong() {
+        when(passwordConfiguration.verifyPassword(TEST_WRONG_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(false);
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> userUpdateService.updateUserdata(
+                        Optional.empty(), createUserDataRequestWithPassword(TEST_WRONG_PASSWORD), testPrincipal));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.WRONG_PASSWORD.getCode());
+    }
 
-        when(passwordConfiguration.verifyPassword("password", testUser.getPasswordHash())).thenReturn(true);
+    @Test
+    void updateUserdata_shouldNotSaveUser_whenPasswordIsWrong() {
+        when(passwordConfiguration.verifyPassword(TEST_WRONG_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(false);
+        assertThrows(BusinessException.class,
+                () -> userUpdateService.updateUserdata(
+                        Optional.empty(), createUserDataRequestWithPassword(TEST_WRONG_PASSWORD), testPrincipal));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void updateUserdata_shouldThrowBusinessException_whenUsernameValidationFails() {
+        when(passwordConfiguration.verifyPassword(TEST_CURRENT_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(true);
         doThrow(new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN))
-            .when(checkDataValidity)
-            .checkUsername(testUser.getId(), "invalid-username");
-
-        assertThrows(
-            BusinessException.class,
-            () -> userUpdateService.updateUserdata(Optional.empty(), requestDto, testPrincipal),
-            "Should throw BusinessException when username validation fails"
-        );
-
-        verify(checkDataValidity, times(1)).checkUsername(testUser.getId(), "invalid-username");
-        verify(userRepository, times(0)).save(any());
+                .when(checkDataValidity).checkUsername(testUser.getId(), TEST_NEW_USERNAME);
+        assertThrows(BusinessException.class,
+                () -> userUpdateService.updateUserdata(
+                        Optional.empty(), createValidUserDataRequest(), testPrincipal));
     }
 
     @Test
-    @DisplayName("Should update phone number successfully")
-    void testUpdatePhoneNumber_WithValidData_ShouldReturnAccessToken() {
-        setUp();
+    void updateUserdata_shouldNotSaveUser_whenUsernameValidationFails() {
+        when(passwordConfiguration.verifyPassword(TEST_CURRENT_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(true);
+        doThrow(new BusinessException(BusinessExceptionReason.USERNAME_ALREADY_TAKEN))
+                .when(checkDataValidity).checkUsername(testUser.getId(), TEST_NEW_USERNAME);
+        assertThrows(BusinessException.class,
+                () -> userUpdateService.updateUserdata(
+                        Optional.empty(), createValidUserDataRequest(), testPrincipal));
+        verify(userRepository, never()).save(any());
+    }
 
-        UpdatePhoneNumberRequestDto requestDto = new UpdatePhoneNumberRequestDto(
-            987654321,
-            "password"
-        );
-
-        String newAccessToken = "new-access-token";
-        CreateAccessTokenResponseDto tokenDto = new CreateAccessTokenResponseDto(newAccessToken);
-
-        when(passwordConfiguration.verifyPassword("password", testUser.getPasswordHash())).thenReturn(true);
-        when(accessTokenService.createToken(testUser)).thenReturn(tokenDto);
-
+    @Test
+    void updatePhoneNumber_shouldReturnCorrectAccessToken_whenDataIsValid() {
+        setupValidPhoneNumberMocks();
         UpdatePhoneNumberResponseDto result = userUpdateService.updatePhoneNumber(
-            requestDto,
-            testPrincipal
-        );
-
-        assertNotNull(result, "Response DTO should not be null");
-        assertThat(result.accessToken()).isEqualTo(newAccessToken);
-
-        verify(checkDataValidity, times(1)).checkPhoneNumber(testUser.getId(), 987654321);
-        verify(passwordConfiguration, times(1)).verifyPassword("password", testUser.getPasswordHash());
-        verify(userRepository, times(1)).save(testUser);
-        verify(accessTokenService, times(1)).createToken(testUser);
+                createValidPhoneRequest(), testPrincipal);
+        assertThat(result.accessToken()).isEqualTo(TEST_NEW_ACCESS_TOKEN);
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when phone number validation fails")
-    void testUpdatePhoneNumber_WhenValidationFails_ShouldThrowBusinessException() {
-        setUp();
+    void updatePhoneNumber_shouldCheckPhoneNumber_whenUpdatingPhoneNumber() {
+        setupValidPhoneNumberMocks();
+        userUpdateService.updatePhoneNumber(createValidPhoneRequest(), testPrincipal);
+        verify(checkDataValidity, times(1)).checkPhoneNumber(testUser.getId(), TEST_NEW_PHONE);
+    }
 
-        UpdatePhoneNumberRequestDto requestDto = new UpdatePhoneNumberRequestDto(
-            987654321,
-            "password"
-        );
+    @Test
+    void updatePhoneNumber_shouldSaveUser_whenUpdatingPhoneNumber() {
+        setupValidPhoneNumberMocks();
+        userUpdateService.updatePhoneNumber(createValidPhoneRequest(), testPrincipal);
+        verify(userRepository, times(1)).save(testUser);
+    }
 
+    @Test
+    void updatePhoneNumber_shouldThrowBusinessException_whenPhoneValidationFails() {
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_PHONE_NUMBER_PATTERN))
-            .when(checkDataValidity)
-            .checkPhoneNumber(testUser.getId(), 987654321);
-
-        assertThrows(
-            BusinessException.class,
-            () -> userUpdateService.updatePhoneNumber(requestDto, testPrincipal),
-            "Should throw BusinessException when phone number validation fails"
-        );
-
-        verify(checkDataValidity, times(1)).checkPhoneNumber(testUser.getId(), 987654321);
-        verify(userRepository, times(0)).save(any());
+                .when(checkDataValidity).checkPhoneNumber(testUser.getId(), TEST_NEW_PHONE);
+        assertThrows(BusinessException.class,
+                () -> userUpdateService.updatePhoneNumber(createValidPhoneRequest(), testPrincipal));
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when phone number update password is wrong")
-    void testUpdatePhoneNumber_WithWrongPassword_ShouldThrowBusinessException() {
-        setUp();
-
-        UpdatePhoneNumberRequestDto requestDto = new UpdatePhoneNumberRequestDto(
-            987654321,
-            "wrongPassword"
-        );
-
-        when(passwordConfiguration.verifyPassword("wrongPassword", testUser.getPasswordHash())).thenReturn(false);
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> userUpdateService.updatePhoneNumber(requestDto, testPrincipal),
-            "Should throw BusinessException when password is wrong"
-        );
-
-        assertThat(exception.getCode())
-            .as("Exception code should indicate wrong password")
-            .isEqualTo(BusinessExceptionReason.WRONG_PASSWORD.getCode());
-
-        verify(userRepository, times(0)).save(any());
+    void updatePhoneNumber_shouldNotSaveUser_whenPhoneValidationFails() {
+        doThrow(new BusinessException(BusinessExceptionReason.INVALID_PHONE_NUMBER_PATTERN))
+                .when(checkDataValidity).checkPhoneNumber(testUser.getId(), TEST_NEW_PHONE);
+        assertThrows(BusinessException.class,
+                () -> userUpdateService.updatePhoneNumber(createValidPhoneRequest(), testPrincipal));
+        verify(userRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("Should update email successfully")
-    void testUpdateEmail_WithValidData_ShouldReturnAccessToken() {
-        setUp();
+    void updatePhoneNumber_shouldThrowExceptionWithWrongPasswordCode_whenPasswordIsWrong() {
+        when(passwordConfiguration.verifyPassword(TEST_WRONG_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(false);
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> userUpdateService.updatePhoneNumber(
+                        new UpdatePhoneNumberRequestDto(TEST_NEW_PHONE, TEST_WRONG_PASSWORD), testPrincipal));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.WRONG_PASSWORD.getCode());
+    }
 
-        UpdateEmailRequestDto requestDto = new UpdateEmailRequestDto(
-            "newemail@example.com",
-            "password"
-        );
+    @Test
+    void updateEmail_shouldReturnCorrectAccessToken_whenDataIsValid() {
+        setupValidEmailMocks();
+        UpdateEmailResponseDto result = userUpdateService.updateEmail(createValidEmailRequest(), testPrincipal);
+        assertThat(result.accessToken()).isEqualTo(TEST_NEW_ACCESS_TOKEN);
+    }
 
-        String newAccessToken = "new-access-token";
-        CreateAccessTokenResponseDto tokenDto = new CreateAccessTokenResponseDto(newAccessToken);
+    @Test
+    void updateEmail_shouldCheckEmail_whenUpdatingEmail() {
+        setupValidEmailMocks();
+        userUpdateService.updateEmail(createValidEmailRequest(), testPrincipal);
+        verify(checkDataValidity, times(1)).checkEmail(testUser.getId(), TEST_NEW_EMAIL);
+    }
 
-        when(passwordConfiguration.verifyPassword("password", testUser.getPasswordHash())).thenReturn(true);
-        when(accessTokenService.createToken(testUser)).thenReturn(tokenDto);
-
-        UpdateEmailResponseDto result = userUpdateService.updateEmail(
-            requestDto,
-            testPrincipal
-        );
-
-        assertNotNull(result, "Response DTO should not be null");
-        assertThat(result.accessToken()).isEqualTo(newAccessToken);
-
-        verify(checkDataValidity, times(1)).checkEmail(testUser.getId(), "newemail@example.com");
-        verify(passwordConfiguration, times(1)).verifyPassword("password", testUser.getPasswordHash());
+    @Test
+    void updateEmail_shouldSaveUser_whenUpdatingEmail() {
+        setupValidEmailMocks();
+        userUpdateService.updateEmail(createValidEmailRequest(), testPrincipal);
         verify(userRepository, times(1)).save(testUser);
-        verify(accessTokenService, times(1)).createToken(testUser);
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when email validation fails")
-    void testUpdateEmail_WhenValidationFails_ShouldThrowBusinessException() {
-        setUp();
-
-        UpdateEmailRequestDto requestDto = new UpdateEmailRequestDto(
-            "invalid-email",
-            "password"
-        );
-
+    void updateEmail_shouldThrowBusinessException_whenEmailValidationFails() {
         doThrow(new BusinessException(BusinessExceptionReason.EMAIL_ALREADY_TAKEN))
-            .when(checkDataValidity)
-            .checkEmail(testUser.getId(), "invalid-email");
-
-        assertThrows(
-            BusinessException.class,
-            () -> userUpdateService.updateEmail(requestDto, testPrincipal),
-            "Should throw BusinessException when email validation fails"
-        );
-
-        verify(checkDataValidity, times(1)).checkEmail(testUser.getId(), "invalid-email");
-        verify(userRepository, times(0)).save(any());
+                .when(checkDataValidity).checkEmail(testUser.getId(), "invalid-email");
+        assertThrows(BusinessException.class,
+                () -> userUpdateService.updateEmail(
+                        new UpdateEmailRequestDto("invalid-email", TEST_CURRENT_PASSWORD), testPrincipal));
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when email update password is wrong")
-    void testUpdateEmail_WithWrongPassword_ShouldThrowBusinessException() {
-        setUp();
+    void updateEmail_shouldNotSaveUser_whenEmailValidationFails() {
+        doThrow(new BusinessException(BusinessExceptionReason.EMAIL_ALREADY_TAKEN))
+                .when(checkDataValidity).checkEmail(testUser.getId(), "invalid-email");
+        assertThrows(BusinessException.class,
+                () -> userUpdateService.updateEmail(
+                        new UpdateEmailRequestDto("invalid-email", TEST_CURRENT_PASSWORD), testPrincipal));
+        verify(userRepository, never()).save(any());
+    }
 
-        UpdateEmailRequestDto requestDto = new UpdateEmailRequestDto(
-            "newemail@example.com",
-            "wrongPassword"
-        );
+    @Test
+    void updateEmail_shouldThrowExceptionWithWrongPasswordCode_whenPasswordIsWrong() {
+        when(passwordConfiguration.verifyPassword(TEST_WRONG_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(false);
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> userUpdateService.updateEmail(
+                        new UpdateEmailRequestDto(TEST_NEW_EMAIL, TEST_WRONG_PASSWORD), testPrincipal));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.WRONG_PASSWORD.getCode());
+    }
 
-        when(passwordConfiguration.verifyPassword("wrongPassword", testUser.getPasswordHash())).thenReturn(false);
+    private void setupValidUserDataMocks() {
+        when(passwordConfiguration.verifyPassword(TEST_CURRENT_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(true);
+        when(accessTokenService.createToken(testUser))
+                .thenReturn(new CreateAccessTokenResponseDto(TEST_NEW_ACCESS_TOKEN));
+    }
 
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> userUpdateService.updateEmail(requestDto, testPrincipal),
-            "Should throw BusinessException when password is wrong"
-        );
+    private void setupValidPhoneNumberMocks() {
+        when(passwordConfiguration.verifyPassword(TEST_CURRENT_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(true);
+        when(accessTokenService.createToken(testUser))
+                .thenReturn(new CreateAccessTokenResponseDto(TEST_NEW_ACCESS_TOKEN));
+    }
 
-        assertThat(exception.getCode())
-            .as("Exception code should indicate wrong password")
-            .isEqualTo(BusinessExceptionReason.WRONG_PASSWORD.getCode());
+    private void setupValidEmailMocks() {
+        when(passwordConfiguration.verifyPassword(TEST_CURRENT_PASSWORD, TEST_HASHED_PASSWORD)).thenReturn(true);
+        when(accessTokenService.createToken(testUser))
+                .thenReturn(new CreateAccessTokenResponseDto(TEST_NEW_ACCESS_TOKEN));
+    }
 
-        verify(userRepository, times(0)).save(any());
+    private MultipartFile createMockPhoto() {
+        return org.mockito.Mockito.mock(MultipartFile.class);
+    }
+
+    private ProcessedFileDetails createMockFileDetails() {
+        return org.mockito.Mockito.mock(ProcessedFileDetails.class);
+    }
+
+    private ProfilePhoto createExistingPhoto() {
+        ProfilePhoto photo = new ProfilePhoto();
+        photo.setId(UUID.randomUUID());
+        photo.setStorageKey("old-storage-key");
+        return photo;
+    }
+
+    private UpdateUserDataRequestDto createValidUserDataRequest() {
+        return new UpdateUserDataRequestDto(TEST_NEW_USERNAME, "Jane", "Smith", "New description", TEST_CURRENT_PASSWORD);
+    }
+
+    private UpdateUserDataRequestDto createUserDataRequestWithPassword(String password) {
+        return new UpdateUserDataRequestDto(TEST_NEW_USERNAME, "Jane", "Smith", "New description", password);
+    }
+
+    private UpdatePhoneNumberRequestDto createValidPhoneRequest() {
+        return new UpdatePhoneNumberRequestDto(TEST_NEW_PHONE, TEST_CURRENT_PASSWORD);
+    }
+
+    private UpdateEmailRequestDto createValidEmailRequest() {
+        return new UpdateEmailRequestDto(TEST_NEW_EMAIL, TEST_CURRENT_PASSWORD);
     }
 }

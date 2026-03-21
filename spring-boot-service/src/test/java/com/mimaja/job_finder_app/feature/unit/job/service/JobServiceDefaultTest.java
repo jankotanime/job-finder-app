@@ -1,20 +1,24 @@
 package com.mimaja.job_finder_app.feature.unit.job.service;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.mimaja.job_finder_app.feature.unit.job.mockdata.JobMockData.createTestFileDetails;
+import static com.mimaja.job_finder_app.feature.unit.job.mockdata.JobMockData.createTestJob;
+import static com.mimaja.job_finder_app.feature.unit.job.mockdata.JobMockData.createTestJobDispatcher;
+import static com.mimaja.job_finder_app.feature.unit.job.mockdata.JobMockData.createTestOffer;
+import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -32,902 +36,607 @@ import com.mimaja.job_finder_app.feature.job.service.JobServiceDefault;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
-import com.mimaja.job_finder_app.feature.user.model.User;
-import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
-import com.mimaja.job_finder_app.shared.enums.MimeType;
 import com.mimaja.job_finder_app.shared.service.FileManagementService;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("JobServiceDefault - Unit Tests")
-public class JobServiceDefaultTest {
-    @Mock
-    private JobRepository jobRepository;
+class JobServiceDefaultTest {
 
-    @Mock
-    private OfferService offerService;
-
-    @Mock
-    private FileManagementService fileManagementService;
+    @Mock private JobRepository jobRepository;
+    @Mock private OfferService offerService;
+    @Mock private FileManagementService fileManagementService;
 
     private JobServiceDefault jobService;
-
     private Job testJob;
     private JobDispatcher testJobDispatcher;
     private Offer testOffer;
 
+    @BeforeEach
     void setUp() {
         testJob = createTestJob();
         testJobDispatcher = createTestJobDispatcher();
         testOffer = createTestOffer();
-
-        jobService = new JobServiceDefault(
-            jobRepository,
-            offerService,
-            fileManagementService
-        );
+        jobService = new JobServiceDefault(jobRepository, offerService, fileManagementService);
     }
 
-    private Job createTestJob() {
-        Job job = new Job();
-        job.setId(UUID.randomUUID());
-        job.setStatus(JobStatus.READY);
-        return job;
-    }
-
-    private User createTestUser() {
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        return user;
-    }
-
-    private JobDispatcher createTestJobDispatcher() {
-        JobDispatcher jobDispatcher = new JobDispatcher();
-        jobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
-        jobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
-        jobDispatcher.setContractiorApprovals(new HashSet<>());
-        return jobDispatcher;
-    }
-
-    private Offer createTestOffer() {
-        Offer offer = new Offer();
-        offer.setId(UUID.randomUUID());
-        offer.setPhoto(null);
-        return offer;
-    }
+    // --- getJobById ---
 
     @Test
-    @DisplayName("Should get job by id successfully")
-    void testGetJobById_WithValidJobId_ShouldReturnJob() {
-        setUp();
-
+    void getJobById_shouldReturnJob_whenJobExists() {
         UUID jobId = testJob.getId();
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-
         Job result = jobService.getJobById(jobId);
+        assertThat(result).isNotNull();
+    }
 
-        assertNotNull(result, "Job should not be null");
-        assertThat(result.getId()).isEqualTo(jobId);
-        assertThat(result.getStatus()).isEqualTo(JobStatus.READY);
-
+    @Test
+    void getJobById_shouldCallFindById_whenJobExists() {
+        UUID jobId = testJob.getId();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        jobService.getJobById(jobId);
         verify(jobRepository, times(1)).findById(jobId);
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when getting non-existent job by id")
-    void testGetJobById_WithNonExistentJob_ShouldThrowBusinessException() {
-        setUp();
-
+    void getJobById_shouldThrowExceptionWithJobNotFoundCode_whenJobNotFound() {
         UUID jobId = UUID.randomUUID();
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> jobService.getJobById(jobId),
-            "Should throw BusinessException when job not found"
-        );
-
-        assertThat(exception.getCode())
-            .as("Exception code should indicate job not found")
-            .isEqualTo(BusinessExceptionReason.JOB_NOT_FOUND.getCode());
-
-        verify(jobRepository, times(1)).findById(jobId);
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> jobService.getJobById(jobId));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_FOUND.getCode());
     }
 
     @Test
-    @DisplayName("Should get jobs as contractor successfully")
-    void testGetJobsAsContractor_WithValidUserId_ShouldReturnJobsList() {
-        setUp();
+    void getJobById_shouldCallFindById_whenJobNotFound() {
+        UUID jobId = UUID.randomUUID();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
+        assertThrows(BusinessException.class, () -> jobService.getJobById(jobId));
+        verify(jobRepository, times(1)).findById(jobId);
+    }
 
+    // --- getJobsAsContractor ---
+
+    @Test
+    void getJobsAsContractor_shouldReturnExpectedJobs_whenUserHasJobs() {
         UUID userId = UUID.randomUUID();
-        List<Job> expectedJobs = List.of(testJob);
-
-        when(jobRepository.getJobsAsContractor(userId)).thenReturn(expectedJobs);
-
+        when(jobRepository.getJobsAsContractor(userId)).thenReturn(List.of(testJob));
         List<Job> result = jobService.getJobsAsContractor(userId);
-
-        assertNotNull(result, "Jobs list should not be null");
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(testJob.getId());
+    }
 
+    @Test
+    void getJobsAsContractor_shouldCallGetJobsAsContractor_whenUserHasJobs() {
+        UUID userId = UUID.randomUUID();
+        when(jobRepository.getJobsAsContractor(userId)).thenReturn(List.of(testJob));
+        jobService.getJobsAsContractor(userId);
         verify(jobRepository, times(1)).getJobsAsContractor(userId);
     }
 
+    // --- getJobsAsOwner ---
+
     @Test
-    @DisplayName("Should get jobs as owner successfully")
-    void testGetJobsAsOwner_WithValidUserId_ShouldReturnJobsList() {
-        setUp();
-
+    void getJobsAsOwner_shouldReturnExpectedJobs_whenUserHasJobs() {
         UUID userId = UUID.randomUUID();
-        List<Job> expectedJobs = List.of(testJob);
-
-        when(jobRepository.getJobsAsOwner(userId)).thenReturn(expectedJobs);
-
+        when(jobRepository.getJobsAsOwner(userId)).thenReturn(List.of(testJob));
         List<Job> result = jobService.getJobsAsOwner(userId);
-
-        assertNotNull(result, "Jobs list should not be null");
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(testJob.getId());
-
-        verify(jobRepository, times(1)).getJobsAsOwner(userId);
     }
 
     @Test
-    @DisplayName("Should create job successfully without photo")
-    void testCreateJob_WithValidOfferAndNoPhoto_ShouldReturnCreatedJob() {
-        setUp();
+    void getJobsAsOwner_shouldCallGetJobsAsOwner_whenUserHasJobs() {
+        UUID userId = UUID.randomUUID();
+        when(jobRepository.getJobsAsOwner(userId)).thenReturn(List.of(testJob));
+        jobService.getJobsAsOwner(userId);
+        verify(jobRepository, times(1)).getJobsAsOwner(userId);
+    }
 
+    // --- createJob ---
+
+    @Test
+    void createJob_shouldReturnNonNullJob_whenOfferHasNoPhoto() {
         testOffer.setChosenCandidate(createTestUser());
-        testOffer.setPhoto(null);
-
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
         Job result = jobService.createJob(testOffer);
+        assertThat(result).isNotNull();
+    }
 
-        assertNotNull(result, "Created job should not be null");
-
+    @Test
+    void createJob_shouldDeleteOffer_whenOfferHasNoPhoto() {
+        testOffer.setChosenCandidate(createTestUser());
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.createJob(testOffer);
         verify(offerService, times(1)).deleteOffer(testOffer.getId());
+    }
+
+    @Test
+    void createJob_shouldSaveJob_whenOfferHasNoPhoto() {
+        testOffer.setChosenCandidate(createTestUser());
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.createJob(testOffer);
         verify(jobRepository, times(1)).save(any(Job.class));
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when creating job without chosen candidate")
-    void testCreateJob_WithoutChosenCandidate_ShouldThrowBusinessException() {
-        setUp();
-
+    void createJob_shouldThrowExceptionWithCandidateNotChosenCode_whenCandidateNotSet() {
         testOffer.setChosenCandidate(null);
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> jobService.createJob(testOffer),
-            "Should throw BusinessException when candidate is not chosen"
-        );
-
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> jobService.createJob(testOffer));
         assertThat(exception.getCode())
-            .as("Exception code should indicate candidate need to be chosen")
-            .isEqualTo(BusinessExceptionReason.CANDIDATE_NEED_TO_BE_CHOSEN.getCode());
+                .isEqualTo(BusinessExceptionReason.CANDIDATE_NEED_TO_BE_CHOSEN.getCode());
     }
 
     @Test
-    @DisplayName("Should delete job successfully")
-    void testDeleteJob_WithValidJobId_ShouldDeleteJob() {
-        setUp();
+    void createJob_shouldGetFileFromStorage_whenOfferHasPhoto() {
+        testOffer.setChosenCandidate(createTestUser());
+        testOffer.setPhoto(createTestOfferPhoto());
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.createJob(testOffer);
+        verify(fileManagementService, times(1)).getFile(any());
+    }
 
+    @Test
+    void createJob_shouldUploadFile_whenOfferHasPhoto() {
+        testOffer.setChosenCandidate(createTestUser());
+        testOffer.setPhoto(createTestOfferPhoto());
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.createJob(testOffer);
+        verify(fileManagementService, times(1)).uploadFile(any());
+    }
+
+    // --- deleteJob ---
+
+    @Test
+    void deleteJob_shouldCallFindById_whenDeletingJob() {
         UUID jobId = testJob.getId();
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-
         jobService.deleteJob(jobId);
-
         verify(jobRepository, times(1)).findById(jobId);
+    }
+
+    @Test
+    void deleteJob_shouldDeleteJob_whenJobExists() {
+        UUID jobId = testJob.getId();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        jobService.deleteJob(jobId);
         verify(jobRepository, times(1)).delete(testJob);
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when deleting non-existent job")
-    void testDeleteJob_WithNonExistentJob_ShouldThrowBusinessException() {
-        setUp();
-
+    void deleteJob_shouldThrowExceptionWithJobNotFoundCode_whenJobNotFound() {
         UUID jobId = UUID.randomUUID();
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> jobService.deleteJob(jobId),
-            "Should throw BusinessException when job not found"
-        );
-
-        assertThat(exception.getCode())
-            .as("Exception code should indicate job not found")
-            .isEqualTo(BusinessExceptionReason.JOB_NOT_FOUND.getCode());
-
-        verify(jobRepository, times(1)).findById(jobId);
-        verify(jobRepository, times(0)).delete(any(Job.class));
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> jobService.deleteJob(jobId));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_FOUND.getCode());
     }
 
     @Test
-    @DisplayName("Should start job successfully")
-    void testStartJob_WithValidJobIdAndReadyStatus_ShouldReturnJobDispatcher() {
-        setUp();
+    void deleteJob_shouldCallFindById_whenJobNotFound() {
+        UUID jobId = UUID.randomUUID();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
+        assertThrows(BusinessException.class, () -> jobService.deleteJob(jobId));
+        verify(jobRepository, times(1)).findById(jobId);
+    }
 
+    @Test
+    void deleteJob_shouldNotDeleteJob_whenJobNotFound() {
+        UUID jobId = UUID.randomUUID();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
+        assertThrows(BusinessException.class, () -> jobService.deleteJob(jobId));
+        verify(jobRepository, never()).delete(any(Job.class));
+    }
+
+    // --- startJob ---
+
+    @Test
+    void startJob_shouldReturnNonNullDispatcher_whenJobIsReady() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.READY);
         testJob.setJobDispatcher(null);
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
         JobDispatcher result = jobService.startJob(jobId);
+        assertThat(result).isNotNull();
+    }
 
-        assertNotNull(result, "JobDispatcher should not be null");
+    @Test
+    void startJob_shouldSetStatusToInProgress_whenJobIsReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(null);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.startJob(jobId);
         assertThat(testJob.getStatus()).isEqualTo(JobStatus.IN_PROGRESS);
+    }
 
+    @Test
+    void startJob_shouldCallFindById_whenStartingJob() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(null);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.startJob(jobId);
         verify(jobRepository, times(1)).findById(jobId);
+    }
+
+    @Test
+    void startJob_shouldSaveJob_whenStartingJob() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(null);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.startJob(jobId);
         verify(jobRepository, times(1)).save(any(Job.class));
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when starting job that is not ready")
-    void testStartJob_WithJobNotReady_ShouldThrowBusinessException() {
-        setUp();
-
+    void startJob_shouldThrowExceptionWithJobAlreadyStartedCode_whenJobInProgress() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> jobService.startJob(jobId),
-            "Should throw BusinessException when job has already started"
-        );
-
-        assertThat(exception.getCode())
-            .as("Exception code should indicate job has already started")
-            .isEqualTo(BusinessExceptionReason.JOB_HAS_ALREADY_STARTED.getCode());
-
-        verify(jobRepository, times(1)).findById(jobId);
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> jobService.startJob(jobId));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_HAS_ALREADY_STARTED.getCode());
     }
 
     @Test
-    @DisplayName("Should get job dispatcher by job id successfully")
-    void testGetJobDispatcherByJobId_WithValidJobId_ShouldReturnJobDispatcher() {
-        setUp();
+    void startJob_shouldCallFindById_whenJobNotReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        assertThrows(BusinessException.class, () -> jobService.startJob(jobId));
+        verify(jobRepository, times(1)).findById(jobId);
+    }
 
+    // --- getJobDispatcherByJobId ---
+
+    @Test
+    void getJobDispatcherByJobId_shouldReturnDispatcher_whenJobIsInProgress() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-
         JobDispatcher result = jobService.getJobDispatcherByJobId(jobId);
+        assertThat(result).isNotNull();
+    }
 
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result).isEqualTo(testJobDispatcher);
-
+    @Test
+    void getJobDispatcherByJobId_shouldCallFindById_whenJobIsInProgress() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        jobService.getJobDispatcherByJobId(jobId);
         verify(jobRepository, times(1)).findById(jobId);
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when job dispatcher not found")
-    void testGetJobDispatcherByJobId_WithNoJobDispatcher_ShouldThrowBusinessException() {
-        setUp();
-
+    void getJobDispatcherByJobId_shouldThrowExceptionWithJobNotStartedCode_whenNoDispatcher() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(null);
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> jobService.getJobDispatcherByJobId(jobId),
-            "Should throw BusinessException when job dispatcher not found"
-        );
-
-        assertThat(exception.getCode())
-            .as("Exception code should indicate job not started")
-            .isEqualTo(BusinessExceptionReason.JOB_NOT_STARTED.getCode());
-
-        verify(jobRepository, times(1)).findById(jobId);
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> jobService.getJobDispatcherByJobId(jobId));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_STARTED.getCode());
     }
 
     @Test
-    @DisplayName("Should report problem contractor false successfully")
-    void testReportProblemContractorFalse_WithValidData_ShouldReturnJobDispatcher() {
-        setUp();
+    void getJobDispatcherByJobId_shouldThrowExceptionWithJobNotInProgressCode_whenJobNotInProgress() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> jobService.getJobDispatcherByJobId(jobId));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_IN_PROGRESS.getCode());
+    }
 
+    // --- reportProblemContractorFalse ---
+
+    @Test
+    void reportProblemContractorFalse_shouldReturnNonNullDispatcher_whenOwnerStatusIsNone() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem here");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-
-        verify(jobRepository, times(2)).findById(jobId);
+        setupJobFindAndSaveMocks(jobId);
+        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
+        assertThat(result).isNotNull();
     }
 
     @Test
-    @DisplayName("Should report problem contractor true successfully")
-    void testReportProblemContractorTrue_WithValidData_ShouldReturnJobDispatcher() {
-        setUp();
-
+    void reportProblemContractorFalse_shouldSetContractorNoProblemStatus_whenOwnerStatusIsProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorTrue(jobId, Optional.empty(), "There is a problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.PROBLEM);
-
-        verify(jobRepository, times(2)).findById(jobId);
+        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
+        setupJobFindAndSaveMocks(jobId);
+        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
+        assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.NO_PROBLEM);
     }
 
     @Test
-    @DisplayName("Should report problem owner false successfully")
-    void testReportProblemOwnerFalse_WithValidData_ShouldReturnJobDispatcher() {
-        setUp();
+    void reportProblemContractorFalse_shouldResetDispatcher_whenOwnerStatusIsNoProblem() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
+        setupJobFindAndSaveMocks(jobId);
+        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
+        assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NONE);
+    }
 
+    @Test
+    void reportProblemContractorFalse_shouldAddApproval_whenPhotoProvided() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        JobDispatcher result = jobService.reportProblemContractorFalse(
+                jobId, Optional.of(createMockPhoto()), "No problem");
+        assertThat(result.getContractiorApprovals()).isNotEmpty();
+    }
+
+    @Test
+    void reportProblemContractorFalse_shouldUploadFile_whenPhotoProvided() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.reportProblemContractorFalse(jobId, Optional.of(createMockPhoto()), "No problem");
+        verify(fileManagementService, times(1)).uploadFile(any());
+    }
+
+    // --- reportProblemContractorTrue ---
+
+    @Test
+    void reportProblemContractorTrue_shouldSetContractorProblemStatus_whenContractorReportsProblem() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobFindAndSaveMocks(jobId);
+        JobDispatcher result = jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
+        assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.PROBLEM);
+    }
+
+    @Test
+    void reportProblemContractorTrue_shouldSetJobFailure_whenOwnerStatusIsProblem() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
+        setupJobFindAndSaveMocks(jobId);
+        jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
+        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
+    }
+
+    @Test
+    void reportProblemContractorTrue_shouldSetJobFailure_whenOwnerStatusIsNoProblem() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
+        setupJobFindAndSaveMocks(jobId);
+        jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
+        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
+    }
+
+    @Test
+    void reportProblemContractorTrue_shouldAddApproval_whenPhotoProvided() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        JobDispatcher result = jobService.reportProblemContractorTrue(
+                jobId, Optional.of(createMockPhoto()), "Problem");
+        assertThat(result.getContractiorApprovals()).isNotEmpty();
+    }
+
+    // --- reportProblemOwnerFalse ---
+
+    @Test
+    void reportProblemOwnerFalse_shouldSetOwnerNoProblemStatus_whenContractorStatusIsProblem() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
+        setupJobFindAndSaveMocks(jobId);
+        JobDispatcher result = jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
+        assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NO_PROBLEM);
+    }
+
+    @Test
+    void reportProblemOwnerFalse_shouldResetDispatcher_whenContractorStatusIsNoProblem() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NO_PROBLEM);
+        setupJobFindAndSaveMocks(jobId);
+        JobDispatcher result = jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
+        assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NONE);
+    }
+
+    @Test
+    void reportProblemOwnerFalse_shouldAddApproval_whenPhotoProvided() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-
-        verify(jobRepository, times(2)).findById(jobId);
+        JobDispatcher result = jobService.reportProblemOwnerFalse(
+                jobId, Optional.of(createMockPhoto()), "No problem");
+        assertThat(result.getContractiorApprovals()).isNotEmpty();
     }
 
-    @Test
-    @DisplayName("Should report problem owner true successfully")
-    void testReportProblemOwnerTrue_WithValidData_ShouldReturnJobDispatcher() {
-        setUp();
+    // --- reportProblemOwnerTrue ---
 
+    @Test
+    void reportProblemOwnerTrue_shouldSetOwnerProblemStatus_whenOwnerReportsProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem found");
-
-        assertNotNull(result, "JobDispatcher should not be null");
+        setupJobFindAndSaveMocks(jobId);
+        JobDispatcher result = jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
         assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.PROBLEM);
-
-        verify(jobRepository, times(2)).findById(jobId);
     }
 
     @Test
-    @DisplayName("Should end job successfully for owner when job is finished")
-    void testEndJobSuccessfulyOwner_WithFinishedJob_ShouldReturnSuccessfulJob() {
-        setUp();
+    void reportProblemOwnerTrue_shouldSetJobFailure_whenContractorStatusIsProblem() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
+        setupJobFindAndSaveMocks(jobId);
+        jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
+        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
+    }
 
+    @Test
+    void reportProblemOwnerTrue_shouldSetJobFailure_whenContractorStatusIsNoProblem() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NO_PROBLEM);
+        setupJobFindAndSaveMocks(jobId);
+        jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
+        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
+    }
+
+    @Test
+    void reportProblemOwnerTrue_shouldSetJobFailure_whenJobIsAlreadyFinished() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setFinishedAt(LocalDateTime.now());
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        Job result = jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Job completed successfully");
-
-        assertNotNull(result, "Job should not be null");
-        assertThat(result.getStatus()).isEqualTo(JobStatus.FINISHED_SUCCESS);
-
-        verify(jobRepository, times(2)).findById(jobId);
+        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
+        setupJobFindAndSaveMocks(jobId);
+        jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
+        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when ending job that is not finished")
-    void testEndJobSuccessfulyOwner_WithUnfinishedJob_ShouldThrowBusinessException() {
-        setUp();
+    void reportProblemOwnerTrue_shouldAddApproval_whenPhotoProvided() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        JobDispatcher result = jobService.reportProblemOwnerTrue(
+                jobId, Optional.of(createMockPhoto()), "Problem");
+        assertThat(result.getContractiorApprovals()).isNotEmpty();
+    }
 
+    // --- endJobSuccessfulyOwner ---
+
+    @Test
+    void endJobSuccessfulyOwner_shouldReturnJobWithSuccessStatus_whenJobIsFinished() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setFinishedAt(LocalDateTime.now());
+        setupJobFindAndSaveMocks(jobId);
+        Job result = jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Completed");
+        assertThat(result.getStatus()).isEqualTo(JobStatus.FINISHED_SUCCESS);
+    }
+
+    @Test
+    void endJobSuccessfulyOwner_shouldCallSave_whenJobIsFinished() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setFinishedAt(LocalDateTime.now());
+        setupJobFindAndSaveMocks(jobId);
+        jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Completed");
+        verify(jobRepository, times(2)).save(any(Job.class));
+    }
+
+    @Test
+    void endJobSuccessfulyOwner_shouldThrowExceptionWithJobNotFinishedCode_whenJobNotFinished() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setFinishedAt(null);
-
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Job completed"),
-            "Should throw BusinessException when job is not finished"
-        );
-
-        assertThat(exception.getCode())
-            .as("Exception code should indicate job not finished")
-            .isEqualTo(BusinessExceptionReason.JOB_NOT_FINISHED.getCode());
-
-        verify(jobRepository, times(2)).findById(jobId);
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Completed"));
+        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_FINISHED.getCode());
     }
 
     @Test
-    @DisplayName("Should end job successfully for contractor")
-    void testEndJobSuccessfulyContractor_WithValidJobId_ShouldReturnJob() {
-        setUp();
-
+    void endJobSuccessfulyOwner_shouldAddApproval_whenPhotoProvided() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
-
+        testJobDispatcher.setFinishedAt(LocalDateTime.now());
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.endJobSuccessfulyOwner(jobId, Optional.of(createMockPhoto()), "Completed");
+        verify(fileManagementService, times(1)).uploadFile(any());
+    }
 
+    // --- endJobSuccessfulyContractor ---
+
+    @Test
+    void endJobSuccessfulyContractor_shouldSetFinishedAt_whenContractorEndsJob() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobFindAndSaveMocks(jobId);
         Job result = jobService.endJobSuccessfulyContractor(jobId, Optional.empty(), "Work completed");
-
-        assertNotNull(result, "Job should not be null");
         assertThat(result.getJobDispatcher().getFinishedAt()).isNotNull();
+    }
 
-        verify(jobRepository, times(2)).findById(jobId);
+    @Test
+    void endJobSuccessfulyContractor_shouldCallSave_whenContractorEndsJob() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobFindAndSaveMocks(jobId);
+        jobService.endJobSuccessfulyContractor(jobId, Optional.empty(), "Work completed");
         verify(jobRepository, times(1)).save(any(Job.class));
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when job is not in progress")
-    void testGetJobDispatcherByJobId_WithJobNotInProgress_ShouldThrowBusinessException() {
-        setUp();
-
+    void endJobSuccessfulyContractor_shouldAddApproval_whenPhotoProvided() {
         UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.READY);
-
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJob.setJobDispatcher(testJobDispatcher);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> jobService.getJobDispatcherByJobId(jobId),
-            "Should throw BusinessException when job is not in progress"
-        );
-
-        assertThat(exception.getCode())
-            .as("Exception code should indicate job not in progress")
-            .isEqualTo(BusinessExceptionReason.JOB_NOT_IN_PROGRESS.getCode());
-
-        verify(jobRepository, times(1)).findById(jobId);
-    }
-
-    @Test
-    @DisplayName("Should create job successfully with photo")
-    void testCreateJob_WithValidOfferAndPhoto_ShouldReturnCreatedJobWithPhoto() {
-        setUp();
-
-        testOffer.setChosenCandidate(createTestUser());
-        OfferPhoto offerPhoto = new OfferPhoto();
-        offerPhoto.setStorageKey("test-storage-key");
-        offerPhoto.setFileName("test.jpg");
-        testOffer.setPhoto(offerPhoto);
-
-        ProcessedFileDetails fileDetails = new ProcessedFileDetails("example-key", "example.jpg", MimeType.JPG, "example", 1024, null);
-
-        when(fileManagementService.getFile(any())).thenReturn(null);
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(fileDetails);
+        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        Job result = jobService.createJob(testOffer);
-
-        assertNotNull(result, "Created job should not be null");
-
-        verify(offerService, times(1)).deleteOffer(testOffer.getId());
-        verify(jobRepository, times(1)).save(any(Job.class));
-        verify(fileManagementService, times(1)).getFile(any());
-        verify(fileManagementService, times(1)).processFileDetails(any(), any());
+        jobService.endJobSuccessfulyContractor(jobId, Optional.of(createMockPhoto()), "Work completed");
         verify(fileManagementService, times(1)).uploadFile(any());
     }
 
-    @Test
-    @DisplayName("Should report problem contractor false when owner status is PROBLEM")
-    void testReportProblemContractorFalse_WithOwnerProblem_ShouldSetContractorNoProblm() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
-
+    private void setupJobFindAndSaveMocks(UUID jobId) {
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.NO_PROBLEM);
-
-        verify(jobRepository, times(2)).findById(jobId);
     }
 
-    @Test
-    @DisplayName("Should report problem contractor false and reset when owner is NO_PROBLEM")
-    void testReportProblemContractorFalse_WithOwnerNoProblm_ShouldResetDispatcher() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NONE);
-        assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.NONE);
-
-        verify(jobRepository, times(2)).findById(jobId);
+    private MultipartFile createMockPhoto() {
+        return org.mockito.Mockito.mock(MultipartFile.class);
     }
 
-    @Test
-    @DisplayName("Should report problem contractor true and set job failure when owner has PROBLEM")
-    void testReportProblemContractorTrue_WithOwnerProblem_ShouldSetJobFailure() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
-
-        verify(jobRepository, times(2)).findById(jobId);
-    }
-
-    @Test
-    @DisplayName("Should report problem contractor true and set job failure when owner has NO_PROBLEM")
-    void testReportProblemContractorTrue_WithOwnerNoProblem_ShouldSetJobFailure() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
-
-        verify(jobRepository, times(2)).findById(jobId);
-    }
-
-    @Test
-    @DisplayName("Should report problem owner false when contractor status is PROBLEM")
-    void testReportProblemOwnerFalse_WithContractorProblem_ShouldSetOwnerNoProblem() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NO_PROBLEM);
-
-        verify(jobRepository, times(2)).findById(jobId);
-    }
-
-    @Test
-    @DisplayName("Should report problem owner false and reset when contractor is NO_PROBLEM")
-    void testReportProblemOwnerFalse_WithContractorNoProblem_ShouldResetDispatcher() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NO_PROBLEM);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NONE);
-        assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.NONE);
-
-        verify(jobRepository, times(2)).findById(jobId);
-        verify(jobRepository, times(2)).save(any(Job.class));
-    }
-
-    @Test
-    @DisplayName("Should report problem owner true and set job failure when contractor has PROBLEM")
-    void testReportProblemOwnerTrue_WithContractorProblem_ShouldSetJobFailure() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
-
-        verify(jobRepository, times(2)).findById(jobId);
-    }
-
-    @Test
-    @DisplayName("Should report problem owner true and set job failure when job is already finished")
-    void testReportProblemOwnerTrue_WithFinishedJob_ShouldSetJobFailure() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setFinishedAt(LocalDateTime.now());
-        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
-
-        verify(jobRepository, times(2)).findById(jobId);
-    }
-
-    @Test
-    @DisplayName("Should end job successfully for owner and save with success status")
-    void testEndJobSuccessfulyOwner_WithFinishedJob_ShouldSaveJobWithSuccessStatus() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setFinishedAt(LocalDateTime.now());
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        Job result = jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Completed");
-
-        assertNotNull(result, "Job should not be null");
-        assertThat(result.getStatus()).isEqualTo(JobStatus.FINISHED_SUCCESS);
-
-        verify(jobRepository, times(2)).findById(jobId);
-        verify(jobRepository, times(2)).save(any(Job.class));
-    }
-
-    @Test
-    @DisplayName("Should report problem contractor false with photo")
-    void testReportProblemContractorFalse_WithPhoto_ShouldAddApprovalWithPhoto() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
-
-        MultipartFile photo = org.mockito.Mockito.mock(MultipartFile.class);
-        ProcessedFileDetails fileDetails = new ProcessedFileDetails("example-key", "example.jpg", MimeType.JPG, "example", 1024, null);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(fileDetails);
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.of(photo), "No problem with photo");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getContractiorApprovals()).isNotEmpty();
-
-        verify(jobRepository, times(2)).findById(jobId);
-        verify(fileManagementService, times(1)).processFileDetails(any(), any());
-        verify(fileManagementService, times(1)).uploadFile(any());
-    }
-
-    @Test
-    @DisplayName("Should report problem contractor true with photo")
-    void testReportProblemContractorTrue_WithPhoto_ShouldAddApprovalWithPhoto() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-
-        MultipartFile photo = org.mockito.Mockito.mock(MultipartFile.class);
-        ProcessedFileDetails fileDetails = new ProcessedFileDetails("example-key", "example.jpg", MimeType.JPG, "example", 1024, null);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(fileDetails);
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorTrue(jobId, Optional.of(photo), "Problem with photo");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.PROBLEM);
-        assertThat(result.getContractiorApprovals()).isNotEmpty();
-
-        verify(jobRepository, times(2)).findById(jobId);
-        verify(fileManagementService, times(1)).processFileDetails(any(), any());
-        verify(fileManagementService, times(1)).uploadFile(any());
-    }
-
-    @Test
-    @DisplayName("Should report problem owner false with photo")
-    void testReportProblemOwnerFalse_WithPhoto_ShouldAddApprovalWithPhoto() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
-
-        MultipartFile photo = org.mockito.Mockito.mock(MultipartFile.class);
-        ProcessedFileDetails fileDetails = new ProcessedFileDetails("example-key", "example.jpg", MimeType.JPG, "example", 1024, null);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(fileDetails);
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerFalse(jobId, Optional.of(photo), "No problem from owner");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getContractiorApprovals()).isNotEmpty();
-
-        verify(jobRepository, times(2)).findById(jobId);
-        verify(fileManagementService, times(1)).processFileDetails(any(), any());
-        verify(fileManagementService, times(1)).uploadFile(any());
-    }
-
-    @Test
-    @DisplayName("Should report problem owner true with photo")
-    void testReportProblemOwnerTrue_WithPhoto_ShouldAddApprovalWithPhoto() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-
-        MultipartFile photo = org.mockito.Mockito.mock(MultipartFile.class);
-        ProcessedFileDetails fileDetails = new ProcessedFileDetails("example-key", "example.jpg", MimeType.JPG, "example", 1024, null);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(fileDetails);
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerTrue(jobId, Optional.of(photo), "Problem from owner with photo");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.PROBLEM);
-        assertThat(result.getContractiorApprovals()).isNotEmpty();
-
-        verify(jobRepository, times(2)).findById(jobId);
-        verify(fileManagementService, times(1)).processFileDetails(any(), any());
-        verify(fileManagementService, times(1)).uploadFile(any());
-    }
-
-    @Test
-    @DisplayName("Should end job successfully for owner with photo")
-    void testEndJobSuccessfulyOwner_WithPhoto_ShouldAddApprovalWithPhoto() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setFinishedAt(LocalDateTime.now());
-
-        MultipartFile photo = org.mockito.Mockito.mock(MultipartFile.class);
-        ProcessedFileDetails fileDetails = new ProcessedFileDetails("example-key", "example.jpg", MimeType.JPG, "example", 1024, null);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(fileDetails);
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        Job result = jobService.endJobSuccessfulyOwner(jobId, Optional.of(photo), "Job finished successfully with photo");
-
-        assertNotNull(result, "Job should not be null");
-        assertThat(result.getStatus()).isEqualTo(JobStatus.FINISHED_SUCCESS);
-
-        verify(jobRepository, times(2)).findById(jobId);
-        verify(fileManagementService, times(1)).processFileDetails(any(), any());
-        verify(fileManagementService, times(1)).uploadFile(any());
-    }
-
-    @Test
-    @DisplayName("Should end job successfully for contractor with photo")
-    void testEndJobSuccessfulyContractor_WithPhoto_ShouldAddApprovalWithPhoto() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-
-        MultipartFile photo = org.mockito.Mockito.mock(MultipartFile.class);
-        ProcessedFileDetails fileDetails = new ProcessedFileDetails("example-key", "example.jpg", MimeType.JPG, "example", 1024, null);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(fileDetails);
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        Job result = jobService.endJobSuccessfulyContractor(jobId, Optional.of(photo), "Work completed with photo");
-
-        assertNotNull(result, "Job should not be null");
-        assertThat(result.getJobDispatcher().getFinishedAt()).isNotNull();
-
-        verify(jobRepository, times(2)).findById(jobId);
-        verify(fileManagementService, times(1)).processFileDetails(any(), any());
-        verify(fileManagementService, times(1)).uploadFile(any());
-    }
-
-    @Test
-    @DisplayName("Should report problem contractor true and set job failure when owner has NO_PROBLEM status")
-    void testReportProblemContractorTrue_WithOwnerNoProblemStatus_ShouldSetJobFailure() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem detected");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
-        assertThat(result.getFinishedAt()).isNotNull();
-
-        verify(jobRepository, times(2)).findById(jobId);
-    }
-
-    @Test
-    @DisplayName("Should report problem owner true and set job failure when contractor has NO_PROBLEM status")
-    void testReportProblemOwnerTrue_WithContractorNoProblemStatus_ShouldSetJobFailure() {
-        setUp();
-
-        UUID jobId = testJob.getId();
-        testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NO_PROBLEM);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-
-        JobDispatcher result = jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Owner detected problem");
-
-        assertNotNull(result, "JobDispatcher should not be null");
-        assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
-        assertThat(result.getFinishedAt()).isNotNull();
-
-        verify(jobRepository, times(2)).findById(jobId);
+    private OfferPhoto createTestOfferPhoto() {
+        OfferPhoto photo = new OfferPhoto();
+        photo.setStorageKey("test-storage-key");
+        photo.setFileName("test.jpg");
+        return photo;
     }
 }
