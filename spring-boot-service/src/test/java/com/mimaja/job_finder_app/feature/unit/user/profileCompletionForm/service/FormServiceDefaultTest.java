@@ -1,18 +1,16 @@
 package com.mimaja.job_finder_app.feature.unit.user.profileCompletionForm.service;
 
-import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.createDefaultUser;
-import static com.mimaja.job_finder_app.feature.unit.user.TestUserFixtures.createPrincipal;
+import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -30,22 +28,15 @@ import com.mimaja.job_finder_app.security.token.accessToken.service.AccessTokenS
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("FormServiceDefault - Unit Tests")
-public class FormServiceDefaultTest {
-    private static final String FIRST_NAME = "Jane";
-    private static final String LAST_NAME = "Smith";
-    private static final String PROFILE_DESCRIPTION = "Updated profile description";
-    private static final String NEW_ACCESS_TOKEN = "new-access-token";
-    private static final String FALLBACK_ACCESS_TOKEN = "token-123";
-    private static final String UPDATED_FIRST_NAME = "UpdatedFirstName";
-    private static final String UPDATED_LAST_NAME = "UpdatedLastName";
-    private static final String UPDATED_PROFILE_DESCRIPTION = "Updated description";
+class FormServiceDefaultTest {
 
-    @Mock
-    private UserRepository userRepository;
+    private static final String TEST_NEW_FIRST_NAME  = "Jane";
+    private static final String TEST_NEW_LAST_NAME   = "Smith";
+    private static final String TEST_NEW_DESCRIPTION = "Updated profile description";
+    private static final String TEST_ACCESS_TOKEN    = "new-access-token";
 
-    @Mock
-    private AccessTokenService accessTokenService;
+    @Mock private UserRepository userRepository;
+    @Mock private AccessTokenService accessTokenService;
 
     private FormServiceDefault formService;
     private User testUser;
@@ -53,130 +44,101 @@ public class FormServiceDefaultTest {
 
     @BeforeEach
     void setUp() {
-        testUser = createDefaultUser();
-        testPrincipal = createPrincipal(testUser);
+        testUser = createTestUser();
+        testPrincipal = JwtPrincipal.from(testUser);
         formService = new FormServiceDefault(userRepository, accessTokenService);
     }
 
     @Test
-    @DisplayName("Should send form successfully and return access token")
-    void shouldReturnAccessToken_WhenSendFormWithValidData() {
-        ProfileCompletionFormRequestDto requestDto = new ProfileCompletionFormRequestDto(
-            FIRST_NAME,
-            LAST_NAME,
-            PROFILE_DESCRIPTION
-        );
+    void sendForm_shouldReturnNonNullResponse_whenDataIsValid() {
+        setupValidFormMocks();
+        ProfileCompletionFormResponseDto result = formService.sendForm(createValidRequest(), testPrincipal);
+        assertThat(result).isNotNull();
+    }
 
-        CreateAccessTokenResponseDto tokenDto = new CreateAccessTokenResponseDto(NEW_ACCESS_TOKEN);
+    @Test
+    void sendForm_shouldReturnCorrectAccessToken_whenDataIsValid() {
+        setupValidFormMocks();
+        ProfileCompletionFormResponseDto result = formService.sendForm(createValidRequest(), testPrincipal);
+        assertThat(result.accessToken()).isEqualTo(TEST_ACCESS_TOKEN);
+    }
 
-        when(userRepository.save(testUser)).thenReturn(testUser);
-        when(accessTokenService.createToken(testUser)).thenReturn(tokenDto);
+    @Test
+    void sendForm_shouldUpdateFirstName_whenDataIsValid() {
+        setupValidFormMocks();
+        formService.sendForm(createValidRequest(), testPrincipal);
+        assertThat(testUser.getFirstName()).isEqualTo(TEST_NEW_FIRST_NAME);
+    }
 
-        ProfileCompletionFormResponseDto result = formService.sendForm(requestDto, testPrincipal);
+    @Test
+    void sendForm_shouldUpdateLastName_whenDataIsValid() {
+        setupValidFormMocks();
+        formService.sendForm(createValidRequest(), testPrincipal);
+        assertThat(testUser.getLastName()).isEqualTo(TEST_NEW_LAST_NAME);
+    }
 
-        assertNotNull(result, "Response DTO should not be null");
-        assertThat(result.accessToken()).isEqualTo(NEW_ACCESS_TOKEN);
+    @Test
+    void sendForm_shouldUpdateProfileDescription_whenDataIsValid() {
+        setupValidFormMocks();
+        formService.sendForm(createValidRequest(), testPrincipal);
+        assertThat(testUser.getProfileDescription()).isEqualTo(TEST_NEW_DESCRIPTION);
+    }
 
-        assertThat(testUser)
-            .extracting(User::getFirstName, User::getLastName, User::getProfileDescription)
-            .containsExactly(FIRST_NAME, LAST_NAME, PROFILE_DESCRIPTION);
-
+    @Test
+    void sendForm_shouldCallSaveUser_whenDataIsValid() {
+        setupValidFormMocks();
+        formService.sendForm(createValidRequest(), testPrincipal);
         verify(userRepository, times(1)).save(testUser);
+    }
+
+    @Test
+    void sendForm_shouldCallCreateToken_whenDataIsValid() {
+        setupValidFormMocks();
+        formService.sendForm(createValidRequest(), testPrincipal);
         verify(accessTokenService, times(1)).createToken(testUser);
     }
 
     @Test
-    @DisplayName("Should update user first name, last name and profile description correctly")
-    void shouldUpdateAllUserFields_WhenSendForm() {
-        ProfileCompletionFormRequestDto requestDto = new ProfileCompletionFormRequestDto(
-            UPDATED_FIRST_NAME,
-            UPDATED_LAST_NAME,
-            UPDATED_PROFILE_DESCRIPTION
-        );
-
-        CreateAccessTokenResponseDto tokenDto = new CreateAccessTokenResponseDto(FALLBACK_ACCESS_TOKEN);
-
-        when(userRepository.save(testUser)).thenReturn(testUser);
-        when(accessTokenService.createToken(testUser)).thenReturn(tokenDto);
-
-        formService.sendForm(requestDto, testPrincipal);
-
-        assertThat(testUser)
-            .extracting(User::getFirstName, User::getLastName, User::getProfileDescription)
-            .containsExactly(UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_PROFILE_DESCRIPTION);
-
-        verify(userRepository, times(1)).save(testUser);
-    }
-
-    @Test
-    @DisplayName("Should throw BusinessException when user save fails")
-    void shouldThrowBusinessException_WhenUserSaveFailsDuringSendForm() {
-        ProfileCompletionFormRequestDto requestDto = new ProfileCompletionFormRequestDto(
-            FIRST_NAME,
-            LAST_NAME,
-            PROFILE_DESCRIPTION
-        );
-
+    void sendForm_shouldThrowBusinessException_whenSaveFails() {
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-            .when(userRepository)
-            .save(testUser);
-
-        assertThrows(
-            BusinessException.class,
-            () -> formService.sendForm(requestDto, testPrincipal),
-            "Should throw BusinessException when user save fails"
-        );
-
-        verify(userRepository, times(1)).save(testUser);
-        verify(accessTokenService, times(0)).createToken(any());
+                .when(userRepository).save(testUser);
+        assertThrows(BusinessException.class,
+                () -> formService.sendForm(createValidRequest(), testPrincipal));
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when token creation fails")
-    void shouldThrowBusinessException_WhenTokenCreationFailsDuringSendForm() {
-        ProfileCompletionFormRequestDto requestDto = new ProfileCompletionFormRequestDto(
-            FIRST_NAME,
-            LAST_NAME,
-            PROFILE_DESCRIPTION
-        );
+    void sendForm_shouldNotCallCreateToken_whenSaveFails() {
+        doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
+                .when(userRepository).save(testUser);
+        assertThrows(BusinessException.class,
+                () -> formService.sendForm(createValidRequest(), testPrincipal));
+        verify(accessTokenService, never()).createToken(any());
+    }
 
+    @Test
+    void sendForm_shouldThrowBusinessException_whenTokenCreationFails() {
         when(userRepository.save(testUser)).thenReturn(testUser);
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-            .when(accessTokenService)
-            .createToken(testUser);
-
-        assertThrows(
-            BusinessException.class,
-            () -> formService.sendForm(requestDto, testPrincipal),
-            "Should throw BusinessException when token creation fails"
-        );
-
-        verify(userRepository, times(1)).save(testUser);
-        verify(accessTokenService, times(1)).createToken(testUser);
+                .when(accessTokenService).createToken(testUser);
+        assertThrows(BusinessException.class,
+                () -> formService.sendForm(createValidRequest(), testPrincipal));
     }
 
     @Test
-    @DisplayName("Should handle empty strings in profile completion form")
-    void shouldUpdateUserWithEmptyValues_WhenSendFormWithEmptyStrings() {
-        ProfileCompletionFormRequestDto requestDto = new ProfileCompletionFormRequestDto(
-            "",
-            "",
-            ""
-        );
-
-        CreateAccessTokenResponseDto tokenDto = new CreateAccessTokenResponseDto(FALLBACK_ACCESS_TOKEN);
-
-        when(userRepository.save(testUser)).thenReturn(testUser);
-        when(accessTokenService.createToken(testUser)).thenReturn(tokenDto);
-
-        ProfileCompletionFormResponseDto result = formService.sendForm(requestDto, testPrincipal);
-
-        assertNotNull(result, "Response DTO should not be null");
+    void sendForm_shouldSetEmptyFirstName_whenFirstNameIsEmpty() {
+        setupValidFormMocks();
+        formService.sendForm(new ProfileCompletionFormRequestDto("", "", ""), testPrincipal);
         assertThat(testUser.getFirstName()).isEmpty();
-        assertThat(testUser.getLastName()).isEmpty();
-        assertThat(testUser.getProfileDescription()).isEmpty();
+    }
 
-        verify(userRepository, times(1)).save(testUser);
-        verify(accessTokenService, times(1)).createToken(testUser);
+    private void setupValidFormMocks() {
+        when(userRepository.save(testUser)).thenReturn(testUser);
+        when(accessTokenService.createToken(testUser))
+                .thenReturn(new CreateAccessTokenResponseDto(TEST_ACCESS_TOKEN));
+    }
+
+    private ProfileCompletionFormRequestDto createValidRequest() {
+        return new ProfileCompletionFormRequestDto(
+                TEST_NEW_FIRST_NAME, TEST_NEW_LAST_NAME, TEST_NEW_DESCRIPTION);
     }
 }

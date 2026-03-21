@@ -1,8 +1,7 @@
 /// <reference types="jest" />
 
 import { render } from "@testing-library/react-native";
-import Error from "../components/reusable/Error";
-import { useTranslation } from "react-i18next";
+import Error from "../../../components/reusable/Error";
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -12,12 +11,16 @@ jest.mock("react-i18next", () => ({
 
 describe("Error component", () => {
   it("renders correctly with a raw error string", () => {
-    const { toJSON } = render(<Error error={"This is an error"} />);
+    const { toJSON, getByText } = render(<Error error={"This is an error"} />);
+    expect(getByText("This is an error")).toBeTruthy();
     expect(toJSON()).toMatchSnapshot();
   });
+
   it("renders correctly with a translation key", () => {
-    const { t } = useTranslation();
-    const { toJSON } = render(<Error error={t("errors.login_failed")} />);
+    const { toJSON, getByText } = render(
+      <Error error={"translated:errors.login_failed"} />,
+    );
+    expect(getByText("translated:errors.login_failed")).toBeTruthy();
     expect(toJSON()).toMatchSnapshot();
   });
 });

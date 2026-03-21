@@ -2,9 +2,9 @@
 
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
-import HomeLoginButton from "../components/pre-login/HomeLoginButton";
+import HomeLoginButton from "../../../components/pre-login/HomeLoginButton";
 import { Provider as PaperProvider } from "react-native-paper";
-import themeLight from "../constans/theme";
+import themeLight from "../../../constans/theme";
 
 const wrapper = ({ children }: any) => (
   <PaperProvider theme={themeLight}>{children}</PaperProvider>
