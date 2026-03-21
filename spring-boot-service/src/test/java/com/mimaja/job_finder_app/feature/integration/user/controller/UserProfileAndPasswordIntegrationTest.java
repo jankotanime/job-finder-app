@@ -4,6 +4,7 @@ import static com.mimaja.job_finder_app.core.test.ApiPath.passwordMobileUpdatePa
 import static com.mimaja.job_finder_app.core.test.ApiPath.profileCompletionFormPath;
 import static com.mimaja.job_finder_app.core.test.ApiPath.userUpdateEmailPath;
 import static com.mimaja.job_finder_app.core.test.ApiPath.userUpdatePhoneNumberPath;
+import static com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestConstants.CODE_PATH;
 import static com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestConstants.DEFAULT_FIRST_NAME;
 import static com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestConstants.DEFAULT_LAST_NAME;
 import static com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestConstants.DEFAULT_NEW_PASSWORD;
@@ -25,79 +26,143 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MvcResult;
 
 class UserProfileAndPasswordIntegrationTest extends IntegrationTest {
-    private static final String CODE_PATH = "$.code";
     private static final String RESOURCE_UPDATED = "RESOURCE_UPDATED";
     private static final String UPDATED_EMAIL_PREFIX = "updated.";
     private static final int PHONE_INCREMENT = 1;
 
     @Test
-    void ShouldUpdateProfileEmailPhoneAndPassword_WhenAuthenticatedUserProvidesValidData() throws Exception {
+    void shouldReturnResourceUpdatedCode_whenUserCompletesProfile() throws Exception {
+        // given
         TestUserCredentials user = IntegrationTestUsers.next();
         String accessToken = createUserAccessToken(user);
-
-        String formPayload =
+        String payload =
                 objectMapper.writeValueAsString(
                         Map.of(
                                 "firstName", DEFAULT_FIRST_NAME,
                                 "lastName", DEFAULT_LAST_NAME,
                                 "profileDescription", DEFAULT_PROFILE_DESCRIPTION));
 
-        MvcResult formResult =
+        // when
+        MvcResult result =
                 mockMvc.perform(
                                 post(profileCompletionFormPath())
                                         .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken))
                                         .contentType(APPLICATION_JSON)
-                                        .content(formPayload))
+                                        .content(payload))
                         .andExpect(status().isOk())
                         .andReturn();
-        assertThat((String) JsonPath.read(formResult.getResponse().getContentAsString(), CODE_PATH))
-                .isEqualTo(RESOURCE_UPDATED);
 
+        // then
+        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CODE_PATH))
+                .isEqualTo(RESOURCE_UPDATED);
+    }
+
+    @Test
+    void shouldReturnResourceUpdatedCode_whenUserUpdatesEmail() throws Exception {
+        // given
+        TestUserCredentials user = IntegrationTestUsers.next();
+        String accessToken = createUserAccessToken(user);
         String updatedEmail = UPDATED_EMAIL_PREFIX + user.email();
-        String updateEmailPayload =
+        String payload =
                 objectMapper.writeValueAsString(
                         Map.of("newEmail", updatedEmail, "password", user.password()));
-        MvcResult updateEmailResult =
+
+        // when
+        MvcResult result =
                 mockMvc.perform(
                                 patch(userUpdateEmailPath())
                                         .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken))
                                         .contentType(APPLICATION_JSON)
-                                        .content(updateEmailPayload))
+                                        .content(payload))
                         .andExpect(status().isOk())
                         .andReturn();
 
-        String updatePhonePayload =
+        // then
+        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CODE_PATH))
+                .isEqualTo(RESOURCE_UPDATED);
+    }
+
+    @Test
+    void shouldReturnResourceUpdatedCode_whenUserUpdatesPhoneNumber() throws Exception {
+        // given
+        TestUserCredentials user = IntegrationTestUsers.next();
+        String accessToken = createUserAccessToken(user);
+        String payload =
                 objectMapper.writeValueAsString(
-                        Map.of("newPhoneNumber", user.phoneNumber() + PHONE_INCREMENT, "password", user.password()));
-        MvcResult updatePhoneResult =
+                        Map.of(
+                                "newPhoneNumber", user.phoneNumber() + PHONE_INCREMENT,
+                                "password", user.password()));
+
+        // when
+        MvcResult result =
                 mockMvc.perform(
                                 patch(userUpdatePhoneNumberPath())
                                         .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken))
                                         .contentType(APPLICATION_JSON)
-                                        .content(updatePhonePayload))
+                                        .content(payload))
                         .andExpect(status().isOk())
                         .andReturn();
 
-        String updatePasswordPayload =
+        // then
+        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CODE_PATH))
+                .isEqualTo(RESOURCE_UPDATED);
+    }
+
+    @Test
+    void shouldReturnResourceUpdatedCode_whenUserUpdatesPassword() throws Exception {
+        // given
+        TestUserCredentials user = IntegrationTestUsers.next();
+        String accessToken = createUserAccessToken(user);
+        String payload =
                 objectMapper.writeValueAsString(
                         Map.of("password", user.password(), "newPassword", DEFAULT_NEW_PASSWORD));
-        MvcResult updatePasswordResult =
+
+        // when
+        MvcResult result =
                 mockMvc.perform(
                                 put(passwordMobileUpdatePath())
                                         .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken))
                                         .contentType(APPLICATION_JSON)
-                                        .content(updatePasswordPayload))
+                                        .content(payload))
                         .andExpect(status().isOk())
                         .andReturn();
 
-        AuthTokens loginWithNewPassword = loginUser(updatedEmail, DEFAULT_NEW_PASSWORD);
+        // then
+        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CODE_PATH))
+                .isEqualTo(RESOURCE_UPDATED);
+    }
 
-        assertThat((String) JsonPath.read(updateEmailResult.getResponse().getContentAsString(), CODE_PATH))
-                .isEqualTo(RESOURCE_UPDATED);
-        assertThat((String) JsonPath.read(updatePhoneResult.getResponse().getContentAsString(), CODE_PATH))
-                .isEqualTo(RESOURCE_UPDATED);
-        assertThat((String) JsonPath.read(updatePasswordResult.getResponse().getContentAsString(), CODE_PATH))
-                .isEqualTo(RESOURCE_UPDATED);
-        assertThat(loginWithNewPassword.accessToken().isBlank()).isFalse();
+    @Test
+    void shouldReturnNonBlankAccessToken_whenUserLogsInWithNewCredentials() throws Exception {
+        // given
+        TestUserCredentials user = IntegrationTestUsers.next();
+        String accessToken = createUserAccessToken(user);
+        String updatedEmail = UPDATED_EMAIL_PREFIX + user.email();
+
+        mockMvc.perform(
+                        patch(userUpdateEmailPath())
+                                .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken))
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        objectMapper.writeValueAsString(
+                                                Map.of("newEmail", updatedEmail, "password", user.password()))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        put(passwordMobileUpdatePath())
+                                .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken))
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        objectMapper.writeValueAsString(
+                                                Map.of(
+                                                        "password", user.password(),
+                                                        "newPassword", DEFAULT_NEW_PASSWORD))))
+                .andExpect(status().isOk());
+
+        // when
+        AuthTokens tokens = loginUser(updatedEmail, DEFAULT_NEW_PASSWORD);
+
+        // then
+        assertThat(tokens.accessToken()).isNotBlank();
     }
 }

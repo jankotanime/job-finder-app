@@ -3,9 +3,7 @@ package com.mimaja.job_finder_app.feature.integration.shared;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class IntegrationTestUsers {
-    private static final int INITIAL_COUNTER_VALUE =
-            (int) (System.currentTimeMillis() % 800000000L) + 100000000;
-    private static final AtomicInteger COUNTER = new AtomicInteger(INITIAL_COUNTER_VALUE);
+    private static final AtomicInteger COUNTER = new AtomicInteger(100_000_000);
 
     private IntegrationTestUsers() {}
 

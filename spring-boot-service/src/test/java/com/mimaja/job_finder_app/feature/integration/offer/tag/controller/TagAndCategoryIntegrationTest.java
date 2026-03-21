@@ -28,56 +28,94 @@ class TagAndCategoryIntegrationTest extends IntegrationTest {
     private static final String TAG_NAME = "Java";
 
     @Test
-    void ShouldCreateCategoryAndTagThenFetchThem_WhenUsingAdminAndUserEndpoints() throws Exception {
-        String adminAccessToken = createAdminAccessToken(IntegrationTestUsers.next());
-        String userAccessToken = createUserAccessToken(IntegrationTestUsers.next());
+    void shouldReturnCategoryName_whenAdminCreatesAndUserFetchesCategory() throws Exception {
+        // given
+        String adminToken = createAdminAccessToken(IntegrationTestUsers.next());
+        String userToken = createUserAccessToken(IntegrationTestUsers.next());
+        String categoryId = createCategory(adminToken);
 
-        String categoryPayload =
-                objectMapper.writeValueAsString(Map.of("name", CATEGORY_NAME, "color", CATEGORY_COLOR));
-        MvcResult createCategoryResult =
-                mockMvc.perform(
-                                post(adminCategoryPath())
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(adminAccessToken))
-                                        .contentType(APPLICATION_JSON)
-                                        .content(categoryPayload))
-                        .andExpect(status().isCreated())
-                        .andReturn();
-
-        String categoryResponse = createCategoryResult.getResponse().getContentAsString();
-        String categoryId = JsonPath.read(categoryResponse, DATA_ID_PATH);
-
-        String tagPayload =
-                objectMapper.writeValueAsString(Map.of("name", TAG_NAME, "categoryId", categoryId));
-        MvcResult createTagResult =
-                mockMvc.perform(
-                                post(adminTagPath())
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(adminAccessToken))
-                                        .contentType(APPLICATION_JSON)
-                                        .content(tagPayload))
-                        .andExpect(status().isCreated())
-                        .andReturn();
-
-        String tagId = JsonPath.read(createTagResult.getResponse().getContentAsString(), DATA_ID_PATH);
-
-        MvcResult categoryByIdResult =
+        // when
+        MvcResult result =
                 mockMvc.perform(
                                 get(categoryPathWithId(), categoryId)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(userAccessToken)))
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(userToken)))
                         .andExpect(status().isOk())
                         .andReturn();
 
-        MvcResult tagByIdResult =
+        // then
+        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CATEGORY_NAME_PATH))
+                .isEqualTo(CATEGORY_NAME);
+    }
+
+    @Test
+    void shouldReturnTagName_whenAdminCreatesAndUserFetchesTag() throws Exception {
+        // given
+        String adminToken = createAdminAccessToken(IntegrationTestUsers.next());
+        String userToken = createUserAccessToken(IntegrationTestUsers.next());
+        String categoryId = createCategory(adminToken);
+        String tagId = createTag(adminToken, categoryId);
+
+        // when
+        MvcResult result =
                 mockMvc.perform(
                                 get(tagPathWithId(), tagId)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(userAccessToken)))
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(userToken)))
                         .andExpect(status().isOk())
                         .andReturn();
 
-        assertThat((String) JsonPath.read(categoryByIdResult.getResponse().getContentAsString(), CATEGORY_NAME_PATH))
-                .isEqualTo(CATEGORY_NAME);
-        assertThat((String) JsonPath.read(tagByIdResult.getResponse().getContentAsString(), TAG_NAME_PATH))
+        // then
+        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), TAG_NAME_PATH))
                 .isEqualTo(TAG_NAME);
-        assertThat((String) JsonPath.read(tagByIdResult.getResponse().getContentAsString(), TAG_CATEGORY_NAME_PATH))
+    }
+
+    @Test
+    void shouldReturnTagCategoryName_whenAdminCreatesAndUserFetchesTag() throws Exception {
+        // given
+        String adminToken = createAdminAccessToken(IntegrationTestUsers.next());
+        String userToken = createUserAccessToken(IntegrationTestUsers.next());
+        String categoryId = createCategory(adminToken);
+        String tagId = createTag(adminToken, categoryId);
+
+        // when
+        MvcResult result =
+                mockMvc.perform(
+                                get(tagPathWithId(), tagId)
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(userToken)))
+                        .andExpect(status().isOk())
+                        .andReturn();
+
+        // then
+        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), TAG_CATEGORY_NAME_PATH))
                 .isEqualTo(CATEGORY_NAME);
+    }
+
+    private String createCategory(String adminToken) throws Exception {
+        String payload =
+                objectMapper.writeValueAsString(
+                        Map.of("name", CATEGORY_NAME, "color", CATEGORY_COLOR));
+        MvcResult result =
+                mockMvc.perform(
+                                post(adminCategoryPath())
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(adminToken))
+                                        .contentType(APPLICATION_JSON)
+                                        .content(payload))
+                        .andExpect(status().isCreated())
+                        .andReturn();
+        return JsonPath.read(result.getResponse().getContentAsString(), DATA_ID_PATH);
+    }
+
+    private String createTag(String adminToken, String categoryId) throws Exception {
+        String payload =
+                objectMapper.writeValueAsString(
+                        Map.of("name", TAG_NAME, "categoryId", categoryId));
+        MvcResult result =
+                mockMvc.perform(
+                                post(adminTagPath())
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(adminToken))
+                                        .contentType(APPLICATION_JSON)
+                                        .content(payload))
+                        .andExpect(status().isCreated())
+                        .andReturn();
+        return JsonPath.read(result.getResponse().getContentAsString(), DATA_ID_PATH);
     }
 }

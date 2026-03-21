@@ -3,6 +3,7 @@ package com.mimaja.job_finder_app.feature.integration.security.controller;
 import static com.mimaja.job_finder_app.core.test.ApiPath.authGoogleCheckUserExistencePath;
 import static com.mimaja.job_finder_app.core.test.ApiPath.authGoogleLoginPath;
 import static com.mimaja.job_finder_app.core.test.ApiPath.authGoogleRegisterPath;
+import static com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestConstants.CODE_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,7 +18,6 @@ import org.springframework.test.web.servlet.MvcResult;
 class GoogleAuthControllerIntegrationTest extends IntegrationTest {
     private static final String INVALID_GOOGLE_TOKEN = "invalid-token";
     private static final String INVALID_GOOGLE_ID = "INVALID_GOOGLE_ID";
-    private static final String CODE_PATH = "$.code";
     private static final String GOOGLE_TOKEN_KEY = "googleToken";
     private static final String SMS_CODE_KEY = "smsCode";
     private static final String USERNAME_KEY = "username";
@@ -27,24 +27,33 @@ class GoogleAuthControllerIntegrationTest extends IntegrationTest {
     private static final int EMPTY_SMS_CODE = 0;
 
     @Test
-    void ShouldReturnUnauthorized_WhenGoogleLoginTokenIsInvalid() throws Exception {
+    void shouldReturnInvalidGoogleIdCode_whenLoginTokenIsInvalid() throws Exception {
+        // given
         String payload =
                 objectMapper.writeValueAsString(
                         Map.of(GOOGLE_TOKEN_KEY, INVALID_GOOGLE_TOKEN, SMS_CODE_KEY, EMPTY_SMS_CODE));
 
+        // when
         MvcResult result =
-                mockMvc.perform(post(authGoogleLoginPath()).contentType(APPLICATION_JSON).content(payload))
+                mockMvc.perform(
+                                post(authGoogleLoginPath())
+                                        .contentType(APPLICATION_JSON)
+                                        .content(payload))
                         .andExpect(status().isUnauthorized())
                         .andReturn();
 
+        // then
         assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CODE_PATH))
                 .isEqualTo(INVALID_GOOGLE_ID);
     }
 
     @Test
-    void ShouldReturnUnauthorized_WhenGoogleCheckUserExistenceTokenIsInvalid() throws Exception {
-        String payload = objectMapper.writeValueAsString(Map.of(GOOGLE_TOKEN_KEY, INVALID_GOOGLE_TOKEN));
+    void shouldReturnInvalidGoogleIdCode_whenCheckUserExistenceTokenIsInvalid() throws Exception {
+        // given
+        String payload =
+                objectMapper.writeValueAsString(Map.of(GOOGLE_TOKEN_KEY, INVALID_GOOGLE_TOKEN));
 
+        // when
         MvcResult result =
                 mockMvc.perform(
                                 post(authGoogleCheckUserExistencePath())
@@ -53,22 +62,22 @@ class GoogleAuthControllerIntegrationTest extends IntegrationTest {
                         .andExpect(status().isUnauthorized())
                         .andReturn();
 
+        // then
         assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CODE_PATH))
                 .isEqualTo(INVALID_GOOGLE_ID);
     }
 
     @Test
-    void ShouldReturnUnauthorized_WhenGoogleRegisterTokenIsInvalid() throws Exception {
+    void shouldReturnInvalidGoogleIdCode_whenRegisterTokenIsInvalid() throws Exception {
+        // given
         String payload =
                 objectMapper.writeValueAsString(
                         Map.of(
-                                GOOGLE_TOKEN_KEY,
-                                INVALID_GOOGLE_TOKEN,
-                                USERNAME_KEY,
-                                SAMPLE_USERNAME,
-                                PHONE_NUMBER_KEY,
-                                SAMPLE_PHONE_NUMBER));
+                                GOOGLE_TOKEN_KEY, INVALID_GOOGLE_TOKEN,
+                                USERNAME_KEY, SAMPLE_USERNAME,
+                                PHONE_NUMBER_KEY, SAMPLE_PHONE_NUMBER));
 
+        // when
         MvcResult result =
                 mockMvc.perform(
                                 post(authGoogleRegisterPath())
@@ -77,6 +86,7 @@ class GoogleAuthControllerIntegrationTest extends IntegrationTest {
                         .andExpect(status().isUnauthorized())
                         .andReturn();
 
+        // then
         assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CODE_PATH))
                 .isEqualTo(INVALID_GOOGLE_ID);
     }

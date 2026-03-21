@@ -25,10 +25,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import com.mimaja.job_finder_app.core.test.IntegrationTest;
 import com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestUsers;
-import com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestUsers.TestUserCredentials;
-import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -43,65 +43,77 @@ class ProtectedRoutesIntegrationTest extends IntegrationTest {
     private static final int HTTP_UNAUTHORIZED = 401;
     private static final int HTTP_FORBIDDEN = 403;
 
-    @Test
-    void ShouldReturnUnauthorized_WhenProtectedEndpointsAreCalledWithoutAccessToken() throws Exception {
-        List<RouteCase> protectedRoutes =
-                List.of(
-                        new RouteCase(METHOD_GET, cvPath()),
-                        new RouteCase(METHOD_GET, offerPath()),
-                        new RouteCase(METHOD_GET, jobOwnerPath()),
-                        new RouteCase(METHOD_GET, jobContractorPath()),
-                        new RouteCase(METHOD_GET, categoryPath()),
-                        new RouteCase(METHOD_GET, tagPath()),
-                        new RouteCase(
-                                METHOD_GET,
-                                offerPath() + "/" + UUID.randomUUID() + "/application"),
-                        new RouteCase(METHOD_POST, profileCompletionFormPath()),
-                        new RouteCase(METHOD_PUT, passwordMobileUpdatePath()),
-                        new RouteCase(METHOD_PATCH, userUpdateEmailPath()),
-                        new RouteCase(METHOD_PATCH, userUpdatePhoneNumberPath()),
-                        new RouteCase(METHOD_DELETE, cvPath() + "/" + UUID.randomUUID()),
-                        new RouteCase(METHOD_DELETE, offerPath() + "/" + UUID.randomUUID()),
-                        new RouteCase(
-                                METHOD_GET,
-                                contractPathWithId().replace("{contractId}", UUID.randomUUID().toString())),
-                        new RouteCase(
-                                METHOD_POST,
-                                jobPathWithId().replace("{jobId}", UUID.randomUUID().toString())),
-                        new RouteCase(METHOD_POST, adminUserPath()),
-                        new RouteCase(METHOD_POST, adminTagPath()),
-                        new RouteCase(METHOD_POST, adminCategoryPath()));
+    @ParameterizedTest
+    @MethodSource("provideProtectedRoutes")
+    void shouldReturnUnauthorized_whenProtectedEndpointCalledWithoutToken(RouteCase routeCase)
+            throws Exception {
+        // given - no access token provided
 
-        for (RouteCase routeCase : protectedRoutes) {
-            MvcResult result = mockMvc.perform(buildRequest(routeCase)).andReturn();
-            int status = result.getResponse().getStatus();
-            assertThat(status)
-                    .withFailMessage("Expected 401 for %s %s but got %s", routeCase.method(), routeCase.path(), status)
-                    .isEqualTo(HTTP_UNAUTHORIZED);
-        }
+        // when
+        MvcResult result = mockMvc.perform(buildRequest(routeCase)).andReturn();
+
+        // then
+        assertThat(result.getResponse().getStatus())
+                .withFailMessage(
+                        "Expected 401 for %s %s but got %s",
+                        routeCase.method(), routeCase.path(), result.getResponse().getStatus())
+                .isEqualTo(HTTP_UNAUTHORIZED);
     }
 
-    @Test
-    void ShouldReturnForbidden_WhenUserWithoutAdminRoleCallsAdminEndpoints() throws Exception {
-        TestUserCredentials user = IntegrationTestUsers.next();
-        String accessToken = createUserAccessToken(user);
-        List<RouteCase> adminRoutes =
-                List.of(
-                        new RouteCase(METHOD_GET, adminUserPath()),
-                        new RouteCase(METHOD_POST, adminUserPath()),
-                        new RouteCase(METHOD_POST, adminTagPath()),
-                        new RouteCase(METHOD_POST, adminCategoryPath()));
+    @ParameterizedTest
+    @MethodSource("provideAdminRoutes")
+    void shouldReturnForbidden_whenNonAdminUserCallsAdminEndpoint(RouteCase routeCase)
+            throws Exception {
+        // given
+        String accessToken = createUserAccessToken(IntegrationTestUsers.next());
 
-        for (RouteCase routeCase : adminRoutes) {
-            MvcResult result =
-                    mockMvc.perform(buildRequest(routeCase).header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
-                            .andReturn();
-            assertThat(result.getResponse().getStatus())
-                    .withFailMessage(
-                            "Expected 403 for %s %s but got %s",
-                            routeCase.method(), routeCase.path(), result.getResponse().getStatus())
-                    .isEqualTo(HTTP_FORBIDDEN);
-        }
+        // when
+        MvcResult result =
+                mockMvc.perform(
+                                buildRequest(routeCase)
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                        .andReturn();
+
+        // then
+        assertThat(result.getResponse().getStatus())
+                .withFailMessage(
+                        "Expected 403 for %s %s but got %s",
+                        routeCase.method(), routeCase.path(), result.getResponse().getStatus())
+                .isEqualTo(HTTP_FORBIDDEN);
+    }
+
+    private static Stream<RouteCase> provideProtectedRoutes() {
+        return Stream.of(
+                new RouteCase(METHOD_GET, cvPath()),
+                new RouteCase(METHOD_GET, offerPath()),
+                new RouteCase(METHOD_GET, jobOwnerPath()),
+                new RouteCase(METHOD_GET, jobContractorPath()),
+                new RouteCase(METHOD_GET, categoryPath()),
+                new RouteCase(METHOD_GET, tagPath()),
+                new RouteCase(METHOD_GET, offerPath() + "/" + UUID.randomUUID() + "/application"),
+                new RouteCase(METHOD_POST, profileCompletionFormPath()),
+                new RouteCase(METHOD_PUT, passwordMobileUpdatePath()),
+                new RouteCase(METHOD_PATCH, userUpdateEmailPath()),
+                new RouteCase(METHOD_PATCH, userUpdatePhoneNumberPath()),
+                new RouteCase(METHOD_DELETE, cvPath() + "/" + UUID.randomUUID()),
+                new RouteCase(METHOD_DELETE, offerPath() + "/" + UUID.randomUUID()),
+                new RouteCase(
+                        METHOD_GET,
+                        contractPathWithId().replace("{contractId}", UUID.randomUUID().toString())),
+                new RouteCase(
+                        METHOD_POST,
+                        jobPathWithId().replace("{jobId}", UUID.randomUUID().toString())),
+                new RouteCase(METHOD_POST, adminUserPath()),
+                new RouteCase(METHOD_POST, adminTagPath()),
+                new RouteCase(METHOD_POST, adminCategoryPath()));
+    }
+
+    private static Stream<RouteCase> provideAdminRoutes() {
+        return Stream.of(
+                new RouteCase(METHOD_GET, adminUserPath()),
+                new RouteCase(METHOD_POST, adminUserPath()),
+                new RouteCase(METHOD_POST, adminTagPath()),
+                new RouteCase(METHOD_POST, adminCategoryPath()));
     }
 
     private MockHttpServletRequestBuilder buildRequest(RouteCase routeCase) {

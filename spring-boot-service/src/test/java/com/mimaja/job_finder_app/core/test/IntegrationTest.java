@@ -9,14 +9,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import com.mimaja.job_finder_app.feature.application.repository.ApplicationRepository;
+import com.mimaja.job_finder_app.feature.contract.repository.ContractRepository;
+import com.mimaja.job_finder_app.feature.cv.repository.CvRepository;
 import com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestUsers.TestUserCredentials;
+import com.mimaja.job_finder_app.feature.job.repository.JobRepository;
+import com.mimaja.job_finder_app.feature.offer.repository.OfferRepository;
+import com.mimaja.job_finder_app.feature.offer.tag.category.repository.CategoryRepository;
+import com.mimaja.job_finder_app.feature.offer.tag.repository.TagRepository;
 import com.mimaja.job_finder_app.feature.user.model.UserRole;
+import com.mimaja.job_finder_app.feature.user.profilephoto.repository.ProfilePhotoRepository;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +94,27 @@ public abstract class IntegrationTest {
     @Autowired protected MockMvc mockMvc;
     @Autowired protected ObjectMapper objectMapper;
     @Autowired protected UserRepository userRepository;
+    @Autowired private ApplicationRepository applicationRepository;
+    @Autowired private JobRepository jobRepository;
+    @Autowired private OfferRepository offerRepository;
+    @Autowired private ContractRepository contractRepository;
+    @Autowired private CvRepository cvRepository;
+    @Autowired private ProfilePhotoRepository profilePhotoRepository;
+    @Autowired private TagRepository tagRepository;
+    @Autowired private CategoryRepository categoryRepository;
+
+    @AfterEach
+    void tearDown() {
+        applicationRepository.deleteAllInBatch();
+        jobRepository.deleteAll();
+        offerRepository.deleteAll();
+        contractRepository.deleteAllInBatch();
+        cvRepository.deleteAllInBatch();
+        profilePhotoRepository.deleteAllInBatch();
+        tagRepository.deleteAllInBatch();
+        categoryRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+    }
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
