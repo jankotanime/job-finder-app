@@ -3,7 +3,6 @@ package com.mimaja.job_finder_app.feature.unit.user.update.password.website.serv
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_EMAIL;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_NEW_HASHED_PASSWORD;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_NEW_PASSWORD;
-import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_OLD_HASHED_PASSWORD;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUserWithPassword;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
