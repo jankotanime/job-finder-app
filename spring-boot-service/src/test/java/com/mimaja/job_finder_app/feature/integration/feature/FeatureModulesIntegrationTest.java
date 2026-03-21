@@ -43,7 +43,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(offerPath())
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isOk())
                         .andReturn();
 
@@ -61,7 +63,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(cvPath())
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isOk())
                         .andReturn();
 
@@ -79,7 +83,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(jobOwnerPath())
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isOk())
                         .andReturn();
 
@@ -97,7 +103,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(jobContractorPath())
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isOk())
                         .andReturn();
 
@@ -115,7 +123,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(categoryPath())
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isOk())
                         .andReturn();
 
@@ -133,7 +143,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(tagPath())
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isOk())
                         .andReturn();
 
@@ -152,7 +164,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(offerPathWithId(), unknownId)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isNotFound())
                         .andReturn();
 
@@ -171,7 +185,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(contractPathWithId(), unknownId)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isNotFound())
                         .andReturn();
 
@@ -190,7 +206,9 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 get(offerApplicationPathWithIds(), unknownId, unknownId)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andExpect(status().isNotFound())
                         .andReturn();
 
@@ -200,7 +218,8 @@ class FeatureModulesIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    void shouldReturnWrongLoginDataCode_whenPasswordResetRequestedForUnknownEmail() throws Exception {
+    void shouldReturnWrongLoginDataCode_whenPasswordResetRequestedForUnknownEmail()
+            throws Exception {
         // given
         String payload = objectMapper.writeValueAsString(Map.of("loginData", UNKNOWN_LOGIN_DATA));
 

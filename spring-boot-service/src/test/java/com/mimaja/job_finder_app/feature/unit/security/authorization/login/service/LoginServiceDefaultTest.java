@@ -1,5 +1,11 @@
 package com.mimaja.job_finder_app.feature.unit.security.authorization.login.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
@@ -9,7 +15,7 @@ import com.mimaja.job_finder_app.security.authorization.login.utils.DefaultLogin
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
 import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
 import com.mimaja.job_finder_app.security.token.refreshToken.service.RefreshTokenServiceDefault;
-
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,29 +24,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
-import java.util.UUID;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("LoginServiceDefault - Unit Tests")
 class LoginServiceDefaultTest {
+    @InjectMocks private LoginServiceDefault loginService;
 
-    @InjectMocks
-    private LoginServiceDefault loginService;
+    @Mock private DefaultLoginValidation defaultLoginValidation;
 
-    @Mock
-    private DefaultLoginValidation defaultLoginValidation;
+    @Mock private PasswordConfiguration passwordConfiguration;
 
-    @Mock
-    private PasswordConfiguration passwordConfiguration;
-
-    @Mock
-    private RefreshTokenServiceDefault refreshTokenServiceDefault;
+    @Mock private RefreshTokenServiceDefault refreshTokenServiceDefault;
 
     private User testUser;
     private TokenResponseDto testTokenResponse;
@@ -61,10 +54,7 @@ class LoginServiceDefaultTest {
 
     private TokenResponseDto createTestTokenResponse() {
         return new TokenResponseDto(
-            "access_token_value",
-            "refresh_token_value",
-            "refresh_token_id_value"
-        );
+                "access_token_value", "refresh_token_value", "refresh_token_id_value");
     }
 
     private LoginRequestDto createValidLoginRequest() {
@@ -84,7 +74,8 @@ class LoginServiceDefaultTest {
     void testTryToLogin_WithValidCredentials_ShouldReturnToken() {
         LoginRequestDto validRequest = createValidLoginRequest();
         when(defaultLoginValidation.userValidation("user@example.com")).thenReturn(testUser);
-        when(passwordConfiguration.verifyPassword("password123", testUser.getPasswordHash())).thenReturn(true);
+        when(passwordConfiguration.verifyPassword("password123", testUser.getPasswordHash()))
+                .thenReturn(true);
         when(refreshTokenServiceDefault.createTokensSet(testUser)).thenReturn(testTokenResponse);
 
         TokenResponseDto result = loginService.tryToLogin(validRequest);
@@ -92,14 +83,10 @@ class LoginServiceDefaultTest {
         assertNotNull(result, "Response should not be null");
         assertNotNull(result.accessToken(), "Access token should not be null");
         assertFalse(result.accessToken().isEmpty(), "Access token should not be empty");
-        assertThat(result.accessToken())
-                .as("Access token should have valid format")
-                .isNotBlank();
+        assertThat(result.accessToken()).as("Access token should have valid format").isNotBlank();
         assertNotNull(result.refreshToken(), "Refresh token should not be null");
         assertFalse(result.refreshToken().isEmpty(), "Refresh token should not be empty");
-        assertThat(result.refreshToken())
-                .as("Refresh token should have valid format")
-                .isNotBlank();
+        assertThat(result.refreshToken()).as("Refresh token should have valid format").isNotBlank();
         assertNotNull(result.refreshTokenId(), "Refresh token ID should not be null");
         assertFalse(result.refreshTokenId().isEmpty(), "Refresh token ID should not be empty");
         assertThat(result.refreshTokenId())
@@ -120,7 +107,8 @@ class LoginServiceDefaultTest {
     @DisplayName("Should throw BusinessException for empty login data")
     void testTryToLogin_WithEmptyLoginData_ShouldThrowException() {
         LoginRequestDto invalidRequest = createLoginRequestWithLoginData("");
-        when(defaultLoginValidation.userValidation("")).thenThrow(new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA));
+        when(defaultLoginValidation.userValidation(""))
+                .thenThrow(new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA));
 
         assertThrows(
                 BusinessException.class,
@@ -133,7 +121,8 @@ class LoginServiceDefaultTest {
     void testTryToLogin_WithEmptyPassword_ShouldThrowException() {
         LoginRequestDto invalidRequest = createLoginRequestWithPassword("");
         when(defaultLoginValidation.userValidation("user@example.com")).thenReturn(testUser);
-        when(passwordConfiguration.verifyPassword("", testUser.getPasswordHash())).thenReturn(false);
+        when(passwordConfiguration.verifyPassword("", testUser.getPasswordHash()))
+                .thenReturn(false);
 
         assertThrows(
                 BusinessException.class,
@@ -145,7 +134,8 @@ class LoginServiceDefaultTest {
     @DisplayName("Should throw BusinessException for null login data")
     void testTryToLogin_WithNullLoginData_ShouldThrowException() {
         LoginRequestDto invalidRequest = createLoginRequestWithLoginData(null);
-        when(defaultLoginValidation.userValidation(null)).thenThrow(new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA));
+        when(defaultLoginValidation.userValidation(null))
+                .thenThrow(new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA));
 
         assertThrows(
                 BusinessException.class,
@@ -158,7 +148,8 @@ class LoginServiceDefaultTest {
     void testTryToLogin_WithNullPassword_ShouldThrowException() {
         LoginRequestDto invalidRequest = createLoginRequestWithPassword(null);
         when(defaultLoginValidation.userValidation("user@example.com")).thenReturn(testUser);
-        when(passwordConfiguration.verifyPassword(null, testUser.getPasswordHash())).thenReturn(false);
+        when(passwordConfiguration.verifyPassword(null, testUser.getPasswordHash()))
+                .thenReturn(false);
 
         assertThrows(
                 BusinessException.class,
@@ -171,7 +162,8 @@ class LoginServiceDefaultTest {
     void testTryToLogin_WithWrongPassword_ShouldThrowException() {
         LoginRequestDto invalidRequest = createLoginRequestWithPassword("wrongpassword");
         when(defaultLoginValidation.userValidation("user@example.com")).thenReturn(testUser);
-        when(passwordConfiguration.verifyPassword("wrongpassword", testUser.getPasswordHash())).thenReturn(false);
+        when(passwordConfiguration.verifyPassword("wrongpassword", testUser.getPasswordHash()))
+                .thenReturn(false);
 
         assertThrows(
                 BusinessException.class,
@@ -186,7 +178,8 @@ class LoginServiceDefaultTest {
         User userWithoutPassword = createTestUser();
         userWithoutPassword.setPasswordHash(null);
 
-        when(defaultLoginValidation.userValidation("user@example.com")).thenReturn(userWithoutPassword);
+        when(defaultLoginValidation.userValidation("user@example.com"))
+                .thenReturn(userWithoutPassword);
 
         assertThrows(
                 BusinessException.class,
@@ -199,14 +192,13 @@ class LoginServiceDefaultTest {
     void testTryToLogin_WithValidCredentials_ShouldReturnProperTokenStructure() {
         LoginRequestDto validRequest = createValidLoginRequest();
         when(defaultLoginValidation.userValidation("user@example.com")).thenReturn(testUser);
-        when(passwordConfiguration.verifyPassword("password123", testUser.getPasswordHash())).thenReturn(true);
+        when(passwordConfiguration.verifyPassword("password123", testUser.getPasswordHash()))
+                .thenReturn(true);
         when(refreshTokenServiceDefault.createTokensSet(testUser)).thenReturn(testTokenResponse);
 
         TokenResponseDto result = loginService.tryToLogin(validRequest);
 
-        assertThat(result)
-                .as("Token response should not be null")
-                .isNotNull();
+        assertThat(result).as("Token response should not be null").isNotNull();
         assertThat(result.accessToken())
                 .as("Access token should be present and not empty")
                 .isNotEmpty();

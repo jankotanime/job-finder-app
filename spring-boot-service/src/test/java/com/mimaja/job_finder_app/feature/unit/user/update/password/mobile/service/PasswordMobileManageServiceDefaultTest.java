@@ -15,12 +15,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.model.User;
@@ -30,10 +24,14 @@ import com.mimaja.job_finder_app.feature.user.update.password.utils.PasswordMana
 import com.mimaja.job_finder_app.feature.user.update.shared.requestDto.UpdatePasswordRequestDto;
 import com.mimaja.job_finder_app.security.configuration.PasswordConfiguration;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class PasswordMobileManageServiceDefaultTest {
-
     private static final String TEST_WRONG_PASSWORD = "wrongPassword";
 
     @Mock private UserRepository userRepository;
@@ -48,8 +46,9 @@ class PasswordMobileManageServiceDefaultTest {
     void setUp() {
         testUser = createTestUserWithPassword();
         testPrincipal = JwtPrincipal.from(testUser);
-        passwordService = new PasswordMobileManageServiceDefault(
-                userRepository, passwordConfiguration, passwordManageDataManager);
+        passwordService =
+                new PasswordMobileManageServiceDefault(
+                        userRepository, passwordConfiguration, passwordManageDataManager);
     }
 
     @Test
@@ -84,8 +83,13 @@ class PasswordMobileManageServiceDefaultTest {
     void updatePassword_shouldThrowExceptionWithWrongPasswordCode_whenOldPasswordIsWrong() {
         when(passwordConfiguration.verifyPassword(TEST_WRONG_PASSWORD, TEST_OLD_HASHED_PASSWORD))
                 .thenReturn(false);
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> passwordService.updatePassword(createRequestWithOldPassword(TEST_WRONG_PASSWORD), testPrincipal));
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                passwordService.updatePassword(
+                                        createRequestWithOldPassword(TEST_WRONG_PASSWORD),
+                                        testPrincipal));
         assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.WRONG_PASSWORD.getCode());
     }
 
@@ -93,8 +97,11 @@ class PasswordMobileManageServiceDefaultTest {
     void updatePassword_shouldNotCheckPatterns_whenOldPasswordIsWrong() {
         when(passwordConfiguration.verifyPassword(TEST_WRONG_PASSWORD, TEST_OLD_HASHED_PASSWORD))
                 .thenReturn(false);
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePassword(createRequestWithOldPassword(TEST_WRONG_PASSWORD), testPrincipal));
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePassword(
+                                createRequestWithOldPassword(TEST_WRONG_PASSWORD), testPrincipal));
         verify(passwordManageDataManager, never()).checkDataPatterns(anyString());
     }
 
@@ -102,27 +109,40 @@ class PasswordMobileManageServiceDefaultTest {
     void updatePassword_shouldNotSaveUser_whenOldPasswordIsWrong() {
         when(passwordConfiguration.verifyPassword(TEST_WRONG_PASSWORD, TEST_OLD_HASHED_PASSWORD))
                 .thenReturn(false);
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePassword(createRequestWithOldPassword(TEST_WRONG_PASSWORD), testPrincipal));
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePassword(
+                                createRequestWithOldPassword(TEST_WRONG_PASSWORD), testPrincipal));
         verify(userRepository, never()).save(any());
     }
 
     @Test
     void updatePassword_shouldThrowBusinessException_whenPatternValidationFails() {
-        when(passwordConfiguration.verifyPassword(TEST_OLD_PASSWORD, TEST_OLD_HASHED_PASSWORD)).thenReturn(true);
+        when(passwordConfiguration.verifyPassword(TEST_OLD_PASSWORD, TEST_OLD_HASHED_PASSWORD))
+                .thenReturn(true);
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_PATTERN))
-                .when(passwordManageDataManager).checkDataPatterns("weak");
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePassword(createRequestWithNewPassword("weak"), testPrincipal));
+                .when(passwordManageDataManager)
+                .checkDataPatterns("weak");
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePassword(
+                                createRequestWithNewPassword("weak"), testPrincipal));
     }
 
     @Test
     void updatePassword_shouldNotEncodePassword_whenPatternValidationFails() {
-        when(passwordConfiguration.verifyPassword(TEST_OLD_PASSWORD, TEST_OLD_HASHED_PASSWORD)).thenReturn(true);
+        when(passwordConfiguration.verifyPassword(TEST_OLD_PASSWORD, TEST_OLD_HASHED_PASSWORD))
+                .thenReturn(true);
         doThrow(new BusinessException(BusinessExceptionReason.INVALID_PASSWORD_PATTERN))
-                .when(passwordManageDataManager).checkDataPatterns("weak");
-        assertThrows(BusinessException.class,
-                () -> passwordService.updatePassword(createRequestWithNewPassword("weak"), testPrincipal));
+                .when(passwordManageDataManager)
+                .checkDataPatterns("weak");
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        passwordService.updatePassword(
+                                createRequestWithNewPassword("weak"), testPrincipal));
         verify(passwordConfiguration, never()).encodePassword(anyString());
     }
 
@@ -130,14 +150,18 @@ class PasswordMobileManageServiceDefaultTest {
     void updatePassword_shouldThrowBusinessException_whenSaveFails() {
         setupValidPasswordMocks();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userRepository).save(testUser);
-        assertThrows(BusinessException.class,
+                .when(userRepository)
+                .save(testUser);
+        assertThrows(
+                BusinessException.class,
                 () -> passwordService.updatePassword(createValidRequest(), testPrincipal));
     }
 
     private void setupValidPasswordMocks() {
-        when(passwordConfiguration.verifyPassword(TEST_OLD_PASSWORD, TEST_OLD_HASHED_PASSWORD)).thenReturn(true);
-        when(passwordConfiguration.encodePassword(TEST_NEW_PASSWORD)).thenReturn(TEST_NEW_HASHED_PASSWORD);
+        when(passwordConfiguration.verifyPassword(TEST_OLD_PASSWORD, TEST_OLD_HASHED_PASSWORD))
+                .thenReturn(true);
+        when(passwordConfiguration.encodePassword(TEST_NEW_PASSWORD))
+                .thenReturn(TEST_NEW_HASHED_PASSWORD);
     }
 
     private UpdatePasswordRequestDto createValidRequest() {

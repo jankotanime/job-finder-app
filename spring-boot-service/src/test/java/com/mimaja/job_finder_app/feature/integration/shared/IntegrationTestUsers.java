@@ -17,5 +17,6 @@ public final class IntegrationTestUsers {
                 IntegrationTestConstants.DEFAULT_PASSWORD);
     }
 
-    public record TestUserCredentials(String username, String email, int phoneNumber, String password) {}
+    public record TestUserCredentials(
+            String username, String email, int phoneNumber, String password) {}
 }

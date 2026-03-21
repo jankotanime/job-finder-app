@@ -9,11 +9,21 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
+import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
+import com.mimaja.job_finder_app.feature.user.model.User;
+import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
+import com.mimaja.job_finder_app.security.encoder.RefreshTokenEncoder;
+import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
+import com.mimaja.job_finder_app.security.token.accessToken.dto.response.CreateAccessTokenResponseDto;
+import com.mimaja.job_finder_app.security.token.accessToken.service.AccessTokenService;
+import com.mimaja.job_finder_app.security.token.refreshToken.dto.request.RequestRefreshTokenRotateDto;
+import com.mimaja.job_finder_app.security.token.refreshToken.dto.response.RefreshTokenResponseDto;
+import com.mimaja.job_finder_app.security.token.refreshToken.service.RefreshTokenServiceDefault;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,23 +33,10 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
-import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
-import com.mimaja.job_finder_app.feature.user.model.User;
-import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
-import com.mimaja.job_finder_app.security.encoder.RefreshTokenEncoder;
-import com.mimaja.job_finder_app.security.token.accessToken.dto.response.CreateAccessTokenResponseDto;
-import com.mimaja.job_finder_app.security.token.accessToken.service.AccessTokenService;
-import com.mimaja.job_finder_app.security.token.refreshToken.dto.request.RequestRefreshTokenRotateDto;
-import com.mimaja.job_finder_app.security.token.refreshToken.dto.response.RefreshTokenResponseDto;
-import com.mimaja.job_finder_app.security.token.refreshToken.service.RefreshTokenServiceDefault;
-import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
-
 @ExtendWith(MockitoExtension.class)
 class RefreshTokenServiceDefaultTest {
-
-    private static final String TEST_HASHED_TOKEN  = "hashed-token-value";
-    private static final String TEST_ACCESS_TOKEN  = "test-access-token";
+    private static final String TEST_HASHED_TOKEN = "hashed-token-value";
+    private static final String TEST_ACCESS_TOKEN = "test-access-token";
     private static final String TEST_ENCODED_TOKEN = "encoded-test-token";
 
     @Mock private StringRedisTemplate redisTemplate;
@@ -56,8 +53,9 @@ class RefreshTokenServiceDefaultTest {
     void setUp() {
         testUser = createTestUser();
         doReturn(hashOps).when(redisTemplate).opsForHash();
-        refreshTokenService = new RefreshTokenServiceDefault(
-                redisTemplate, refreshTokenEncoder, accessTokenService, userRepository);
+        refreshTokenService =
+                new RefreshTokenServiceDefault(
+                        redisTemplate, refreshTokenEncoder, accessTokenService, userRepository);
     }
 
     @Test
@@ -140,8 +138,9 @@ class RefreshTokenServiceDefaultTest {
         String refreshTokenId = UUID.randomUUID().toString();
         String refreshToken = "valid-refresh-token";
         setupValidRotateTokenMocks(refreshTokenId, refreshToken);
-        TokenResponseDto result = refreshTokenService.rotateToken(
-                new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId));
+        TokenResponseDto result =
+                refreshTokenService.rotateToken(
+                        new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId));
         assertThat(result.accessToken()).isEqualTo("new-access-token");
     }
 
@@ -150,8 +149,9 @@ class RefreshTokenServiceDefaultTest {
         String refreshTokenId = UUID.randomUUID().toString();
         String refreshToken = "valid-refresh-token";
         setupValidRotateTokenMocks(refreshTokenId, refreshToken);
-        TokenResponseDto result = refreshTokenService.rotateToken(
-                new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId));
+        TokenResponseDto result =
+                refreshTokenService.rotateToken(
+                        new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId));
         assertThat(result.refreshToken()).isNotBlank();
     }
 
@@ -160,7 +160,8 @@ class RefreshTokenServiceDefaultTest {
         String refreshTokenId = UUID.randomUUID().toString();
         String refreshToken = "valid-refresh-token";
         setupValidRotateTokenMocks(refreshTokenId, refreshToken);
-        refreshTokenService.rotateToken(new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId));
+        refreshTokenService.rotateToken(
+                new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId));
         verify(redisTemplate, times(1)).delete("RefreshToken-" + refreshTokenId);
     }
 
@@ -169,7 +170,8 @@ class RefreshTokenServiceDefaultTest {
         String refreshTokenId = UUID.randomUUID().toString();
         String refreshToken = "valid-refresh-token";
         setupValidRotateTokenMocks(refreshTokenId, refreshToken);
-        refreshTokenService.rotateToken(new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId));
+        refreshTokenService.rotateToken(
+                new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId));
         verify(accessTokenService, times(1)).createToken(testUser);
     }
 
@@ -178,12 +180,22 @@ class RefreshTokenServiceDefaultTest {
         String refreshTokenId = UUID.randomUUID().toString();
         String invalidToken = "invalid-refresh-token";
         when(hashOps.entries("RefreshToken-" + refreshTokenId))
-                .thenReturn(Map.of("userId", testUser.getId().toString(), "tokenValue", TEST_HASHED_TOKEN));
+                .thenReturn(
+                        Map.of(
+                                "userId",
+                                testUser.getId().toString(),
+                                "tokenValue",
+                                TEST_HASHED_TOKEN));
         when(refreshTokenEncoder.verifyToken(invalidToken, TEST_HASHED_TOKEN)).thenReturn(false);
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> refreshTokenService.rotateToken(
-                        new RequestRefreshTokenRotateDto(invalidToken, refreshTokenId)));
-        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.INVALID_REFRESH_TOKEN.getCode());
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                refreshTokenService.rotateToken(
+                                        new RequestRefreshTokenRotateDto(
+                                                invalidToken, refreshTokenId)));
+        assertThat(exception.getCode())
+                .isEqualTo(BusinessExceptionReason.INVALID_REFRESH_TOKEN.getCode());
     }
 
     @Test
@@ -192,18 +204,33 @@ class RefreshTokenServiceDefaultTest {
         String refreshToken = "valid-refresh-token";
         UUID nonExistentUserId = UUID.randomUUID();
         when(hashOps.entries("RefreshToken-" + refreshTokenId))
-                .thenReturn(Map.of("userId", nonExistentUserId.toString(), "tokenValue", TEST_HASHED_TOKEN));
+                .thenReturn(
+                        Map.of(
+                                "userId",
+                                nonExistentUserId.toString(),
+                                "tokenValue",
+                                TEST_HASHED_TOKEN));
         when(refreshTokenEncoder.verifyToken(refreshToken, TEST_HASHED_TOKEN)).thenReturn(true);
         when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> refreshTokenService.rotateToken(
-                        new RequestRefreshTokenRotateDto(refreshToken, refreshTokenId)));
-        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.INVALID_REFRESH_TOKEN.getCode());
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                refreshTokenService.rotateToken(
+                                        new RequestRefreshTokenRotateDto(
+                                                refreshToken, refreshTokenId)));
+        assertThat(exception.getCode())
+                .isEqualTo(BusinessExceptionReason.INVALID_REFRESH_TOKEN.getCode());
     }
 
     private void setupValidRotateTokenMocks(String refreshTokenId, String refreshToken) {
         when(hashOps.entries("RefreshToken-" + refreshTokenId))
-                .thenReturn(Map.of("userId", testUser.getId().toString(), "tokenValue", TEST_HASHED_TOKEN));
+                .thenReturn(
+                        Map.of(
+                                "userId",
+                                testUser.getId().toString(),
+                                "tokenValue",
+                                TEST_HASHED_TOKEN));
         when(refreshTokenEncoder.verifyToken(refreshToken, TEST_HASHED_TOKEN)).thenReturn(true);
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(accessTokenService.createToken(testUser))

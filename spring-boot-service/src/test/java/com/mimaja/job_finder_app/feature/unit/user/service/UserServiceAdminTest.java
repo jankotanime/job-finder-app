@@ -13,20 +13,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
@@ -38,13 +24,24 @@ import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.service.UserDeletionService;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
 import com.mimaja.job_finder_app.feature.user.service.UserServiceAdmin;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceAdminTest {
-
     private static final String TEST_NEW_USERNAME = "newuser";
-    private static final String TEST_NEW_EMAIL    = "newuser@example.com";
-    private static final int    TEST_NEW_PHONE    = 987654321;
+    private static final String TEST_NEW_EMAIL = "newuser@example.com";
+    private static final int TEST_NEW_PHONE = 987654321;
     private static final String TEST_RAW_PASSWORD = "rawPassword";
 
     @Mock private UserService userService;
@@ -64,7 +61,8 @@ class UserServiceAdminTest {
 
     @Test
     void getAllUsers_shouldReturnNonEmptyPage_whenUsersExist() {
-        UserFilterRequestDto filterDto = new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
+        UserFilterRequestDto filterDto =
+                new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
         Pageable pageable = PageRequest.of(0, 10);
         when(userService.getAllUsers(filterDto, pageable))
                 .thenReturn(new PageImpl<>(List.of(testUser), pageable, 1));
@@ -75,7 +73,8 @@ class UserServiceAdminTest {
 
     @Test
     void getAllUsers_shouldCallGetAllUsers_whenGettingUsers() {
-        UserFilterRequestDto filterDto = new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
+        UserFilterRequestDto filterDto =
+                new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
         Pageable pageable = PageRequest.of(0, 10);
         when(userService.getAllUsers(filterDto, pageable))
                 .thenReturn(new PageImpl<>(List.of(testUser), pageable, 1));
@@ -86,7 +85,8 @@ class UserServiceAdminTest {
 
     @Test
     void getAllUsers_shouldCallMapper_whenMappingUsers() {
-        UserFilterRequestDto filterDto = new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
+        UserFilterRequestDto filterDto =
+                new UserFilterRequestDto(TEST_USERNAME, TEST_EMAIL, null, null);
         Pageable pageable = PageRequest.of(0, 10);
         when(userService.getAllUsers(filterDto, pageable))
                 .thenReturn(new PageImpl<>(List.of(testUser), pageable, 1));
@@ -142,15 +142,19 @@ class UserServiceAdminTest {
     @Test
     void createUser_shouldThrowBusinessException_whenUserServiceFails() {
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userService).createUser(any());
-        assertThrows(BusinessException.class, () -> userServiceAdmin.createUser(createValidCreateDto()));
+                .when(userService)
+                .createUser(any());
+        assertThrows(
+                BusinessException.class, () -> userServiceAdmin.createUser(createValidCreateDto()));
     }
 
     @Test
     void createUser_shouldNotCallMapper_whenUserServiceFails() {
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userService).createUser(any());
-        assertThrows(BusinessException.class, () -> userServiceAdmin.createUser(createValidCreateDto()));
+                .when(userService)
+                .createUser(any());
+        assertThrows(
+                BusinessException.class, () -> userServiceAdmin.createUser(createValidCreateDto()));
         verify(userMapper, never()).toUserAdminPanelResponseDto(any());
     }
 
@@ -159,7 +163,8 @@ class UserServiceAdminTest {
         UUID userId = testUser.getId();
         when(userService.updateUser(userId, createValidUpdateDto())).thenReturn(testUser);
         when(userMapper.toUserAdminPanelResponseDto(testUser)).thenReturn(testResponseDto);
-        UserAdminPanelResponseDto result = userServiceAdmin.updateUser(userId, createValidUpdateDto());
+        UserAdminPanelResponseDto result =
+                userServiceAdmin.updateUser(userId, createValidUpdateDto());
         assertThat(result).isNotNull();
     }
 
@@ -187,16 +192,22 @@ class UserServiceAdminTest {
     void updateUser_shouldThrowBusinessException_whenUserServiceFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userService).updateUser(any(), any());
-        assertThrows(BusinessException.class, () -> userServiceAdmin.updateUser(userId, createValidUpdateDto()));
+                .when(userService)
+                .updateUser(any(), any());
+        assertThrows(
+                BusinessException.class,
+                () -> userServiceAdmin.updateUser(userId, createValidUpdateDto()));
     }
 
     @Test
     void updateUser_shouldNotCallMapper_whenUserServiceFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userService).updateUser(any(), any());
-        assertThrows(BusinessException.class, () -> userServiceAdmin.updateUser(userId, createValidUpdateDto()));
+                .when(userService)
+                .updateUser(any(), any());
+        assertThrows(
+                BusinessException.class,
+                () -> userServiceAdmin.updateUser(userId, createValidUpdateDto()));
         verify(userMapper, never()).toUserAdminPanelResponseDto(any());
     }
 
@@ -211,27 +222,43 @@ class UserServiceAdminTest {
     void deleteUser_shouldThrowBusinessException_whenDeletionServiceFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-                .when(userDeletionService).deleteUser(userId);
+                .when(userDeletionService)
+                .deleteUser(userId);
         assertThrows(BusinessException.class, () -> userServiceAdmin.deleteUser(userId));
     }
 
     private UserAdminPanelCreateRequestDto createValidCreateDto() {
         return new UserAdminPanelCreateRequestDto(
-                TEST_NEW_USERNAME, TEST_NEW_EMAIL, TEST_NEW_PHONE,
-                TEST_RAW_PASSWORD, "Jane", "Smith", "New user profile");
+                TEST_NEW_USERNAME,
+                TEST_NEW_EMAIL,
+                TEST_NEW_PHONE,
+                TEST_RAW_PASSWORD,
+                "Jane",
+                "Smith",
+                "New user profile");
     }
 
     private UserAdminPanelUpdateRequestDto createValidUpdateDto() {
         return new UserAdminPanelUpdateRequestDto(
-                "updateduser", "updated@example.com", 111111111,
-                "Updated", "User", "Updated profile");
+                "updateduser",
+                "updated@example.com",
+                111111111,
+                "Updated",
+                "User",
+                "Updated profile");
     }
 
     private UserAdminPanelResponseDto createTestResponseDto() {
         return new UserAdminPanelResponseDto(
-                UUID.randomUUID(), TEST_USERNAME, TEST_EMAIL,
-                "John", "Doe", TEST_PHONE,
-                "Test admin profile description", null,
-                LocalDateTime.now(), LocalDateTime.now());
+                UUID.randomUUID(),
+                TEST_USERNAME,
+                TEST_EMAIL,
+                "John",
+                "Doe",
+                TEST_PHONE,
+                "Test admin profile description",
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now());
     }
 }

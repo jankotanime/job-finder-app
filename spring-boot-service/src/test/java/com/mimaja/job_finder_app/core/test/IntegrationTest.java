@@ -1,8 +1,8 @@
 package com.mimaja.job_finder_app.core.test;
 
 import static com.mimaja.job_finder_app.core.test.ApiPath.authLoginPath;
-import static com.mimaja.job_finder_app.core.test.ApiPath.profileCompletionFormPath;
 import static com.mimaja.job_finder_app.core.test.ApiPath.authRegisterPath;
+import static com.mimaja.job_finder_app.core.test.ApiPath.profileCompletionFormPath;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,9 +29,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -152,7 +152,10 @@ public abstract class IntegrationTest {
                                 "password", user.password()));
 
         MvcResult result =
-                mockMvc.perform(post(authRegisterPath()).contentType(APPLICATION_JSON).content(payload))
+                mockMvc.perform(
+                                post(authRegisterPath())
+                                        .contentType(APPLICATION_JSON)
+                                        .content(payload))
                         .andExpect(status().isOk())
                         .andReturn();
 
@@ -165,7 +168,10 @@ public abstract class IntegrationTest {
                         Map.of("loginData", loginData, "password", password));
 
         MvcResult result =
-                mockMvc.perform(post(authLoginPath()).contentType(APPLICATION_JSON).content(payload))
+                mockMvc.perform(
+                                post(authLoginPath())
+                                        .contentType(APPLICATION_JSON)
+                                        .content(payload))
                         .andExpect(status().isOk())
                         .andReturn();
 
@@ -223,7 +229,8 @@ public abstract class IntegrationTest {
                         .andExpect(status().isOk())
                         .andReturn();
 
-        return JsonPath.read(result.getResponse().getContentAsString(), PROFILE_FORM_ACCESS_TOKEN_PATH);
+        return JsonPath.read(
+                result.getResponse().getContentAsString(), PROFILE_FORM_ACCESS_TOKEN_PATH);
     }
 
     private static Path createSecretFile(String content) {
@@ -233,7 +240,8 @@ public abstract class IntegrationTest {
             file.toFile().deleteOnExit();
             return file;
         } catch (IOException exception) {
-            throw new IllegalStateException("Cannot create secret file for integration tests", exception);
+            throw new IllegalStateException(
+                    "Cannot create secret file for integration tests", exception);
         }
     }
 }

@@ -93,7 +93,9 @@ class AuthenticationFlowIntegrationTest extends IntegrationTest {
                         .andReturn();
 
         // then
-        assertThat(JsonPath.<String>read(result.getResponse().getContentAsString(), ACCESS_TOKEN_PATH))
+        assertThat(
+                        JsonPath.<String>read(
+                                result.getResponse().getContentAsString(), ACCESS_TOKEN_PATH))
                 .isNotBlank();
     }
 
@@ -118,7 +120,8 @@ class AuthenticationFlowIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    void shouldReturnInvalidPasswordLengthMessage_whenRegisteringWithWeakPassword() throws Exception {
+    void shouldReturnInvalidPasswordLengthMessage_whenRegisteringWithWeakPassword()
+            throws Exception {
         // given
         TestUserCredentials user = IntegrationTestUsers.next();
         String payload = buildRegisterPayloadWithPassword(user, WEAK_PASSWORD);

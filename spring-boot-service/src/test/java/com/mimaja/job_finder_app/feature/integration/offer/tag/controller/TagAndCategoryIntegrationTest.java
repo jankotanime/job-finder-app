@@ -43,7 +43,11 @@ class TagAndCategoryIntegrationTest extends IntegrationTest {
                         .andReturn();
 
         // then
-        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CATEGORY_NAME_PATH))
+        assertThat(
+                        (String)
+                                JsonPath.read(
+                                        result.getResponse().getContentAsString(),
+                                        CATEGORY_NAME_PATH))
                 .isEqualTo(CATEGORY_NAME);
     }
 
@@ -85,7 +89,11 @@ class TagAndCategoryIntegrationTest extends IntegrationTest {
                         .andReturn();
 
         // then
-        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), TAG_CATEGORY_NAME_PATH))
+        assertThat(
+                        (String)
+                                JsonPath.read(
+                                        result.getResponse().getContentAsString(),
+                                        TAG_CATEGORY_NAME_PATH))
                 .isEqualTo(CATEGORY_NAME);
     }
 
@@ -106,8 +114,7 @@ class TagAndCategoryIntegrationTest extends IntegrationTest {
 
     private String createTag(String adminToken, String categoryId) throws Exception {
         String payload =
-                objectMapper.writeValueAsString(
-                        Map.of("name", TAG_NAME, "categoryId", categoryId));
+                objectMapper.writeValueAsString(Map.of("name", TAG_NAME, "categoryId", categoryId));
         MvcResult result =
                 mockMvc.perform(
                                 post(adminTagPath())

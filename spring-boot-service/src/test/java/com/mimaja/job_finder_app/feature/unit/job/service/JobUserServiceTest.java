@@ -9,17 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.feature.job.dto.JobResponseDto;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.dto.JobDispatcherResponseDto;
@@ -33,10 +22,18 @@ import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 class JobUserServiceTest {
-
     @Mock private JobService jobService;
     @Mock private JobMapper jobMapper;
     @Mock private OfferService offerService;
@@ -106,7 +103,8 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.getJobById(JwtPrincipal.from(unauthorizedUser), jobId));
     }
 
@@ -187,7 +185,8 @@ class JobUserServiceTest {
         UUID offerId = testOffer.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.createJob(JwtPrincipal.from(unauthorizedUser), offerId));
     }
 
@@ -196,7 +195,8 @@ class JobUserServiceTest {
         UUID offerId = testOffer.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.createJob(JwtPrincipal.from(unauthorizedUser), offerId));
         verify(jobService, never()).createJob(testOffer);
     }
@@ -224,7 +224,8 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.deleteJob(JwtPrincipal.from(unauthorizedUser), jobId));
     }
 
@@ -233,7 +234,8 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.deleteJob(JwtPrincipal.from(unauthorizedUser), jobId));
         verify(jobService, never()).deleteJob(jobId);
     }
@@ -263,7 +265,8 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.startJob(unauthorizedUser.getId(), jobId));
     }
 
@@ -272,7 +275,8 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.startJob(unauthorizedUser.getId(), jobId));
         verify(jobService, never()).startJob(jobId);
     }
@@ -293,7 +297,8 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
         when(jobService.getJobDispatcherByJobId(jobId)).thenReturn(testJobDispatcher);
-        JobDispatcherResponseDto result = jobUserService.getJobDispatcher(testContractor.getId(), jobId);
+        JobDispatcherResponseDto result =
+                jobUserService.getJobDispatcher(testContractor.getId(), jobId);
         assertThat(result).isNotNull();
     }
 
@@ -302,7 +307,8 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.getJobDispatcher(unauthorizedUser.getId(), jobId));
     }
 
@@ -311,7 +317,8 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
+        assertThrows(
+                BusinessException.class,
                 () -> jobUserService.getJobDispatcher(unauthorizedUser.getId(), jobId));
         verify(jobService, never()).getJobDispatcherByJobId(jobId);
     }
@@ -324,9 +331,10 @@ class JobUserServiceTest {
         Optional<MultipartFile> photo = Optional.empty();
         String description = "Problem";
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        when(jobService.reportProblemContractorTrue(jobId, photo, description)).thenReturn(testJobDispatcher);
-        JobDispatcherResponseDto result = jobUserService.reportProblemTrue(
-                testContractor.getId(), jobId, photo, description);
+        when(jobService.reportProblemContractorTrue(jobId, photo, description))
+                .thenReturn(testJobDispatcher);
+        JobDispatcherResponseDto result =
+                jobUserService.reportProblemTrue(testContractor.getId(), jobId, photo, description);
         assertThat(result).isNotNull();
     }
 
@@ -336,7 +344,8 @@ class JobUserServiceTest {
         Optional<MultipartFile> photo = Optional.empty();
         String description = "Problem";
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        when(jobService.reportProblemContractorTrue(jobId, photo, description)).thenReturn(testJobDispatcher);
+        when(jobService.reportProblemContractorTrue(jobId, photo, description))
+                .thenReturn(testJobDispatcher);
         jobUserService.reportProblemTrue(testContractor.getId(), jobId, photo, description);
         verify(jobService, times(1)).reportProblemContractorTrue(jobId, photo, description);
     }
@@ -347,7 +356,8 @@ class JobUserServiceTest {
         Optional<MultipartFile> photo = Optional.empty();
         String description = "Problem";
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        when(jobService.reportProblemOwnerTrue(jobId, photo, description)).thenReturn(testJobDispatcher);
+        when(jobService.reportProblemOwnerTrue(jobId, photo, description))
+                .thenReturn(testJobDispatcher);
         jobUserService.reportProblemTrue(testOwner.getId(), jobId, photo, description);
         verify(jobService, times(1)).reportProblemOwnerTrue(jobId, photo, description);
     }
@@ -357,9 +367,11 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
-                () -> jobUserService.reportProblemTrue(
-                        unauthorizedUser.getId(), jobId, Optional.empty(), "Problem"));
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        jobUserService.reportProblemTrue(
+                                unauthorizedUser.getId(), jobId, Optional.empty(), "Problem"));
     }
 
     // --- reportProblemFalse ---
@@ -370,7 +382,8 @@ class JobUserServiceTest {
         Optional<MultipartFile> photo = Optional.empty();
         String description = "No problem";
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        when(jobService.reportProblemContractorFalse(jobId, photo, description)).thenReturn(testJobDispatcher);
+        when(jobService.reportProblemContractorFalse(jobId, photo, description))
+                .thenReturn(testJobDispatcher);
         jobUserService.reportProblemFalse(testContractor.getId(), jobId, photo, description);
         verify(jobService, times(1)).reportProblemContractorFalse(jobId, photo, description);
     }
@@ -381,7 +394,8 @@ class JobUserServiceTest {
         Optional<MultipartFile> photo = Optional.empty();
         String description = "No problem";
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        when(jobService.reportProblemOwnerFalse(jobId, photo, description)).thenReturn(testJobDispatcher);
+        when(jobService.reportProblemOwnerFalse(jobId, photo, description))
+                .thenReturn(testJobDispatcher);
         jobUserService.reportProblemFalse(testOwner.getId(), jobId, photo, description);
         verify(jobService, times(1)).reportProblemOwnerFalse(jobId, photo, description);
     }
@@ -391,9 +405,11 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
-                () -> jobUserService.reportProblemFalse(
-                        unauthorizedUser.getId(), jobId, Optional.empty(), "No problem"));
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        jobUserService.reportProblemFalse(
+                                unauthorizedUser.getId(), jobId, Optional.empty(), "No problem"));
     }
 
     // --- endJobSuccessfuly ---
@@ -406,8 +422,8 @@ class JobUserServiceTest {
         when(jobService.getJobById(jobId)).thenReturn(testJob);
         when(jobService.endJobSuccessfulyContractor(jobId, photo, description)).thenReturn(testJob);
         when(jobMapper.toResponseDto(testJob)).thenReturn(testJobResponseDto);
-        JobResponseDto result = jobUserService.endJobSuccessfuly(
-                testContractor.getId(), jobId, photo, description);
+        JobResponseDto result =
+                jobUserService.endJobSuccessfuly(testContractor.getId(), jobId, photo, description);
         assertThat(result).isNotNull();
     }
 
@@ -440,9 +456,11 @@ class JobUserServiceTest {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        assertThrows(BusinessException.class,
-                () -> jobUserService.endJobSuccessfuly(
-                        unauthorizedUser.getId(), jobId, Optional.empty(), "Done"));
+        assertThrows(
+                BusinessException.class,
+                () ->
+                        jobUserService.endJobSuccessfuly(
+                                unauthorizedUser.getId(), jobId, Optional.empty(), "Done"));
     }
 
     private JobResponseDto createMockJobResponseDto() {

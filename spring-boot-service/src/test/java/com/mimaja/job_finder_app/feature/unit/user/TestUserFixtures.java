@@ -1,9 +1,8 @@
 package com.mimaja.job_finder_app.feature.unit.user;
 
-import java.util.UUID;
-
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
+import java.util.UUID;
 
 public final class TestUserFixtures {
     public static final String DEFAULT_USERNAME = "testuser";

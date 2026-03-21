@@ -13,18 +13,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcher;
@@ -37,10 +25,19 @@ import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.shared.service.FileManagementService;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 class JobServiceDefaultTest {
-
     @Mock private JobRepository jobRepository;
     @Mock private OfferService offerService;
     @Mock private FileManagementService fileManagementService;
@@ -80,8 +77,8 @@ class JobServiceDefaultTest {
     void getJobById_shouldThrowExceptionWithJobNotFoundCode_whenJobNotFound() {
         UUID jobId = UUID.randomUUID();
         when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> jobService.getJobById(jobId));
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> jobService.getJobById(jobId));
         assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_FOUND.getCode());
     }
 
@@ -158,8 +155,8 @@ class JobServiceDefaultTest {
     @Test
     void createJob_shouldThrowExceptionWithCandidateNotChosenCode_whenCandidateNotSet() {
         testOffer.setChosenCandidate(null);
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> jobService.createJob(testOffer));
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> jobService.createJob(testOffer));
         assertThat(exception.getCode())
                 .isEqualTo(BusinessExceptionReason.CANDIDATE_NEED_TO_BE_CHOSEN.getCode());
     }
@@ -168,7 +165,8 @@ class JobServiceDefaultTest {
     void createJob_shouldGetFileFromStorage_whenOfferHasPhoto() {
         testOffer.setChosenCandidate(createTestUser());
         testOffer.setPhoto(createTestOfferPhoto());
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
         jobService.createJob(testOffer);
         verify(fileManagementService, times(1)).getFile(any());
@@ -178,7 +176,8 @@ class JobServiceDefaultTest {
     void createJob_shouldUploadFile_whenOfferHasPhoto() {
         testOffer.setChosenCandidate(createTestUser());
         testOffer.setPhoto(createTestOfferPhoto());
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
         jobService.createJob(testOffer);
         verify(fileManagementService, times(1)).uploadFile(any());
@@ -206,8 +205,8 @@ class JobServiceDefaultTest {
     void deleteJob_shouldThrowExceptionWithJobNotFoundCode_whenJobNotFound() {
         UUID jobId = UUID.randomUUID();
         when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> jobService.deleteJob(jobId));
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> jobService.deleteJob(jobId));
         assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_FOUND.getCode());
     }
 
@@ -278,9 +277,10 @@ class JobServiceDefaultTest {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> jobService.startJob(jobId));
-        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_HAS_ALREADY_STARTED.getCode());
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> jobService.startJob(jobId));
+        assertThat(exception.getCode())
+                .isEqualTo(BusinessExceptionReason.JOB_HAS_ALREADY_STARTED.getCode());
     }
 
     @Test
@@ -320,19 +320,24 @@ class JobServiceDefaultTest {
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> jobService.getJobDispatcherByJobId(jobId));
-        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_STARTED.getCode());
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class, () -> jobService.getJobDispatcherByJobId(jobId));
+        assertThat(exception.getCode())
+                .isEqualTo(BusinessExceptionReason.JOB_NOT_STARTED.getCode());
     }
 
     @Test
-    void getJobDispatcherByJobId_shouldThrowExceptionWithJobNotInProgressCode_whenJobNotInProgress() {
+    void
+            getJobDispatcherByJobId_shouldThrowExceptionWithJobNotInProgressCode_whenJobNotInProgress() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.READY);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> jobService.getJobDispatcherByJobId(jobId));
-        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_IN_PROGRESS.getCode());
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class, () -> jobService.getJobDispatcherByJobId(jobId));
+        assertThat(exception.getCode())
+                .isEqualTo(BusinessExceptionReason.JOB_NOT_IN_PROGRESS.getCode());
     }
 
     // --- reportProblemContractorFalse ---
@@ -344,19 +349,23 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
         setupJobFindAndSaveMocks(jobId);
-        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
+        JobDispatcher result =
+                jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
         assertThat(result).isNotNull();
     }
 
     @Test
-    void reportProblemContractorFalse_shouldSetContractorNoProblemStatus_whenOwnerStatusIsProblem() {
+    void
+            reportProblemContractorFalse_shouldSetContractorNoProblemStatus_whenOwnerStatusIsProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
         setupJobFindAndSaveMocks(jobId);
-        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
-        assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.NO_PROBLEM);
+        JobDispatcher result =
+                jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
+        assertThat(result.getIssueStatusContractor())
+                .isEqualTo(JobDispatcherIssueStatus.NO_PROBLEM);
     }
 
     @Test
@@ -366,7 +375,8 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
         setupJobFindAndSaveMocks(jobId);
-        JobDispatcher result = jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
+        JobDispatcher result =
+                jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
         assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NONE);
     }
 
@@ -377,10 +387,12 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        JobDispatcher result = jobService.reportProblemContractorFalse(
-                jobId, Optional.of(createMockPhoto()), "No problem");
+        JobDispatcher result =
+                jobService.reportProblemContractorFalse(
+                        jobId, Optional.of(createMockPhoto()), "No problem");
         assertThat(result.getContractiorApprovals()).isNotEmpty();
     }
 
@@ -391,21 +403,25 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        jobService.reportProblemContractorFalse(jobId, Optional.of(createMockPhoto()), "No problem");
+        jobService.reportProblemContractorFalse(
+                jobId, Optional.of(createMockPhoto()), "No problem");
         verify(fileManagementService, times(1)).uploadFile(any());
     }
 
     // --- reportProblemContractorTrue ---
 
     @Test
-    void reportProblemContractorTrue_shouldSetContractorProblemStatus_whenContractorReportsProblem() {
+    void
+            reportProblemContractorTrue_shouldSetContractorProblemStatus_whenContractorReportsProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
-        JobDispatcher result = jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
+        JobDispatcher result =
+                jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
         assertThat(result.getIssueStatusContractor()).isEqualTo(JobDispatcherIssueStatus.PROBLEM);
     }
 
@@ -437,10 +453,12 @@ class JobServiceDefaultTest {
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        JobDispatcher result = jobService.reportProblemContractorTrue(
-                jobId, Optional.of(createMockPhoto()), "Problem");
+        JobDispatcher result =
+                jobService.reportProblemContractorTrue(
+                        jobId, Optional.of(createMockPhoto()), "Problem");
         assertThat(result.getContractiorApprovals()).isNotEmpty();
     }
 
@@ -453,7 +471,8 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
         setupJobFindAndSaveMocks(jobId);
-        JobDispatcher result = jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
+        JobDispatcher result =
+                jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
         assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NO_PROBLEM);
     }
 
@@ -464,7 +483,8 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NO_PROBLEM);
         setupJobFindAndSaveMocks(jobId);
-        JobDispatcher result = jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
+        JobDispatcher result =
+                jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
         assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.NONE);
     }
 
@@ -475,10 +495,12 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        JobDispatcher result = jobService.reportProblemOwnerFalse(
-                jobId, Optional.of(createMockPhoto()), "No problem");
+        JobDispatcher result =
+                jobService.reportProblemOwnerFalse(
+                        jobId, Optional.of(createMockPhoto()), "No problem");
         assertThat(result.getContractiorApprovals()).isNotEmpty();
     }
 
@@ -490,7 +512,8 @@ class JobServiceDefaultTest {
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
-        JobDispatcher result = jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
+        JobDispatcher result =
+                jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
         assertThat(result.getIssueStatusOwner()).isEqualTo(JobDispatcherIssueStatus.PROBLEM);
     }
 
@@ -534,10 +557,11 @@ class JobServiceDefaultTest {
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        JobDispatcher result = jobService.reportProblemOwnerTrue(
-                jobId, Optional.of(createMockPhoto()), "Problem");
+        JobDispatcher result =
+                jobService.reportProblemOwnerTrue(jobId, Optional.of(createMockPhoto()), "Problem");
         assertThat(result.getContractiorApprovals()).isNotEmpty();
     }
 
@@ -572,9 +596,14 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setFinishedAt(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Completed"));
-        assertThat(exception.getCode()).isEqualTo(BusinessExceptionReason.JOB_NOT_FINISHED.getCode());
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                jobService.endJobSuccessfulyOwner(
+                                        jobId, Optional.empty(), "Completed"));
+        assertThat(exception.getCode())
+                .isEqualTo(BusinessExceptionReason.JOB_NOT_FINISHED.getCode());
     }
 
     @Test
@@ -584,7 +613,8 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setFinishedAt(LocalDateTime.now());
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
         jobService.endJobSuccessfulyOwner(jobId, Optional.of(createMockPhoto()), "Completed");
         verify(fileManagementService, times(1)).uploadFile(any());
@@ -598,7 +628,8 @@ class JobServiceDefaultTest {
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
-        Job result = jobService.endJobSuccessfulyContractor(jobId, Optional.empty(), "Work completed");
+        Job result =
+                jobService.endJobSuccessfulyContractor(jobId, Optional.empty(), "Work completed");
         assertThat(result.getJobDispatcher().getFinishedAt()).isNotNull();
     }
 
@@ -618,9 +649,11 @@ class JobServiceDefaultTest {
         testJob.setStatus(JobStatus.IN_PROGRESS);
         testJob.setJobDispatcher(testJobDispatcher);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(fileManagementService.processFileDetails(any(), any())).thenReturn(createTestFileDetails());
+        when(fileManagementService.processFileDetails(any(), any()))
+                .thenReturn(createTestFileDetails());
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        jobService.endJobSuccessfulyContractor(jobId, Optional.of(createMockPhoto()), "Work completed");
+        jobService.endJobSuccessfulyContractor(
+                jobId, Optional.of(createMockPhoto()), "Work completed");
         verify(fileManagementService, times(1)).uploadFile(any());
     }
 

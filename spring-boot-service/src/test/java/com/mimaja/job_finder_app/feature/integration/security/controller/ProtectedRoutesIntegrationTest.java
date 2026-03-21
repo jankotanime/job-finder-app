@@ -71,7 +71,9 @@ class ProtectedRoutesIntegrationTest extends IntegrationTest {
         MvcResult result =
                 mockMvc.perform(
                                 buildRequest(routeCase)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(accessToken)))
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                bearerToken(accessToken)))
                         .andReturn();
 
         // then
@@ -126,7 +128,9 @@ class ProtectedRoutesIntegrationTest extends IntegrationTest {
             case METHOD_PATCH ->
                     patch(routeCase.path()).contentType(APPLICATION_JSON).content(EMPTY_JSON_BODY);
             case METHOD_DELETE -> delete(routeCase.path());
-            default -> throw new IllegalArgumentException("Unsupported HTTP method: " + routeCase.method());
+            default ->
+                    throw new IllegalArgumentException(
+                            "Unsupported HTTP method: " + routeCase.method());
         };
     }
 

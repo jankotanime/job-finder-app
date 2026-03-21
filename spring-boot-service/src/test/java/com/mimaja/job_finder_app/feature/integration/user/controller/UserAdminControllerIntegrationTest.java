@@ -160,7 +160,8 @@ class UserAdminControllerIntegrationTest extends IntegrationTest {
                 .andExpect(status().isOk());
     }
 
-    private String createUserAndGetId(String adminToken, TestUserCredentials user) throws Exception {
+    private String createUserAndGetId(String adminToken, TestUserCredentials user)
+            throws Exception {
         String payload = buildCreateUserPayload(user);
         MvcResult result =
                 mockMvc.perform(

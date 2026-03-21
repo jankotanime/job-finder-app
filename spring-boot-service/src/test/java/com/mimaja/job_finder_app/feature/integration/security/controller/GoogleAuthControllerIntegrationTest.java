@@ -31,7 +31,11 @@ class GoogleAuthControllerIntegrationTest extends IntegrationTest {
         // given
         String payload =
                 objectMapper.writeValueAsString(
-                        Map.of(GOOGLE_TOKEN_KEY, INVALID_GOOGLE_TOKEN, SMS_CODE_KEY, EMPTY_SMS_CODE));
+                        Map.of(
+                                GOOGLE_TOKEN_KEY,
+                                INVALID_GOOGLE_TOKEN,
+                                SMS_CODE_KEY,
+                                EMPTY_SMS_CODE));
 
         // when
         MvcResult result =

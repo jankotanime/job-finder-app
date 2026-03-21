@@ -1,5 +1,10 @@
 package com.mimaja.job_finder_app.feature.unit.security.token.accessToken.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
 import com.auth0.jwt.JWT;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.profilephoto.dto.ProfilePhotoCreateRequestDto;
@@ -8,7 +13,7 @@ import com.mimaja.job_finder_app.security.token.accessToken.dto.response.CreateA
 import com.mimaja.job_finder_app.security.token.accessToken.service.AccessTokenServiceDefault;
 import com.mimaja.job_finder_app.security.token.accessToken.utils.AccessTokenSecretKeyManager;
 import com.mimaja.job_finder_app.shared.enums.MimeType;
-
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,22 +22,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
-import java.util.UUID;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AccessTokenServiceDefault - Unit Tests")
 class AccessTokenServiceDefaultTest {
+    @InjectMocks private AccessTokenServiceDefault accessTokenService;
 
-    @InjectMocks
-    private AccessTokenServiceDefault accessTokenService;
-
-    @Mock
-    private AccessTokenSecretKeyManager accessTokenSecretKeyManager;
+    @Mock private AccessTokenSecretKeyManager accessTokenSecretKeyManager;
 
     private User testUser;
 
@@ -42,7 +37,8 @@ class AccessTokenServiceDefaultTest {
     }
 
     private void setupSecretKeyMock() {
-        when(accessTokenSecretKeyManager.getSecretKey()).thenReturn("test-secret-key-for-testing-purposes");
+        when(accessTokenSecretKeyManager.getSecretKey())
+                .thenReturn("test-secret-key-for-testing-purposes");
     }
 
     private User createTestUser() {
@@ -59,8 +55,7 @@ class AccessTokenServiceDefaultTest {
 
     private User createTestUserWithProfilePhoto() {
         ProfilePhotoCreateRequestDto profilePhotoDto =
-          new ProfilePhotoCreateRequestDto("example",
-          MimeType.PNG, 1, "example");
+                new ProfilePhotoCreateRequestDto("example", MimeType.PNG, 1, "example");
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setUsername("testuser");
@@ -81,9 +76,7 @@ class AccessTokenServiceDefaultTest {
 
         assertNotNull(result, "Response should not be null");
         assertNotNull(result.accessToken(), "Access token should not be null");
-        assertThat(result.accessToken())
-                .as("Access token should not be empty")
-                .isNotBlank();
+        assertThat(result.accessToken()).as("Access token should not be empty").isNotBlank();
     }
 
     @Test
@@ -193,9 +186,7 @@ class AccessTokenServiceDefaultTest {
         setupSecretKeyMock();
         CreateAccessTokenResponseDto result = accessTokenService.createToken(testUser);
 
-        assertThat(result)
-                .as("Token response should not be null")
-                .isNotNull();
+        assertThat(result).as("Token response should not be null").isNotNull();
         assertThat(result.accessToken())
                 .as("Access token should be present and not empty")
                 .isNotEmpty()

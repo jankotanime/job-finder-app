@@ -90,8 +90,10 @@ class UserProfileAndPasswordIntegrationTest extends IntegrationTest {
         String payload =
                 objectMapper.writeValueAsString(
                         Map.of(
-                                "newPhoneNumber", user.phoneNumber() + PHONE_INCREMENT,
-                                "password", user.password()));
+                                "newPhoneNumber",
+                                user.phoneNumber() + PHONE_INCREMENT,
+                                "password",
+                                user.password()));
 
         // when
         MvcResult result =
@@ -145,7 +147,11 @@ class UserProfileAndPasswordIntegrationTest extends IntegrationTest {
                                 .contentType(APPLICATION_JSON)
                                 .content(
                                         objectMapper.writeValueAsString(
-                                                Map.of("newEmail", updatedEmail, "password", user.password()))))
+                                                Map.of(
+                                                        "newEmail",
+                                                        updatedEmail,
+                                                        "password",
+                                                        user.password()))))
                 .andExpect(status().isOk());
 
         mockMvc.perform(
@@ -155,8 +161,10 @@ class UserProfileAndPasswordIntegrationTest extends IntegrationTest {
                                 .content(
                                         objectMapper.writeValueAsString(
                                                 Map.of(
-                                                        "password", user.password(),
-                                                        "newPassword", DEFAULT_NEW_PASSWORD))))
+                                                        "password",
+                                                        user.password(),
+                                                        "newPassword",
+                                                        DEFAULT_NEW_PASSWORD))))
                 .andExpect(status().isOk());
 
         // when
