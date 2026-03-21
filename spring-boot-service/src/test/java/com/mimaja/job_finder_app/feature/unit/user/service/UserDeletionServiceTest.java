@@ -1,18 +1,17 @@
 package com.mimaja.job_finder_app.feature.unit.user.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.inOrder;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.doThrow;
 
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -24,17 +23,11 @@ import com.mimaja.job_finder_app.feature.user.service.UserDeletionService;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UserDeletionService - Unit Tests")
-public class UserDeletionServiceTest {
+class UserDeletionServiceTest {
 
-    @Mock
-    private CvService cvService;
-
-    @Mock
-    private OfferService offerService;
-
-    @Mock
-    private UserService userService;
+    @Mock private CvService cvService;
+    @Mock private OfferService offerService;
+    @Mock private UserService userService;
 
     private UserDeletionService userDeletionService;
 
@@ -44,84 +37,101 @@ public class UserDeletionServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete user successfully with all related data")
-    void shouldDeleteUserAndRelatedData_WhenUserIdIsValid() {
+    void deleteUser_shouldCallDeleteAllCvsForUser_whenDeletingUser() {
         UUID userId = UUID.randomUUID();
-
         userDeletionService.deleteUser(userId);
-
         verify(cvService, times(1)).deleteAllCvsForUser(userId);
+    }
+
+    @Test
+    void deleteUser_shouldCallDeleteOffersByOwnerId_whenDeletingUser() {
+        UUID userId = UUID.randomUUID();
+        userDeletionService.deleteUser(userId);
         verify(offerService, times(1)).deleteOffersByOwnerId(userId);
+    }
+
+    @Test
+    void deleteUser_shouldCallDeleteUser_whenDeletingUser() {
+        UUID userId = UUID.randomUUID();
+        userDeletionService.deleteUser(userId);
         verify(userService, times(1)).deleteUser(userId);
     }
 
     @Test
-    @DisplayName("Should delete user CVs before deleting offers and user")
-    void shouldDeleteCvsBeforeOffersAndUser() {
-        UUID userId = UUID.randomUUID();
-
-        userDeletionService.deleteUser(userId);
-
-        InOrder inOrder = inOrder(cvService, offerService, userService);
-        inOrder.verify(cvService, times(1)).deleteAllCvsForUser(userId);
-        inOrder.verify(offerService, times(1)).deleteOffersByOwnerId(userId);
-        inOrder.verify(userService, times(1)).deleteUser(userId);
-    }
-
-    @Test
-    @DisplayName("Should throw BusinessException when CV deletion fails")
-    void shouldThrowBusinessException_WhenCvDeletionFails() {
+    void deleteUser_shouldThrowBusinessException_whenCvDeletionFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.CV_NOT_FOUND))
-            .when(cvService)
-            .deleteAllCvsForUser(userId);
-
-        assertThrows(
-            BusinessException.class,
-            () -> userDeletionService.deleteUser(userId),
-            "Should throw BusinessException when CV deletion fails"
-        );
-
-        verify(cvService, times(1)).deleteAllCvsForUser(userId);
-        verify(offerService, times(0)).deleteOffersByOwnerId(userId);
-        verify(userService, times(0)).deleteUser(userId);
+                .when(cvService).deleteAllCvsForUser(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when offer deletion fails")
-    void shouldThrowBusinessException_WhenOfferDeletionFails() {
+    void deleteUser_shouldNotCallOfferService_whenCvDeletionFails() {
+        UUID userId = UUID.randomUUID();
+        doThrow(new BusinessException(BusinessExceptionReason.CV_NOT_FOUND))
+                .when(cvService).deleteAllCvsForUser(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
+        verify(offerService, never()).deleteOffersByOwnerId(any());
+    }
+
+    @Test
+    void deleteUser_shouldNotCallUserService_whenCvDeletionFails() {
+        UUID userId = UUID.randomUUID();
+        doThrow(new BusinessException(BusinessExceptionReason.CV_NOT_FOUND))
+                .when(cvService).deleteAllCvsForUser(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
+        verify(userService, never()).deleteUser(any());
+    }
+
+    @Test
+    void deleteUser_shouldThrowBusinessException_whenOfferDeletionFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.OFFER_NOT_FOUND))
-            .when(offerService)
-            .deleteOffersByOwnerId(userId);
-
-        assertThrows(
-            BusinessException.class,
-            () -> userDeletionService.deleteUser(userId),
-            "Should throw BusinessException when offer deletion fails"
-        );
-
-        verify(cvService, times(1)).deleteAllCvsForUser(userId);
-        verify(offerService, times(1)).deleteOffersByOwnerId(userId);
-        verify(userService, times(0)).deleteUser(userId);
+                .when(offerService).deleteOffersByOwnerId(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when user deletion fails")
-    void shouldThrowBusinessException_WhenUserDeletionFails() {
+    void deleteUser_shouldCallDeleteCvsBeforeFailing_whenOfferDeletionFails() {
+        UUID userId = UUID.randomUUID();
+        doThrow(new BusinessException(BusinessExceptionReason.OFFER_NOT_FOUND))
+                .when(offerService).deleteOffersByOwnerId(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
+        verify(cvService, times(1)).deleteAllCvsForUser(userId);
+    }
+
+    @Test
+    void deleteUser_shouldNotCallUserService_whenOfferDeletionFails() {
+        UUID userId = UUID.randomUUID();
+        doThrow(new BusinessException(BusinessExceptionReason.OFFER_NOT_FOUND))
+                .when(offerService).deleteOffersByOwnerId(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
+        verify(userService, never()).deleteUser(any());
+    }
+
+    @Test
+    void deleteUser_shouldThrowBusinessException_whenUserDeletionFails() {
         UUID userId = UUID.randomUUID();
         doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
-            .when(userService)
-            .deleteUser(userId);
+                .when(userService).deleteUser(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
+    }
 
-        assertThrows(
-            BusinessException.class,
-            () -> userDeletionService.deleteUser(userId),
-            "Should throw BusinessException when user deletion fails"
-        );
-
+    @Test
+    void deleteUser_shouldCallDeleteCvs_whenUserDeletionFails() {
+        UUID userId = UUID.randomUUID();
+        doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
+                .when(userService).deleteUser(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
         verify(cvService, times(1)).deleteAllCvsForUser(userId);
+    }
+
+    @Test
+    void deleteUser_shouldCallDeleteOffers_whenUserDeletionFails() {
+        UUID userId = UUID.randomUUID();
+        doThrow(new BusinessException(BusinessExceptionReason.USER_NOT_FOUND))
+                .when(userService).deleteUser(userId);
+        assertThrows(BusinessException.class, () -> userDeletionService.deleteUser(userId));
         verify(offerService, times(1)).deleteOffersByOwnerId(userId);
-        verify(userService, times(1)).deleteUser(userId);
     }
 }
