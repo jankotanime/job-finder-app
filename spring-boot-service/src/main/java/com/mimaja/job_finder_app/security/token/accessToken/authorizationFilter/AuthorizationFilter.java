@@ -67,12 +67,20 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                 String email = jwt.getClaim("email").asString();
                 String role = jwt.getClaim("role").asString();
                 int phoneNumber = jwt.getClaim("phoneNumber").asInt();
+                String servletPath = request.getServletPath();
+                String requestUri = request.getRequestURI();
+                String requestMethod = request.getMethod();
+                boolean isProfileCompletionRequest =
+                        "/profile-completion-form".equals(servletPath)
+                                || "/profile-completion-form".equals(requestUri);
+                boolean isRefreshRotateRequest =
+                        "/refresh-token/rotate".equals(servletPath)
+                                || "/refresh-token/rotate".equals(requestUri);
 
                 if (idString != null && username != null && email != null && phoneNumber != 0) {
                     // TODO: Check if not too plain
-                    if ((request.getServletPath().equals("/profile-completion-form")
-                                    || (request.getServletPath().equals("/refresh-token/rotate")))
-                            && request.getMethod().equals("POST")) {
+                    if ((isProfileCompletionRequest || isRefreshRotateRequest)
+                            && "POST".equals(requestMethod)) {
                         UUID id = UUID.fromString(idString);
                         User user =
                                 userRepository

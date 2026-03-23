@@ -1,5 +1,19 @@
 package com.mimaja.job_finder_app.feature.unit.security.authorization.googleAuth.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
@@ -17,7 +31,8 @@ import com.mimaja.job_finder_app.security.shared.dto.TokenResponseDto;
 import com.mimaja.job_finder_app.security.shared.utils.RegisterDataManager;
 import com.mimaja.job_finder_app.security.smsCode.service.SmsCodeServiceDefault;
 import com.mimaja.job_finder_app.security.token.refreshToken.service.RefreshTokenServiceDefault;
-
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,42 +43,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.UUID;
-
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("GoogleAuthServiceDefault - Unit Tests")
 class GoogleAuthServiceDefaultTest {
+    @InjectMocks private GoogleAuthServiceDefault googleAuthService;
 
-    @InjectMocks
-    private GoogleAuthServiceDefault googleAuthService;
+    @Mock private UserRepository userRepository;
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private RegisterDataManager registerDataManager;
 
-    @Mock
-    private RegisterDataManager registerDataManager;
+    @Mock private RefreshTokenServiceDefault refreshTokenServiceDefault;
 
-    @Mock
-    private RefreshTokenServiceDefault refreshTokenServiceDefault;
-
-    @Mock
-    private SmsCodeServiceDefault smsCodeServiceDefault;
+    @Mock private SmsCodeServiceDefault smsCodeServiceDefault;
 
     private GoogleIdTokenVerifier verifier;
     private GoogleIdToken googleIdToken;
@@ -93,10 +85,7 @@ class GoogleAuthServiceDefaultTest {
 
     private TokenResponseDto createTestTokenResponse() {
         return new TokenResponseDto(
-            "access_token_value",
-            "refresh_token_value",
-            "refresh_token_id_value"
-        );
+                "access_token_value", "refresh_token_value", "refresh_token_id_value");
     }
 
     private GoogleAuthLoginRequestDto createValidGoogleLoginRequest() {
@@ -119,7 +108,8 @@ class GoogleAuthServiceDefaultTest {
         return new GoogleAuthRegisterRequestDto("valid_google_token", username, 987654321);
     }
 
-    private GoogleAuthRegisterRequestDto createGoogleRegisterRequestWithPhoneNumber(int phoneNumber) {
+    private GoogleAuthRegisterRequestDto createGoogleRegisterRequestWithPhoneNumber(
+            int phoneNumber) {
         return new GoogleAuthRegisterRequestDto("valid_google_token", "newuser", phoneNumber);
     }
 
@@ -228,17 +218,20 @@ class GoogleAuthServiceDefaultTest {
 
     @Test
     @DisplayName("Should link Google ID to existing user with SMS validation")
-    void testTryToLoginViaGoogle_WithExistingEmailAndValidSms_ShouldLinkGoogleId() throws Exception {
+    void testTryToLoginViaGoogle_WithExistingEmailAndValidSms_ShouldLinkGoogleId()
+            throws Exception {
         GoogleAuthLoginRequestDto loginRequest = createGoogleLoginRequestWithSmsCode(123456);
         User userWithoutGoogleId = createTestUser();
         userWithoutGoogleId.setGoogleId(null);
 
         setupSuccessfulTokenVerification("new_google_id_456", "user@example.com");
         when(userRepository.findByGoogleId("new_google_id_456")).thenReturn(Optional.empty());
-        when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(userWithoutGoogleId));
+        when(userRepository.findByEmail("user@example.com"))
+                .thenReturn(Optional.of(userWithoutGoogleId));
         when(userRepository.save(any(User.class))).thenReturn(userWithoutGoogleId);
         doNothing().when(smsCodeServiceDefault).validateCode(any(UUID.class), anyInt());
-        when(refreshTokenServiceDefault.createTokensSet(any(User.class))).thenReturn(testTokenResponse);
+        when(refreshTokenServiceDefault.createTokensSet(any(User.class)))
+                .thenReturn(testTokenResponse);
 
         GoogleAuthLoginResponseDto result = googleAuthService.tryToLoginViaGoogle(loginRequest);
 
@@ -256,7 +249,8 @@ class GoogleAuthServiceDefaultTest {
 
         setupSuccessfulTokenVerification("new_google_id_456", "user@example.com");
         when(userRepository.findByGoogleId("new_google_id_456")).thenReturn(Optional.empty());
-        when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(userWithoutGoogleId));
+        when(userRepository.findByEmail("user@example.com"))
+                .thenReturn(Optional.of(userWithoutGoogleId));
 
         assertThrows(
                 BusinessException.class,
@@ -279,7 +273,8 @@ class GoogleAuthServiceDefaultTest {
 
     @Test
     @DisplayName("Should return USER_EXIST_WITH_EMAIL when user has same email")
-    void testCheckUserExistence_WithExistingEmail_ShouldReturnUserExistWithEmail() throws Exception {
+    void testCheckUserExistence_WithExistingEmail_ShouldReturnUserExistWithEmail()
+            throws Exception {
         GoogleAuthCheckExistenceRequestDto checkRequest = createValidGoogleCheckExistenceRequest();
         setupSuccessfulTokenVerification("new_google_id", "user@example.com");
         when(userRepository.findByGoogleId("new_google_id")).thenReturn(Optional.empty());
@@ -320,7 +315,9 @@ class GoogleAuthServiceDefaultTest {
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when token verification returns null during check existence")
+    @DisplayName(
+            "Should throw BusinessException when token verification returns null during check"
+                    + " existence")
     void testCheckUserExistence_WithNullVerification_ShouldThrowException() throws Exception {
         GoogleAuthCheckExistenceRequestDto checkRequest = createValidGoogleCheckExistenceRequest();
         setupNullTokenVerification();
@@ -332,7 +329,8 @@ class GoogleAuthServiceDefaultTest {
     }
 
     @Test
-    @DisplayName("Should throw NullPointerException when token payload is null during check existence")
+    @DisplayName(
+            "Should throw NullPointerException when token payload is null during check existence")
     void testCheckUserExistence_WithNullPayload_ShouldThrowException() throws Exception {
         GoogleAuthCheckExistenceRequestDto checkRequest = createValidGoogleCheckExistenceRequest();
         setupNullPayloadTokenVerification();
@@ -348,9 +346,13 @@ class GoogleAuthServiceDefaultTest {
     void testTryToRegisterViaGoogle_WithValidCredentials_ShouldReturnToken() throws Exception {
         GoogleAuthRegisterRequestDto registerRequest = createValidGoogleRegisterRequest();
         setupSuccessfulTokenVerification("google_id_789", "newuser@example.com");
-        doNothing().when(registerDataManager).checkRegisterDataGoogle("newuser", "newuser@example.com", 987654321, "google_id_789");
+        doNothing()
+                .when(registerDataManager)
+                .checkRegisterDataGoogle(
+                        "newuser", "newuser@example.com", 987654321, "google_id_789");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
-        when(refreshTokenServiceDefault.createTokensSet(any(User.class))).thenReturn(testTokenResponse);
+        when(refreshTokenServiceDefault.createTokensSet(any(User.class)))
+                .thenReturn(testTokenResponse);
 
         TokenResponseDto result = googleAuthService.tryToRegisterViaGoogle(registerRequest);
 
@@ -372,7 +374,9 @@ class GoogleAuthServiceDefaultTest {
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when token verification returns null during registration")
+    @DisplayName(
+            "Should throw BusinessException when token verification returns null during"
+                    + " registration")
     void testTryToRegisterViaGoogle_WithNullVerification_ShouldThrowException() throws Exception {
         GoogleAuthRegisterRequestDto registerRequest = createValidGoogleRegisterRequest();
         setupNullTokenVerification();
@@ -401,7 +405,8 @@ class GoogleAuthServiceDefaultTest {
         GoogleAuthRegisterRequestDto registerRequest = createGoogleRegisterRequestWithUsername("");
         setupSuccessfulTokenVerification("google_id_789", "newuser@example.com");
         doThrow(new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA))
-                .when(registerDataManager).checkRegisterDataGoogle("", "newuser@example.com", 987654321, "google_id_789");
+                .when(registerDataManager)
+                .checkRegisterDataGoogle("", "newuser@example.com", 987654321, "google_id_789");
 
         assertThrows(
                 BusinessException.class,
@@ -412,10 +417,12 @@ class GoogleAuthServiceDefaultTest {
     @Test
     @DisplayName("Should throw BusinessException for invalid phone number during registration")
     void testTryToRegisterViaGoogle_WithInvalidPhoneNumber_ShouldThrowException() throws Exception {
-        GoogleAuthRegisterRequestDto registerRequest = createGoogleRegisterRequestWithPhoneNumber(0);
+        GoogleAuthRegisterRequestDto registerRequest =
+                createGoogleRegisterRequestWithPhoneNumber(0);
         setupSuccessfulTokenVerification("google_id_789", "newuser@example.com");
         doThrow(new BusinessException(BusinessExceptionReason.WRONG_LOGIN_DATA))
-                .when(registerDataManager).checkRegisterDataGoogle("newuser", "newuser@example.com", 0, "google_id_789");
+                .when(registerDataManager)
+                .checkRegisterDataGoogle("newuser", "newuser@example.com", 0, "google_id_789");
 
         assertThrows(
                 BusinessException.class,
@@ -423,7 +430,7 @@ class GoogleAuthServiceDefaultTest {
                 "Should throw BusinessException for invalid phone number");
     }
 
-        @Test
+    @Test
     @DisplayName("Should return token and update email when user exists without email")
     void testTryToLoginViaGoogle_WithExistingUserWithoutEmail_ShouldUpdateEmail() throws Exception {
         GoogleAuthLoginRequestDto loginRequest = createValidGoogleLoginRequest();
@@ -431,15 +438,20 @@ class GoogleAuthServiceDefaultTest {
         userWithoutEmail.setEmail(null);
 
         setupSuccessfulTokenVerification("google_id_123", "newemail@example.com");
-        when(userRepository.findByGoogleId("google_id_123")).thenReturn(Optional.of(userWithoutEmail));
+        when(userRepository.findByGoogleId("google_id_123"))
+                .thenReturn(Optional.of(userWithoutEmail));
         when(userRepository.save(any(User.class))).thenReturn(userWithoutEmail);
-        when(refreshTokenServiceDefault.createTokensSet(any(User.class))).thenReturn(testTokenResponse);
+        when(refreshTokenServiceDefault.createTokensSet(any(User.class)))
+                .thenReturn(testTokenResponse);
 
         GoogleAuthLoginResponseDto result = googleAuthService.tryToLoginViaGoogle(loginRequest);
 
         assertNotNull(result, "Response should not be null");
         assertNotNull(result.tokens(), "Tokens should not be null");
-        assertEquals("newemail@example.com", userWithoutEmail.getEmail(), "Email should be updated from token");
+        assertEquals(
+                "newemail@example.com",
+                userWithoutEmail.getEmail(),
+                "Email should be updated from token");
         verify(userRepository).save(any(User.class));
     }
 
@@ -451,9 +463,11 @@ class GoogleAuthServiceDefaultTest {
         userWithOldEmail.setEmail("oldemail@example.com");
 
         setupSuccessfulTokenVerification("google_id_123", "newemail@example.com");
-        when(userRepository.findByGoogleId("google_id_123")).thenReturn(Optional.of(userWithOldEmail));
+        when(userRepository.findByGoogleId("google_id_123"))
+                .thenReturn(Optional.of(userWithOldEmail));
         when(userRepository.save(any(User.class))).thenReturn(userWithOldEmail);
-        when(refreshTokenServiceDefault.createTokensSet(any(User.class))).thenReturn(testTokenResponse);
+        when(refreshTokenServiceDefault.createTokensSet(any(User.class)))
+                .thenReturn(testTokenResponse);
 
         GoogleAuthLoginResponseDto result = googleAuthService.tryToLoginViaGoogle(loginRequest);
 
@@ -467,15 +481,17 @@ class GoogleAuthServiceDefaultTest {
     void testTryToRegisterViaGoogle_ShouldReturnProperTokenStructure() throws Exception {
         GoogleAuthRegisterRequestDto registerRequest = createValidGoogleRegisterRequest();
         setupSuccessfulTokenVerification("google_id_789", "newuser@example.com");
-        doNothing().when(registerDataManager).checkRegisterDataGoogle("newuser", "newuser@example.com", 987654321, "google_id_789");
+        doNothing()
+                .when(registerDataManager)
+                .checkRegisterDataGoogle(
+                        "newuser", "newuser@example.com", 987654321, "google_id_789");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
-        when(refreshTokenServiceDefault.createTokensSet(any(User.class))).thenReturn(testTokenResponse);
+        when(refreshTokenServiceDefault.createTokensSet(any(User.class)))
+                .thenReturn(testTokenResponse);
 
         TokenResponseDto result = googleAuthService.tryToRegisterViaGoogle(registerRequest);
 
-        assertThat(result)
-                .as("Token response should not be null")
-                .isNotNull();
+        assertThat(result).as("Token response should not be null").isNotNull();
         assertThat(result.accessToken())
                 .as("Access token should be present and not empty")
                 .isNotEmpty();
