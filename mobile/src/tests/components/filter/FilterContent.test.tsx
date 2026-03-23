@@ -13,7 +13,7 @@ const mockSetFiltersList = jest.fn();
 const mockClearFilters = jest.fn();
 const mockSignOut = jest.fn();
 const mockUseFilterState: {
-  filters: string[];
+  filters: string[] | string;
   setFiltersList: jest.Mock;
   clearFilters: jest.Mock;
 } = {
@@ -69,6 +69,10 @@ jest.mock("../../../components/filter/FilterCollapsibleSection", () => {
 });
 
 describe("FilterContent component", () => {
+  const consoleErrorSpy = jest
+    .spyOn(console, "error")
+    .mockImplementation(() => {});
+
   beforeEach(() => {
     mockGetAllTags.mockReset();
     mockHandleFilterOffers.mockReset();
@@ -120,6 +124,10 @@ describe("FilterContent component", () => {
         },
       },
     });
+  });
+
+  afterAll(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   it("loads and renders grouped categories", async () => {
@@ -183,6 +191,131 @@ describe("FilterContent component", () => {
         expect.objectContaining({ id: "offer-visible" }),
       ]);
       expect(onClose).toHaveBeenCalled();
+    });
+  });
+
+  it("signs out when loading tags fails", async () => {
+    mockGetAllTags.mockRejectedValue(new Error("network"));
+
+    render(<FilterContent setOffersData={jest.fn()} />);
+
+    await waitFor(() => {
+      expect(mockSignOut).toHaveBeenCalledTimes(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "error while getting tags:",
+        expect.any(Error),
+      );
+    });
+  });
+
+  it("removes tag when toggled twice before apply", async () => {
+    const { getByText } = render(<FilterContent setOffersData={jest.fn()} />);
+
+    await waitFor(() => {
+      expect(getByText("React")).toBeTruthy();
+    });
+
+    fireEvent.press(getByText("React"));
+    fireEvent.press(getByText("React"));
+    fireEvent.press(getByText("filter.apply"));
+
+    await waitFor(() => {
+      expect(mockSetFiltersList).toHaveBeenCalledWith([]);
+      expect(mockHandleFilterOffers).toHaveBeenCalledWith(
+        { tags: [] },
+        { page: 0, size: 20 },
+      );
+    });
+  });
+
+  it("closes filter even when clear fails", async () => {
+    mockClearFilters.mockRejectedValue(new Error("clear failed"));
+    const onClose = jest.fn();
+
+    const { getByText } = render(
+      <FilterContent setOffersData={jest.fn()} onClose={onClose} />,
+    );
+
+    await waitFor(() => {
+      expect(getByText("filter.clear")).toBeTruthy();
+    });
+
+    fireEvent.press(getByText("filter.clear"));
+
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "error while clearing filters:",
+        expect.any(Error),
+      );
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("does not hydrate selected tags when filters is not an array", async () => {
+    mockUseFilterState.filters = "invalid-filters-state";
+
+    const { getByText } = render(<FilterContent setOffersData={jest.fn()} />);
+
+    await waitFor(() => {
+      expect(getByText("React")).toBeTruthy();
+    });
+
+    fireEvent.press(getByText("filter.apply"));
+
+    await waitFor(() => {
+      expect(mockSetFiltersList).toHaveBeenCalledWith([]);
+    });
+  });
+
+  it("handles apply when offers response has non-array content", async () => {
+    const setOffersData = jest.fn();
+
+    mockHandleFilterOffers.mockResolvedValueOnce({
+      body: {
+        data: {
+          content: null,
+        },
+      },
+    });
+
+    const { getByText } = render(
+      <FilterContent setOffersData={setOffersData} />,
+    );
+
+    await waitFor(() => {
+      expect(getByText("filter.apply")).toBeTruthy();
+    });
+
+    fireEvent.press(getByText("filter.apply"));
+
+    await waitFor(() => {
+      expect(setOffersData).toHaveBeenCalledWith([]);
+    });
+  });
+
+  it("handles clear when offers response has non-array content", async () => {
+    const setOffersData = jest.fn();
+
+    mockHandleFilterOffers.mockResolvedValueOnce({
+      body: {
+        data: {
+          content: null,
+        },
+      },
+    });
+
+    const { getByText } = render(
+      <FilterContent setOffersData={setOffersData} />,
+    );
+
+    await waitFor(() => {
+      expect(getByText("filter.clear")).toBeTruthy();
+    });
+
+    fireEvent.press(getByText("filter.clear"));
+
+    await waitFor(() => {
+      expect(setOffersData).toHaveBeenCalledWith([]);
     });
   });
 });

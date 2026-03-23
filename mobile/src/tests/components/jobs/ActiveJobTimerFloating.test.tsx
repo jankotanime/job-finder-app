@@ -9,6 +9,10 @@ const mockNavigate = jest.fn();
 const mockGetActiveJobTimer = jest.fn();
 const mockGetContractorFinishedLocally = jest.fn();
 const mockClearActiveJobTimer = jest.fn();
+const mockAuthState: { userInfo?: { username?: string }; user?: string } = {
+  userInfo: { username: "john" },
+  user: "john",
+};
 
 jest.mock("@react-navigation/native", () => ({
   useNavigation: () => ({
@@ -25,8 +29,8 @@ jest.mock("react-i18next", () => ({
 
 jest.mock("../../../contexts/AuthContext", () => ({
   useAuth: () => ({
-    userInfo: { username: "john" },
-    user: "john",
+    userInfo: mockAuthState.userInfo,
+    user: mockAuthState.user,
   }),
 }));
 
@@ -48,6 +52,8 @@ describe("ActiveJobTimerFloating component", () => {
     mockGetActiveJobTimer.mockReset();
     mockGetContractorFinishedLocally.mockReset();
     mockClearActiveJobTimer.mockReset();
+    mockAuthState.userInfo = { username: "john" };
+    mockAuthState.user = "john";
 
     animatedTimingSpy = jest.spyOn(Animated, "timing").mockReturnValue({
       start: (cb?: (result: { finished: boolean }) => void) =>
@@ -114,6 +120,60 @@ describe("ActiveJobTimerFloating component", () => {
       jobId: "job-1",
       role: "owner",
       startedAt: expect.any(Number),
+    });
+  });
+
+  it("clears contractor timer when job is finished locally", async () => {
+    mockGetContractorFinishedLocally.mockResolvedValue(true);
+    mockGetActiveJobTimer.mockResolvedValue({
+      jobId: "job-2",
+      role: "contractor",
+      startedAt: Date.now() - 2000,
+    });
+
+    const { queryByLabelText } = render(<ActiveJobTimerFloating />);
+
+    await waitFor(() => {
+      expect(mockClearActiveJobTimer).toHaveBeenCalledWith("job-2", "john");
+      expect(queryByLabelText("jobs.timerBanner.title")).toBeNull();
+    });
+  });
+
+  it("hides banner when refresh throws", async () => {
+    mockGetActiveJobTimer.mockRejectedValue(new Error("boom"));
+
+    const { queryByLabelText } = render(<ActiveJobTimerFloating />);
+
+    await waitFor(() => {
+      expect(queryByLabelText("jobs.timerBanner.title")).toBeNull();
+    });
+  });
+
+  it("uses trimmed fallback username from user when userInfo is missing", async () => {
+    mockAuthState.userInfo = undefined;
+    mockAuthState.user = "  jane  ";
+    mockGetActiveJobTimer.mockResolvedValue(null);
+
+    render(<ActiveJobTimerFloating />);
+
+    await waitFor(() => {
+      expect(mockGetActiveJobTimer).toHaveBeenCalledWith("jane");
+    });
+  });
+
+  it("keeps timer visible for contractor when not finished locally", async () => {
+    mockGetContractorFinishedLocally.mockResolvedValue(false);
+    mockGetActiveJobTimer.mockResolvedValue({
+      jobId: "job-3",
+      role: "contractor",
+      startedAt: Date.now() - 3000,
+    });
+
+    const { getByLabelText } = render(<ActiveJobTimerFloating />);
+
+    await waitFor(() => {
+      expect(getByLabelText("jobs.timerBanner.title")).toBeTruthy();
+      expect(mockClearActiveJobTimer).not.toHaveBeenCalled();
     });
   });
 });
