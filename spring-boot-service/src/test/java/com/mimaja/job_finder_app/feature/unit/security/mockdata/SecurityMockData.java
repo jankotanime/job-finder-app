@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class SecurityMockData {
-
     public static final String TEST_SECRET_KEY = "test-secret-key-for-testing-purposes";
     public static final String TEST_USERNAME = "testuser";
     public static final String TEST_EMAIL = "user@example.com";

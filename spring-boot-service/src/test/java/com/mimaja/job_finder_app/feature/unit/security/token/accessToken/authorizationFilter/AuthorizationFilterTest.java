@@ -1,9 +1,26 @@
 package com.mimaja.job_finder_app.feature.unit.security.token.accessToken.authorizationFilter;
 
-import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_EMAIL;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_FIRST_NAME;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_LAST_NAME;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_PHONE_NUMBER;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_ROLE;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_SECRET_KEY;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_USERNAME;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createAccessTokenWithoutEmail;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createAccessTokenWithoutPhoneNumber;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createAccessTokenWithoutUsername;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createInvalidAccessToken;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createTestUser;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createTestUserWithoutFirstName;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createTestUserWithoutLastName;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createValidAccessToken;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +48,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthorizationFilter - Unit Tests")
 class AuthorizationFilterTest {
-
     @Mock private UserRepository userRepository;
     @Mock private HttpServletRequest request;
     @Mock private HttpServletResponse response;
@@ -46,7 +62,8 @@ class AuthorizationFilterTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        authorizationFilter = new AuthorizationFilter(TEST_SECRET_KEY, userRepository, objectMapper);
+        authorizationFilter =
+                new AuthorizationFilter(TEST_SECRET_KEY, userRepository, objectMapper);
         testUser = createTestUser();
         SecurityContextHolder.clearContext();
     }
@@ -70,7 +87,8 @@ class AuthorizationFilterTest {
     }
 
     @Test
-    @DisplayName("Should pass request to filter chain when authorization header without Bearer prefix")
+    @DisplayName(
+            "Should pass request to filter chain when authorization header without Bearer prefix")
     void testDoFilterInternal_shouldPassToChain_whenAuthHeaderWithoutBearer()
             throws ServletException, IOException {
         // given
@@ -520,15 +538,16 @@ class AuthorizationFilterTest {
             throws ServletException, IOException {
         // given
         // Create token without subject (id)
-        String token = JWT.create()
-                .withClaim("username", TEST_USERNAME)
-                .withClaim("email", TEST_EMAIL)
-                .withClaim("role", TEST_ROLE)
-                .withClaim("phoneNumber", TEST_PHONE_NUMBER)
-                .withClaim("firstName", TEST_FIRST_NAME)
-                .withClaim("lastName", TEST_LAST_NAME)
-                .withExpiresAt(Instant.now().plusSeconds(3600))
-                .sign(com.auth0.jwt.algorithms.Algorithm.HMAC256(TEST_SECRET_KEY));
+        String token =
+                JWT.create()
+                        .withClaim("username", TEST_USERNAME)
+                        .withClaim("email", TEST_EMAIL)
+                        .withClaim("role", TEST_ROLE)
+                        .withClaim("phoneNumber", TEST_PHONE_NUMBER)
+                        .withClaim("firstName", TEST_FIRST_NAME)
+                        .withClaim("lastName", TEST_LAST_NAME)
+                        .withExpiresAt(Instant.now().plusSeconds(3600))
+                        .sign(com.auth0.jwt.algorithms.Algorithm.HMAC256(TEST_SECRET_KEY));
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
 
         // when

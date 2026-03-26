@@ -21,6 +21,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 class UserAdminControllerIntegrationTest extends IntegrationTest {
     private static final String USERNAME_PATH = "$.data.username";
@@ -153,11 +154,14 @@ class UserAdminControllerIntegrationTest extends IntegrationTest {
         TestUserCredentials user = IntegrationTestUsers.next();
         String createdUserId = createUserAndGetId(adminToken, user);
 
-        // when / then
-        mockMvc.perform(
+        // when
+        ResultActions resultActions =
+                mockMvc.perform(
                         delete(adminUserPathWithId(), createdUserId)
-                                .header(HttpHeaders.AUTHORIZATION, bearerToken(adminToken)))
-                .andExpect(status().isOk());
+                                .header(HttpHeaders.AUTHORIZATION, bearerToken(adminToken)));
+
+        // then
+        resultActions.andExpect(status().isOk());
     }
 
     private String createUserAndGetId(String adminToken, TestUserCredentials user)

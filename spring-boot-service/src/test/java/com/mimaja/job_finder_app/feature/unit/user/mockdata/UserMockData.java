@@ -1,9 +1,9 @@
 package com.mimaja.job_finder_app.feature.unit.user.mockdata;
 
+import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.profilephoto.dto.ProfilePhotoCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.profilephoto.model.ProfilePhoto;
-import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
 import com.mimaja.job_finder_app.shared.enums.MimeType;
 import java.util.UUID;
 
@@ -54,7 +54,6 @@ public class UserMockData {
                 "password123",
                 TEST_FIRST_NAME,
                 TEST_LAST_NAME,
-                TEST_PROFILE_DESCRIPTION
-        );
+                TEST_PROFILE_DESCRIPTION);
     }
 }

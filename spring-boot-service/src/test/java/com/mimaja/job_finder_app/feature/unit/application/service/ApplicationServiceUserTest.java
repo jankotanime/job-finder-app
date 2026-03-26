@@ -1,28 +1,14 @@
 package com.mimaja.job_finder_app.feature.unit.application.service;
 
+import static com.mimaja.job_finder_app.feature.unit.application.mockdata.ApplicationMockData.createTestApplication;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithOwner;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestUser;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestUser;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithOwner;
-import static com.mimaja.job_finder_app.feature.unit.application.mockdata.ApplicationMockData.createTestApplication;
-
-import java.util.List;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
@@ -37,19 +23,27 @@ import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
+import java.util.List;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ApplicationServiceUser - Unit Tests")
 public class ApplicationServiceUserTest {
+    @Mock private ApplicationService applicationService;
 
-    @Mock
-    private ApplicationService applicationService;
+    @Mock private ApplicationMapper applicationMapper;
 
-    @Mock
-    private ApplicationMapper applicationMapper;
-
-    @Mock
-    private OfferService offerService;
+    @Mock private OfferService offerService;
 
     private ApplicationServiceUser applicationServiceUser;
 
@@ -65,7 +59,8 @@ public class ApplicationServiceUserTest {
 
     @BeforeEach
     void setUp() {
-        applicationServiceUser = new ApplicationServiceUser(applicationService, applicationMapper, offerService);
+        applicationServiceUser =
+                new ApplicationServiceUser(applicationService, applicationMapper, offerService);
 
         testOwner = createTestUser();
         testCandidate = createTestUser();
@@ -91,11 +86,13 @@ public class ApplicationServiceUserTest {
         ApplicationResponseDto responseDto = org.mockito.Mockito.mock(ApplicationResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationService.getAllApplicationsByOfferId(offerId, pageable)).thenReturn(applicationsPage);
+        when(applicationService.getAllApplicationsByOfferId(offerId, pageable))
+                .thenReturn(applicationsPage);
         when(applicationMapper.toResponseDto(testApplication)).thenReturn(responseDto);
 
         // when
-        Page<ApplicationResponseDto> result = applicationServiceUser.getAllApplicationsByOfferId(offerId, ownerJwt, pageable);
+        Page<ApplicationResponseDto> result =
+                applicationServiceUser.getAllApplicationsByOfferId(offerId, ownerJwt, pageable);
 
         // then
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -112,15 +109,17 @@ public class ApplicationServiceUserTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationServiceUser.getAllApplicationsByOfferId(offerId, differentUserJwt, pageable),
-            "Should throw BusinessException when user is not owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                applicationServiceUser.getAllApplicationsByOfferId(
+                                        offerId, differentUserJwt, pageable),
+                        "Should throw BusinessException when user is not owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
     }
 
     @Test
@@ -132,7 +131,8 @@ public class ApplicationServiceUserTest {
         Page<Application> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationService.getAllApplicationsByOfferId(offerId, pageable)).thenReturn(emptyPage);
+        when(applicationService.getAllApplicationsByOfferId(offerId, pageable))
+                .thenReturn(emptyPage);
 
         // when
         applicationServiceUser.getAllApplicationsByOfferId(offerId, ownerJwt, pageable);
@@ -151,11 +151,13 @@ public class ApplicationServiceUserTest {
         UUID applicationId = testApplication.getId();
         ApplicationResponseDto responseDto = org.mockito.Mockito.mock(ApplicationResponseDto.class);
 
-        when(applicationService.getApplicationById(offerId, applicationId)).thenReturn(testApplication);
+        when(applicationService.getApplicationById(offerId, applicationId))
+                .thenReturn(testApplication);
         when(applicationMapper.toResponseDto(testApplication)).thenReturn(responseDto);
 
         // when
-        ApplicationResponseDto result = applicationServiceUser.getApplicationById(offerId, applicationId, ownerJwt);
+        ApplicationResponseDto result =
+                applicationServiceUser.getApplicationById(offerId, applicationId, ownerJwt);
 
         // then
         assertNotNull(result, "Application response should not be null");
@@ -169,11 +171,13 @@ public class ApplicationServiceUserTest {
         UUID applicationId = testApplication.getId();
         ApplicationResponseDto responseDto = org.mockito.Mockito.mock(ApplicationResponseDto.class);
 
-        when(applicationService.getApplicationById(offerId, applicationId)).thenReturn(testApplication);
+        when(applicationService.getApplicationById(offerId, applicationId))
+                .thenReturn(testApplication);
         when(applicationMapper.toResponseDto(testApplication)).thenReturn(responseDto);
 
         // when
-        ApplicationResponseDto result = applicationServiceUser.getApplicationById(offerId, applicationId, candidateJwt);
+        ApplicationResponseDto result =
+                applicationServiceUser.getApplicationById(offerId, applicationId, candidateJwt);
 
         // then
         assertNotNull(result, "Application response should not be null");
@@ -186,18 +190,21 @@ public class ApplicationServiceUserTest {
         UUID offerId = testOffer.getId();
         UUID applicationId = testApplication.getId();
 
-        when(applicationService.getApplicationById(offerId, applicationId)).thenReturn(testApplication);
+        when(applicationService.getApplicationById(offerId, applicationId))
+                .thenReturn(testApplication);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationServiceUser.getApplicationById(offerId, applicationId, differentUserJwt),
-            "Should throw BusinessException when user is not owner or candidate"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                applicationServiceUser.getApplicationById(
+                                        offerId, applicationId, differentUserJwt),
+                        "Should throw BusinessException when user is not owner or candidate");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
     }
 
     // ==================== Send Application Tests ====================
@@ -211,11 +218,13 @@ public class ApplicationServiceUserTest {
         ApplicationResponseDto responseDto = org.mockito.Mockito.mock(ApplicationResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationService.sendApplication(offerId, candidateJwt.id(), requestDto)).thenReturn(testApplication);
+        when(applicationService.sendApplication(offerId, candidateJwt.id(), requestDto))
+                .thenReturn(testApplication);
         when(applicationMapper.toResponseDto(testApplication)).thenReturn(responseDto);
 
         // when
-        ApplicationResponseDto result = applicationServiceUser.sendApplication(offerId, candidateJwt, requestDto);
+        ApplicationResponseDto result =
+                applicationServiceUser.sendApplication(offerId, candidateJwt, requestDto);
 
         // then
         assertNotNull(result, "Application response should not be null");
@@ -231,15 +240,15 @@ public class ApplicationServiceUserTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationServiceUser.sendApplication(offerId, ownerJwt, requestDto),
-            "Should throw BusinessException when owner tries to apply"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> applicationServiceUser.sendApplication(offerId, ownerJwt, requestDto),
+                        "Should throw BusinessException when owner tries to apply");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate owner cannot apply")
-            .isEqualTo(BusinessExceptionReason.OWNER_CANNOT_APPLY.getCode());
+                .as("Exception code should indicate owner cannot apply")
+                .isEqualTo(BusinessExceptionReason.OWNER_CANNOT_APPLY.getCode());
     }
 
     @Test
@@ -253,15 +262,17 @@ public class ApplicationServiceUserTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationServiceUser.sendApplication(offerId, candidateJwt, requestDto),
-            "Should throw BusinessException when candidate already applied"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                applicationServiceUser.sendApplication(
+                                        offerId, candidateJwt, requestDto),
+                        "Should throw BusinessException when candidate already applied");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate already applied")
-            .isEqualTo(BusinessExceptionReason.ALREADY_APPLIED_FOR_OFFER.getCode());
+                .as("Exception code should indicate already applied")
+                .isEqualTo(BusinessExceptionReason.ALREADY_APPLIED_FOR_OFFER.getCode());
     }
 
     @Test
@@ -277,15 +288,18 @@ public class ApplicationServiceUserTest {
         ApplicationResponseDto responseDto = org.mockito.Mockito.mock(ApplicationResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationService.sendApplication(offerId, candidateJwt.id(), requestDto)).thenReturn(testApplication);
+        when(applicationService.sendApplication(offerId, candidateJwt.id(), requestDto))
+                .thenReturn(testApplication);
         when(applicationMapper.toResponseDto(testApplication)).thenReturn(responseDto);
 
         // when
-        ApplicationResponseDto result = applicationServiceUser.sendApplication(offerId, candidateJwt, requestDto);
+        ApplicationResponseDto result =
+                applicationServiceUser.sendApplication(offerId, candidateJwt, requestDto);
 
         // then
         assertNotNull(result, "Application response should not be null");
-        verify(applicationService, times(1)).sendApplication(offerId, candidateJwt.id(), requestDto);
+        verify(applicationService, times(1))
+                .sendApplication(offerId, candidateJwt.id(), requestDto);
     }
 
     // ==================== Accept Application Tests ====================
@@ -299,11 +313,13 @@ public class ApplicationServiceUserTest {
         ApplicationResponseDto responseDto = org.mockito.Mockito.mock(ApplicationResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationService.acceptApplication(offerId, applicationId)).thenReturn(testApplication);
+        when(applicationService.acceptApplication(offerId, applicationId))
+                .thenReturn(testApplication);
         when(applicationMapper.toResponseDto(testApplication)).thenReturn(responseDto);
 
         // when
-        ApplicationResponseDto result = applicationServiceUser.acceptApplication(offerId, applicationId, ownerJwt);
+        ApplicationResponseDto result =
+                applicationServiceUser.acceptApplication(offerId, applicationId, ownerJwt);
 
         // then
         assertNotNull(result, "Application response should not be null");
@@ -319,15 +335,17 @@ public class ApplicationServiceUserTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationServiceUser.acceptApplication(offerId, applicationId, candidateJwt),
-            "Should throw BusinessException when user is not owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                applicationServiceUser.acceptApplication(
+                                        offerId, applicationId, candidateJwt),
+                        "Should throw BusinessException when user is not owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
     }
 
     // ==================== Reject Application Tests ====================
@@ -341,11 +359,13 @@ public class ApplicationServiceUserTest {
         ApplicationResponseDto responseDto = org.mockito.Mockito.mock(ApplicationResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationService.rejectApplication(offerId, applicationId)).thenReturn(testApplication);
+        when(applicationService.rejectApplication(offerId, applicationId))
+                .thenReturn(testApplication);
         when(applicationMapper.toResponseDto(testApplication)).thenReturn(responseDto);
 
         // when
-        ApplicationResponseDto result = applicationServiceUser.rejectApplication(offerId, applicationId, ownerJwt);
+        ApplicationResponseDto result =
+                applicationServiceUser.rejectApplication(offerId, applicationId, ownerJwt);
 
         // then
         assertNotNull(result, "Application response should not be null");
@@ -361,15 +381,17 @@ public class ApplicationServiceUserTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationServiceUser.rejectApplication(offerId, applicationId, candidateJwt),
-            "Should throw BusinessException when user is not owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                applicationServiceUser.rejectApplication(
+                                        offerId, applicationId, candidateJwt),
+                        "Should throw BusinessException when user is not owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
     }
 
     // ==================== Helper Methods ====================

@@ -1,30 +1,14 @@
 package com.mimaja.job_finder_app.feature.unit.offer.service;
 
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithOwner;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestUser;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestUser;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithOwner;
-
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
@@ -40,16 +24,27 @@ import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.feature.offer.service.OfferUserService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OfferUserService - Unit Tests")
 public class OfferUserServiceTest {
+    @Mock private OfferService offerService;
 
-    @Mock
-    private OfferService offerService;
-
-    @Mock
-    private OfferMapper offerMapper;
+    @Mock private OfferMapper offerMapper;
 
     private OfferUserService offerUserService;
 
@@ -78,7 +73,8 @@ public class OfferUserServiceTest {
     void testGetOfferById_WithUserIsOwner_ShouldReturnOfferUserIsOwnerResponseDto() {
         // given
         UUID offerId = testOffer.getId();
-        OfferUserIsOwnerResponseDto expectedDto = org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
+        OfferUserIsOwnerResponseDto expectedDto =
+                org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(offerMapper.toOfferUserIsOwnerResponseDto(testOffer)).thenReturn(expectedDto);
@@ -95,7 +91,8 @@ public class OfferUserServiceTest {
     void testGetOfferById_WithUserIsNotOwner_ShouldReturnOfferSummaryResponseDto() {
         // given
         UUID offerId = testOffer.getId();
-        OfferSummaryResponseDto expectedDto = org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
+        OfferSummaryResponseDto expectedDto =
+                org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(offerMapper.toOfferSummaryResponseDto(testOffer)).thenReturn(expectedDto);
@@ -112,7 +109,8 @@ public class OfferUserServiceTest {
     void testGetOfferById_ShouldCallOfferServiceGetOfferById() {
         // given
         UUID offerId = testOffer.getId();
-        OfferUserIsOwnerResponseDto expectedDto = org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
+        OfferUserIsOwnerResponseDto expectedDto =
+                org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(offerMapper.toOfferUserIsOwnerResponseDto(testOffer)).thenReturn(expectedDto);
@@ -129,7 +127,8 @@ public class OfferUserServiceTest {
     void testGetOfferById_WithUserIsNotOwner_ShouldCallOfferServiceGetOfferByIdTwice() {
         // given
         UUID offerId = testOffer.getId();
-        OfferSummaryResponseDto expectedDto = org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
+        OfferSummaryResponseDto expectedDto =
+                org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(offerMapper.toOfferSummaryResponseDto(testOffer)).thenReturn(expectedDto);
@@ -148,17 +147,19 @@ public class OfferUserServiceTest {
     void testCreateOffer_WithValidData_ShouldReturnOfferUserIsOwnerResponseDto() {
         // given
         OfferCreateRequestDto requestDto = createTestOfferCreateRequestDto();
-        OfferUserIsOwnerResponseDto expectedDto = org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
+        OfferUserIsOwnerResponseDto expectedDto =
+                org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
 
         when(offerService.createOffer(
-            ArgumentMatchers.<Optional<MultipartFile>>any(),
-            any(OfferCreateRequestDto.class),
-            any(UUID.class)
-        )).thenReturn(testOffer);
+                        ArgumentMatchers.<Optional<MultipartFile>>any(),
+                        any(OfferCreateRequestDto.class),
+                        any(UUID.class)))
+                .thenReturn(testOffer);
         when(offerMapper.toOfferUserIsOwnerResponseDto(testOffer)).thenReturn(expectedDto);
 
         // when
-        OfferUserIsOwnerResponseDto result = offerUserService.createOffer(Optional.empty(), requestDto, ownerJwt);
+        OfferUserIsOwnerResponseDto result =
+                offerUserService.createOffer(Optional.empty(), requestDto, ownerJwt);
 
         // then
         assertNotNull(result, "Created offer response should not be null");
@@ -172,7 +173,8 @@ public class OfferUserServiceTest {
         MultipartFile photo = org.mockito.Mockito.mock(MultipartFile.class);
         Optional<MultipartFile> photoOptional = Optional.of(photo);
 
-        when(offerService.createOffer(photoOptional, requestDto, ownerJwt.id())).thenReturn(testOffer);
+        when(offerService.createOffer(photoOptional, requestDto, ownerJwt.id()))
+                .thenReturn(testOffer);
         when(offerMapper.toOfferUserIsOwnerResponseDto(testOffer))
                 .thenReturn(org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class));
 
@@ -188,13 +190,14 @@ public class OfferUserServiceTest {
     void testCreateOffer_ShouldMapOfferToResponseDto() {
         // given
         OfferCreateRequestDto requestDto = createTestOfferCreateRequestDto();
-        OfferUserIsOwnerResponseDto expectedDto = org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
+        OfferUserIsOwnerResponseDto expectedDto =
+                org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
 
         when(offerService.createOffer(
-            ArgumentMatchers.<Optional<MultipartFile>>any(),
-            any(OfferCreateRequestDto.class),
-            any(UUID.class)
-        )).thenReturn(testOffer);
+                        ArgumentMatchers.<Optional<MultipartFile>>any(),
+                        any(OfferCreateRequestDto.class),
+                        any(UUID.class)))
+                .thenReturn(testOffer);
         when(offerMapper.toOfferUserIsOwnerResponseDto(testOffer)).thenReturn(expectedDto);
 
         // when
@@ -212,18 +215,20 @@ public class OfferUserServiceTest {
         // given
         UUID offerId = testOffer.getId();
         OfferUpdateRequestDto requestDto = createTestOfferUpdateRequestDto();
-        OfferUserIsOwnerResponseDto expectedDto = org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
+        OfferUserIsOwnerResponseDto expectedDto =
+                org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(offerService.updateOffer(
-            any(UUID.class),
-            ArgumentMatchers.<Optional<MultipartFile>>any(),
-            any(OfferUpdateRequestDto.class)
-        )).thenReturn(testOffer);
+                        any(UUID.class),
+                        ArgumentMatchers.<Optional<MultipartFile>>any(),
+                        any(OfferUpdateRequestDto.class)))
+                .thenReturn(testOffer);
         when(offerMapper.toOfferUserIsOwnerResponseDto(testOffer)).thenReturn(expectedDto);
 
         // when
-        OfferUserIsOwnerResponseDto result = offerUserService.updateOffer(offerId, Optional.empty(), requestDto, ownerJwt);
+        OfferUserIsOwnerResponseDto result =
+                offerUserService.updateOffer(offerId, Optional.empty(), requestDto, ownerJwt);
 
         // then
         assertNotNull(result, "Updated offer should not be null");
@@ -239,15 +244,17 @@ public class OfferUserServiceTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> offerUserService.updateOffer(offerId, Optional.empty(), requestDto, differentUserJwt),
-            "Should throw BusinessException when user is not owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                offerUserService.updateOffer(
+                                        offerId, Optional.empty(), requestDto, differentUserJwt),
+                        "Should throw BusinessException when user is not owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
     }
 
     @Test
@@ -256,14 +263,15 @@ public class OfferUserServiceTest {
         // given
         UUID offerId = testOffer.getId();
         OfferUpdateRequestDto requestDto = createTestOfferUpdateRequestDto();
-        OfferUserIsOwnerResponseDto expectedDto = org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
+        OfferUserIsOwnerResponseDto expectedDto =
+                org.mockito.Mockito.mock(OfferUserIsOwnerResponseDto.class);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(offerService.updateOffer(
-            any(UUID.class),
-            ArgumentMatchers.<Optional<MultipartFile>>any(),
-            any(OfferUpdateRequestDto.class)
-        )).thenReturn(testOffer);
+                        any(UUID.class),
+                        ArgumentMatchers.<Optional<MultipartFile>>any(),
+                        any(OfferUpdateRequestDto.class)))
+                .thenReturn(testOffer);
         when(offerMapper.toOfferUserIsOwnerResponseDto(testOffer)).thenReturn(expectedDto);
 
         // when
@@ -299,15 +307,15 @@ public class OfferUserServiceTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> offerUserService.deleteOffer(offerId, differentUserJwt),
-            "Should throw BusinessException when user is not owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> offerUserService.deleteOffer(offerId, differentUserJwt),
+                        "Should throw BusinessException when user is not owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
     }
 
     @Test
@@ -335,9 +343,8 @@ public class OfferUserServiceTest {
 
         // when & then
         assertThrows(
-            BusinessException.class,
-            () -> offerUserService.deleteOffer(offerId, differentUserJwt)
-        );
+                BusinessException.class,
+                () -> offerUserService.deleteOffer(offerId, differentUserJwt));
 
         verify(offerService, times(0)).deleteOffer(offerId);
     }
@@ -351,13 +358,15 @@ public class OfferUserServiceTest {
         OfferFilterRequestDto filterDto = createTestOfferFilterRequestDto();
         Pageable pageable = PageRequest.of(0, 10);
         Page<Offer> offersPage = new PageImpl<>(java.util.List.of(testOffer), pageable, 1);
-        OfferSummaryResponseDto summaryDto = org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
+        OfferSummaryResponseDto summaryDto =
+                org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
 
         when(offerService.getFilteredOffers(filterDto, pageable)).thenReturn(offersPage);
         when(offerMapper.toOfferSummaryResponseDto(testOffer)).thenReturn(summaryDto);
 
         // when
-        Page<OfferSummaryResponseDto> result = offerUserService.getFilteredOffers(filterDto, pageable);
+        Page<OfferSummaryResponseDto> result =
+                offerUserService.getFilteredOffers(filterDto, pageable);
 
         // then
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -375,7 +384,8 @@ public class OfferUserServiceTest {
         when(offerService.getFilteredOffers(filterDto, pageable)).thenReturn(emptyPage);
 
         // when
-        Page<OfferSummaryResponseDto> result = offerUserService.getFilteredOffers(filterDto, pageable);
+        Page<OfferSummaryResponseDto> result =
+                offerUserService.getFilteredOffers(filterDto, pageable);
 
         // then
         assertThat(result.getTotalElements()).isEqualTo(0);
@@ -406,16 +416,20 @@ public class OfferUserServiceTest {
         OfferFilterRequestDto filterDto = createTestOfferFilterRequestDto();
         Pageable pageable = PageRequest.of(0, 10);
         Offer secondOffer = createTestOfferWithOwner(testOwner);
-        Page<Offer> offersPage = new PageImpl<>(java.util.List.of(testOffer, secondOffer), pageable, 2);
-        OfferSummaryResponseDto summaryDto1 = org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
-        OfferSummaryResponseDto summaryDto2 = org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
+        Page<Offer> offersPage =
+                new PageImpl<>(java.util.List.of(testOffer, secondOffer), pageable, 2);
+        OfferSummaryResponseDto summaryDto1 =
+                org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
+        OfferSummaryResponseDto summaryDto2 =
+                org.mockito.Mockito.mock(OfferSummaryResponseDto.class);
 
         when(offerService.getFilteredOffers(filterDto, pageable)).thenReturn(offersPage);
         when(offerMapper.toOfferSummaryResponseDto(testOffer)).thenReturn(summaryDto1);
         when(offerMapper.toOfferSummaryResponseDto(secondOffer)).thenReturn(summaryDto2);
 
         // when
-        Page<OfferSummaryResponseDto> result = offerUserService.getFilteredOffers(filterDto, pageable);
+        Page<OfferSummaryResponseDto> result =
+                offerUserService.getFilteredOffers(filterDto, pageable);
 
         // then
         verify(offerMapper, times(1)).toOfferSummaryResponseDto(testOffer);

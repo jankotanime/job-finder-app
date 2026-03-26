@@ -1,30 +1,15 @@
 package com.mimaja.job_finder_app.feature.unit.application.service;
 
+import static com.mimaja.job_finder_app.feature.unit.application.mockdata.ApplicationMockData.createTestApplication;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithOwner;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestUser;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestUser;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithOwner;
-import static com.mimaja.job_finder_app.feature.unit.application.mockdata.ApplicationMockData.createTestApplication;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
@@ -42,25 +27,32 @@ import com.mimaja.job_finder_app.feature.offer.model.OfferStatus;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.service.UserService;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ApplicationServiceDefault - Unit Tests")
 public class ApplicationServiceDefaultTest {
+    @Mock private ApplicationRepository applicationRepository;
 
-    @Mock
-    private ApplicationRepository applicationRepository;
+    @Mock private OfferService offerService;
 
-    @Mock
-    private OfferService offerService;
+    @Mock private UserService userService;
 
-    @Mock
-    private UserService userService;
+    @Mock private CvService cvService;
 
-    @Mock
-    private CvService cvService;
-
-    @Mock
-    private ApplicationMapper applicationMapper;
+    @Mock private ApplicationMapper applicationMapper;
 
     private ApplicationServiceDefault applicationService;
 
@@ -72,13 +64,13 @@ public class ApplicationServiceDefaultTest {
 
     @BeforeEach
     void setUp() {
-        applicationService = new ApplicationServiceDefault(
-            applicationRepository,
-            offerService,
-            userService,
-            cvService,
-            applicationMapper
-        );
+        applicationService =
+                new ApplicationServiceDefault(
+                        applicationRepository,
+                        offerService,
+                        userService,
+                        cvService,
+                        applicationMapper);
 
         testOwner = createTestUser();
         testCandidate = createTestUser();
@@ -101,7 +93,8 @@ public class ApplicationServiceDefaultTest {
         when(applicationRepository.findAllByOfferId(offerId, pageable)).thenReturn(expectedPage);
 
         // when
-        Page<Application> result = applicationService.getAllApplicationsByOfferId(offerId, pageable);
+        Page<Application> result =
+                applicationService.getAllApplicationsByOfferId(offerId, pageable);
 
         // then
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -153,7 +146,8 @@ public class ApplicationServiceDefaultTest {
         UUID offerId = testOffer.getId();
         UUID applicationId = testApplication.getId();
 
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(testApplication));
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(testApplication));
 
         // when
         Application result = applicationService.getApplicationById(offerId, applicationId);
@@ -173,15 +167,15 @@ public class ApplicationServiceDefaultTest {
         when(applicationRepository.findById(applicationId)).thenReturn(Optional.empty());
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationService.getApplicationById(offerId, applicationId),
-            "Should throw BusinessException when application not found"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> applicationService.getApplicationById(offerId, applicationId),
+                        "Should throw BusinessException when application not found");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate application not found")
-            .isEqualTo(BusinessExceptionReason.APPLICATION_NOT_FOUND.getCode());
+                .as("Exception code should indicate application not found")
+                .isEqualTo(BusinessExceptionReason.APPLICATION_NOT_FOUND.getCode());
     }
 
     // ==================== Accept Application Tests ====================
@@ -196,7 +190,8 @@ public class ApplicationServiceDefaultTest {
         testApplication.setStatus(ApplicationStatus.SENT);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(testApplication));
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(testApplication));
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when
@@ -216,7 +211,8 @@ public class ApplicationServiceDefaultTest {
         testApplication.setStatus(ApplicationStatus.SENT);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(testApplication));
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(testApplication));
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when
@@ -236,7 +232,8 @@ public class ApplicationServiceDefaultTest {
         testApplication.setStatus(ApplicationStatus.SENT);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(testApplication));
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(testApplication));
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when
@@ -255,18 +252,19 @@ public class ApplicationServiceDefaultTest {
         testApplication.setStatus(ApplicationStatus.ACCEPTED);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(testApplication));
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(testApplication));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationService.acceptApplication(offerId, applicationId),
-            "Should throw BusinessException when application already reviewed"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> applicationService.acceptApplication(offerId, applicationId),
+                        "Should throw BusinessException when application already reviewed");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate application already reviewed")
-            .isEqualTo(BusinessExceptionReason.APPLICATION_ALREADY_REVIEWED.getCode());
+                .as("Exception code should indicate application already reviewed")
+                .isEqualTo(BusinessExceptionReason.APPLICATION_ALREADY_REVIEWED.getCode());
     }
 
     // ==================== Reject Application Tests ====================
@@ -280,7 +278,8 @@ public class ApplicationServiceDefaultTest {
         testApplication.setStatus(ApplicationStatus.SENT);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(testApplication));
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(testApplication));
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when
@@ -299,7 +298,8 @@ public class ApplicationServiceDefaultTest {
         testApplication.setStatus(ApplicationStatus.SENT);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(testApplication));
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(testApplication));
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when
@@ -318,18 +318,19 @@ public class ApplicationServiceDefaultTest {
         testApplication.setStatus(ApplicationStatus.REJECTED);
 
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(testApplication));
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(testApplication));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationService.rejectApplication(offerId, applicationId),
-            "Should throw BusinessException when application already reviewed"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> applicationService.rejectApplication(offerId, applicationId),
+                        "Should throw BusinessException when application already reviewed");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate application already reviewed")
-            .isEqualTo(BusinessExceptionReason.APPLICATION_ALREADY_REVIEWED.getCode());
+                .as("Exception code should indicate application already reviewed")
+                .isEqualTo(BusinessExceptionReason.APPLICATION_ALREADY_REVIEWED.getCode());
     }
 
     // ==================== Send Application Tests ====================
@@ -347,7 +348,8 @@ public class ApplicationServiceDefaultTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(cvService.getCvById(cvId)).thenReturn(testCv);
         when(userService.getUserById(userId)).thenReturn(testCandidate);
-        when(applicationMapper.toEntity(any(ApplicationCreateRequestDto.class))).thenReturn(testApplication);
+        when(applicationMapper.toEntity(any(ApplicationCreateRequestDto.class)))
+                .thenReturn(testApplication);
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when
@@ -370,15 +372,15 @@ public class ApplicationServiceDefaultTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> applicationService.sendApplication(offerId, userId, requestDto),
-            "Should throw BusinessException when offer is closed"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> applicationService.sendApplication(offerId, userId, requestDto),
+                        "Should throw BusinessException when offer is closed");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate offer candidates limit")
-            .isEqualTo(BusinessExceptionReason.OFFER_CANDIDATES_LIMIT.getCode());
+                .as("Exception code should indicate offer candidates limit")
+                .isEqualTo(BusinessExceptionReason.OFFER_CANDIDATES_LIMIT.getCode());
     }
 
     @Test
@@ -394,7 +396,8 @@ public class ApplicationServiceDefaultTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(cvService.getCvById(cvId)).thenReturn(testCv);
         when(userService.getUserById(userId)).thenReturn(testCandidate);
-        when(applicationMapper.toEntity(any(ApplicationCreateRequestDto.class))).thenReturn(testApplication);
+        when(applicationMapper.toEntity(any(ApplicationCreateRequestDto.class)))
+                .thenReturn(testApplication);
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when
@@ -417,7 +420,8 @@ public class ApplicationServiceDefaultTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(cvService.getCvById(cvId)).thenReturn(testCv);
         when(userService.getUserById(userId)).thenReturn(testCandidate);
-        when(applicationMapper.toEntity(any(ApplicationCreateRequestDto.class))).thenReturn(testApplication);
+        when(applicationMapper.toEntity(any(ApplicationCreateRequestDto.class)))
+                .thenReturn(testApplication);
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when
@@ -440,7 +444,8 @@ public class ApplicationServiceDefaultTest {
         when(offerService.getOfferById(offerId)).thenReturn(testOffer);
         when(cvService.getCvById(cvId)).thenReturn(testCv);
         when(userService.getUserById(userId)).thenReturn(testCandidate);
-        when(applicationMapper.toEntity(any(ApplicationCreateRequestDto.class))).thenReturn(testApplication);
+        when(applicationMapper.toEntity(any(ApplicationCreateRequestDto.class)))
+                .thenReturn(testApplication);
         when(applicationRepository.save(testApplication)).thenReturn(testApplication);
 
         // when

@@ -1,9 +1,18 @@
 package com.mimaja.job_finder_app.feature.unit.security.authorization.login.utils;
 
-import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_EMAIL;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_PHONE_NUMBER;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.TEST_USERNAME;
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createTestUser;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
@@ -22,7 +31,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DefaultLoginValidation - Unit Tests")
 class DefaultLoginValidationTest {
-
     @Mock private UserRepository userRepository;
 
     private DefaultLoginValidation defaultLoginValidation;
@@ -123,8 +131,7 @@ class DefaultLoginValidationTest {
         String phoneNumberString = String.valueOf(TEST_PHONE_NUMBER);
         when(userRepository.findByUsername(phoneNumberString)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(phoneNumberString)).thenReturn(Optional.empty());
-        when(userRepository.findByPhoneNumber(TEST_PHONE_NUMBER))
-                .thenReturn(Optional.of(testUser));
+        when(userRepository.findByPhoneNumber(TEST_PHONE_NUMBER)).thenReturn(Optional.of(testUser));
 
         // when
         User result = defaultLoginValidation.userValidation(phoneNumberString);
@@ -141,8 +148,7 @@ class DefaultLoginValidationTest {
         String phoneNumberString = String.valueOf(TEST_PHONE_NUMBER);
         when(userRepository.findByUsername(phoneNumberString)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(phoneNumberString)).thenReturn(Optional.empty());
-        when(userRepository.findByPhoneNumber(TEST_PHONE_NUMBER))
-                .thenReturn(Optional.of(testUser));
+        when(userRepository.findByPhoneNumber(TEST_PHONE_NUMBER)).thenReturn(Optional.of(testUser));
 
         // when
         defaultLoginValidation.userValidation(phoneNumberString);
@@ -316,7 +322,7 @@ class DefaultLoginValidationTest {
         // given - setup multiple users to ensure correct one is returned
         User emailUser = createTestUser();
         emailUser.setId(UUID.randomUUID());
-        
+
         when(userRepository.findByUsername(TEST_EMAIL)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(emailUser));
 

@@ -1,27 +1,16 @@
 package com.mimaja.job_finder_app.feature.unit.contract.service;
 
+import static com.mimaja.job_finder_app.feature.unit.contract.mockdata.ContractMockData.createTestContract;
+import static com.mimaja.job_finder_app.feature.unit.contract.mockdata.ContractMockData.createTestJob;
+import static com.mimaja.job_finder_app.feature.unit.contract.mockdata.ContractMockData.createTestOffer;
+import static com.mimaja.job_finder_app.feature.unit.contract.mockdata.ContractMockData.createTestUser;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
-import static com.mimaja.job_finder_app.feature.unit.contract.mockdata.ContractMockData.createTestUser;
-import static com.mimaja.job_finder_app.feature.unit.contract.mockdata.ContractMockData.createTestOffer;
-import static com.mimaja.job_finder_app.feature.unit.contract.mockdata.ContractMockData.createTestContract;
-import static com.mimaja.job_finder_app.feature.unit.contract.mockdata.ContractMockData.createTestJob;
-
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
@@ -37,34 +26,36 @@ import com.mimaja.job_finder_app.feature.contract.utils.ContractFileManager;
 import com.mimaja.job_finder_app.feature.job.dto.JobResponseDto;
 import com.mimaja.job_finder_app.feature.job.mapper.JobMapper;
 import com.mimaja.job_finder_app.feature.job.model.Job;
+import com.mimaja.job_finder_app.feature.job.service.JobService;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.repository.OfferRepository;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
 import com.mimaja.job_finder_app.feature.user.model.User;
-import com.mimaja.job_finder_app.feature.job.service.JobService;
 import com.mimaja.job_finder_app.shared.record.JwtPrincipal;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ContractServiceDefault - Unit Tests")
 public class ContractServiceDefaultTest {
+    @Mock private OfferRepository offerRepository;
 
-    @Mock
-    private OfferRepository offerRepository;
+    @Mock private ContractRepository contractRepository;
 
-    @Mock
-    private ContractRepository contractRepository;
+    @Mock private ContractFileManager contractFileManager;
 
-    @Mock
-    private ContractFileManager contractFileManager;
+    @Mock private OfferService offerService;
 
-    @Mock
-    private OfferService offerService;
+    @Mock private JobService jobService;
 
-    @Mock
-    private JobService jobService;
-
-    @Mock
-    private JobMapper jobMapper;
+    @Mock private JobMapper jobMapper;
 
     private ContractServiceDefault contractService;
 
@@ -78,14 +69,14 @@ public class ContractServiceDefaultTest {
 
     @BeforeEach
     void setUp() {
-        contractService = new ContractServiceDefault(
-            offerRepository,
-            contractRepository,
-            contractFileManager,
-            offerService,
-            jobService,
-            jobMapper
-        );
+        contractService =
+                new ContractServiceDefault(
+                        offerRepository,
+                        contractRepository,
+                        contractFileManager,
+                        offerService,
+                        jobService,
+                        jobMapper);
 
         testOwner = createTestUser();
         testCandidate = createTestUser();
@@ -182,15 +173,15 @@ public class ContractServiceDefaultTest {
         when(offerRepository.findById(offerId)).thenReturn(Optional.empty());
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.uploadContract(requestDto, ownerPrincipal),
-            "Should throw BusinessException when offer not found"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.uploadContract(requestDto, ownerPrincipal),
+                        "Should throw BusinessException when offer not found");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate offer not found")
-            .isEqualTo(BusinessExceptionReason.OFFER_NOT_FOUND.getCode());
+                .as("Exception code should indicate offer not found")
+                .isEqualTo(BusinessExceptionReason.OFFER_NOT_FOUND.getCode());
         verify(offerRepository, times(1)).findById(offerId);
     }
 
@@ -205,15 +196,15 @@ public class ContractServiceDefaultTest {
         when(offerRepository.findById(offerId)).thenReturn(Optional.of(testOffer));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.uploadContract(requestDto, ownerPrincipal),
-            "Should throw BusinessException when offer already has contract"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.uploadContract(requestDto, ownerPrincipal),
+                        "Should throw BusinessException when offer already has contract");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate offer has contract")
-            .isEqualTo(BusinessExceptionReason.OFFER_HAS_CONTRACT.getCode());
+                .as("Exception code should indicate offer has contract")
+                .isEqualTo(BusinessExceptionReason.OFFER_HAS_CONTRACT.getCode());
         verify(offerRepository, times(1)).findById(offerId);
     }
 
@@ -228,15 +219,15 @@ public class ContractServiceDefaultTest {
         when(offerRepository.findById(offerId)).thenReturn(Optional.of(testOffer));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.uploadContract(requestDto, nonOwnerPrincipal),
-            "Should throw BusinessException when user is not owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.uploadContract(requestDto, nonOwnerPrincipal),
+                        "Should throw BusinessException when user is not owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
         verify(offerRepository, times(1)).findById(offerId);
     }
 
@@ -251,15 +242,15 @@ public class ContractServiceDefaultTest {
         when(offerRepository.findById(offerId)).thenReturn(Optional.of(testOffer));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.uploadContract(requestDto, ownerPrincipal),
-            "Should throw BusinessException when no candidate chosen"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.uploadContract(requestDto, ownerPrincipal),
+                        "Should throw BusinessException when no candidate chosen");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate no candidates")
-            .isEqualTo(BusinessExceptionReason.OFFER_HAS_NONE_CANDIDATES.getCode());
+                .as("Exception code should indicate no candidates")
+                .isEqualTo(BusinessExceptionReason.OFFER_HAS_NONE_CANDIDATES.getCode());
         verify(offerRepository, times(1)).findById(offerId);
     }
 
@@ -365,15 +356,17 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.empty());
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.updateContract(contractId, requestDto, ownerPrincipal),
-            "Should throw BusinessException when contract not found"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                contractService.updateContract(
+                                        contractId, requestDto, ownerPrincipal),
+                        "Should throw BusinessException when contract not found");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate contract not found")
-            .isEqualTo(BusinessExceptionReason.CONTRACT_NOT_FOUND.getCode());
+                .as("Exception code should indicate contract not found")
+                .isEqualTo(BusinessExceptionReason.CONTRACT_NOT_FOUND.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -388,15 +381,17 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(testContract));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.updateContract(contractId, requestDto, nonOwnerPrincipal),
-            "Should throw BusinessException when user is not owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () ->
+                                contractService.updateContract(
+                                        contractId, requestDto, nonOwnerPrincipal),
+                        "Should throw BusinessException when user is not owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -500,15 +495,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.empty());
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.acceptContract(contractId, candidatePrincipal),
-            "Should throw BusinessException when contract not found"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.acceptContract(contractId, candidatePrincipal),
+                        "Should throw BusinessException when contract not found");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate contract not found")
-            .isEqualTo(BusinessExceptionReason.CONTRACT_NOT_FOUND.getCode());
+                .as("Exception code should indicate contract not found")
+                .isEqualTo(BusinessExceptionReason.CONTRACT_NOT_FOUND.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -521,15 +516,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(testContract));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.acceptContract(contractId, nonCandidatePrincipal),
-            "Should throw BusinessException when user is not candidate"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.acceptContract(contractId, nonCandidatePrincipal),
+                        "Should throw BusinessException when user is not candidate");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not candidate")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_CANDIDATE.getCode());
+                .as("Exception code should indicate user is not candidate")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_CANDIDATE.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -589,15 +584,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(testContract));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.declineContract(contractId, nonCandidatePrincipal),
-            "Should throw BusinessException when user is not candidate"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.declineContract(contractId, nonCandidatePrincipal),
+                        "Should throw BusinessException when user is not candidate");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not candidate")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_CANDIDATE.getCode());
+                .as("Exception code should indicate user is not candidate")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_CANDIDATE.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -671,15 +666,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.empty());
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.getContract(contractId, ownerPrincipal),
-            "Should throw BusinessException when contract not found"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.getContract(contractId, ownerPrincipal),
+                        "Should throw BusinessException when contract not found");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate contract not found")
-            .isEqualTo(BusinessExceptionReason.CONTRACT_NOT_FOUND.getCode());
+                .as("Exception code should indicate contract not found")
+                .isEqualTo(BusinessExceptionReason.CONTRACT_NOT_FOUND.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -692,15 +687,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(testContract));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.getContract(contractId, unauthorizedPrincipal),
-            "Should throw BusinessException when user has no access"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.getContract(contractId, unauthorizedPrincipal),
+                        "Should throw BusinessException when user has no access");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not contractor or owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
+                .as("Exception code should indicate user is not contractor or owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -714,15 +709,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(testContract));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.getContract(contractId, ownerPrincipal),
-            "Should throw BusinessException when both job and offer are null"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.getContract(contractId, ownerPrincipal),
+                        "Should throw BusinessException when both job and offer are null");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not contractor or owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
+                .as("Exception code should indicate user is not contractor or owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -737,15 +732,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(testContract));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.getContract(contractId, unauthorizedPrincipal),
-            "Should throw BusinessException when user is not contractor or owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.getContract(contractId, unauthorizedPrincipal),
+                        "Should throw BusinessException when user is not contractor or owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not contractor or owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
+                .as("Exception code should indicate user is not contractor or owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -774,15 +769,15 @@ public class ContractServiceDefaultTest {
         when(offerRepository.findById(offerId)).thenReturn(Optional.empty());
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.getContractByOfferId(offerId, ownerPrincipal),
-            "Should throw BusinessException when offer not found"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.getContractByOfferId(offerId, ownerPrincipal),
+                        "Should throw BusinessException when offer not found");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate offer not found")
-            .isEqualTo(BusinessExceptionReason.OFFER_NOT_FOUND.getCode());
+                .as("Exception code should indicate offer not found")
+                .isEqualTo(BusinessExceptionReason.OFFER_NOT_FOUND.getCode());
         verify(offerRepository, times(1)).findById(offerId);
     }
 
@@ -795,15 +790,15 @@ public class ContractServiceDefaultTest {
         when(offerRepository.findById(offerId)).thenReturn(Optional.of(testOffer));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.getContractByOfferId(offerId, ownerPrincipal),
-            "Should throw BusinessException when offer has no contract"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.getContractByOfferId(offerId, ownerPrincipal),
+                        "Should throw BusinessException when offer has no contract");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate offer has no contract")
-            .isEqualTo(BusinessExceptionReason.OFFER_HAS_NO_CONTRACT.getCode());
+                .as("Exception code should indicate offer has no contract")
+                .isEqualTo(BusinessExceptionReason.OFFER_HAS_NO_CONTRACT.getCode());
         verify(offerRepository, times(1)).findById(offerId);
     }
 
@@ -817,15 +812,15 @@ public class ContractServiceDefaultTest {
         when(offerRepository.findById(offerId)).thenReturn(Optional.of(testOffer));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.getContractByOfferId(offerId, unauthorizedPrincipal),
-            "Should throw BusinessException when user has no access"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.getContractByOfferId(offerId, unauthorizedPrincipal),
+                        "Should throw BusinessException when user has no access");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not contractor or owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
+                .as("Exception code should indicate user is not contractor or owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
         verify(offerRepository, times(1)).findById(offerId);
     }
 
@@ -839,15 +834,15 @@ public class ContractServiceDefaultTest {
         when(offerRepository.findById(offerId)).thenReturn(Optional.of(testOffer));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.getContractByOfferId(offerId, candidatePrincipal),
-            "Should throw BusinessException when chosen candidate is null"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.getContractByOfferId(offerId, candidatePrincipal),
+                        "Should throw BusinessException when chosen candidate is null");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not contractor or owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
+                .as("Exception code should indicate user is not contractor or owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER.getCode());
         verify(offerRepository, times(1)).findById(offerId);
     }
 
@@ -890,15 +885,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(testContract));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.deleteContract(contractId, nonOwnerPrincipal),
-            "Should throw BusinessException when user is not owner"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.deleteContract(contractId, nonOwnerPrincipal),
+                        "Should throw BusinessException when user is not owner");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate user is not owner")
-            .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
+                .as("Exception code should indicate user is not owner")
+                .isEqualTo(BusinessExceptionReason.USER_NOT_OWNER.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 
@@ -912,15 +907,15 @@ public class ContractServiceDefaultTest {
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(testContract));
 
         // when & then
-        BusinessException exception = assertThrows(
-            BusinessException.class,
-            () -> contractService.deleteContract(contractId, ownerPrincipal),
-            "Should throw BusinessException when contract belongs to job"
-        );
+        BusinessException exception =
+                assertThrows(
+                        BusinessException.class,
+                        () -> contractService.deleteContract(contractId, ownerPrincipal),
+                        "Should throw BusinessException when contract belongs to job");
 
         assertThat(exception.getCode())
-            .as("Exception code should indicate contract belongs to job")
-            .isEqualTo(BusinessExceptionReason.CONTRACT_BELONGS_TO_JOB.getCode());
+                .as("Exception code should indicate contract belongs to job")
+                .isEqualTo(BusinessExceptionReason.CONTRACT_BELONGS_TO_JOB.getCode());
         verify(contractRepository, times(1)).findById(contractId);
     }
 }

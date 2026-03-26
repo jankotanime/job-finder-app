@@ -9,7 +9,6 @@ import com.mimaja.job_finder_app.feature.user.model.User;
 import java.util.UUID;
 
 public class ApplicationMockData {
-
     public static Application createTestApplication(User candidate, Offer offer, Cv cv) {
         Application application = new Application();
         application.setId(UUID.randomUUID());
@@ -47,8 +46,8 @@ public class ApplicationMockData {
         return application;
     }
 
-    public static ApplicationCreateRequestDto createTestApplicationCreateRequestDto(User candidate, Offer offer, Cv cv) {
+    public static ApplicationCreateRequestDto createTestApplicationCreateRequestDto(
+            User candidate, Offer offer, Cv cv) {
         return new ApplicationCreateRequestDto(candidate, offer, cv);
     }
 }
-

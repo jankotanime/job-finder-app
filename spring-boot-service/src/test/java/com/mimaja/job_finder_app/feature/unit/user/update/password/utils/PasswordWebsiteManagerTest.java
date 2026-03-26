@@ -1,9 +1,20 @@
 package com.mimaja.job_finder_app.feature.unit.user.update.password.utils;
 
-import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_LOGIN_DATA;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_PHONE_NUMBER;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.VALID_EMAIL;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.VALID_PHONE_NUMBER;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.VALID_USERNAME;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.createTestResetTokenResponse;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.createTestUser;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
@@ -25,7 +36,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PasswordWebsiteManager - Unit Tests")
 class PasswordWebsiteManagerTest {
-
     @Mock private UserRepository userRepository;
 
     @Mock private ResetTokenServiceDefault resetTokenServiceDefault;
@@ -37,7 +47,8 @@ class PasswordWebsiteManagerTest {
 
     @BeforeEach
     void setUp() {
-        passwordWebsiteManager = new PasswordWebsiteManager(userRepository, resetTokenServiceDefault);
+        passwordWebsiteManager =
+                new PasswordWebsiteManager(userRepository, resetTokenServiceDefault);
         testUser = createTestUser();
         testResetTokenResponse = createTestResetTokenResponse();
         ReflectionTestUtils.setField(passwordWebsiteManager, "ssrUrl", "https://example.com");
@@ -157,8 +168,7 @@ class PasswordWebsiteManagerTest {
         String phoneNumberString = String.valueOf(VALID_PHONE_NUMBER);
         when(userRepository.findByUsername(phoneNumberString)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(phoneNumberString)).thenReturn(Optional.empty());
-        when(userRepository.findByPhoneNumber(VALID_PHONE_NUMBER))
-                .thenReturn(Optional.empty());
+        when(userRepository.findByPhoneNumber(VALID_PHONE_NUMBER)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> passwordWebsiteManager.findUser(phoneNumberString))
@@ -170,8 +180,7 @@ class PasswordWebsiteManagerTest {
     @DisplayName("Should throw WRONG_LOGIN_DATA when phone number is invalid format")
     void testFindUser_shouldThrowBusinessException_whenPhoneNumberFormatInvalid() {
         // given
-        when(userRepository.findByUsername(INVALID_PHONE_NUMBER))
-                .thenReturn(Optional.empty());
+        when(userRepository.findByUsername(INVALID_PHONE_NUMBER)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(INVALID_PHONE_NUMBER)).thenReturn(Optional.empty());
 
         // when & then
@@ -184,8 +193,7 @@ class PasswordWebsiteManagerTest {
     @DisplayName("Should throw correct exception code for invalid phone number")
     void testFindUser_shouldThrowCorrectExceptionCode_whenPhoneNumberFormatInvalid() {
         // given
-        when(userRepository.findByUsername(INVALID_PHONE_NUMBER))
-                .thenReturn(Optional.empty());
+        when(userRepository.findByUsername(INVALID_PHONE_NUMBER)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(INVALID_PHONE_NUMBER)).thenReturn(Optional.empty());
 
         // when & then
@@ -207,8 +215,7 @@ class PasswordWebsiteManagerTest {
     @DisplayName("Should throw WRONG_LOGIN_DATA when user not found in any repository search")
     void testFindUser_shouldThrowBusinessException_whenUserNotFound() {
         // given
-        when(userRepository.findByUsername(INVALID_LOGIN_DATA))
-                .thenReturn(Optional.empty());
+        when(userRepository.findByUsername(INVALID_LOGIN_DATA)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(INVALID_LOGIN_DATA)).thenReturn(Optional.empty());
 
         // when & then
@@ -221,8 +228,7 @@ class PasswordWebsiteManagerTest {
     @DisplayName("Should throw correct exception code when user not found")
     void testFindUser_shouldThrowCorrectExceptionCode_whenUserNotFound() {
         // given
-        when(userRepository.findByUsername(INVALID_LOGIN_DATA))
-                .thenReturn(Optional.empty());
+        when(userRepository.findByUsername(INVALID_LOGIN_DATA)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(INVALID_LOGIN_DATA)).thenReturn(Optional.empty());
 
         // when & then
@@ -245,8 +251,7 @@ class PasswordWebsiteManagerTest {
     void testSendEmail_shouldCreateResetToken_whenSendingEmail() {
         // given
         UUID userId = UUID.randomUUID();
-        when(resetTokenServiceDefault.createToken(userId))
-                .thenReturn(testResetTokenResponse);
+        when(resetTokenServiceDefault.createToken(userId)).thenReturn(testResetTokenResponse);
 
         // when
         passwordWebsiteManager.sendEmail(userId);
@@ -260,8 +265,7 @@ class PasswordWebsiteManagerTest {
     void testSendEmail_shouldNotThrowException_whenSendingEmail() {
         // given
         UUID userId = UUID.randomUUID();
-        when(resetTokenServiceDefault.createToken(userId))
-                .thenReturn(testResetTokenResponse);
+        when(resetTokenServiceDefault.createToken(userId)).thenReturn(testResetTokenResponse);
 
         // when & then
         assertDoesNotThrow(() -> passwordWebsiteManager.sendEmail(userId));
@@ -272,8 +276,7 @@ class PasswordWebsiteManagerTest {
     void testSendEmail_shouldUseProvidedUserId_whenCreatingResetToken() {
         // given
         UUID userId = UUID.randomUUID();
-        when(resetTokenServiceDefault.createToken(userId))
-                .thenReturn(testResetTokenResponse);
+        when(resetTokenServiceDefault.createToken(userId)).thenReturn(testResetTokenResponse);
 
         // when
         passwordWebsiteManager.sendEmail(userId);

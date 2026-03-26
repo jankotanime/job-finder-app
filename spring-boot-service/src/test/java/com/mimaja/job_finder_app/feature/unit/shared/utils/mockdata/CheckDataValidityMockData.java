@@ -4,7 +4,6 @@ import com.mimaja.job_finder_app.feature.user.model.User;
 import java.util.UUID;
 
 public class CheckDataValidityMockData {
-
     // Valid test data
     public static final String VALID_USERNAME = "testuser123";
     public static final String VALID_EMAIL = "test@example.com";

@@ -1,7 +1,7 @@
 package com.mimaja.job_finder_app.feature.unit.contract.mockdata;
 
-import com.mimaja.job_finder_app.feature.contract.model.Contract;
 import com.mimaja.job_finder_app.feature.contract.enums.ContractStatus;
+import com.mimaja.job_finder_app.feature.contract.model.Contract;
 import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.job.model.JobStatus;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
@@ -9,7 +9,6 @@ import com.mimaja.job_finder_app.feature.user.model.User;
 import java.util.UUID;
 
 public class ContractMockData {
-
     public static User createTestUser() {
         User user = new User();
         user.setId(UUID.randomUUID());
