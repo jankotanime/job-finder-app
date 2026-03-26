@@ -25,6 +25,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +39,7 @@ public class JobServiceDefault implements JobService {
     private final JobRepository jobRepository;
     private final OfferService offerService;
     private final FileManagementService fileManagementService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public Job getJobById(UUID jobId) {
@@ -84,6 +87,7 @@ public class JobServiceDefault implements JobService {
             throw new BusinessException(BusinessExceptionReason.JOB_HAS_ALREADY_STARTED);
         }
         job.setStatus(JobStatus.IN_PROGRESS);
+        sendSchedule();
         saveNewJobDispatcher(job, new JobDispatcher());
 
         return job.getJobDispatcher();
@@ -297,5 +301,12 @@ public class JobServiceDefault implements JobService {
     private void setJobSuccess(Job job) {
         job.setStatus(JobStatus.FINISHED_SUCCESS);
         jobRepository.save(job);
+    }
+
+    private void sendSchedule() {
+        messagingTemplate.convertAndSend(
+            "/job-dispatch/" + "testRoom",
+            "test message: Hello world!"
+        );
     }
 }
