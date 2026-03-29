@@ -1,13 +1,31 @@
 # Fuchacz
 ### Version: Pre-alpha 1.0
 
-[![Backend coverage](https://codecov.io/gh/jankotanime/job-finder-app/graph/badge.svg)](https://app.codecov.io/gh/jankotanime/job-finder-app)
-
   > The project is under active development. Breaking changes, incomplete features and missing documentation are expected.
 
 **Fuchacz** is an application for easy searching of contract-for-task jobs. It helps employers find workers through automated features and helps job seekers with a friendly swipe interface.
 
+## Test coverage and reports
+
+This section points reviewers and graders to how backend test coverage is tracked in CI and where a printable test summary will live.
+
+### Backend (Spring Boot, JaCoCo)
+
+After each successful run of the GitHub Actions workflow on `main` (and on pull requests targeting `main`), the **spring-boot-service** module uploads a JaCoCo XML report to **Codecov**. There you can browse per-file line coverage, history on the default branch, and diffs on PRs.
+
+| | |
+|:---|:---|
+| **Codecov dashboard** | [Open project on Codecov](https://app.codecov.io/gh/jankotanime/job-finder-app) |
+| **Line coverage (main)** | [![Backend line coverage on Codecov](https://codecov.io/gh/jankotanime/job-finder-app/graph/badge.svg)](https://app.codecov.io/gh/jankotanime/job-finder-app/tree/main) |
+
+The badge above shows overall **line coverage %** for the backend as reported by Codecov (not the mobile app).
+
+### Automated test report (PDF)
+
+A **PDF document** summarizing both automated (frontend components, integration, unit) and manual testing of application is being prepared and will be committed under **`docs/backend-test-report.pdf`** once it is ready.
+
 ## Table of contents
+- [Test coverage and reports](#test-coverage-and-reports)
 - [Project structure](#project-structure)
 - [Features](#features)
 - [Preview](#preview)

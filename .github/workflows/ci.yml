@@ -57,10 +57,12 @@ jobs:
           files: spring-boot-service/build/reports/jacoco/test/jacocoTestReport.xml
           flags: backend
           disable_search: true
+          plugins: noop
           fail_ci_if_error: false
           name: spring-boot-service
       - name: Upload JaCoCo HTML report
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: build/reports/jacoco/test/html
+          path: spring-boot-service/build/reports/jacoco/test/html
