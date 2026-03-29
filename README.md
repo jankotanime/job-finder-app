@@ -22,7 +22,7 @@ The badge above shows overall **line coverage %** for the backend as reported by
 
 ### Automated test report (PDF)
 
-A **PDF document** summarizing both automated (frontend components, integration, unit) and manual testing of application has been prepared and is available under **`Raport_z_testow.pdf`**.
+A **PDF document** summarizing both automated (frontend components, integration, unit) and manual testing of application has been prepared and is available under **`Test_summary_report.pdf`**.
 
 ## Table of contents
 - [Test coverage and reports](#test-coverage-and-reports)
