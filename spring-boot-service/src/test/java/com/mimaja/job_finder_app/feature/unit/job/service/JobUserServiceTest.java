@@ -246,7 +246,7 @@ class JobUserServiceTest {
     void startJob_shouldReturnNonNullResponseDto_whenOwnerStartsJob() {
         UUID jobId = testJob.getId();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        when(jobService.startJob(jobId)).thenReturn(testJobDispatcher);
+        when(jobService.startJobOwner(jobId)).thenReturn(testJobDispatcher);
         JobDispatcherResponseDto result = jobUserService.startJob(testOwner.getId(), jobId);
         assertThat(result).isNotNull();
     }
@@ -255,9 +255,9 @@ class JobUserServiceTest {
     void startJob_shouldCallStartJob_whenOwnerStartsJob() {
         UUID jobId = testJob.getId();
         when(jobService.getJobById(jobId)).thenReturn(testJob);
-        when(jobService.startJob(jobId)).thenReturn(testJobDispatcher);
+        when(jobService.startJobOwner(jobId)).thenReturn(testJobDispatcher);
         jobUserService.startJob(testOwner.getId(), jobId);
-        verify(jobService, times(1)).startJob(jobId);
+        verify(jobService, times(1)).startJobOwner(jobId);
     }
 
     @Test
@@ -278,7 +278,7 @@ class JobUserServiceTest {
         assertThrows(
                 BusinessException.class,
                 () -> jobUserService.startJob(unauthorizedUser.getId(), jobId));
-        verify(jobService, never()).startJob(jobId);
+        verify(jobService, never()).startJobOwner(jobId);
     }
 
     // --- getJobDispatcher ---

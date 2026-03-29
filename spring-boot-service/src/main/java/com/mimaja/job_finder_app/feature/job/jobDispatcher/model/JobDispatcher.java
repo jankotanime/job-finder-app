@@ -44,6 +44,7 @@ public class JobDispatcher {
     private Set<Approval> contractiorApprovals;
 
     private LocalDateTime finishedAt;
+    private LocalDateTime startedAt;
     @CreationTimestamp private LocalDateTime createdAt;
     @UpdateTimestamp private LocalDateTime updatedAt;
 }

@@ -80,15 +80,34 @@ public class JobServiceDefault implements JobService {
 
     @Override
     @Transactional
-    public JobDispatcher startJob(UUID jobId) {
+    public JobDispatcher startJobOwner(UUID jobId) {
         Job job = getOrThrow(jobId);
 
         if (!job.getStatus().equals(JobStatus.READY)) {
-            throw new BusinessException(BusinessExceptionReason.JOB_HAS_ALREADY_STARTED);
+            throw new BusinessException(BusinessExceptionReason.JOB_NOT_UNREADY);
         }
-        job.setStatus(JobStatus.IN_PROGRESS);
-        sendSchedule();
+        job.setStatus(JobStatus.READY);
         saveNewJobDispatcher(job, new JobDispatcher());
+
+        return job.getJobDispatcher();
+    }
+
+    @Override
+    @Transactional
+    public JobDispatcher startJobContractor(UUID jobId) {
+        Job job = getOrThrow(jobId);
+
+        if (!job.getStatus().equals(JobStatus.READY)) {
+            throw new BusinessException(BusinessExceptionReason.JOB_NOT_READY);
+        }
+        JobDispatcher jobDispatcher = job.getJobDispatcher();
+        job.setStatus(JobStatus.IN_PROGRESS);
+
+        LocalDateTime now = LocalDateTime.now();
+        jobDispatcher.setStartedAt(now);
+        jobRepository.save(job);
+
+        sendNotificationToRoom(jobDispatcher.getId(), now.toString());
 
         return job.getJobDispatcher();
     }
@@ -303,10 +322,10 @@ public class JobServiceDefault implements JobService {
         jobRepository.save(job);
     }
 
-    private void sendSchedule() {
+    private void sendNotificationToRoom(UUID roomId, String notification) {
         messagingTemplate.convertAndSend(
-            "/job-dispatch/" + "testRoom",
-            "test message: Hello world!"
+            "/job-dispatch/" + roomId,
+            notification
         );
     }
 }

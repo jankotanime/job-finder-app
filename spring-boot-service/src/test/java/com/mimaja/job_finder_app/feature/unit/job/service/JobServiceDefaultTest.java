@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +42,7 @@ class JobServiceDefaultTest {
     @Mock private JobRepository jobRepository;
     @Mock private OfferService offerService;
     @Mock private FileManagementService fileManagementService;
+    @Mock private SimpMessagingTemplate messagingTemplate;
 
     private JobServiceDefault jobService;
     private Job testJob;
@@ -52,7 +54,7 @@ class JobServiceDefaultTest {
         testJob = createTestJob();
         testJobDispatcher = createTestJobDispatcher();
         testOffer = createTestOffer();
-        jobService = new JobServiceDefault(jobRepository, offerService, fileManagementService);
+        jobService = new JobServiceDefault(jobRepository, offerService, fileManagementService, messagingTemplate);
     }
 
     // --- getJobById ---
@@ -235,7 +237,7 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        JobDispatcher result = jobService.startJob(jobId);
+        JobDispatcher result = jobService.startJobOwner(jobId);
         assertThat(result).isNotNull();
     }
 
@@ -246,8 +248,8 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        jobService.startJob(jobId);
-        assertThat(testJob.getStatus()).isEqualTo(JobStatus.IN_PROGRESS);
+        jobService.startJobOwner(jobId);
+        assertThat(testJob.getStatus()).isEqualTo(JobStatus.READY);
     }
 
     @Test
@@ -257,7 +259,7 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        jobService.startJob(jobId);
+        jobService.startJobOwner(jobId);
         verify(jobRepository, times(1)).findById(jobId);
     }
 
@@ -268,7 +270,7 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        jobService.startJob(jobId);
+        jobService.startJobOwner(jobId);
         verify(jobRepository, times(1)).save(any(Job.class));
     }
 
@@ -278,9 +280,9 @@ class JobServiceDefaultTest {
         testJob.setStatus(JobStatus.IN_PROGRESS);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         BusinessException exception =
-                assertThrows(BusinessException.class, () -> jobService.startJob(jobId));
+                assertThrows(BusinessException.class, () -> jobService.startJobOwner(jobId));
         assertThat(exception.getCode())
-                .isEqualTo(BusinessExceptionReason.JOB_HAS_ALREADY_STARTED.getCode());
+                .isEqualTo(BusinessExceptionReason.JOB_NOT_UNREADY.getCode());
     }
 
     @Test
@@ -288,7 +290,7 @@ class JobServiceDefaultTest {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        assertThrows(BusinessException.class, () -> jobService.startJob(jobId));
+        assertThrows(BusinessException.class, () -> jobService.startJobOwner(jobId));
         verify(jobRepository, times(1)).findById(jobId);
     }
 

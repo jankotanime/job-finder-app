@@ -50,9 +50,16 @@ public class JobUserService {
     }
 
     public JobDispatcherResponseDto startJob(UUID userId, UUID jobId) {
-        throwErrorIfNotJobOwner(userId, jobId);
+                Job job = jobService.getJobById(jobId);
+        if (job.getContractor().getId().equals(userId)) {
+            return JobDispatcherResponseDto.from(jobService.startJobContractor(jobId));
+        }
 
-        return JobDispatcherResponseDto.from(jobService.startJob(jobId));
+        if (job.getOwner().getId().equals(userId)) {
+            return JobDispatcherResponseDto.from(jobService.startJobOwner(jobId));
+        }
+
+        throw new BusinessException(BusinessExceptionReason.USER_NOT_CONTRACTOR_OR_OWNER);
     }
 
     public JobDispatcherResponseDto getJobDispatcher(UUID userId, UUID jobId) {
