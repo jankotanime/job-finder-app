@@ -3,7 +3,10 @@ package com.mimaja.job_finder_app.feature.integration.offer.tag.controller;
 import static com.mimaja.job_finder_app.core.test.ApiPath.adminCategoryPath;
 import static com.mimaja.job_finder_app.core.test.ApiPath.adminTagPath;
 import static com.mimaja.job_finder_app.core.test.ApiPath.categoryPathWithId;
+import static com.mimaja.job_finder_app.core.test.ApiPath.tagPath;
 import static com.mimaja.job_finder_app.core.test.ApiPath.tagPathWithId;
+import static com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestConstants.CODE_PATH;
+import static com.mimaja.job_finder_app.feature.integration.shared.IntegrationTestConstants.RESPONSE_SUCCESSFUL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -70,6 +73,28 @@ class TagAndCategoryIntegrationTest extends IntegrationTest {
         // then
         assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), TAG_NAME_PATH))
                 .isEqualTo(TAG_NAME);
+    }
+
+    @Test
+    void shouldReturnSuccessCode_whenUserFiltersTagsByName() throws Exception {
+        // given
+        String adminToken = createAdminAccessToken(IntegrationTestUsers.next());
+        String userToken = createUserAccessToken(IntegrationTestUsers.next());
+        String categoryId = createCategory(adminToken);
+        createTag(adminToken, categoryId);
+
+        // when
+        MvcResult result =
+                mockMvc.perform(
+                                get(tagPath())
+                                        .param("name", TAG_NAME)
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken(userToken)))
+                        .andExpect(status().isOk())
+                        .andReturn();
+
+        // then
+        assertThat((String) JsonPath.read(result.getResponse().getContentAsString(), CODE_PATH))
+                .isEqualTo(RESPONSE_SUCCESSFUL);
     }
 
     @Test

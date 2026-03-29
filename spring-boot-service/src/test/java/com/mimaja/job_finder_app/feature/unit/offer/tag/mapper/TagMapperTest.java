@@ -1,33 +1,30 @@
 package com.mimaja.job_finder_app.feature.unit.offer.tag.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.TEST_CATEGORY_COLOR;
+import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.TEST_CATEGORY_NAME;
+import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.TEST_TAG_NAME;
 import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.createTestTag;
-import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.createTestTagWithCategory;
-import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.createTestTagWithoutCategory;
 import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.createTestTagCreateRequestDto;
 import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.createTestTagSet;
 import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.createTestTagSetWithCategories;
-import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.TEST_TAG_NAME;
-import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.TEST_CATEGORY_NAME;
-import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.TEST_CATEGORY_COLOR;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.createTestTagWithCategory;
+import static com.mimaja.job_finder_app.feature.unit.offer.tag.mockdata.TagMockData.createTestTagWithoutCategory;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagCreateRequestDto;
 import com.mimaja.job_finder_app.feature.offer.tag.dto.TagResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.mapper.TagMapper;
 import com.mimaja.job_finder_app.feature.offer.tag.mapper.TagMapperImpl;
 import com.mimaja.job_finder_app.feature.offer.tag.model.Tag;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("TagMapper - Unit Tests")
 class TagMapperTest {
-
     private final TagMapper tagMapper = new TagMapperImpl();
 
     // ==================== toEntity Tests ====================
@@ -174,7 +171,8 @@ class TagMapperTest {
         TagResponseDto result = tagMapper.toResponseDto(tag);
 
         // then
-        assertNull(result.categoryColor(), "Category color should be null when tag has no category");
+        assertNull(
+                result.categoryColor(), "Category color should be null when tag has no category");
     }
 
     // ==================== toSetOfResponseDto Tests ====================
@@ -232,8 +230,10 @@ class TagMapperTest {
     }
 
     @Test
-    @DisplayName("Should map tags with categories correctly when mapping Set of tags with categories")
-    void testToSetOfResponseDto_shouldMapTagsWithCategoriesCorrectly_whenSetHasTagsWithCategories() {
+    @DisplayName(
+            "Should map tags with categories correctly when mapping Set of tags with categories")
+    void
+            testToSetOfResponseDto_shouldMapTagsWithCategoriesCorrectly_whenSetHasTagsWithCategories() {
         // given
         Set<Tag> tags = createTestTagSetWithCategories();
 
@@ -246,7 +246,8 @@ class TagMapperTest {
 
     @Test
     @DisplayName("Should handle tags without categories in Set mapping")
-    void testToSetOfResponseDto_shouldHandleTagsWithoutCategories_whenSetHasTagsWithoutCategories() {
+    void
+            testToSetOfResponseDto_shouldHandleTagsWithoutCategories_whenSetHasTagsWithoutCategories() {
         // given
         Set<Tag> tags = new HashSet<>();
         tags.add(createTestTagWithoutCategory());

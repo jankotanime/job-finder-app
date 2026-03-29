@@ -9,6 +9,7 @@ public final class IntegrationTestConstants {
 
     public static final String CODE_PATH = "$.code";
     public static final String RESOURCE_CREATED = "RESOURCE_CREATED";
+    public static final String RESPONSE_SUCCESSFUL = "RESPONSE_SUCCESSFUL";
     public static final String WRONG_LOGIN_DATA = "WRONG_LOGIN_DATA";
 
     private IntegrationTestConstants() {}

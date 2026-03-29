@@ -1,4 +1,4 @@
-package com.mimaja.job_finder_app.feature.user.filterSpecification;
+package com.mimaja.job_finder_app.feature.user.filterspecification;
 
 import com.mimaja.job_finder_app.feature.user.dto.UserFilterRequestDto;
 import com.mimaja.job_finder_app.feature.user.model.User;

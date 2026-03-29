@@ -1,9 +1,23 @@
 package com.mimaja.job_finder_app.feature.unit.shared.service;
 
-import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.TEST_BUCKET;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.TEST_CONTENT_TYPE;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.TEST_FILE_NAME;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.TEST_FILE_SIZE;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.TEST_PHOTO_NAME;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.TEST_STORAGE_KEY;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.createMockFileSource;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.createMockFileSourceForPhoto;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.createMockFileSourceWithFilename;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.createMockFileSourceWithFilenameOnly;
+import static com.mimaja.job_finder_app.feature.unit.shared.mockdata.FileManagementMockData.createTestProcessedFileDetails;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
@@ -17,18 +31,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.core.sync.RequestBody;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FileManagementService - Unit Tests")
 class FileManagementServiceTest {
-
     @Mock private S3Client s3Client;
 
     private FileManagementService fileManagementService;
@@ -51,10 +64,8 @@ class FileManagementServiceTest {
     void testGetFile_shouldReturnResponseInputStream_whenKeyExists() {
         // given
         @SuppressWarnings("unchecked")
-        ResponseInputStream<GetObjectResponse> expectedResponse =
-                mock(ResponseInputStream.class);
-        when(s3Client.getObject((GetObjectRequest) any()))
-                .thenReturn(expectedResponse);
+        ResponseInputStream<GetObjectResponse> expectedResponse = mock(ResponseInputStream.class);
+        when(s3Client.getObject((GetObjectRequest) any())).thenReturn(expectedResponse);
 
         // when
         ResponseInputStream<GetObjectResponse> result =
@@ -69,10 +80,8 @@ class FileManagementServiceTest {
     void testGetFile_shouldCallS3WithCorrectParameters_whenKeyExists() {
         // given
         @SuppressWarnings("unchecked")
-        ResponseInputStream<GetObjectResponse> expectedResponse =
-                mock(ResponseInputStream.class);
-        when(s3Client.getObject((GetObjectRequest) any()))
-                .thenReturn(expectedResponse);
+        ResponseInputStream<GetObjectResponse> expectedResponse = mock(ResponseInputStream.class);
+        when(s3Client.getObject((GetObjectRequest) any())).thenReturn(expectedResponse);
 
         // when
         fileManagementService.getFile(TEST_STORAGE_KEY);
@@ -120,15 +129,13 @@ class FileManagementServiceTest {
     void testUploadFile_shouldCallS3Put_whenFileDetailsProvided() {
         // given
         ProcessedFileDetails fileDetails = createTestProcessedFileDetails();
-        when(s3Client.putObject((PutObjectRequest) any(), (RequestBody) any()))
-                .thenReturn(null);
+        when(s3Client.putObject((PutObjectRequest) any(), (RequestBody) any())).thenReturn(null);
 
         // when
         fileManagementService.uploadFile(fileDetails);
 
         // then
-        verify(s3Client, times(1))
-                .putObject((PutObjectRequest) any(), (RequestBody) any());
+        verify(s3Client, times(1)).putObject((PutObjectRequest) any(), (RequestBody) any());
     }
 
     @Test
@@ -136,8 +143,7 @@ class FileManagementServiceTest {
     void testUploadFile_shouldUseCorrectContentType_whenFileDetailsProvided() {
         // given
         ProcessedFileDetails fileDetails = createTestProcessedFileDetails();
-        when(s3Client.putObject((PutObjectRequest) any(), (RequestBody) any()))
-                .thenReturn(null);
+        when(s3Client.putObject((PutObjectRequest) any(), (RequestBody) any())).thenReturn(null);
 
         // when
         fileManagementService.uploadFile(fileDetails);
@@ -158,8 +164,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result).isNotNull();
@@ -175,8 +180,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.storageKey())
@@ -195,8 +199,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.fileSize()).isEqualTo(TEST_FILE_SIZE);
@@ -210,8 +213,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.bytes()).isNotNull();
@@ -222,12 +224,10 @@ class FileManagementServiceTest {
     void testProcessFileDetails_shouldProcessPhotoSuccessfully_whenPhotoFileProvided() {
         // given
         FileSource fileSource = createMockFileSourceForPhoto();
-        String folder =
-                FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
+        String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.mimeType()).isEqualTo(MimeType.JPG);
@@ -246,8 +246,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when & then
-        assertThatThrownBy(
-                () -> fileManagementService.processFileDetails(fileSource, folder))
+        assertThatThrownBy(() -> fileManagementService.processFileDetails(fileSource, folder))
                 .isInstanceOf(BusinessException.class);
     }
 
@@ -256,12 +255,10 @@ class FileManagementServiceTest {
     void testProcessFileDetails_shouldThrowBusinessException_whenWrongPhotoFormatProvided() {
         // given
         FileSource fileSource = createMockFileSourceWithFilenameOnly("photo.pdf");
-        String folder =
-                FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
+        String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
 
         // when & then
-        assertThatThrownBy(
-                () -> fileManagementService.processFileDetails(fileSource, folder))
+        assertThatThrownBy(() -> fileManagementService.processFileDetails(fileSource, folder))
                 .isInstanceOf(BusinessException.class);
     }
 
@@ -273,8 +270,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.mimeType()).isEqualTo(MimeType.PDF);
@@ -288,8 +284,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.mimeType()).isEqualTo(MimeType.DOCX);
@@ -300,12 +295,10 @@ class FileManagementServiceTest {
     void testProcessFileDetails_shouldAcceptJPG_whenPhotoFolderAndJPGProvided() {
         // given
         FileSource fileSource = createMockFileSourceWithFilename("photo.jpg");
-        String folder =
-                FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
+        String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.mimeType()).isEqualTo(MimeType.JPG);
@@ -316,12 +309,10 @@ class FileManagementServiceTest {
     void testProcessFileDetails_shouldAcceptJPEG_whenPhotoFolderAndJPEGProvided() {
         // given
         FileSource fileSource = createMockFileSourceWithFilename("photo.jpeg");
-        String folder =
-                FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
+        String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.mimeType()).isEqualTo(MimeType.JPEG);
@@ -332,12 +323,10 @@ class FileManagementServiceTest {
     void testProcessFileDetails_shouldAcceptPNG_whenPhotoFolderAndPNGProvided() {
         // given
         FileSource fileSource = createMockFileSourceWithFilename("photo.png");
-        String folder =
-                FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
+        String folder = FileFolderName.PHOTOS.getFullPath(FileFolderName.OFFER_PHOTO);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.mimeType()).isEqualTo(MimeType.PNG);
@@ -355,8 +344,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when & then
-        assertThatThrownBy(
-                () -> fileManagementService.processFileDetails(fileSource, folder))
+        assertThatThrownBy(() -> fileManagementService.processFileDetails(fileSource, folder))
                 .isInstanceOf(IllegalArgumentException.class)
                 .as("Should throw exception for missing extension")
                 .hasMessageContaining("Invalid file extension");
@@ -370,8 +358,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when & then
-        assertThatThrownBy(
-                () -> fileManagementService.processFileDetails(fileSource, folder))
+        assertThatThrownBy(() -> fileManagementService.processFileDetails(fileSource, folder))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -383,8 +370,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when & then
-        assertThatThrownBy(
-                () -> fileManagementService.processFileDetails(fileSource, folder))
+        assertThatThrownBy(() -> fileManagementService.processFileDetails(fileSource, folder))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -396,8 +382,7 @@ class FileManagementServiceTest {
         String folder = FileFolderName.DOCUMENTS.getFullPath(FileFolderName.CVS);
 
         // when
-        ProcessedFileDetails result =
-                fileManagementService.processFileDetails(fileSource, folder);
+        ProcessedFileDetails result = fileManagementService.processFileDetails(fileSource, folder);
 
         // then
         assertThat(result.mimeType()).isEqualTo(MimeType.PDF);

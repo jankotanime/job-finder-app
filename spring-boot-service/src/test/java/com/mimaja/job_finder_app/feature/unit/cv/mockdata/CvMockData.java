@@ -13,42 +13,22 @@ public class CvMockData {
 
     public static CvUploadRequestDto createTestCvUploadRequestDto(User user) {
         return new CvUploadRequestDto(
-                TEST_CV_FILENAME,
-                MimeType.PDF,
-                TEST_CV_FILE_SIZE,
-                TEST_CV_STORAGE_KEY,
-                user
-        );
+                TEST_CV_FILENAME, MimeType.PDF, TEST_CV_FILE_SIZE, TEST_CV_STORAGE_KEY, user);
     }
 
     public static CvUploadRequestDto createTestCvUploadRequestDtoWithNullFileName(User user) {
         return new CvUploadRequestDto(
-                null,
-                MimeType.PDF,
-                TEST_CV_FILE_SIZE,
-                TEST_CV_STORAGE_KEY,
-                user
-        );
+                null, MimeType.PDF, TEST_CV_FILE_SIZE, TEST_CV_STORAGE_KEY, user);
     }
 
     public static CvUploadRequestDto createTestCvUploadRequestDtoWithNullMimeType(User user) {
         return new CvUploadRequestDto(
-                TEST_CV_FILENAME,
-                null,
-                TEST_CV_FILE_SIZE,
-                TEST_CV_STORAGE_KEY,
-                user
-        );
+                TEST_CV_FILENAME, null, TEST_CV_FILE_SIZE, TEST_CV_STORAGE_KEY, user);
     }
 
     public static CvUploadRequestDto createTestCvUploadRequestDtoWithNullStorageKey(User user) {
         return new CvUploadRequestDto(
-                TEST_CV_FILENAME,
-                MimeType.PDF,
-                TEST_CV_FILE_SIZE,
-                null,
-                user
-        );
+                TEST_CV_FILENAME, MimeType.PDF, TEST_CV_FILE_SIZE, null, user);
     }
 
     public static Cv createTestCv() {

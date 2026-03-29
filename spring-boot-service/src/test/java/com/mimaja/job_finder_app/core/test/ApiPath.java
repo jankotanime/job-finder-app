@@ -95,8 +95,36 @@ public final class ApiPath {
         return offerPath() + formatId("offerId");
     }
 
+    public static String offerApplicationPath() {
+        return OFFER + OFFER_ID_SEGMENT + "/application";
+    }
+
     public static String offerApplicationPathWithIds() {
         return OFFER + OFFER_ID_SEGMENT + "/application" + APPLICATION_ID_SEGMENT;
+    }
+
+    public static String offerApplicationAcceptPath() {
+        return offerApplicationPathWithIds() + "/accept";
+    }
+
+    public static String offerApplicationRejectPath() {
+        return offerApplicationPathWithIds() + "/reject";
+    }
+
+    public static String jobDispatcherPath() {
+        return JOB + formatId("jobId") + "/dispatcher";
+    }
+
+    public static String jobStartPath() {
+        return JOB + formatId("jobId") + "/start-job";
+    }
+
+    public static String jobCreateFromOfferPath() {
+        return JOB + formatId("offerId");
+    }
+
+    public static String contractByOfferPath() {
+        return CONTRACT + "/by-offer" + formatId("offerId");
     }
 
     public static String cvPath() {
@@ -141,6 +169,22 @@ public final class ApiPath {
 
     public static String passwordWebsiteSendEmailPath() {
         return PASSWORD + "/website/send-email";
+    }
+
+    public static String passwordWebsiteUpdatePath() {
+        return PASSWORD + "/website/update";
+    }
+
+    public static String mePath() {
+        return "/me";
+    }
+
+    public static String exceptionHttpMessageNotReadablePath() {
+        return "/exception/http-message-not-readable";
+    }
+
+    public static String userUpdateUserDataPath() {
+        return USER + "/update/user-data";
     }
 
     private static String formatId(String idName) {

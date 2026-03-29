@@ -1,25 +1,17 @@
 package com.mimaja.job_finder_app.feature.unit.application.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static com.mimaja.job_finder_app.feature.unit.application.mockdata.ApplicationMockData.createTestApplication;
 import static com.mimaja.job_finder_app.feature.unit.application.mockdata.ApplicationMockData.createTestApplicationCreateRequestDto;
 import static com.mimaja.job_finder_app.feature.unit.application.mockdata.ApplicationMockData.createTestApplicationWithNullCandidate;
 import static com.mimaja.job_finder_app.feature.unit.application.mockdata.ApplicationMockData.createTestApplicationWithNullCv;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUser;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUserWithProfilePhoto;
-
-import java.lang.reflect.Field;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.mimaja.job_finder_app.feature.application.dto.ApplicationResponseDto;
 import com.mimaja.job_finder_app.feature.application.mapper.ApplicationMapper;
@@ -32,11 +24,16 @@ import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.user.dto.UserInOfferResponseDto;
 import com.mimaja.job_finder_app.feature.user.mapper.UserMapper;
 import com.mimaja.job_finder_app.feature.user.model.User;
+import java.lang.reflect.Field;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ApplicationMapper - Unit Tests")
 class ApplicationMapperTest {
-
     private ApplicationMapper applicationMapper;
     private UserMapper userMapperMock;
     private CvMapper cvMapperMock;
@@ -252,18 +249,18 @@ class ApplicationMapperTest {
 
         // when
         when(userMapperMock.toUserInOfferResponseDto(any(User.class)))
-            .thenAnswer(invocation -> {
-                User user = invocation.getArgument(0);
-                if (user == null) return null;
-                return new UserInOfferResponseDto(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getPhoneNumber(),
-                    null
-                );
-            });
+                .thenAnswer(
+                        invocation -> {
+                            User user = invocation.getArgument(0);
+                            if (user == null) return null;
+                            return new UserInOfferResponseDto(
+                                    user.getId(),
+                                    user.getUsername(),
+                                    user.getFirstName(),
+                                    user.getLastName(),
+                                    user.getPhoneNumber(),
+                                    null);
+                        });
         ApplicationResponseDto result = applicationMapper.toResponseDto(application);
 
         // then
@@ -296,10 +293,7 @@ class ApplicationMapperTest {
         cv.setStorageKey("test-storage-key");
         Application application = createTestApplication(candidate, offer, cv);
         when(cvMapperMock.toResponseDto(any(Cv.class)))
-            .thenReturn(new CvResponseDto(
-                cv.getId(),
-                cv.getStorageKey()
-            ));
+                .thenReturn(new CvResponseDto(cv.getId(), cv.getStorageKey()));
         // when
         ApplicationResponseDto result = applicationMapper.toResponseDto(application);
 
@@ -331,18 +325,18 @@ class ApplicationMapperTest {
         Cv cv = new Cv();
         Application application = createTestApplication(candidate, offer, cv);
         when(userMapperMock.toUserInOfferResponseDto(any(User.class)))
-            .thenAnswer(invocation -> {
-                User user = invocation.getArgument(0);
-                if (user == null) return null;
-                return new UserInOfferResponseDto(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getPhoneNumber(),
-                    null
-                );
-            });
+                .thenAnswer(
+                        invocation -> {
+                            User user = invocation.getArgument(0);
+                            if (user == null) return null;
+                            return new UserInOfferResponseDto(
+                                    user.getId(),
+                                    user.getUsername(),
+                                    user.getFirstName(),
+                                    user.getLastName(),
+                                    user.getPhoneNumber(),
+                                    null);
+                        });
         // when
         ApplicationResponseDto result = applicationMapper.toResponseDto(application);
 
@@ -360,18 +354,18 @@ class ApplicationMapperTest {
         Cv cv = new Cv();
         Application application = createTestApplication(candidate, offer, cv);
         when(userMapperMock.toUserInOfferResponseDto(any(User.class)))
-            .thenAnswer(invocation -> {
-                User user = invocation.getArgument(0);
-                if (user == null) return null;
-                return new UserInOfferResponseDto(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getPhoneNumber(),
-                    null
-                );
-            });
+                .thenAnswer(
+                        invocation -> {
+                            User user = invocation.getArgument(0);
+                            if (user == null) return null;
+                            return new UserInOfferResponseDto(
+                                    user.getId(),
+                                    user.getUsername(),
+                                    user.getFirstName(),
+                                    user.getLastName(),
+                                    user.getPhoneNumber(),
+                                    null);
+                        });
         // when
         ApplicationResponseDto result = applicationMapper.toResponseDto(application);
 

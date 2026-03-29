@@ -1,25 +1,17 @@
 package com.mimaja.job_finder_app.feature.unit.offer.mapper;
 
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.TEST_OFFER_TITLE;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOffer;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferCreateRequestDto;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferUpdateRequestDto;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithApplications;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithContract;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithPhoto;
+import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithTags;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOffer;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithContract;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithPhoto;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferCreateRequestDto;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferUpdateRequestDto;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithApplications;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.createTestOfferWithTags;
-import static com.mimaja.job_finder_app.feature.unit.offer.mockdata.OfferMockData.TEST_OFFER_TITLE;
-
-import java.lang.reflect.Field;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mimaja.job_finder_app.feature.application.mapper.ApplicationMapper;
 import com.mimaja.job_finder_app.feature.offer.dto.OfferCreateRequestDto;
@@ -31,11 +23,16 @@ import com.mimaja.job_finder_app.feature.offer.mapper.OfferMapperImpl;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.tag.mapper.TagMapper;
 import com.mimaja.job_finder_app.feature.user.mapper.UserMapper;
+import java.lang.reflect.Field;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OfferMapper - Unit Tests")
 class OfferMapperTest {
-
     private OfferMapper offerMapper;
     private UserMapper userMapperMock;
     private TagMapper tagMapperMock;
@@ -46,9 +43,7 @@ class OfferMapperTest {
         setupOfferMapperWithMocks();
     }
 
-    /**
-     * Configures OfferMapper with mocked dependencies
-     */
+    /** Configures OfferMapper with mocked dependencies */
     private void setupOfferMapperWithMocks() throws Exception {
         userMapperMock = mock(UserMapper.class);
         tagMapperMock = mock(TagMapper.class);
@@ -62,9 +57,7 @@ class OfferMapperTest {
         offerMapper = offerMapperImpl;
     }
 
-    /**
-     * Injects a mock object into a private field using reflection
-     */
+    /** Injects a mock object into a private field using reflection */
     private void injectField(Object target, String fieldName, Object value) throws Exception {
         Field field = target.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
@@ -100,7 +93,8 @@ class OfferMapperTest {
     }
 
     @Test
-    @DisplayName("Should map description correctly when mapping OfferCreateRequestDto to Offer entity")
+    @DisplayName(
+            "Should map description correctly when mapping OfferCreateRequestDto to Offer entity")
     void testToEntity_shouldMapDescriptionCorrectly_whenValidDtoProvided() {
         // given
         OfferCreateRequestDto requestDto = createTestOfferCreateRequestDto();
@@ -193,7 +187,8 @@ class OfferMapperTest {
     }
 
     @Test
-    @DisplayName("Should map description correctly when mapping OfferUpdateRequestDto to Offer entity")
+    @DisplayName(
+            "Should map description correctly when mapping OfferUpdateRequestDto to Offer entity")
     void testToEntityFromUpdate_shouldMapDescriptionCorrectly_whenValidDtoProvided() {
         // given
         OfferUpdateRequestDto requestDto = createTestOfferUpdateRequestDto();
@@ -503,7 +498,8 @@ class OfferMapperTest {
 
     @Test
     @DisplayName("Should handle null chosen candidate in owner response")
-    void testToOfferUserIsOwnerResponseDto_shouldHandleNullChosenCandidate_whenChosenCandidateIsNull() {
+    void
+            testToOfferUserIsOwnerResponseDto_shouldHandleNullChosenCandidate_whenChosenCandidateIsNull() {
         // given
         Offer offer = createTestOffer();
         offer.setChosenCandidate(null);

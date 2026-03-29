@@ -5,7 +5,7 @@ import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelUpdateRequestDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserFilterRequestDto;
-import com.mimaja.job_finder_app.feature.user.filterSpecification.UserFilterSpecification;
+import com.mimaja.job_finder_app.feature.user.filterspecification.UserFilterSpecification;
 import com.mimaja.job_finder_app.feature.user.mapper.UserMapper;
 import com.mimaja.job_finder_app.feature.user.model.User;
 import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
