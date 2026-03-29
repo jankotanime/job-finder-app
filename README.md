@@ -1,5 +1,8 @@
 # Fuchacz
 ### Version: Pre-alpha 1.0
+
+[![Backend coverage](https://codecov.io/gh/jankotanime/job-finder-app/graph/badge.svg)](https://app.codecov.io/gh/jankotanime/job-finder-app)
+
   > The project is under active development. Breaking changes, incomplete features and missing documentation are expected.
 
 **Fuchacz** is an application for easy searching of contract-for-task jobs. It helps employers find workers through automated features and helps job seekers with a friendly swipe interface.
