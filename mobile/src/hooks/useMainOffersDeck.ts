@@ -207,6 +207,7 @@ export const useMainOffersDeck = ({
           response = await getAllOffers({
             page: currentPage,
             size: pageSize,
+            sort: "updatedAt,desc",
           });
         }
 
