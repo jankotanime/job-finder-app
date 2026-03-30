@@ -5,22 +5,9 @@ import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import FilterContent from "../../../components/filter/FilterContent";
 
 const mockGetAllTags = jest.fn();
-const mockHandleFilterOffers = jest.fn();
-const mockBuildPhotoUrl = jest.fn((storageKey?: string) =>
-  storageKey ? `photo:${storageKey}` : "",
-);
 const mockSetFiltersList = jest.fn();
 const mockClearFilters = jest.fn();
 const mockSignOut = jest.fn();
-const mockUseFilterState: {
-  filters: string[] | string;
-  setFiltersList: jest.Mock;
-  clearFilters: jest.Mock;
-} = {
-  filters: [],
-  setFiltersList: mockSetFiltersList,
-  clearFilters: mockClearFilters,
-};
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -32,24 +19,11 @@ jest.mock("../../../api/filter/handleTags", () => ({
   getAllTags: (...args: any[]) => mockGetAllTags(...args),
 }));
 
-jest.mock("../../../api/filter/handleFilterOffers", () => ({
-  handleFilterOffers: (...args: any[]) => mockHandleFilterOffers(...args),
-}));
-
-jest.mock("../../../utils/photoUrl", () => ({
-  buildPhotoUrl: (...args: any[]) => mockBuildPhotoUrl(...args),
-}));
-
 jest.mock("../../../contexts/AuthContext", () => ({
   useAuth: () => ({
     userInfo: { userId: "owner-1" },
     signOut: mockSignOut,
   }),
-}));
-
-jest.mock("../../../hooks/useFilter", () => ({
-  __esModule: true,
-  default: () => mockUseFilterState,
 }));
 
 jest.mock("../../../components/filter/FilterCollapsibleSection", () => {
@@ -73,14 +47,24 @@ describe("FilterContent component", () => {
     .spyOn(console, "error")
     .mockImplementation(() => {});
 
+  const renderFilterContent = (
+    props: Partial<React.ComponentProps<typeof FilterContent>> = {},
+  ) => {
+    const defaults: React.ComponentProps<typeof FilterContent> = {
+      setOffersData: jest.fn(),
+      filters: [],
+      setFiltersList: mockSetFiltersList,
+      clearFilters: mockClearFilters,
+    };
+
+    return render(<FilterContent {...defaults} {...props} />);
+  };
+
   beforeEach(() => {
     mockGetAllTags.mockReset();
-    mockHandleFilterOffers.mockReset();
-    mockBuildPhotoUrl.mockClear();
     mockSetFiltersList.mockReset();
     mockClearFilters.mockReset();
     mockSignOut.mockReset();
-    mockUseFilterState.filters = [];
 
     mockSetFiltersList.mockResolvedValue(undefined);
     mockClearFilters.mockResolvedValue(undefined);
@@ -105,25 +89,6 @@ describe("FilterContent component", () => {
         },
       },
     });
-
-    mockHandleFilterOffers.mockResolvedValue({
-      body: {
-        data: {
-          content: [
-            {
-              id: "offer-own",
-              owner: { id: "owner-1" },
-              photo: { storageKey: "own-photo" },
-            },
-            {
-              id: "offer-visible",
-              owner: { id: "owner-2" },
-              photo: { storageKey: "visible-photo" },
-            },
-          ],
-        },
-      },
-    });
   });
 
   afterAll(() => {
@@ -131,7 +96,7 @@ describe("FilterContent component", () => {
   });
 
   it("loads and renders grouped categories", async () => {
-    const { getByText } = render(<FilterContent setOffersData={jest.fn()} />);
+    const { getByText } = renderFilterContent();
 
     await waitFor(() => {
       expect(getByText("Skills")).toBeTruthy();
@@ -143,9 +108,7 @@ describe("FilterContent component", () => {
     const setOffersData = jest.fn();
     const onClose = jest.fn();
 
-    const { getByText } = render(
-      <FilterContent setOffersData={setOffersData} onClose={onClose} />,
-    );
+    const { getByText } = renderFilterContent({ setOffersData, onClose });
 
     await waitFor(() => {
       expect(getByText("React")).toBeTruthy();
@@ -156,13 +119,7 @@ describe("FilterContent component", () => {
 
     await waitFor(() => {
       expect(mockSetFiltersList).toHaveBeenCalledWith(["tag-1"]);
-      expect(mockHandleFilterOffers).toHaveBeenCalledWith(
-        { tags: ["tag-1"] },
-        { page: 0, size: 20 },
-      );
-      expect(setOffersData).toHaveBeenCalledWith([
-        expect.objectContaining({ id: "offer-visible" }),
-      ]);
+      expect(setOffersData).toHaveBeenCalledWith([]);
       expect(onClose).toHaveBeenCalled();
     });
   });
@@ -171,9 +128,7 @@ describe("FilterContent component", () => {
     const setOffersData = jest.fn();
     const onClose = jest.fn();
 
-    const { getByText } = render(
-      <FilterContent setOffersData={setOffersData} onClose={onClose} />,
-    );
+    const { getByText } = renderFilterContent({ setOffersData, onClose });
 
     await waitFor(() => {
       expect(getByText("filter.clear")).toBeTruthy();
@@ -183,13 +138,7 @@ describe("FilterContent component", () => {
 
     await waitFor(() => {
       expect(mockClearFilters).toHaveBeenCalledTimes(1);
-      expect(mockHandleFilterOffers).toHaveBeenCalledWith(
-        { tags: [] },
-        { page: 0, size: 20 },
-      );
-      expect(setOffersData).toHaveBeenCalledWith([
-        expect.objectContaining({ id: "offer-visible" }),
-      ]);
+      expect(setOffersData).toHaveBeenCalledWith([]);
       expect(onClose).toHaveBeenCalled();
     });
   });
@@ -197,7 +146,7 @@ describe("FilterContent component", () => {
   it("signs out when loading tags fails", async () => {
     mockGetAllTags.mockRejectedValue(new Error("network"));
 
-    render(<FilterContent setOffersData={jest.fn()} />);
+    renderFilterContent();
 
     await waitFor(() => {
       expect(mockSignOut).toHaveBeenCalledTimes(1);
@@ -209,7 +158,7 @@ describe("FilterContent component", () => {
   });
 
   it("removes tag when toggled twice before apply", async () => {
-    const { getByText } = render(<FilterContent setOffersData={jest.fn()} />);
+    const { getByText } = renderFilterContent();
 
     await waitFor(() => {
       expect(getByText("React")).toBeTruthy();
@@ -221,10 +170,6 @@ describe("FilterContent component", () => {
 
     await waitFor(() => {
       expect(mockSetFiltersList).toHaveBeenCalledWith([]);
-      expect(mockHandleFilterOffers).toHaveBeenCalledWith(
-        { tags: [] },
-        { page: 0, size: 20 },
-      );
     });
   });
 
@@ -232,9 +177,7 @@ describe("FilterContent component", () => {
     mockClearFilters.mockRejectedValue(new Error("clear failed"));
     const onClose = jest.fn();
 
-    const { getByText } = render(
-      <FilterContent setOffersData={jest.fn()} onClose={onClose} />,
-    );
+    const { getByText } = renderFilterContent({ onClose });
 
     await waitFor(() => {
       expect(getByText("filter.clear")).toBeTruthy();
@@ -252,9 +195,9 @@ describe("FilterContent component", () => {
   });
 
   it("does not hydrate selected tags when filters is not an array", async () => {
-    mockUseFilterState.filters = "invalid-filters-state";
-
-    const { getByText } = render(<FilterContent setOffersData={jest.fn()} />);
+    const { getByText } = renderFilterContent({
+      filters: "invalid-filters-state" as any,
+    });
 
     await waitFor(() => {
       expect(getByText("React")).toBeTruthy();
@@ -267,20 +210,10 @@ describe("FilterContent component", () => {
     });
   });
 
-  it("handles apply when offers response has non-array content", async () => {
+  it("handles apply by resetting offers list", async () => {
     const setOffersData = jest.fn();
 
-    mockHandleFilterOffers.mockResolvedValueOnce({
-      body: {
-        data: {
-          content: null,
-        },
-      },
-    });
-
-    const { getByText } = render(
-      <FilterContent setOffersData={setOffersData} />,
-    );
+    const { getByText } = renderFilterContent({ setOffersData });
 
     await waitFor(() => {
       expect(getByText("filter.apply")).toBeTruthy();
@@ -293,20 +226,10 @@ describe("FilterContent component", () => {
     });
   });
 
-  it("handles clear when offers response has non-array content", async () => {
+  it("handles clear by resetting offers list", async () => {
     const setOffersData = jest.fn();
 
-    mockHandleFilterOffers.mockResolvedValueOnce({
-      body: {
-        data: {
-          content: null,
-        },
-      },
-    });
-
-    const { getByText } = render(
-      <FilterContent setOffersData={setOffersData} />,
-    );
+    const { getByText } = renderFilterContent({ setOffersData });
 
     await waitFor(() => {
       expect(getByText("filter.clear")).toBeTruthy();

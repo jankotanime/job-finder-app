@@ -11,11 +11,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getAllTags } from "../../api/filter/handleTags";
 import CollapsibleSection from "./FilterCollapsibleSection";
 import { useTranslation } from "react-i18next";
-import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
 import { Offer } from "../../types/Offer";
-import { buildPhotoUrl } from "../../utils/photoUrl";
 import { useAuth } from "../../contexts/AuthContext";
-import useFilter from "../../hooks/useFilter";
 
 const { height, width } = Dimensions.get("window");
 
@@ -31,17 +28,25 @@ interface GroupedCategory {
 }
 interface FilterContentProps {
   setOffersData: (data: Offer[]) => void;
+  filters: string[];
+  setFiltersList: (list: string[]) => Promise<void>;
+  clearFilters: () => Promise<void>;
   onClose?: () => void;
 }
 
-const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
+const FilterContent = ({
+  setOffersData,
+  filters,
+  setFiltersList,
+  clearFilters,
+  onClose,
+}: FilterContentProps) => {
   const theme = useTheme();
   const [categories, setCategories] = useState<GroupedCategory[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
-  const { userInfo, signOut } = useAuth();
-  const { filters, setFiltersList, clearFilters } = useFilter();
+  const { signOut } = useAuth();
 
   useEffect(() => {
     fetchTags();
@@ -91,21 +96,8 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
   const handleApply = async () => {
     const next = Array.from(new Set(selectedTags));
     await setFiltersList(next);
-    const page = await handleFilterOffers(
-      { tags: next },
-      { page: 0, size: 20 },
-    );
-    const body = Array.isArray(page?.body?.data?.content)
-      ? page.body.data.content
-      : [];
-    const normalized = body.map((it: any) => ({
-      ...it,
-      offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
-    }));
-    const filtered = normalized.filter(
-      (it: any) => it?.owner?.id !== userInfo?.userId,
-    );
-    setOffersData(filtered);
+    // Data loading is centralized in useMainOffersDeck and reacts to filters state.
+    setOffersData([]);
     onClose && onClose();
   };
 
@@ -113,21 +105,8 @@ const FilterContent = ({ setOffersData, onClose }: FilterContentProps) => {
     try {
       await clearFilters();
       setSelectedTags([]);
-      const page = await handleFilterOffers(
-        { tags: [] },
-        { page: 0, size: 20 },
-      );
-      const body = Array.isArray(page?.body?.data?.content)
-        ? page.body.data.content
-        : [];
-      const normalized = body.map((it: any) => ({
-        ...it,
-        offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
-      }));
-      const filtered = normalized.filter(
-        (it: any) => it?.owner?.id !== userInfo?.userId,
-      );
-      setOffersData(filtered);
+      // Idempotent clear: reset list and let deck hook load for empty filters.
+      setOffersData([]);
     } catch (err) {
       console.error("error while clearing filters:", err);
     } finally {
