@@ -54,8 +54,8 @@ const MainScreen = () => {
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
   const [errorText, setErrorText] = useState<string | null>(null);
   const expandAnim = useRef(new Animated.Value(0)).current;
-  const [finalizeHideForIndex, setFinalizeHideForIndex] = useState<
-    number | null
+  const [finalizeHideForCardId, setFinalizeHideForCardId] = useState<
+    string | null
   >(null);
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
@@ -81,6 +81,10 @@ const MainScreen = () => {
     const ids = (offersData as any[]).map((o) => o?.id ?? "").join("|");
     return `${userInfo?.userId ?? "anon"}-${ids}`;
   }, [userInfo?.userId, offersData]);
+  const currentCardId = useMemo(() => {
+    const currentOffer = offersData[currentIndex];
+    return currentOffer?.id ?? currentOffer?.dateAndTime ?? null;
+  }, [offersData, currentIndex]);
 
   const loadOffers = useCallback(
     async (reset = false) => {
@@ -129,15 +133,9 @@ const MainScreen = () => {
     setCurrentIndex(0);
     setPage(0);
     setLast(false);
+    setFinalizeHideForCardId(null);
     loadOffers(true);
   }, [tokens, loading, userInfo?.userId, offersVersion, selectedIds, filters]);
-
-  useFocusEffect(
-    useCallback(() => {
-      reload();
-      return () => {};
-    }, [reload]),
-  );
 
   useEffect(() => {
     if (!errorText) return;
@@ -175,22 +173,38 @@ const MainScreen = () => {
               if (!cvId) setErrorText(t("cv.selectionCvMissing"));
               return;
             }}
-            renderCard={(item) => (
-              <OfferCard
-                item={item}
-                expandAnim={expandAnim}
-                isActive={isActivePressAnim}
-                onDescriptionHidden={() => {
-                  if (!isAnimatingRef.current) isAnimatingRef.current = true;
-                  createAnimation(expandAnim, 0, 300).start(() => {
-                    setFinalizeHideForIndex(currentIndex);
-                    setTimeout(() => setFinalizeHideForIndex(null), 120);
-                    isAnimatingRef.current = false;
-                  });
-                }}
-                finalizeHide={finalizeHideForIndex === currentIndex}
-              />
-            )}
+            renderCard={(item) => {
+              const cardId =
+                (item as Offer)?.id ?? (item as Offer)?.dateAndTime;
+              const isCurrentCard = cardId === currentCardId;
+
+              return (
+                <OfferCard
+                  item={item}
+                  expandAnim={isCurrentCard ? expandAnim : undefined}
+                  isActive={isActivePressAnim && isCurrentCard}
+                  onDescriptionHidden={
+                    isCurrentCard
+                      ? () => {
+                          if (!isAnimatingRef.current)
+                            isAnimatingRef.current = true;
+                          createAnimation(expandAnim, 0, 300).start(() => {
+                            setFinalizeHideForCardId(currentCardId);
+                            setTimeout(
+                              () => setFinalizeHideForCardId(null),
+                              120,
+                            );
+                            isAnimatingRef.current = false;
+                          });
+                        }
+                      : undefined
+                  }
+                  finalizeHide={
+                    Boolean(isCurrentCard) && finalizeHideForCardId === cardId
+                  }
+                />
+              );
+            }}
             onIndexChange={(index) => {
               setCurrentIndex(index);
               if (
@@ -231,6 +245,7 @@ const MainScreen = () => {
               onExpand();
             }}
             onSwipedAll={() => {
+              console.log("[Swiped All]: load offers");
               loadOffers();
             }}
             disableTopSwipe

@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 interface OfferCardProps {
   item: Offer;
-  expandAnim: Animated.Value;
+  expandAnim?: Animated.Value;
   isActive: boolean;
   onDescriptionHidden?: () => void;
   finalizeHide?: boolean;
