@@ -50,7 +50,7 @@ const RegisterScreen = () => {
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 230 : 30}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 190 : 30}
         >
           <ScrollView
             contentContainerStyle={
