@@ -7,18 +7,16 @@
 
 ## Test coverage and reports
 
-This section points reviewers and graders to how backend test coverage is tracked in CI and where a printable test summary will live.
+### Codecov (backend + mobile)
 
-### Backend (Spring Boot, JaCoCo)
-
-After each successful run of the GitHub Actions workflow on `main` (and on pull requests targeting `main`), **Codecov** receives coverage from the Spring Boot module (**backend** flag, JaCoCo XML) and from the Expo mobile app (**frontend** flag, Jest `lcov.info`). In the Codecov project you can open **Flags** (or filter components) to see **backend** and **frontend** percentages separately; the default graph combines both.
+After each successful run of the GitHub Actions workflow on `main` (and on pull requests targeting `main`), **Codecov** receives coverage from the Spring Boot module (**backend** flag, JaCoCo XML) and from the Expo mobile app (**frontend** flag, Jest `lcov.info`). In the Codecov project you can open **Flags** (or filter components) to see **backend** and **frontend** percentages separately.
 
 | | |
 |:---|:---|
 | **Codecov dashboard** | [Open project on Codecov](https://app.codecov.io/gh/jankotanime/job-finder-app) |
-| **Line coverage (main)** | [![Backend line coverage on Codecov](https://codecov.io/gh/jankotanime/job-finder-app/graph/badge.svg?flag=backend)](https://app.codecov.io/gh/jankotanime/job-finder-app/tree/main?flags%5B0%5D=backend) |
+| **Line coverage (main)** | [![Project line coverage on Codecov](https://codecov.io/gh/jankotanime/job-finder-app/graph/badge.svg)](https://app.codecov.io/gh/jankotanime/job-finder-app/tree/main) |
 
-The badge above shows **backend** line coverage only (`flag=backend`). Frontend coverage is available on Codecov under the **frontend** flag.
+The badge shows the **default (combined) project** line coverage on `main`—Codecov merges uploads from both flags. Use **Flags** in the dashboard for backend-only or frontend-only numbers.
 
 ### Automated test report (PDF)
 
