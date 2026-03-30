@@ -10,6 +10,8 @@ jobs:
   frontend:
     name: Mobile Frontend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: mobile
@@ -20,6 +22,17 @@ jobs:
           node-version: 20
       - run: npm install --legacy-peer-deps
       - run: npm test -- --ci --coverage
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: mobile/coverage/lcov.info
+          flags: frontend
+          disable_search: true
+          plugins: noop
+          fail_ci_if_error: false
+          name: mobile
 
   backend:
     name: Spring Boot Service Backend
