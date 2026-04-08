@@ -68,7 +68,7 @@ JobFinderApp/
 | Area | Technology |
 |:---:|:---:|
 | API | <img height="40" src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"><img height="40" src="https://img.shields.io/badge/Java%2021-FF7900?style=for-the-badge&logo=openjdk&logoColor=white"> |
-| Mobile application | <img height="40" src="https://img.shields.io/badge/React%20Native-61DAFB?style=for-the-badge&logo=react&logoColor=black"><img height="40" src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img height="40" src="https://img.shields.io/badge/stylesheet-663399?style=for-the-badge"> |
+| Mobile application | <img height="40" src="https://img.shields.io/badge/React%20Native-61DAFB?style=for-the-badge&logo=react&logoColor=black"><img height="40" src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img height="40" src="https://img.shields.io/badge/stylesheet-663399?style=for-the-badge"><img height="40" src="https://img.shields.io/badge/SwiftUI-F05138?style=for-the-badge&logo=swift&logoColor=white"> |
 | Admin panel (SPA) | <img height="40" src="https://img.shields.io/badge/Angular%2021-A6120d?style=for-the-badge&logo=angular&logoColor=white"><img height="40" src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img height="40" src="https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white"> |
 | SSR | <img height="40" src="https://img.shields.io/badge/ejs-B4CA65?style=for-the-badge&logo=ejs&logoColor=black"><img height="40" src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"><img height="40" src="https://img.shields.io/badge/css-663399?style=for-the-badge&logo=css&logoColor=white"> |
 | Authorization | <img height="40" src="https://img.shields.io/badge/google%20oauth%202.0-663399?style=for-the-badge&logo=google&logoColor=white"><img height="40" src="https://img.shields.io/badge/spring%20security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"> |
@@ -83,6 +83,7 @@ JobFinderApp/
 ## Features
 
 - Swipe UI (Mobile) — Intuitive browsing of job offers in the mobile app.
+- Widgets (IOS – SwiftUI) — Home Screen widgets.
 - Offer management (Mobile) — Users can create and manage offers.
 - Dual role usage — A user can be both an employer and a worker.
 - Job state logic — Careful state management secured for both sides to avoid bias.
