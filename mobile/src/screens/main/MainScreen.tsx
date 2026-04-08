@@ -12,6 +12,7 @@ import {
   Animated,
   Text,
   Alert,
+  AppState,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
@@ -40,8 +41,31 @@ import CvInfo from "../../components/main/CvInfo";
 import ErrorNotification from "../../components/reusable/ErrorNotification";
 import ActiveJobTimerFloating from "../../components/jobs/ActiveJobTimerFloating";
 import useMainOffersDeck from "../../hooks/useMainOffersDeck";
+import { ExtensionStorage } from "@bacons/apple-targets";
 
 const { width, height } = Dimensions.get("window");
+const storage = new ExtensionStorage(process.env.EXPO_PUBLIC_APPLE_GROUP);
+const STORAGE_KEY = process.env.EXPO_PUBLIC_APPLE_WIDGET_STORAGE_KEY;
+
+type WidgetStats = {
+  dayKey: string;
+  applied: number;
+  rejected: number;
+};
+
+const getTodayKey = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const createEmptyWidgetStats = (): WidgetStats => ({
+  dayKey: getTodayKey(),
+  applied: 0,
+  rejected: 0,
+});
 
 const MainScreen = () => {
   const swiperRef = useRef<SwiperCardRefType | null>(null);
@@ -125,6 +149,14 @@ const MainScreen = () => {
     return currentOffer?.id ?? currentOffer?.dateAndTime ?? null;
   }, [uniqueOffersData, currentCardIndex, swipedCount]);
 
+  useEffect(() => {
+    AppState.addEventListener("change", (status) => {
+      if (status === "background") {
+        ExtensionStorage.reloadWidget();
+      }
+    });
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       reload();
@@ -148,6 +180,25 @@ const MainScreen = () => {
     setCurrentCardIndex,
   ]);
 
+  const getExistingData = async (): Promise<WidgetStats> => {
+    const existingData = storage.get(STORAGE_KEY);
+    let currentStats = createEmptyWidgetStats();
+    try {
+      if (existingData) {
+        const parsed = JSON.parse(existingData) as Partial<WidgetStats>;
+        if (parsed.dayKey === getTodayKey()) {
+          currentStats = {
+            dayKey: parsed.dayKey ?? getTodayKey(),
+            applied: parsed.applied ?? 0,
+            rejected: parsed.rejected ?? 0,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to parse stats", e);
+    }
+    return currentStats;
+  };
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView
@@ -246,6 +297,13 @@ const MainScreen = () => {
               const swipedOffer = uniqueOffersData[index];
               collapseCard();
               markSwiped(swipedOffer);
+              const currentStats = await getExistingData();
+              const updatedStats = {
+                ...currentStats,
+                dayKey: getTodayKey(),
+                applied: (currentStats.applied ?? 0) + 1,
+              };
+              storage.set(STORAGE_KEY, JSON.stringify(updatedStats));
               try {
                 if (!cvId) {
                   Alert.alert(t("cv.title"), t("cv.selectionCvMissing"));
@@ -272,10 +330,17 @@ const MainScreen = () => {
               resetCardUiState();
             }}
             disableTopSwipe
-            onSwipeLeft={(index) => {
+            onSwipeLeft={async (index) => {
               const swipedOffer = uniqueOffersData[index];
               markSwiped(swipedOffer);
               collapseCard();
+              const currentStats = await getExistingData();
+              const updatedStats = {
+                ...currentStats,
+                dayKey: getTodayKey(),
+                rejected: (currentStats.rejected ?? 0) + 1,
+              };
+              storage.set(STORAGE_KEY, JSON.stringify(updatedStats));
             }}
             onSwipeBottom={(cardIndex) => {
               const offer = uniqueOffersData[cardIndex];
