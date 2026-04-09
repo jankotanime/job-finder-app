@@ -7,6 +7,8 @@ import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.Approval;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.ApprovalPhoto;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcher;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcherIssueStatus;
+import com.mimaja.job_finder_app.feature.job.jobStatusSignal.dto.JobStatusSignalDto;
+import com.mimaja.job_finder_app.feature.job.jobStatusSignal.enums.JobStatusSignalType;
 import com.mimaja.job_finder_app.feature.job.jobphoto.model.JobPhoto;
 import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.job.model.JobStatus;
@@ -107,7 +109,11 @@ public class JobServiceDefault implements JobService {
         jobDispatcher.setStartedAt(now);
         jobRepository.save(job);
 
-        sendNotificationToRoom(jobDispatcher.getId(), now.toString());
+        JobStatusSignalDto jobStatusSignalDto = new JobStatusSignalDto(
+            JobStatusSignalType.JOB_START,
+            LocalDateTime.now()
+        );
+        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
 
         return job.getJobDispatcher();
     }
@@ -163,6 +169,13 @@ public class JobServiceDefault implements JobService {
             UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
+
+        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
+            JobStatusSignalType.JOB_START
+        );
+
+        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
+
         jobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
 
         if (jobDispatcher.getIssueStatusOwner().equals(JobDispatcherIssueStatus.PROBLEM)
@@ -183,6 +196,13 @@ public class JobServiceDefault implements JobService {
             UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
+
+        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
+            JobStatusSignalType.JOB_START
+        );
+
+        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
+
         jobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
 
         if (jobDispatcher.getFinishedAt() != null
@@ -308,21 +328,37 @@ public class JobServiceDefault implements JobService {
     private void resetJobDispatcher(Job job, JobDispatcher jobDispatcher) {
         jobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
         jobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
+
+        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
+            JobStatusSignalType.JOB_START
+        );
+
+        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
         saveNewJobDispatcher(job, jobDispatcher);
     }
 
     private void setJobFailure(Job job, JobDispatcher jobDispatcher) {
         job.setStatus(JobStatus.FINISHED_FAILURE);
         jobDispatcher.setFinishedAt(LocalDateTime.now());
+        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
+            JobStatusSignalType.JOB_END_UNSUCCESSFULLY
+        );
+
+        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
         saveNewJobDispatcher(job, jobDispatcher);
     }
 
     private void setJobSuccess(Job job) {
         job.setStatus(JobStatus.FINISHED_SUCCESS);
+        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
+            JobStatusSignalType.JOB_END_SUCCESSFULLY
+        );
+
+        sendNotificationToRoom(job.getJobDispatcher().getId(), jobStatusSignalDto);
         jobRepository.save(job);
     }
 
-    private void sendNotificationToRoom(UUID roomId, String notification) {
+    private void sendNotificationToRoom(UUID roomId, JobStatusSignalDto notification) {
         messagingTemplate.convertAndSend(
             "/job-dispatch/" + roomId,
             notification
