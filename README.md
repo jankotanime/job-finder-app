@@ -5,28 +5,11 @@
 
 **Fuchacz** is an application for easy searching of contract-for-task jobs. It helps employers find workers through automated features and helps job seekers with a friendly swipe interface.
 
-## Test coverage and reports
-
-### Codecov (backend + mobile)
-
-After each successful run of the GitHub Actions workflow on `main` (and on pull requests targeting `main`), **Codecov** receives coverage from the Spring Boot module (**backend** flag, JaCoCo XML) and from the Expo mobile app (**frontend** flag, Jest `lcov.info`). In the Codecov project you can open **Flags** (or filter components) to see **backend** and **frontend** percentages separately.
-
-| | |
-|:---|:---|
-| **Codecov dashboard** | [Open project on Codecov](https://app.codecov.io/gh/jankotanime/job-finder-app) |
-| **Line coverage (main)** | [![Project line coverage on Codecov](https://codecov.io/gh/jankotanime/job-finder-app/graph/badge.svg)](https://app.codecov.io/gh/jankotanime/job-finder-app/tree/main) |
-
-The badge shows the **default (combined) project** line coverage on `main`—Codecov merges uploads from both flags. Use **Flags** in the dashboard for backend-only or frontend-only numbers.
-
-### Automated test report (PDF)
-
-A **PDF document** summarizing both automated (frontend components, integration, unit) and manual testing of application has been prepared and is available under **`Test_summary_report.pdf`**.
-
 ## Table of contents
-- [Test coverage and reports](#test-coverage-and-reports)
 - [Project structure](#project-structure)
 - [Features](#features)
 - [Preview](#preview)
+- [Test coverage and reports](#test-coverage-and-reports)
 - [Contact](#contact)
 
 ## SETUP
@@ -41,7 +24,7 @@ A **PDF document** summarizing both automated (frontend components, integration,
 
 ### Full english setup: [SETUP-en.md](./SETUP-en.md)
 
-### Full polish setup: [SETUP-pl.md](./SETUP-pl.md)
+### Full Polish setup: [SETUP-pl.md](./SETUP-pl.md)
 
 ## Project structure
 
@@ -76,7 +59,7 @@ JobFinderApp/
 | Additional storage (tokens, codes) | <img height="40" src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=white"> |
 | Cloud storage | <img height="40" src="https://img.shields.io/badge/cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white"> |
 | Scripts | <img height="40" src="https://img.shields.io/badge/bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white"><img height="40" src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white"> |
-| Infrastructure | <img height="40" src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"><img height="40" src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white"> |
+| Infrastructure | <img height="40" src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"><img height="40" src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white"><img height="40" src="https://img.shields.io/badge/codecov-F01F7A?style=for-the-badge&logo=codecov&logoColor=white"> |
 
 </div>
 
@@ -106,6 +89,7 @@ JobFinderApp/
 - Tooling scripts — Bash/Python automation.
 - Proxy/Reverse proxy — NGINX infrastructure layer.
 - Admin panel submodule — Separate admin panel as a git submodule.
+- Codecov — automatically uploads test results from the pipeline and displays them on a clear, interactive dashboard.
 
 ## Preview
 
@@ -123,6 +107,27 @@ JobFinderApp/
 
 ### Admin panel
 ![0210 (1)(1)](https://github.com/user-attachments/assets/d9994dd2-e3c6-42d6-8e60-571c6d49dfe0)
+
+## Test coverage and reports
+
+### Codecov (backend + mobile)
+
+After each successful run of the GitHub Actions workflow on `main` (and on pull requests targeting `main`), **Codecov** receives coverage from the Spring Boot module (**backend** flag, JaCoCo XML) and from the Expo mobile app (**frontend** flag, Jest `lcov.info`). In the Codecov project you can open **Flags** (or filter components) to see **backend** and **frontend** percentages separately.
+
+<div align="center">
+
+| **Codecov coverage** |
+|---|
+| [Open Codecov dashboard](https://app.codecov.io/gh/jankotanime/job-finder-app) |
+| [![Project line coverage on Codecov](https://codecov.io/gh/jankotanime/job-finder-app/graph/badge.svg)](https://app.codecov.io/gh/jankotanime/job-finder-app/tree/main) |
+
+</div>
+
+The badge shows the **default (combined) project** line coverage on `main` - Codecov merges uploads from both flags. Use **Flags** in the dashboard for backend-only or frontend-only numbers.
+
+### Automated test report (PDF)
+
+A **PDF document** summarizing both automated (frontend components, integration, unit) and manual testing of application has been prepared and is available under [latest test summary report](./reports/test_summary_reports/test_summary_report_30_03_2026.pdf) (Polish version).
 
 ## Contact
 
