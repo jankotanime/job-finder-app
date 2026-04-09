@@ -3,23 +3,24 @@
 
   > The project is under active development. Breaking changes, incomplete features and missing documentation are expected.
 
-**Fuchacz** is an application for easy searching of contract-for-task jobs. It helps employers find workers through automated features and helps job seekers with a friendly swipe interface.
+**Fuchacz** is a mobile-first platform for finding and managing contract-based jobs. It connects employers with workers through automated matching features and a swipe-based user experience.
 
 ## Table of contents
+- [Setup](#setup)
 - [Project structure](#project-structure)
 - [Features](#features)
 - [Preview](#preview)
-- [Test coverage and reports](#test-coverage-and-reports)
+- [Test coverage](#test-coverage)
 - [Contact](#contact)
 
-## SETUP
+## Setup
 
 ### Quick setup
 1. Clone the repository `git clone repo-url`
-2. Create `secrets` folder, `certs` folder and `.env` file
+2. Create `secrets` folder & `certs` folder & `.env` file
 3. Update admin panel `git submodule update --init --recursive`
 4. Run containers with `docker compose --profile init up --build`
-5. Go to mobile folder `cd mobile`
+5. Navigate to mobile folder `cd mobile`
 6. Run mobile app with `npx expo run:ios` or `npx expo run:android`
 
 ### Full english setup: [SETUP-en.md](./SETUP-en.md)
@@ -89,7 +90,7 @@ JobFinderApp/
 - Tooling scripts — Bash/Python automation.
 - Proxy/Reverse proxy — NGINX infrastructure layer.
 - Admin panel submodule — Separate admin panel as a git submodule.
-- Codecov — automatically uploads test results from the pipeline and displays them on a clear, interactive dashboard.
+Codecov — automated test coverage reporting with a clear dashboard.
 
 ## Preview
 
@@ -108,9 +109,9 @@ JobFinderApp/
 ### Admin panel
 ![0210 (1)(1)](https://github.com/user-attachments/assets/d9994dd2-e3c6-42d6-8e60-571c6d49dfe0)
 
-## Test coverage and reports
+## Test coverage
 
-### Codecov (backend + mobile)
+### Codecov
 
 After each successful run of the GitHub Actions workflow on `main` (and on pull requests targeting `main`), **Codecov** receives coverage from the Spring Boot module (**backend** flag, JaCoCo XML) and from the Expo mobile app (**frontend** flag, Jest `lcov.info`). In the Codecov project you can open **Flags** (or filter components) to see **backend** and **frontend** percentages separately.
 
@@ -125,9 +126,9 @@ After each successful run of the GitHub Actions workflow on `main` (and on pull 
 
 The badge shows the **default (combined) project** line coverage on `main` - Codecov merges uploads from both flags. Use **Flags** in the dashboard for backend-only or frontend-only numbers.
 
-### Automated test report (PDF)
+### Test report
 
-A **PDF document** summarizing both automated (frontend components, integration, unit) and manual testing of application has been prepared and is available under [latest test summary report](./reports/test_summary_reports/test_summary_report_30_03_2026.pdf) (Polish version).
+A PDF document summarizing both automated (unit, integration, component) and manual tests of the application is available under [the latest test summary report](./reports/test_summary_reports/test_summary_report_30_03_2026.pdf) (Polish version).
 
 ## Contact
 
