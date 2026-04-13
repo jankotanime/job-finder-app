@@ -34,7 +34,7 @@
 ```
 JobFinderApp/
 ├── docker-compose.yml
-├── data.sql
+├── seed_data.json
 ├── spring-boot-service/
 │   └── ...
 ├── mobile/
@@ -83,7 +83,6 @@ JobFinderApp/
 - User profiles — Required profile data and preferences.
 - Role system — Permission separation between users and admins.
 - Docker Compose — Consistent containerized runtime environment.
-- Data management — Export and import with `data.sql`.
 - Hot reload — Faster development with live updates.
 - Mobile integration — Dedicated React Native client.
 - Web integration — SSR website for presentation and indexing.
