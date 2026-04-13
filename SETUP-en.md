@@ -4,7 +4,6 @@
 - [Required tools](#required-tools)
 - [Getting the application](#getting-the-application)
 - [Running the application](#running-the-application)
-- [Exporting current data](#exporting-current-data)
 - [Common database issues](#common-database-issues)
 - [Branch workflow: `main` → `production`](#branch-workflow-main--production)
 - [FAQ](#faq)
@@ -12,7 +11,6 @@
 ## Required tools
 - Docker and Docker Compose (latest version recommended)
 - Git
-- Bash (for running scripts)
 - React Native
 
 ## Getting the application
@@ -43,7 +41,7 @@
 ## Running the application
 
 ### Running containers
-1. **First run** with database initialization from `data.sql` using the `db-update` service:
+1. **First run** with database initialization from `seed_data.json` using the `db-seed` service:
    ```sh
    docker compose --profile init up --build
    ```
@@ -58,9 +56,9 @@
    docker compose up --build --watch
    ```
 
-4. To run the database updater with `data.sql` (containers must be running):
+4. To run JSON database seeding manually (containers must be running):
    ```sh
-   docker compose up db-update
+   docker compose up db-seed
    ```
 
 ### Running the mobile app
@@ -75,17 +73,10 @@ Run with npx expo run:ios for iOS simulator and :android for Android; you can al
    6. On macOS: npx expo run:ios will launch the simulator
 See the mobile setup [here](mobile/README.md)
 
-## Exporting current data
-To dump current database data into `data.sql` run:
-   ```sh
-   ./scripts/extract_db.sh
-   ```
-
 ## Common database issues
 
 - **No data after container restart:** Make sure the `db-volume` volume is configured in `docker-compose.yml`.
-- **No new records after changing `data.sql`:** Run the `db-update` service or load manually.
-- **Data conflicts:** Before exporting data, pull the repository to avoid overwriting others' changes.
+- **No new records after changing `seed_data.json`:** Run the `db-seed` service or load manually.
 
 ## Branch workflow: `main` → `production`
 
@@ -124,7 +115,7 @@ This section describes how to update the `production` branch, which is used **on
    SELECT * FROM table_name;
    ```
 
-**How to reset the database to the state from `data.sql`?**
+**How to reset the database to the state from `seed_data.json`?**
 
 - Remove the volume:
   ```sh
