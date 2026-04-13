@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { View, StyleSheet, Dimensions, Animated } from "react-native";
 import { useTheme } from "react-native-paper";
 const { height, width } = Dimensions.get("window");
@@ -11,7 +11,8 @@ const Card = ({
   expandAnim?: Animated.Value;
 }) => {
   const { colors } = useTheme();
-  const anim = expandAnim ?? new Animated.Value(0);
+  const fallbackAnim = useRef(new Animated.Value(0)).current;
+  const anim = expandAnim ?? fallbackAnim;
   const widthExpand = anim.interpolate({
     inputRange: [0, 1],
     outputRange: [width * 0.9, width],

@@ -1,28 +1,31 @@
 # Fuchacz
 ### Version: Pre-alpha 1.0
+
   > The project is under active development. Breaking changes, incomplete features and missing documentation are expected.
 
-**Fuchacz** is an application for easy searching of contract-for-task jobs. It helps employers find workers through automated features and helps job seekers with a friendly swipe interface.
+**Fuchacz** is a mobile-first platform for finding and managing contract-based jobs. It connects employers with workers through automated matching features and a swipe-based user experience.
 
 ## Table of contents
+- [Setup](#setup)
 - [Project structure](#project-structure)
 - [Features](#features)
 - [Preview](#preview)
+- [Test coverage](#test-coverage)
 - [Contact](#contact)
 
-## SETUP
+## Setup
 
 ### Quick setup
 1. Clone the repository `git clone repo-url`
-2. Create `secrets` folder, `certs` folder and `.env` file
+2. Create `secrets` folder & `certs` folder & `.env` file
 3. Update admin panel `git submodule update --init --recursive`
 4. Run containers with `docker compose --profile init up --build`
-5. Go to mobile folder `cd mobile`
+5. Navigate to mobile folder `cd mobile`
 6. Run mobile app with `npx expo run:ios` or `npx expo run:android`
 
 ### Full english setup: [SETUP-en.md](./SETUP-en.md)
 
-### Full polish setup: [SETUP-pl.md](./SETUP-pl.md)
+### Full Polish setup: [SETUP-pl.md](./SETUP-pl.md)
 
 ## Project structure
 
@@ -31,7 +34,7 @@
 ```
 JobFinderApp/
 ├── docker-compose.yml
-├── data.sql
+├── seed_data.json
 ├── spring-boot-service/
 │   └── ...
 ├── mobile/
@@ -49,7 +52,7 @@ JobFinderApp/
 | Area | Technology |
 |:---:|:---:|
 | API | <img height="40" src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"><img height="40" src="https://img.shields.io/badge/Java%2021-FF7900?style=for-the-badge&logo=openjdk&logoColor=white"> |
-| Mobile application | <img height="40" src="https://img.shields.io/badge/React%20Native-61DAFB?style=for-the-badge&logo=react&logoColor=black"><img height="40" src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img height="40" src="https://img.shields.io/badge/stylesheet-663399?style=for-the-badge"> |
+| Mobile application | <img height="40" src="https://img.shields.io/badge/React%20Native-61DAFB?style=for-the-badge&logo=react&logoColor=black"><img height="40" src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img height="40" src="https://img.shields.io/badge/stylesheet-663399?style=for-the-badge"><img height="40" src="https://img.shields.io/badge/SwiftUI-F05138?style=for-the-badge&logo=swift&logoColor=white"> |
 | Admin panel (SPA) | <img height="40" src="https://img.shields.io/badge/Angular%2021-A6120d?style=for-the-badge&logo=angular&logoColor=white"><img height="40" src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img height="40" src="https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white"> |
 | SSR | <img height="40" src="https://img.shields.io/badge/ejs-B4CA65?style=for-the-badge&logo=ejs&logoColor=black"><img height="40" src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"><img height="40" src="https://img.shields.io/badge/css-663399?style=for-the-badge&logo=css&logoColor=white"> |
 | Authorization | <img height="40" src="https://img.shields.io/badge/google%20oauth%202.0-663399?style=for-the-badge&logo=google&logoColor=white"><img height="40" src="https://img.shields.io/badge/spring%20security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"> |
@@ -57,13 +60,14 @@ JobFinderApp/
 | Additional storage (tokens, codes) | <img height="40" src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=white"> |
 | Cloud storage | <img height="40" src="https://img.shields.io/badge/cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white"> |
 | Scripts | <img height="40" src="https://img.shields.io/badge/bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white"><img height="40" src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white"> |
-| Infrastructure | <img height="40" src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"><img height="40" src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white"> |
+| Infrastructure | <img height="40" src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"><img height="40" src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white"><img height="40" src="https://img.shields.io/badge/codecov-F01F7A?style=for-the-badge&logo=codecov&logoColor=white"> |
 
 </div>
 
 ## Features
 
 - Swipe UI (Mobile) — Intuitive browsing of job offers in the mobile app.
+- Widgets (IOS – SwiftUI) — Home Screen widgets.
 - Offer management (Mobile) — Users can create and manage offers.
 - Dual role usage — A user can be both an employer and a worker.
 - Job state logic — Careful state management secured for both sides to avoid bias.
@@ -79,13 +83,13 @@ JobFinderApp/
 - User profiles — Required profile data and preferences.
 - Role system — Permission separation between users and admins.
 - Docker Compose — Consistent containerized runtime environment.
-- Data management — Export and import with `data.sql`.
 - Hot reload — Faster development with live updates.
 - Mobile integration — Dedicated React Native client.
 - Web integration — SSR website for presentation and indexing.
 - Tooling scripts — Bash/Python automation.
 - Proxy/Reverse proxy — NGINX infrastructure layer.
 - Admin panel submodule — Separate admin panel as a git submodule.
+Codecov — automated test coverage reporting with a clear dashboard.
 
 ## Preview
 
@@ -103,6 +107,27 @@ JobFinderApp/
 
 ### Admin panel
 ![0210 (1)(1)](https://github.com/user-attachments/assets/d9994dd2-e3c6-42d6-8e60-571c6d49dfe0)
+
+## Test coverage
+
+### Codecov
+
+After each successful run of the GitHub Actions workflow on `main` (and on pull requests targeting `main`), **Codecov** receives coverage from the Spring Boot module (**backend** flag, JaCoCo XML) and from the Expo mobile app (**frontend** flag, Jest `lcov.info`). In the Codecov project you can open **Flags** (or filter components) to see **backend** and **frontend** percentages separately.
+
+<div align="center">
+
+| **Codecov coverage** |
+|---|
+| [Open Codecov dashboard](https://app.codecov.io/gh/jankotanime/job-finder-app) |
+| [![Project line coverage on Codecov](https://codecov.io/gh/jankotanime/job-finder-app/graph/badge.svg)](https://app.codecov.io/gh/jankotanime/job-finder-app/tree/main) |
+
+</div>
+
+The badge shows the **default (combined) project** line coverage on `main` - Codecov merges uploads from both flags. Use **Flags** in the dashboard for backend-only or frontend-only numbers.
+
+### Test report
+
+A PDF document summarizing both automated (unit, integration, component) and manual tests of the application is available under [the latest test summary report](./reports/test_summary_reports/test_summary_report_30_03_2026.pdf) (Polish version).
 
 ## Contact
 

@@ -1,25 +1,16 @@
 package com.mimaja.job_finder_app.feature.unit.user.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUser;
-import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUserWithProfilePhoto;
-import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUserAdminPanelCreateRequestDto;
-import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_USERNAME;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_EMAIL;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_FIRST_NAME;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_LAST_NAME;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_PHONE;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.TEST_USERNAME;
+import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUser;
+import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUserAdminPanelCreateRequestDto;
+import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUserWithProfilePhoto;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelCreateRequestDto;
 import com.mimaja.job_finder_app.feature.user.dto.UserAdminPanelResponseDto;
@@ -27,11 +18,17 @@ import com.mimaja.job_finder_app.feature.user.dto.UserInOfferResponseDto;
 import com.mimaja.job_finder_app.feature.user.mapper.UserMapper;
 import com.mimaja.job_finder_app.feature.user.mapper.UserMapperImpl;
 import com.mimaja.job_finder_app.feature.user.model.User;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserMapper - Unit Tests")
 class UserMapperTest {
-
     private UserMapper userMapper;
 
     @BeforeEach
@@ -55,7 +52,9 @@ class UserMapperTest {
     }
 
     @Test
-    @DisplayName("Should map username correctly when mapping UserAdminPanelCreateRequestDto to User entity")
+    @DisplayName(
+            "Should map username correctly when mapping UserAdminPanelCreateRequestDto to User"
+                    + " entity")
     void testToEntity_shouldMapUsernameCorrectly_whenValidDtoProvided() {
         // given
         UserAdminPanelCreateRequestDto requestDto = createTestUserAdminPanelCreateRequestDto();
@@ -68,7 +67,8 @@ class UserMapperTest {
     }
 
     @Test
-    @DisplayName("Should map email correctly when mapping UserAdminPanelCreateRequestDto to User entity")
+    @DisplayName(
+            "Should map email correctly when mapping UserAdminPanelCreateRequestDto to User entity")
     void testToEntity_shouldMapEmailCorrectly_whenValidDtoProvided() {
         // given
         UserAdminPanelCreateRequestDto requestDto = createTestUserAdminPanelCreateRequestDto();
@@ -81,7 +81,9 @@ class UserMapperTest {
     }
 
     @Test
-    @DisplayName("Should map password as passwordHash when mapping UserAdminPanelCreateRequestDto to User entity")
+    @DisplayName(
+            "Should map password as passwordHash when mapping UserAdminPanelCreateRequestDto to"
+                    + " User entity")
     void testToEntity_shouldMapPasswordAsPasswordHash_whenValidDtoProvided() {
         // given
         UserAdminPanelCreateRequestDto requestDto = createTestUserAdminPanelCreateRequestDto();
@@ -94,7 +96,9 @@ class UserMapperTest {
     }
 
     @Test
-    @DisplayName("Should map firstName correctly when mapping UserAdminPanelCreateRequestDto to User entity")
+    @DisplayName(
+            "Should map firstName correctly when mapping UserAdminPanelCreateRequestDto to User"
+                    + " entity")
     void testToEntity_shouldMapFirstNameCorrectly_whenValidDtoProvided() {
         // given
         UserAdminPanelCreateRequestDto requestDto = createTestUserAdminPanelCreateRequestDto();
@@ -107,7 +111,9 @@ class UserMapperTest {
     }
 
     @Test
-    @DisplayName("Should map lastName correctly when mapping UserAdminPanelCreateRequestDto to User entity")
+    @DisplayName(
+            "Should map lastName correctly when mapping UserAdminPanelCreateRequestDto to User"
+                    + " entity")
     void testToEntity_shouldMapLastNameCorrectly_whenValidDtoProvided() {
         // given
         UserAdminPanelCreateRequestDto requestDto = createTestUserAdminPanelCreateRequestDto();
@@ -120,7 +126,9 @@ class UserMapperTest {
     }
 
     @Test
-    @DisplayName("Should map phoneNumber correctly when mapping UserAdminPanelCreateRequestDto to User entity")
+    @DisplayName(
+            "Should map phoneNumber correctly when mapping UserAdminPanelCreateRequestDto to User"
+                    + " entity")
     void testToEntity_shouldMapPhoneNumberCorrectly_whenValidDtoProvided() {
         // given
         UserAdminPanelCreateRequestDto requestDto = createTestUserAdminPanelCreateRequestDto();
@@ -296,7 +304,8 @@ class UserMapperTest {
 
     @Test
     @DisplayName("Should map multiple users correctly when mapping set with multiple users")
-    void testToSetOfUserInOfferResponseDto_shouldMapMultipleUsers_whenSetWithMultipleUsersProvided() {
+    void
+            testToSetOfUserInOfferResponseDto_shouldMapMultipleUsers_whenSetWithMultipleUsersProvided() {
         // given
         Set<User> users = new HashSet<>();
         users.add(createTestUser());
@@ -311,7 +320,8 @@ class UserMapperTest {
 
     @Test
     @DisplayName("Should map user properties correctly in set mapping")
-    void testToSetOfUserInOfferResponseDto_shouldMapUserPropertiesCorrectly_whenValidUsersProvided() {
+    void
+            testToSetOfUserInOfferResponseDto_shouldMapUserPropertiesCorrectly_whenValidUsersProvided() {
         // given
         Set<User> users = new HashSet<>();
         User testUser = createTestUser();
@@ -321,9 +331,7 @@ class UserMapperTest {
         Set<UserInOfferResponseDto> result = userMapper.toSetOfUserInOfferResponseDto(users);
 
         // then
-        assertThat(result)
-                .extracting(UserInOfferResponseDto::username)
-                .contains(TEST_USERNAME);
+        assertThat(result).extracting(UserInOfferResponseDto::username).contains(TEST_USERNAME);
     }
 
     // ==================== toUserAdminPanelResponseDto Tests ====================

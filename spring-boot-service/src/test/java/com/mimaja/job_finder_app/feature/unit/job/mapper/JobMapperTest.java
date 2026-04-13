@@ -1,21 +1,13 @@
 package com.mimaja.job_finder_app.feature.unit.job.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.mock;
 import static com.mimaja.job_finder_app.feature.unit.job.mockdata.JobMockData.createTestJob;
 import static com.mimaja.job_finder_app.feature.unit.job.mockdata.JobMockData.createTestJobWithPhoto;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUser;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUserWithProfilePhoto;
-
-import java.lang.reflect.Field;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
 
 import com.mimaja.job_finder_app.feature.job.dto.JobResponseDto;
 import com.mimaja.job_finder_app.feature.job.mapper.JobMapper;
@@ -23,11 +15,16 @@ import com.mimaja.job_finder_app.feature.job.mapper.JobMapperImpl;
 import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.offer.tag.mapper.TagMapper;
 import com.mimaja.job_finder_app.feature.user.model.User;
+import java.lang.reflect.Field;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("JobMapper - Unit Tests")
 class JobMapperTest {
-
     private JobMapper jobMapper;
     private TagMapper tagMapperMock;
 

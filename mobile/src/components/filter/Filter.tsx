@@ -13,9 +13,17 @@ import { Offer } from "../../types/Offer";
 
 export interface FilterProps {
   setOffersData: (data: Offer[]) => void;
+  filters: string[];
+  setFiltersList: (list: string[]) => Promise<void>;
+  clearFilters: () => Promise<void>;
 }
 const { width, height } = Dimensions.get("window");
-const Filter = ({ setOffersData }: FilterProps) => {
+const Filter = ({
+  setOffersData,
+  filters,
+  setFiltersList,
+  clearFilters,
+}: FilterProps) => {
   const { colors } = useTheme();
   const [isActive, setIsActive] = useState(false);
   const slideAnim = useRef(new Animated.Value(height + 10)).current;
@@ -124,7 +132,13 @@ const Filter = ({ setOffersData }: FilterProps) => {
         ]}
       >
         <View style={styles.exitBox}>
-          <FilterContent setOffersData={setOffersData} onClose={closeFilter} />
+          <FilterContent
+            setOffersData={setOffersData}
+            filters={filters}
+            setFiltersList={setFiltersList}
+            clearFilters={clearFilters}
+            onClose={closeFilter}
+          />
         </View>
       </Animated.View>
     </>

@@ -14,20 +14,19 @@ services:
     volumes:
       - db-volume:/var/lib/postgresql/data
 
-  db-update:
-    image: postgres:16
-    container_name: db-update
+  db-seed:
+    image: python:3.11-slim
+    container_name: db-seed
     profiles:
       - init
     depends_on:
       - database
       - spring-boot-service
     volumes:
-      - ./data.sql:/data.sql:ro
-      - ./scripts/import-data.sh:/import-data.sh:ro
-      - ./scripts/wait-for-it.sh:/wait-for-it.sh:ro
-    entrypoint: >
-      /bin/sh -c "bash /wait-for-it.sh spring-boot-service:8080 --timeout=60 && sh /import-data.sh"
+      - ./seed_data.json:/seed_data.json:ro
+      - ./scripts/seed_data.py:/seed_data.py:ro
+      - ./scripts/run-db-seed.sh:/run-db-seed.sh:ro
+    entrypoint: ["/bin/sh", "/run-db-seed.sh"]
     environment:
       PGPASSWORD: admin
       PGHOST: database

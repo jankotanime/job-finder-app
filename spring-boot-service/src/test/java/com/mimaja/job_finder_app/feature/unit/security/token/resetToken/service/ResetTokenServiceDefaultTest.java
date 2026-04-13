@@ -1,9 +1,10 @@
 package com.mimaja.job_finder_app.feature.unit.security.token.resetToken.service;
 
+import static com.mimaja.job_finder_app.feature.unit.security.mockdata.SecurityMockData.createTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,9 +16,12 @@ import com.mimaja.job_finder_app.feature.user.repository.UserRepository;
 import com.mimaja.job_finder_app.security.encoder.ResetTokenEncoder;
 import com.mimaja.job_finder_app.security.token.resetToken.dto.response.ResetTokenResponseDto;
 import com.mimaja.job_finder_app.security.token.resetToken.service.ResetTokenServiceDefault;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.DisplayName;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,8 +30,14 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("ResetTokenServiceDefault - Unit Tests")
-public class ResetTokenServiceDefaultTest {
+class ResetTokenServiceDefaultTest {
+    private static final String ENCODED_RESET_TOKEN = "encoded-reset-token";
+    private static final String HASHED_TOKEN_VALUE = "hashed-token-value";
+    private static final String VALID_RESET_TOKEN = "valid-reset-token";
+    private static final String INVALID_RESET_TOKEN = "invalid-reset-token";
+    private static final String RESET_TOKEN_KEY_PREFIX = "ResetToken-";
+    private static final int TOKEN_TTL_SECONDS = 900;
+
     @Mock private StringRedisTemplate redisTemplate;
 
     @Mock private HashOperations<String, Object, Object> hashOps;
@@ -40,157 +50,171 @@ public class ResetTokenServiceDefaultTest {
 
     private User testUser;
 
+    @BeforeEach
     void setUp() {
+        lenient().when(redisTemplate.opsForHash()).thenReturn(hashOps);
         testUser = createTestUser();
-
         resetTokenService =
                 new ResetTokenServiceDefault(redisTemplate, resetTokenEncoder, userRepository);
     }
 
-    private void setUpForCreatingValidToken() {
-        when(redisTemplate.opsForHash()).thenReturn(hashOps);
-        when(resetTokenEncoder.encodeToken(anyString())).thenReturn("encoded-reset-token");
-
-        setUp();
-    }
-
-    private void setUpOpsForHashToken() {
-        when(redisTemplate.opsForHash()).thenReturn(hashOps);
-
-        setUp();
-    }
-
-    private User createTestUser() {
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        user.setUsername("testuser");
-        user.setEmail("user@example.com");
-        user.setPhoneNumber(123456789);
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setProfileDescription("Test profile description");
-        return user;
-    }
-
     @Test
-    @DisplayName("Should delete reset token by token id")
-    void testDeleteToken_WithValidTokenId_ShouldDeleteToken() {
-        setUp();
-
+    void deleteToken_shouldInvokeRedisDeleteOnce_whenTokenIdIsValid() {
         String tokenId = UUID.randomUUID().toString();
+
         resetTokenService.deleteToken(tokenId);
 
-        String expectedKey = "ResetToken-" + tokenId;
-        verify(redisTemplate, times(1)).delete(expectedKey);
+        verify(redisTemplate, times(1)).delete(RESET_TOKEN_KEY_PREFIX + tokenId);
     }
 
     @Test
-    @DisplayName("Should create reset token for valid user")
-    void testCreateToken_WithValidUser_ShouldReturnResetTokenResponseDto() {
-        setUpForCreatingValidToken();
+    void createToken_shouldReturnNonNullResponse_whenUserIdIsValid() {
+        when(resetTokenEncoder.encodeToken(anyString())).thenReturn(ENCODED_RESET_TOKEN);
 
-        UUID userId = testUser.getId();
-        ResetTokenResponseDto result = resetTokenService.createToken(userId);
+        ResetTokenResponseDto result = resetTokenService.createToken(testUser.getId());
 
-        assertNotNull(result, "ResetTokenResponseDto should not be null");
-        assertThat(result.resetToken()).as("Reset token should not be empty").isNotBlank();
-        assertThat(result.resetTokenId()).as("Reset token ID should not be empty").isNotBlank();
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void createToken_shouldReturnNonBlankResetToken_whenUserIdIsValid() {
+        when(resetTokenEncoder.encodeToken(anyString())).thenReturn(ENCODED_RESET_TOKEN);
+
+        ResetTokenResponseDto result = resetTokenService.createToken(testUser.getId());
+
+        assertThat(result.resetToken()).isNotBlank();
+    }
+
+    @Test
+    void createToken_shouldReturnNonBlankResetTokenId_whenUserIdIsValid() {
+        when(resetTokenEncoder.encodeToken(anyString())).thenReturn(ENCODED_RESET_TOKEN);
+
+        ResetTokenResponseDto result = resetTokenService.createToken(testUser.getId());
+
+        assertThat(result.resetTokenId()).isNotBlank();
+    }
+
+    @Test
+    void createToken_shouldCallOpsForHash_whenUserIdIsValid() {
+        when(resetTokenEncoder.encodeToken(anyString())).thenReturn(ENCODED_RESET_TOKEN);
+
+        resetTokenService.createToken(testUser.getId());
 
         verify(redisTemplate, times(1)).opsForHash();
+    }
+
+    @Test
+    void createToken_shouldEncodeTokenOnce_whenUserIdIsValid() {
+        when(resetTokenEncoder.encodeToken(anyString())).thenReturn(ENCODED_RESET_TOKEN);
+
+        resetTokenService.createToken(testUser.getId());
+
         verify(resetTokenEncoder, times(1)).encodeToken(anyString());
     }
 
     @Test
-    @DisplayName("Should validate token successfully with valid reset token")
-    void testValidateToken_WithValidResetToken_ShouldReturnUser() {
-        setUpOpsForHashToken();
-
+    void validateToken_shouldReturnUserWithMatchingId_whenTokenIsValid() {
         String tokenId = UUID.randomUUID().toString();
-        String hashedToken = "hashed-token-value";
-        String resetToken = "valid-reset-token";
+        stubValidTokenEntries(tokenId, testUser.getId());
 
-        when(hashOps.entries("ResetToken-" + tokenId))
-                .thenReturn(
-                        java.util.Map.of(
-                                "userId", testUser.getId().toString(),
-                                "tokenValue", hashedToken,
-                                "expiresAt", java.time.Instant.now().plusSeconds(900).toString()));
-
-        when(resetTokenEncoder.verifyToken(resetToken, hashedToken)).thenReturn(true);
-
+        when(resetTokenEncoder.verifyToken(VALID_RESET_TOKEN, HASHED_TOKEN_VALUE)).thenReturn(true);
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
-        User result = resetTokenService.validateToken(resetToken, tokenId);
+        User result = resetTokenService.validateToken(VALID_RESET_TOKEN, tokenId);
 
-        assertNotNull(result, "User should not be null");
-        assertThat(result.getId()).as("User ID should match").isEqualTo(testUser.getId());
-        assertThat(result.getUsername())
-                .as("Username should match")
-                .isEqualTo(testUser.getUsername());
-
-        verify(resetTokenEncoder, times(1)).verifyToken(resetToken, hashedToken);
-        verify(userRepository, times(1)).findById(testUser.getId());
-        verify(redisTemplate, times(1)).delete("ResetToken-" + tokenId);
+        assertThat(result.getId()).isEqualTo(testUser.getId());
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when reset token is invalid")
-    void testValidateToken_WithInvalidResetToken_ShouldThrowBusinessException() {
-        setUpOpsForHashToken();
-
+    void validateToken_shouldReturnUserWithMatchingUsername_whenTokenIsValid() {
         String tokenId = UUID.randomUUID().toString();
-        String hashedToken = "hashed-token-value";
-        String invalidResetToken = "invalid-reset-token";
+        stubValidTokenEntries(tokenId, testUser.getId());
 
-        when(hashOps.entries("ResetToken-" + tokenId))
-                .thenReturn(
-                        java.util.Map.of(
-                                "userId", testUser.getId().toString(),
-                                "tokenValue", hashedToken,
-                                "expiresAt", java.time.Instant.now().plusSeconds(900).toString()));
+        when(resetTokenEncoder.verifyToken(VALID_RESET_TOKEN, HASHED_TOKEN_VALUE)).thenReturn(true);
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
-        when(resetTokenEncoder.verifyToken(invalidResetToken, hashedToken)).thenReturn(false);
+        User result = resetTokenService.validateToken(VALID_RESET_TOKEN, tokenId);
 
-        BusinessException exception =
-                assertThrows(
-                        BusinessException.class,
-                        () -> resetTokenService.validateToken(invalidResetToken, tokenId),
-                        "Should throw BusinessException for invalid reset token");
+        assertThat(result.getUsername()).isEqualTo(testUser.getUsername());
+    }
 
-        assertThat(exception.getCode())
-                .as("Exception code should indicate invalid reset token")
+    @Test
+    void validateToken_shouldVerifyTokenWithEncoder_whenTokenIsValid() {
+        String tokenId = UUID.randomUUID().toString();
+        stubValidTokenEntries(tokenId, testUser.getId());
+
+        when(resetTokenEncoder.verifyToken(VALID_RESET_TOKEN, HASHED_TOKEN_VALUE)).thenReturn(true);
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
+        resetTokenService.validateToken(VALID_RESET_TOKEN, tokenId);
+
+        verify(resetTokenEncoder, times(1)).verifyToken(VALID_RESET_TOKEN, HASHED_TOKEN_VALUE);
+    }
+
+    @Test
+    void validateToken_shouldFindUserById_whenTokenIsValid() {
+        String tokenId = UUID.randomUUID().toString();
+        stubValidTokenEntries(tokenId, testUser.getId());
+
+        when(resetTokenEncoder.verifyToken(VALID_RESET_TOKEN, HASHED_TOKEN_VALUE)).thenReturn(true);
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
+        resetTokenService.validateToken(VALID_RESET_TOKEN, tokenId);
+
+        verify(userRepository, times(1)).findById(testUser.getId());
+    }
+
+    @Test
+    void validateToken_shouldDeleteRedisKey_whenTokenIsValid() {
+        String tokenId = UUID.randomUUID().toString();
+        stubValidTokenEntries(tokenId, testUser.getId());
+
+        when(resetTokenEncoder.verifyToken(VALID_RESET_TOKEN, HASHED_TOKEN_VALUE)).thenReturn(true);
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
+        resetTokenService.validateToken(VALID_RESET_TOKEN, tokenId);
+
+        verify(redisTemplate, times(1)).delete(RESET_TOKEN_KEY_PREFIX + tokenId);
+    }
+
+    @Test
+    void validateToken_shouldThrowBusinessExceptionWithInvalidResetTokenCode_whenTokenIsInvalid() {
+        String tokenId = UUID.randomUUID().toString();
+        stubValidTokenEntries(tokenId, testUser.getId());
+
+        when(resetTokenEncoder.verifyToken(INVALID_RESET_TOKEN, HASHED_TOKEN_VALUE))
+                .thenReturn(false);
+
+        assertThatThrownBy(() -> resetTokenService.validateToken(INVALID_RESET_TOKEN, tokenId))
+                .asInstanceOf(InstanceOfAssertFactories.type(BusinessException.class))
+                .extracting(BusinessException::getCode)
                 .isEqualTo(BusinessExceptionReason.INVALID_RESET_TOKEN.getCode());
     }
 
     @Test
-    @DisplayName("Should throw BusinessException when user is not found")
-    void testValidateToken_WithNonExistentUser_ShouldThrowBusinessException() {
-        setUpOpsForHashToken();
-
+    void validateToken_shouldThrowBusinessExceptionWithInvalidResetTokenCode_whenUserNotFound() {
         String tokenId = UUID.randomUUID().toString();
-        String hashedToken = "hashed-token-value";
-        String resetToken = "valid-reset-token";
         UUID nonExistentUserId = UUID.randomUUID();
+        stubValidTokenEntries(tokenId, nonExistentUserId);
 
-        when(hashOps.entries("ResetToken-" + tokenId))
-                .thenReturn(
-                        java.util.Map.of(
-                                "userId", nonExistentUserId.toString(),
-                                "tokenValue", hashedToken,
-                                "expiresAt", java.time.Instant.now().plusSeconds(900).toString()));
-
-        when(resetTokenEncoder.verifyToken(resetToken, hashedToken)).thenReturn(true);
-
+        when(resetTokenEncoder.verifyToken(VALID_RESET_TOKEN, HASHED_TOKEN_VALUE)).thenReturn(true);
         when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
 
-        BusinessException exception =
-                assertThrows(
-                        BusinessException.class,
-                        () -> resetTokenService.validateToken(resetToken, tokenId),
-                        "Should throw BusinessException when user is not found");
-
-        assertThat(exception.getCode())
-                .as("Exception code should indicate invalid reset token")
+        assertThatThrownBy(() -> resetTokenService.validateToken(VALID_RESET_TOKEN, tokenId))
+                .asInstanceOf(InstanceOfAssertFactories.type(BusinessException.class))
+                .extracting(BusinessException::getCode)
                 .isEqualTo(BusinessExceptionReason.INVALID_RESET_TOKEN.getCode());
+    }
+
+    private void stubValidTokenEntries(String tokenId, UUID userId) {
+        when(hashOps.entries(RESET_TOKEN_KEY_PREFIX + tokenId))
+                .thenReturn(
+                        Map.of(
+                                "userId",
+                                userId.toString(),
+                                "tokenValue",
+                                HASHED_TOKEN_VALUE,
+                                "expiresAt",
+                                Instant.now().plusSeconds(TOKEN_TTL_SECONDS).toString()));
     }
 }

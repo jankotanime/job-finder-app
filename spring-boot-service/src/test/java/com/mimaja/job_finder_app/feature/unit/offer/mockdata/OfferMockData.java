@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class OfferMockData {
-
     public static final String TEST_OFFER_TITLE = "Test Offer Title";
     public static final String TEST_OFFER_DESCRIPTION = "Test Offer Description";
     public static final Double TEST_OFFER_SALARY = 3000.0;
@@ -91,8 +90,7 @@ public class OfferMockData {
                 LocalDateTime.now().plusDays(1),
                 TEST_OFFER_SALARY,
                 10,
-                new HashSet<UUID>()
-        );
+                new HashSet<UUID>());
     }
 
     public static OfferUpdateRequestDto createTestOfferUpdateRequestDto() {
@@ -102,8 +100,7 @@ public class OfferMockData {
                 LocalDateTime.now().plusDays(1),
                 TEST_OFFER_SALARY,
                 10,
-                new HashSet<UUID>()
-        );
+                new HashSet<UUID>());
     }
 
     public static Offer createTestOfferWithApplications() {
@@ -127,8 +124,8 @@ public class OfferMockData {
     public static Offer createTestOfferWithPhoto() {
         Offer offer = createTestOffer();
         // Set a non-null photo for coverage of photo mapping
-        com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto photo = 
-            new com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto();
+        com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto photo =
+                new com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto();
         offer.setPhoto(photo);
         return offer;
     }
@@ -137,7 +134,7 @@ public class OfferMockData {
         Offer offer = createTestOffer();
         // Set a non-null contract for coverage of contract mapping
         com.mimaja.job_finder_app.feature.contract.model.Contract contract =
-            new com.mimaja.job_finder_app.feature.contract.model.Contract();
+                new com.mimaja.job_finder_app.feature.contract.model.Contract();
         offer.setContract(contract);
         return offer;
     }

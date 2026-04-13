@@ -1,8 +1,19 @@
 package com.mimaja.job_finder_app.feature.unit.user.update.password.utils;
 
-import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_PASSWORD_NO_DIGITS;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_PASSWORD_NO_LOWERCASE;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_PASSWORD_NO_UPPERCASE;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_PASSWORD_NO_UPPERCASE_NO_DIGITS;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_PASSWORD_ONLY_LOWERCASE;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_PASSWORD_TOO_LONG;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.INVALID_PASSWORD_TOO_SHORT;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.VALID_PASSWORD_LONG;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.VALID_PASSWORD_MINIMUM_LENGTH;
+import static com.mimaja.job_finder_app.feature.unit.user.update.password.mockdata.PasswordManageMockData.VALID_PASSWORD_WITH_ALL_REQUIREMENTS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.mimaja.job_finder_app.core.handler.exception.BusinessException;
 import com.mimaja.job_finder_app.core.handler.exception.BusinessExceptionReason;
@@ -12,8 +23,8 @@ import org.junit.jupiter.api.Test;
 
 @DisplayName("PasswordManageDataManager - Unit Tests")
 class PasswordManageDataManagerTest {
-
-    private final PasswordManageDataManager passwordManageDataManager = new PasswordManageDataManager();
+    private final PasswordManageDataManager passwordManageDataManager =
+            new PasswordManageDataManager();
 
     // =========================
     // checkDataPatterns - Valid Password Tests
@@ -24,7 +35,9 @@ class PasswordManageDataManagerTest {
     void testCheckDataPatterns_shouldNotThrowException_whenPasswordIsValid() {
         // when & then
         assertDoesNotThrow(
-                () -> passwordManageDataManager.checkDataPatterns(VALID_PASSWORD_WITH_ALL_REQUIREMENTS));
+                () ->
+                        passwordManageDataManager.checkDataPatterns(
+                                VALID_PASSWORD_WITH_ALL_REQUIREMENTS));
     }
 
     @Test
@@ -39,8 +52,7 @@ class PasswordManageDataManagerTest {
     @DisplayName("Should not throw exception when password is long with all requirements")
     void testCheckDataPatterns_shouldNotThrowException_whenPasswordIsLongWithAllRequirements() {
         // when & then
-        assertDoesNotThrow(
-                () -> passwordManageDataManager.checkDataPatterns(VALID_PASSWORD_LONG));
+        assertDoesNotThrow(() -> passwordManageDataManager.checkDataPatterns(VALID_PASSWORD_LONG));
     }
 
     // =========================
@@ -52,7 +64,9 @@ class PasswordManageDataManagerTest {
     void testCheckDataPatterns_shouldThrowBusinessException_whenPasswordTooShort() {
         // when & then
         assertThatThrownBy(
-                () -> passwordManageDataManager.checkDataPatterns(INVALID_PASSWORD_TOO_SHORT))
+                        () ->
+                                passwordManageDataManager.checkDataPatterns(
+                                        INVALID_PASSWORD_TOO_SHORT))
                 .isInstanceOf(BusinessException.class)
                 .as("Should throw BusinessException for password too short");
     }
@@ -62,7 +76,9 @@ class PasswordManageDataManagerTest {
     void testCheckDataPatterns_shouldThrowBusinessException_whenPasswordTooLong() {
         // when & then
         assertThatThrownBy(
-                () -> passwordManageDataManager.checkDataPatterns(INVALID_PASSWORD_TOO_LONG))
+                        () ->
+                                passwordManageDataManager.checkDataPatterns(
+                                        INVALID_PASSWORD_TOO_LONG))
                 .isInstanceOf(BusinessException.class)
                 .as("Should throw BusinessException for password too long");
     }
@@ -92,9 +108,9 @@ class PasswordManageDataManagerTest {
     void testCheckDataPatterns_shouldThrowBusinessException_whenPasswordHasNoLowercase() {
         // when & then
         assertThatThrownBy(
-                () ->
-                        passwordManageDataManager.checkDataPatterns(
-                                INVALID_PASSWORD_NO_LOWERCASE))
+                        () ->
+                                passwordManageDataManager.checkDataPatterns(
+                                        INVALID_PASSWORD_NO_LOWERCASE))
                 .isInstanceOf(BusinessException.class)
                 .as("Should throw BusinessException when password has no lowercase letters");
     }
@@ -104,9 +120,9 @@ class PasswordManageDataManagerTest {
     void testCheckDataPatterns_shouldThrowBusinessException_whenPasswordHasNoUppercase() {
         // when & then
         assertThatThrownBy(
-                () ->
-                        passwordManageDataManager.checkDataPatterns(
-                                INVALID_PASSWORD_NO_UPPERCASE))
+                        () ->
+                                passwordManageDataManager.checkDataPatterns(
+                                        INVALID_PASSWORD_NO_UPPERCASE))
                 .isInstanceOf(BusinessException.class)
                 .as("Should throw BusinessException when password has no uppercase letters");
     }
@@ -116,23 +132,27 @@ class PasswordManageDataManagerTest {
     void testCheckDataPatterns_shouldThrowBusinessException_whenPasswordHasNoDigits() {
         // when & then
         assertThatThrownBy(
-                () ->
-                        passwordManageDataManager.checkDataPatterns(
-                                INVALID_PASSWORD_NO_DIGITS))
+                        () ->
+                                passwordManageDataManager.checkDataPatterns(
+                                        INVALID_PASSWORD_NO_DIGITS))
                 .isInstanceOf(BusinessException.class)
                 .as("Should throw BusinessException when password has no digits");
     }
 
     @Test
-    @DisplayName("Should throw INVALID_PASSWORD_PATTERN when password has no uppercase and no digits")
-    void testCheckDataPatterns_shouldThrowBusinessException_whenPasswordHasNoUppercaseAndNoDigits() {
+    @DisplayName(
+            "Should throw INVALID_PASSWORD_PATTERN when password has no uppercase and no digits")
+    void
+            testCheckDataPatterns_shouldThrowBusinessException_whenPasswordHasNoUppercaseAndNoDigits() {
         // when & then
         assertThatThrownBy(
-                () ->
-                        passwordManageDataManager.checkDataPatterns(
-                                INVALID_PASSWORD_NO_UPPERCASE_NO_DIGITS))
+                        () ->
+                                passwordManageDataManager.checkDataPatterns(
+                                        INVALID_PASSWORD_NO_UPPERCASE_NO_DIGITS))
                 .isInstanceOf(BusinessException.class)
-                .as("Should throw BusinessException when password lacks uppercase letters and digits");
+                .as(
+                        "Should throw BusinessException when password lacks uppercase letters and"
+                                + " digits");
     }
 
     @Test

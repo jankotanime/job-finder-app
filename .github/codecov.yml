@@ -1,0 +1,23 @@
+# https://docs.codecov.com/docs/codecov-yaml
+# Uploads use flags: backend (JaCoCo XML), frontend (Jest lcov). In the Codecov UI
+# use Components / Flags to see split coverage; default combines both.
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+      backend:
+        flags:
+          - backend
+        target: auto
+        threshold: 1%
+      frontend:
+        flags:
+          - frontend
+        target: auto
+        threshold: 1%
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default

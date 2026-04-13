@@ -12,12 +12,13 @@ import {
   Animated,
   Text,
   Alert,
+  AppState,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../../contexts/AuthContext";
-import { applyForOffer, getAllOffers } from "../../api/offers/handleOffersApi";
+import { applyForOffer } from "../../api/offers/handleOffersApi";
 import { useTheme } from "react-native-paper";
 import { Offer } from "../../types/Offer";
 import OfferCard from "../../components/main/RenderCard";
@@ -31,43 +32,86 @@ import Filter from "../../components/filter/Filter";
 import AddOfferButton from "../../components/main/AddOfferButton";
 import { ActivityIndicator } from "react-native-paper";
 import { useTranslation } from "react-i18next";
-import { buildPhotoUrl } from "../../utils/photoUrl";
 import { useOfferStorageContext } from "../../contexts/OfferStorageContext";
 import useFilter from "../../hooks/useFilter";
-import { handleFilterOffers } from "../../api/filter/handleFilterOffers";
 import CvChoseButton from "../../components/main/CvChoseButton";
 import useSelectCv from "../../hooks/useSelectCv";
 import Footer from "../../components/main/Footer";
 import CvInfo from "../../components/main/CvInfo";
 import ErrorNotification from "../../components/reusable/ErrorNotification";
 import ActiveJobTimerFloating from "../../components/jobs/ActiveJobTimerFloating";
+import useMainOffersDeck from "../../hooks/useMainOffersDeck";
+import { ExtensionStorage } from "@bacons/apple-targets";
 
 const { width, height } = Dimensions.get("window");
+const storage = new ExtensionStorage(process.env.EXPO_PUBLIC_APPLE_GROUP);
+const STORAGE_KEY = process.env.EXPO_PUBLIC_APPLE_WIDGET_STORAGE_KEY;
+
+type WidgetStats = {
+  dayKey: string;
+  applied: number;
+  rejected: number;
+};
+
+const getTodayKey = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const createEmptyWidgetStats = (): WidgetStats => ({
+  dayKey: getTodayKey(),
+  applied: 0,
+  rejected: 0,
+});
 
 const MainScreen = () => {
   const swiperRef = useRef<SwiperCardRefType | null>(null);
   const { colors } = useTheme();
-  const { addStorageOffer } = useOfferStorageContext();
+  const { addStorageOffer, offersVersion } = useOfferStorageContext();
   const { tokens, loading, userInfo } = useAuth();
-  const [offersData, setOffersData] = useState<Offer[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
   const [errorText, setErrorText] = useState<string | null>(null);
   const expandAnim = useRef(new Animated.Value(0)).current;
-  const [finalizeHideForIndex, setFinalizeHideForIndex] = useState<
-    number | null
+  const [finalizeHideForCardId, setFinalizeHideForCardId] = useState<
+    string | null
   >(null);
   const isAnimatingRef = useRef<boolean>(false);
   const animatingCardIndexRef = useRef<number | null>(null);
   const { t } = useTranslation();
-  const { offersVersion } = useOfferStorageContext();
-  const { filters } = useFilter();
+  const { filters, setFiltersList, clearFilters } = useFilter();
   const { selectedIds, reload } = useSelectCv();
   const cvId = selectedIds?.[0];
-  const [page, setPage] = useState(0);
-  const [last, setLast] = useState(false);
-  const [fetching, setFetching] = useState(false);
-  const PAGE_SIZE = 20;
+
+  const {
+    offersData,
+    setOffersData,
+    currentCardIndex,
+    setCurrentCardIndex,
+    swipedCount,
+    setSwipedCount,
+    markSwiped,
+    last,
+    fetching,
+  } = useMainOffersDeck({
+    userId: userInfo?.userId ?? undefined,
+    filters,
+    offersVersion,
+    enabled: Boolean(tokens && !loading && userInfo?.userId),
+  });
+
+  const resetCardUiState = useCallback(() => {
+    setCurrentCardIndex(0);
+    setIsActivePressAnim(false);
+    setFinalizeHideForCardId(null);
+    isAnimatingRef.current = false;
+    animatingCardIndexRef.current = null;
+    expandAnim.stopAnimation(() => {
+      expandAnim.setValue(0);
+    });
+  }, [expandAnim, setCurrentCardIndex]);
 
   const { onExpand, collapseCard } = makeExpandHandlers({
     expandAnim,
@@ -75,67 +119,47 @@ const MainScreen = () => {
     setIsActive: setIsActivePressAnim,
     isAnimatingRef,
     animatingCardIndexRef,
-    getCurrentIndex: () => currentIndex,
+    getCurrentIndex: () => currentCardIndex,
   });
-  const swiperKey = useMemo(() => {
-    const ids = (offersData as any[]).map((o) => o?.id ?? "").join("|");
-    return `${userInfo?.userId ?? "anon"}-${ids}`;
-  }, [userInfo?.userId, offersData]);
 
-  const loadOffers = useCallback(
-    async (reset = false) => {
-      if (fetching) return;
-      if (!reset && last) return;
-      setFetching(true);
-      try {
-        const currentPage = reset ? 0 : page;
-        let response;
-        if (filters.length > 0) {
-          response = await handleFilterOffers(
-            { tags: Array.from(new Set(filters)) },
-            { page: currentPage, size: PAGE_SIZE },
-          );
-        } else {
-          response = await getAllOffers({
-            page: currentPage,
-            size: PAGE_SIZE,
-          });
-        }
-        const pageData = response?.body?.data;
-        const items = Array.isArray(pageData?.content) ? pageData.content : [];
-        const normalized = items
-          .map((it: any) => ({
-            ...it,
-            offerPhoto: buildPhotoUrl(it?.photo?.storageKey),
-          }))
-          .filter((it: any) => it?.owner?.id !== userInfo?.userId);
-        setOffersData((prev) =>
-          reset ? normalized : [...prev, ...normalized],
-        );
-        setLast(pageData?.last ?? true);
-        setPage(currentPage + 1);
-      } catch (e) {
-        console.error("failed to load offers", e);
-      } finally {
-        setFetching(false);
-      }
-    },
-    [filters, page, last, fetching, userInfo?.userId],
-  );
+  const uniqueOffersData = useMemo(() => {
+    const seen = new Set<string>();
+    return offersData.filter((offer) => {
+      const rawId = (offer as any)?.id ?? offer?.dateAndTime;
+      const id =
+        typeof rawId === "string"
+          ? rawId
+          : typeof rawId === "number" && Number.isFinite(rawId)
+            ? String(rawId)
+            : "";
+      if (!id) return true;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  }, [offersData]);
+
+  const swiperKey = useMemo(() => {
+    const ids = (uniqueOffersData as any[]).map((o) => o?.id ?? "").join("|");
+    return `${userInfo?.userId ?? "anon"}-${ids}`;
+  }, [userInfo?.userId, uniqueOffersData]);
+  const currentCardId = useMemo(() => {
+    const currentOffer =
+      uniqueOffersData[Math.max(currentCardIndex, swipedCount)];
+    return currentOffer?.id ?? currentOffer?.dateAndTime ?? null;
+  }, [uniqueOffersData, currentCardIndex, swipedCount]);
 
   useEffect(() => {
-    if (!tokens || loading || !userInfo?.userId) return;
-    setOffersData([]);
-    setCurrentIndex(0);
-    setPage(0);
-    setLast(false);
-    loadOffers(true);
-  }, [tokens, loading, userInfo?.userId, offersVersion, selectedIds, filters]);
+    AppState.addEventListener("change", (status) => {
+      if (status === "background") {
+        ExtensionStorage.reloadWidget();
+      }
+    });
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       reload();
-      return () => {};
     }, [reload]),
   );
 
@@ -144,16 +168,52 @@ const MainScreen = () => {
     const id = setTimeout(() => setErrorText(null), 7200);
     return () => clearTimeout(id);
   }, [errorText]);
+
+  useEffect(() => {
+    if (swipedCount === currentCardIndex) return;
+    if (swipedCount < 0 || swipedCount > uniqueOffersData.length) return;
+    setCurrentCardIndex(swipedCount);
+  }, [
+    swipedCount,
+    currentCardIndex,
+    uniqueOffersData.length,
+    setCurrentCardIndex,
+  ]);
+
+  const getExistingData = async (): Promise<WidgetStats> => {
+    const existingData = storage.get(STORAGE_KEY);
+    let currentStats = createEmptyWidgetStats();
+    try {
+      if (existingData) {
+        const parsed = JSON.parse(existingData) as Partial<WidgetStats>;
+        if (parsed.dayKey === getTodayKey()) {
+          currentStats = {
+            dayKey: parsed.dayKey ?? getTodayKey(),
+            applied: parsed.applied ?? 0,
+            rejected: parsed.rejected ?? 0,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to parse stats", e);
+    }
+    return currentStats;
+  };
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView
         style={[styles.container, { backgroundColor: colors.background }]}
       >
-        <Filter setOffersData={setOffersData} />
+        <Filter
+          setOffersData={setOffersData}
+          filters={filters}
+          setFiltersList={setFiltersList}
+          clearFilters={clearFilters}
+        />
         {errorText && <ErrorNotification error={errorText} />}
         <CvInfo />
         <Menu />
-        {(loading || !offersData || offersData.length === 0) && (
+        {(loading || !uniqueOffersData || uniqueOffersData.length === 0) && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
             <Text style={{ color: colors.onSurfaceVariant, marginTop: 10 }}>
@@ -164,10 +224,13 @@ const MainScreen = () => {
         <View style={styles.subContainer}>
           <Swiper
             key={swiperKey}
-            keyExtractor={(item) => (item as any)?.id ?? item.dateAndTime}
+            keyExtractor={(item: Offer) => {
+              const rawId = (item as any)?.id ?? item.dateAndTime;
+              return String(rawId);
+            }}
             ref={swiperRef}
-            data={offersData}
-            initialIndex={0}
+            data={uniqueOffersData}
+            initialIndex={currentCardIndex}
             cardStyle={styles.cardStyle}
             disableRightSwipe={!cvId}
             disableLeftSwipe={!cvId}
@@ -175,24 +238,44 @@ const MainScreen = () => {
               if (!cvId) setErrorText(t("cv.selectionCvMissing"));
               return;
             }}
-            renderCard={(item) => (
-              <OfferCard
-                item={item}
-                expandAnim={expandAnim}
-                isActive={isActivePressAnim}
-                onDescriptionHidden={() => {
-                  if (!isAnimatingRef.current) isAnimatingRef.current = true;
-                  createAnimation(expandAnim, 0, 300).start(() => {
-                    setFinalizeHideForIndex(currentIndex);
-                    setTimeout(() => setFinalizeHideForIndex(null), 120);
-                    isAnimatingRef.current = false;
-                  });
-                }}
-                finalizeHide={finalizeHideForIndex === currentIndex}
-              />
-            )}
+            renderCard={(item: Offer) => {
+              const cardId =
+                (item as Offer)?.id ?? (item as Offer)?.dateAndTime;
+              const isCurrentCard = cardId === currentCardId;
+
+              return (
+                <OfferCard
+                  item={item}
+                  expandAnim={isCurrentCard ? expandAnim : undefined}
+                  isActive={isActivePressAnim && isCurrentCard}
+                  onDescriptionHidden={
+                    isCurrentCard
+                      ? () => {
+                          if (!isAnimatingRef.current)
+                            isAnimatingRef.current = true;
+                          createAnimation(expandAnim, 0, 300).start(() => {
+                            setFinalizeHideForCardId(currentCardId);
+                            setTimeout(
+                              () => setFinalizeHideForCardId(null),
+                              120,
+                            );
+                            isAnimatingRef.current = false;
+                          });
+                        }
+                      : undefined
+                  }
+                  finalizeHide={
+                    Boolean(isCurrentCard) && finalizeHideForCardId === cardId
+                  }
+                />
+              );
+            }}
             onIndexChange={(index) => {
-              setCurrentIndex(index);
+              setCurrentCardIndex(index);
+              expandAnim.stopAnimation(() => {
+                expandAnim.setValue(0);
+              });
+              setIsActivePressAnim(false);
               if (
                 animatingCardIndexRef.current !== null &&
                 animatingCardIndexRef.current !== index
@@ -211,13 +294,22 @@ const MainScreen = () => {
               <OnSwipeBottom isActive={isActivePressAnim} />
             )}
             onSwipeRight={async (index) => {
+              const swipedOffer = uniqueOffersData[index];
               collapseCard();
+              markSwiped(swipedOffer);
+              const currentStats = await getExistingData();
+              const updatedStats = {
+                ...currentStats,
+                dayKey: getTodayKey(),
+                applied: (currentStats.applied ?? 0) + 1,
+              };
+              storage.set(STORAGE_KEY, JSON.stringify(updatedStats));
               try {
                 if (!cvId) {
                   Alert.alert(t("cv.title"), t("cv.selectionCvMissing"));
                   return;
                 }
-                const offerIdToApply = offersData[index]?.id;
+                const offerIdToApply = swipedOffer?.id;
                 if (!offerIdToApply) {
                   console.warn("no offer id");
                   return;
@@ -231,14 +323,29 @@ const MainScreen = () => {
               onExpand();
             }}
             onSwipedAll={() => {
-              loadOffers();
+              if (fetching || last) return;
+              setOffersData([]);
+              setCurrentCardIndex(0);
+              setSwipedCount(0);
+              resetCardUiState();
             }}
             disableTopSwipe
-            onSwipeLeft={() => {
+            onSwipeLeft={async (index) => {
+              const swipedOffer = uniqueOffersData[index];
+              markSwiped(swipedOffer);
               collapseCard();
+              const currentStats = await getExistingData();
+              const updatedStats = {
+                ...currentStats,
+                dayKey: getTodayKey(),
+                rejected: (currentStats.rejected ?? 0) + 1,
+              };
+              storage.set(STORAGE_KEY, JSON.stringify(updatedStats));
             }}
             onSwipeBottom={(cardIndex) => {
-              addStorageOffer(offersData[cardIndex]);
+              const offer = uniqueOffersData[cardIndex];
+              if (offer) addStorageOffer(offer);
+              markSwiped(offer);
               collapseCard();
             }}
           />

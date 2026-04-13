@@ -10,6 +10,8 @@ jobs:
   frontend:
     name: Mobile Frontend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: mobile
@@ -20,10 +22,23 @@ jobs:
           node-version: 20
       - run: npm install --legacy-peer-deps
       - run: npm test -- --ci --coverage
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: mobile/coverage/lcov.info
+          flags: frontend
+          disable_search: true
+          plugins: noop
+          fail_ci_if_error: false
+          name: mobile
 
   backend:
     name: Spring Boot Service Backend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: spring-boot-service
@@ -44,8 +59,23 @@ jobs:
         run: chmod +x ./gradlew
       - name: Run tests and coverage
         run: ./gradlew clean test jacocoTestReport jacocoTestCoverageVerification --no-daemon
+      - name: JaCoCo summary
+        if: success() || failure()
+        run: python3 "${{ github.workspace }}/.github/scripts/jacoco_step_summary.py" "${{ github.workspace }}/spring-boot-service/build/reports/jacoco/test/jacocoTestReport.xml"
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: spring-boot-service/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: backend
+          disable_search: true
+          plugins: noop
+          fail_ci_if_error: false
+          name: spring-boot-service
       - name: Upload JaCoCo HTML report
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: build/reports/jacoco/test/html
+          path: spring-boot-service/build/reports/jacoco/test/html

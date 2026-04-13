@@ -5,7 +5,6 @@ import com.mimaja.job_finder_app.security.token.resetToken.dto.response.ResetTok
 import java.util.UUID;
 
 public class PasswordManageMockData {
-
     // Valid password patterns
     public static final String VALID_PASSWORD_WITH_ALL_REQUIREMENTS = "Password123";
     public static final String VALID_PASSWORD_WITH_UPPERCASE_AND_DIGITS = "MyPassword456";
@@ -52,7 +51,6 @@ public class PasswordManageMockData {
 
     public static ResetTokenResponseDto createTestResetTokenResponse() {
         return new ResetTokenResponseDto(
-                UUID.randomUUID().toString(),
-                "reset_token_value_" + System.currentTimeMillis());
+                UUID.randomUUID().toString(), "reset_token_value_" + System.currentTimeMillis());
     }
 }

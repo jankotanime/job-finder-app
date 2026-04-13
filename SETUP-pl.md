@@ -4,7 +4,6 @@
 - [Wymagane narzędzia](#wymagane-narzędzia)
 - [Pobieranie aplikacji](#pobieranie-aplikacji)
 - [Uruchamianie aplikacji](#uruchamianie-aplikacji)
-- [Eksport aktualnych danych](#eksport-aktualnych-danych)
 - [Najczęstsze problemy z bazą danych](#najczęstsze-problemy-z-bazą-danych)
 - [Workflow gałęzi: `main` → `production`](#workflow-gałęzi-main--production)
 - [FAQ](#faq)
@@ -12,7 +11,6 @@
 ## Wymagane narzędzia
 - Docker i Docker Compose (zalecana najnowsza wersja)
 - Git
-- Bash (do uruchamiania skryptów)
 - react native
 
 ## Pobieranie aplikacji
@@ -45,7 +43,7 @@
 
 ### Uruchamianie kontenerów
 
-1. **Pierwsze uruchomienie** z załączeniem bazy danych z `data.sql` za pomocą usługi `db-update`:
+1. **Pierwsze uruchomienie** z załączeniem bazy danych z `seed_data.json` za pomocą usługi `db-seed`:
    ```sh
    docker compose --profile init up --build
    ```
@@ -60,9 +58,9 @@
    docker compose up --build --watch
    ```
 
-4. Aby uruchomić aktulizator bazy danych z `data.sql` wykonujemy (kontenery muszą być uruchomione):
+4. Aby ręcznie uruchomić seedowanie bazy z JSON (kontenery muszą być uruchomione):
    ```sh
-   docker compose up db-update
+   docker compose up db-seed
    ```
 
 ### Uruchamianie aplikacji mobilnej
@@ -77,18 +75,10 @@ Uruchamianie za pomoca npx expo run:ios dla symulatora ios i :android dla androi
 
 Zobacz dokumentację uruchomienia aplikacji mobilnej [tutaj](mobile/README.md)
 
-## Eksport aktualnych danych
-
-Aby zrzucić aktualne dane z bazy danych do pliku `data.sql` wykonujemy:
-   ```sh
-   ./scripts/extract_db.sh
-   ```
-
 ## Najczęstsze problemy z bazą danych
 
 - **Brak danych po restarcie kontenera:** Upewnij się, że wolumen `db-volume` jest skonfigurowany w `docker-compose.yml`.
-- **Brak nowych rekordów po zmianie `data.sql`:** Uruchom usługę `db-update` lub wykonaj załadunek ręcznie.
-- **Konflikty danych:** Przed eksportem danych wykonaj pull repozytorium, aby nie nadpisać zmian innych osób.
+- **Brak nowych rekordów po zmianie `seed_data.json`:** Uruchom usługę `db-seed` lub wykonaj załadunek ręcznie.
 
 ## Workflow gałęzi: `main` → `production`
 
@@ -127,7 +117,7 @@ Ten fragment opisuje sposób aktualizowania gałęzi `production`, która służ
    SELECT * FROM nazwa_tabeli;
    ```
 
-**Jak zresetować bazę do stanu z `data.sql`?**
+**Jak zresetować bazę do stanu z `seed_data.json`?**
 
 - Usuń wolumen:
   ```sh

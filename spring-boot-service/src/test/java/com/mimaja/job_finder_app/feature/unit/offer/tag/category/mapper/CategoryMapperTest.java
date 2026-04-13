@@ -1,19 +1,14 @@
 package com.mimaja.job_finder_app.feature.unit.offer.tag.category.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static com.mimaja.job_finder_app.feature.unit.offer.tag.category.mockdata.CategoryMockData.TEST_CATEGORY_COLOR;
+import static com.mimaja.job_finder_app.feature.unit.offer.tag.category.mockdata.CategoryMockData.TEST_CATEGORY_NAME;
 import static com.mimaja.job_finder_app.feature.unit.offer.tag.category.mockdata.CategoryMockData.createTestCategory;
 import static com.mimaja.job_finder_app.feature.unit.offer.tag.category.mockdata.CategoryMockData.createTestCategoryCreateRequestDto;
 import static com.mimaja.job_finder_app.feature.unit.offer.tag.category.mockdata.CategoryMockData.createTestCategoryCreateRequestDtoWithDifferentColor;
 import static com.mimaja.job_finder_app.feature.unit.offer.tag.category.mockdata.CategoryMockData.createTestCategoryWithDifferentColor;
-import static com.mimaja.job_finder_app.feature.unit.offer.tag.category.mockdata.CategoryMockData.TEST_CATEGORY_NAME;
-import static com.mimaja.job_finder_app.feature.unit.offer.tag.category.mockdata.CategoryMockData.TEST_CATEGORY_COLOR;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryAdminResponseDto;
 import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryCreateRequestDto;
@@ -21,11 +16,14 @@ import com.mimaja.job_finder_app.feature.offer.tag.category.dto.CategoryResponse
 import com.mimaja.job_finder_app.feature.offer.tag.category.mapper.CategoryMapper;
 import com.mimaja.job_finder_app.feature.offer.tag.category.mapper.CategoryMapperImpl;
 import com.mimaja.job_finder_app.feature.offer.tag.category.model.Category;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CategoryMapper - Unit Tests")
 class CategoryMapperTest {
-
     private CategoryMapper categoryMapper = new CategoryMapperImpl();
 
     // ==================== toEntity Tests ====================
@@ -44,7 +42,8 @@ class CategoryMapperTest {
     }
 
     @Test
-    @DisplayName("Should not be null when mapping valid CategoryCreateRequestDto to Category entity")
+    @DisplayName(
+            "Should not be null when mapping valid CategoryCreateRequestDto to Category entity")
     void testToEntity_shouldReturnNonNullCategory_whenValidDtoProvided() {
         // given
         CategoryCreateRequestDto dto = createTestCategoryCreateRequestDto();
@@ -57,7 +56,8 @@ class CategoryMapperTest {
     }
 
     @Test
-    @DisplayName("Should map name correctly when mapping CategoryCreateRequestDto to Category entity")
+    @DisplayName(
+            "Should map name correctly when mapping CategoryCreateRequestDto to Category entity")
     void testToEntity_shouldMapNameCorrectly_whenValidDtoProvided() {
         // given
         CategoryCreateRequestDto dto = createTestCategoryCreateRequestDto();
@@ -70,7 +70,8 @@ class CategoryMapperTest {
     }
 
     @Test
-    @DisplayName("Should map color correctly when mapping CategoryCreateRequestDto to Category entity")
+    @DisplayName(
+            "Should map color correctly when mapping CategoryCreateRequestDto to Category entity")
     void testToEntity_shouldMapColorCorrectly_whenValidDtoProvided() {
         // given
         CategoryCreateRequestDto dto = createTestCategoryCreateRequestDto();
@@ -83,7 +84,9 @@ class CategoryMapperTest {
     }
 
     @Test
-    @DisplayName("Should map different color correctly when mapping CategoryCreateRequestDto with different color")
+    @DisplayName(
+            "Should map different color correctly when mapping CategoryCreateRequestDto with"
+                    + " different color")
     void testToEntity_shouldMapDifferentColorCorrectly_whenDifferentColorProvided() {
         // given
         CategoryCreateRequestDto dto = createTestCategoryCreateRequestDtoWithDifferentColor();
@@ -176,7 +179,9 @@ class CategoryMapperTest {
     }
 
     @Test
-    @DisplayName("Should map different color correctly when mapping Category with different color to CategoryResponseDto")
+    @DisplayName(
+            "Should map different color correctly when mapping Category with different color to"
+                    + " CategoryResponseDto")
     void testToResponseDto_shouldMapDifferentColorCorrectly_whenDifferentColorProvided() {
         // given
         Category category = createTestCategoryWithDifferentColor();
@@ -256,7 +261,9 @@ class CategoryMapperTest {
     }
 
     @Test
-    @DisplayName("Should map different color correctly when mapping Category with different color to CategoryAdminResponseDto")
+    @DisplayName(
+            "Should map different color correctly when mapping Category with different color to"
+                    + " CategoryAdminResponseDto")
     void testToAdminResponseDto_shouldMapDifferentColorCorrectly_whenDifferentColorProvided() {
         // given
         Category category = createTestCategoryWithDifferentColor();

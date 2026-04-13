@@ -1,23 +1,18 @@
 package com.mimaja.job_finder_app.feature.unit.cv.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.TEST_CV_FILENAME;
+import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.TEST_CV_FILE_SIZE;
+import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.TEST_CV_STORAGE_KEY;
 import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.createTestCv;
 import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.createTestCvUploadRequestDto;
 import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.createTestCvUploadRequestDtoWithNullFileName;
 import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.createTestCvUploadRequestDtoWithNullMimeType;
 import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.createTestCvUploadRequestDtoWithNullStorageKey;
 import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.createTestCvWithNullStorageKey;
-import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.TEST_CV_FILENAME;
-import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.TEST_CV_STORAGE_KEY;
-import static com.mimaja.job_finder_app.feature.unit.cv.mockdata.CvMockData.TEST_CV_FILE_SIZE;
 import static com.mimaja.job_finder_app.feature.unit.user.mockdata.UserMockData.createTestUser;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.mimaja.job_finder_app.feature.cv.dto.CvResponseDto;
 import com.mimaja.job_finder_app.feature.cv.dto.CvUploadRequestDto;
@@ -25,14 +20,18 @@ import com.mimaja.job_finder_app.feature.cv.mapper.CvMapper;
 import com.mimaja.job_finder_app.feature.cv.mapper.CvMapperImpl;
 import com.mimaja.job_finder_app.feature.cv.model.Cv;
 import com.mimaja.job_finder_app.shared.enums.MimeType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CvMapper - Unit Tests")
 class CvMapperTest {
-
     private CvMapper cvMapper;
 
-    @org.junit.jupiter.api.BeforeEach
+    @BeforeEach
     void setUp() {
         cvMapper = new CvMapperImpl();
     }
