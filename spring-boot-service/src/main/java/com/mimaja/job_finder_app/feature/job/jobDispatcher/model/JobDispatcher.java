@@ -19,6 +19,8 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.mimaja.job_finder_app.feature.job.jobStatusSignal.enums.JobStatusSignalType;
+
 @Entity
 @Getter
 @Setter
@@ -43,7 +45,11 @@ public class JobDispatcher {
     @JoinColumn(name = "job_dispacher_id")
     private Set<Approval> contractiorApprovals;
 
+    private long timePassed = 0;
+    private JobStatusSignalType jobStatusSignalType = JobStatusSignalType.JOB_STOP;
+
     private LocalDateTime finishedAt;
+    private LocalDateTime startedAt;
     @CreationTimestamp private LocalDateTime createdAt;
     @UpdateTimestamp private LocalDateTime updatedAt;
 }
