@@ -21,6 +21,7 @@ import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.job.model.JobStatus;
 import com.mimaja.job_finder_app.feature.job.repository.JobRepository;
 import com.mimaja.job_finder_app.feature.job.service.JobServiceDefault;
+import com.mimaja.job_finder_app.feature.job.utils.JobWebSocketSignalsHandler;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
@@ -34,7 +35,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +42,7 @@ class JobServiceDefaultTest {
     @Mock private JobRepository jobRepository;
     @Mock private OfferService offerService;
     @Mock private FileManagementService fileManagementService;
-    @Mock private SimpMessagingTemplate messagingTemplate;
+    @Mock private JobWebSocketSignalsHandler jobWebSocketSignalsHandler;
 
     private JobServiceDefault jobService;
     private Job testJob;
@@ -54,7 +54,7 @@ class JobServiceDefaultTest {
         testJob = createTestJob();
         testJobDispatcher = createTestJobDispatcher();
         testOffer = createTestOffer();
-        jobService = new JobServiceDefault(jobRepository, offerService, fileManagementService, messagingTemplate);
+        jobService = new JobServiceDefault(jobRepository, offerService, fileManagementService, jobWebSocketSignalsHandler);
     }
 
     // --- getJobById ---
