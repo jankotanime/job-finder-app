@@ -7,12 +7,12 @@ import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.Approval;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.ApprovalPhoto;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcher;
 import com.mimaja.job_finder_app.feature.job.jobDispatcher.model.JobDispatcherIssueStatus;
-import com.mimaja.job_finder_app.feature.job.jobStatusSignal.dto.JobStatusSignalDto;
 import com.mimaja.job_finder_app.feature.job.jobStatusSignal.enums.JobStatusSignalType;
 import com.mimaja.job_finder_app.feature.job.jobphoto.model.JobPhoto;
 import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.job.model.JobStatus;
 import com.mimaja.job_finder_app.feature.job.repository.JobRepository;
+import com.mimaja.job_finder_app.feature.job.utils.JobWebSocketSignalsHandler;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
@@ -21,6 +21,8 @@ import com.mimaja.job_finder_app.shared.adapters.R2FileSource;
 import com.mimaja.job_finder_app.shared.dto.ProcessedFileDetails;
 import com.mimaja.job_finder_app.shared.enums.FileFolderName;
 import com.mimaja.job_finder_app.shared.service.FileManagementService;
+
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +30,6 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,7 +42,7 @@ public class JobServiceDefault implements JobService {
     private final JobRepository jobRepository;
     private final OfferService offerService;
     private final FileManagementService fileManagementService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final JobWebSocketSignalsHandler jobWebSocketSignalsHandler;
 
     @Override
     public Job getJobById(UUID jobId) {
@@ -107,13 +108,10 @@ public class JobServiceDefault implements JobService {
 
         LocalDateTime now = LocalDateTime.now();
         jobDispatcher.setStartedAt(now);
-        jobRepository.save(job);
+        jobDispatcher.setJobStatusSignalType(JobStatusSignalType.JOB_START);
+        saveNewJobDispatcher(job, jobDispatcher);
 
-        JobStatusSignalDto jobStatusSignalDto = new JobStatusSignalDto(
-            JobStatusSignalType.JOB_START,
-            LocalDateTime.now()
-        );
-        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
+        jobWebSocketSignalsHandler.sendSignalToRoom(jobDispatcher);
 
         return job.getJobDispatcher();
     }
@@ -133,6 +131,7 @@ public class JobServiceDefault implements JobService {
 
         if (jobDispatcher.getIssueStatusOwner().equals(JobDispatcherIssueStatus.PROBLEM)) {
             jobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NO_PROBLEM);
+            jobWebSocketSignalsHandler.sendSignalToRoom(jobDispatcher);
         }
 
         if (jobDispatcher.getIssueStatusOwner() == JobDispatcherIssueStatus.NO_PROBLEM) {
@@ -153,6 +152,7 @@ public class JobServiceDefault implements JobService {
 
         if (jobDispatcher.getIssueStatusContractor().equals(JobDispatcherIssueStatus.PROBLEM)) {
             jobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
+            jobWebSocketSignalsHandler.sendSignalToRoom(jobDispatcher);
         }
 
         if (jobDispatcher.getIssueStatusContractor().equals(JobDispatcherIssueStatus.NO_PROBLEM)) {
@@ -169,12 +169,7 @@ public class JobServiceDefault implements JobService {
             UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
-
-        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
-            JobStatusSignalType.JOB_START
-        );
-
-        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
+        jobDispatcher.setJobStatusSignalType(JobStatusSignalType.JOB_STOP);
 
         jobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
 
@@ -187,6 +182,8 @@ public class JobServiceDefault implements JobService {
 
         addApprovalToContractorJobDispatcher(job, jobDispatcher, photo, description);
         saveNewJobDispatcher(job, jobDispatcher);
+
+        jobWebSocketSignalsHandler.sendSignalToRoom(jobDispatcher);
         return jobDispatcher;
     }
 
@@ -196,12 +193,7 @@ public class JobServiceDefault implements JobService {
             UUID jobId, Optional<MultipartFile> photo, String description) {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
-
-        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
-            JobStatusSignalType.JOB_START
-        );
-
-        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
+        jobDispatcher.setJobStatusSignalType(JobStatusSignalType.JOB_STOP);
 
         jobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
 
@@ -215,6 +207,8 @@ public class JobServiceDefault implements JobService {
 
         addApprovalToOwnerJobDispatcher(job, jobDispatcher, photo, description);
         saveNewJobDispatcher(job, jobDispatcher);
+
+        jobWebSocketSignalsHandler.sendSignalToRoom(jobDispatcher);
         return jobDispatcher;
     }
 
@@ -230,7 +224,7 @@ public class JobServiceDefault implements JobService {
         }
 
         addApprovalToOwnerJobDispatcher(job, jobDispatcher, photo, description);
-        setJobSuccess(job);
+        setJobSuccess(job, jobDispatcher);
         return job;
     }
 
@@ -241,8 +235,11 @@ public class JobServiceDefault implements JobService {
         Job job = getOrThrow(jobId);
         JobDispatcher jobDispatcher = getOrThrowJobDispatcher(jobId);
         jobDispatcher.setFinishedAt(LocalDateTime.now());
+        jobDispatcher.setJobStatusSignalType(JobStatusSignalType.JOB_STOP);
+        saveNewJobDispatcher(job, jobDispatcher);
 
         addApprovalToContractorJobDispatcher(job, jobDispatcher, photo, description);
+        jobWebSocketSignalsHandler.createSignal(jobDispatcher);
         return job;
     }
 
@@ -323,45 +320,50 @@ public class JobServiceDefault implements JobService {
     private void saveNewJobDispatcher(Job job, JobDispatcher jobDispatcher) {
         job.setJobDispatcher(jobDispatcher);
         jobRepository.save(job);
+        jobWebSocketSignalsHandler.sendSignalToRoom(jobDispatcher);
     }
 
     private void resetJobDispatcher(Job job, JobDispatcher jobDispatcher) {
         jobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NONE);
         jobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
-
-        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
-            JobStatusSignalType.JOB_START
+        jobDispatcher.setJobStatusSignalType(JobStatusSignalType.JOB_START);
+        jobDispatcher.setTimePassed(
+            Duration.between(
+                jobDispatcher.getUpdatedAt(), LocalDateTime.now()
+            ).getSeconds()
         );
 
-        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
+        jobWebSocketSignalsHandler.sendSignalToRoom(jobDispatcher);
         saveNewJobDispatcher(job, jobDispatcher);
     }
 
     private void setJobFailure(Job job, JobDispatcher jobDispatcher) {
         job.setStatus(JobStatus.FINISHED_FAILURE);
-        jobDispatcher.setFinishedAt(LocalDateTime.now());
-        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
-            JobStatusSignalType.JOB_END_UNSUCCESSFULLY
+        LocalDateTime now = LocalDateTime.now();
+
+        jobDispatcher.setFinishedAt(now);
+        jobDispatcher.setJobStatusSignalType(JobStatusSignalType.JOB_END_UNSUCCESSFULLY);
+        jobDispatcher.setTimePassed(
+            Duration.between(jobDispatcher.getUpdatedAt(), now).getSeconds()
         );
 
-        sendNotificationToRoom(jobDispatcher.getId(), jobStatusSignalDto);
         saveNewJobDispatcher(job, jobDispatcher);
+
+        jobWebSocketSignalsHandler.sendSignalToRoom(jobDispatcher);
     }
 
-    private void setJobSuccess(Job job) {
+    private void setJobSuccess(Job job, JobDispatcher jobDispatcher) {
         job.setStatus(JobStatus.FINISHED_SUCCESS);
-        JobStatusSignalDto jobStatusSignalDto = JobStatusSignalDto.from(
-            JobStatusSignalType.JOB_END_SUCCESSFULLY
+        LocalDateTime now = LocalDateTime.now();
+
+        jobDispatcher.setFinishedAt(now);
+        jobDispatcher.setJobStatusSignalType(JobStatusSignalType.JOB_END_SUCCESSFULLY);
+        jobDispatcher.setTimePassed(
+            Duration.between(jobDispatcher.getUpdatedAt(), now).getSeconds()
         );
 
-        sendNotificationToRoom(job.getJobDispatcher().getId(), jobStatusSignalDto);
-        jobRepository.save(job);
-    }
+        saveNewJobDispatcher(job, jobDispatcher);
 
-    private void sendNotificationToRoom(UUID roomId, JobStatusSignalDto notification) {
-        messagingTemplate.convertAndSend(
-            "/job-dispatch/" + roomId,
-            notification
-        );
+        jobWebSocketSignalsHandler.sendSignalToRoom(job.getJobDispatcher());
     }
 }
