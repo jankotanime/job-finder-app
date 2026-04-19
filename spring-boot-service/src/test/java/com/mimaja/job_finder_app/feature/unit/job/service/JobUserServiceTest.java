@@ -261,6 +261,24 @@ class JobUserServiceTest {
     }
 
     @Test
+    void startJob_shouldReturnNonNullResponseDto_whenContractorStartsJob() {
+        UUID jobId = testJob.getId();
+        when(jobService.getJobById(jobId)).thenReturn(testJob);
+        when(jobService.startJobContractor(jobId)).thenReturn(testJobDispatcher);
+        JobDispatcherResponseDto result = jobUserService.startJob(testContractor.getId(), jobId);
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void startJob_shouldCallStartJobContractor_whenContractorStartsJob() {
+        UUID jobId = testJob.getId();
+        when(jobService.getJobById(jobId)).thenReturn(testJob);
+        when(jobService.startJobContractor(jobId)).thenReturn(testJobDispatcher);
+        jobUserService.startJob(testContractor.getId(), jobId);
+        verify(jobService, times(1)).startJobContractor(jobId);
+    }
+
+    @Test
     void startJob_shouldThrowBusinessException_whenCalledByNonOwner() {
         UUID jobId = testJob.getId();
         User unauthorizedUser = createTestUserWithProfilePhoto();
