@@ -39,7 +39,6 @@ import useSelectCv from "../../hooks/useSelectCv";
 import Footer from "../../components/main/Footer";
 import CvInfo from "../../components/main/CvInfo";
 import ErrorNotification from "../../components/reusable/ErrorNotification";
-import ActiveJobTimerFloating from "../../components/jobs/ActiveJobTimerFloating";
 import useMainOffersDeck from "../../hooks/useMainOffersDeck";
 import { ExtensionStorage } from "@bacons/apple-targets";
 
@@ -351,8 +350,6 @@ const MainScreen = () => {
           />
         </View>
         <Footer />
-
-        <ActiveJobTimerFloating />
       </GestureHandlerRootView>
     </View>
   );

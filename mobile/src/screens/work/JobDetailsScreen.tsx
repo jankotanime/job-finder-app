@@ -22,7 +22,6 @@ import {
 
 import type { RootStackParamList } from "../../types/RootStackParamList";
 import type { Job } from "../../types/Job";
-import { useAuth } from "../../contexts/AuthContext";
 import {
   getJobById,
   getJobDispatcher,
@@ -31,21 +30,16 @@ import {
   startJob,
 } from "../../api/jobs/handleJobApi";
 import { buildPhotoUrl } from "../../utils/photoUrl";
-import {
-  getJobStartAt,
-  setActiveJobTimer,
-  setJobStartAt,
-} from "../../utils/jobTimerStorage";
 
 type JobDetailsRoute = RouteProp<RootStackParamList, "JobDetails">;
 
 type Nav = NativeStackNavigationProp<RootStackParamList, "JobDetails">;
 
 type Candidate = {
-  id?: string;
-  firstName?: string;
-  lastName?: string;
-  username?: string;
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
 };
 
 const toArray = <T,>(value: T | T[] | null | undefined): T[] => {
@@ -63,17 +57,8 @@ const getJobsArrayFromPayload = (payload: any): any[] => {
 };
 
 const getIdFromListItem = (item: any): string | null => {
-  const raw =
-    item?.id ??
-    item?.jobId ??
-    item?.job?.id ??
-    item?.job?.jobId ??
-    item?.offerId ??
-    item?.offer?.id ??
-    item?.offer?.jobId ??
-    item?.offer?.job?.id;
-  if (raw == null) return null;
-  return String(raw);
+  if (item.id == null) return null;
+  return String(item.id);
 };
 
 const extractAcceptedCandidatesFromOwnerJob = (ownerJob: any): Candidate[] => {
@@ -129,6 +114,8 @@ const getJobFromListItem = (item: any): Job | null => {
 
 const statusKey = (status: Job["status"]) => {
   switch (status) {
+    case "UNREADY":
+      return "jobs.details.status.unReady";
     case "READY":
       return "jobs.details.status.ready";
     case "IN_PROGRESS":
@@ -145,8 +132,6 @@ const statusKey = (status: Job["status"]) => {
 const JobDetailsScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const { userInfo, user } = useAuth();
-  const username = (userInfo?.username ?? user ?? "").trim();
   const imageHeight = useMemo(
     () => Math.round(Dimensions.get("window").width * 0.55),
     [],
@@ -163,30 +148,6 @@ const JobDetailsScreen = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [acceptedCandidates, setAcceptedCandidates] = useState<Candidate[]>([]);
   const [acceptedLoading, setAcceptedLoading] = useState(false);
-  const [localStartedAt, setLocalStartedAt] = useState<number | null>(null);
-  const [ownerStartedForContractor, setOwnerStartedForContractor] =
-    useState<boolean>(false);
-
-  const checkOwnerStarted = useCallback(async () => {
-    if (role !== "contractor") {
-      setOwnerStartedForContractor(false);
-      return;
-    }
-    try {
-      const res = await getJobDispatcher(jobId);
-      if (!res?.response?.ok) {
-        setOwnerStartedForContractor(false);
-        return;
-      }
-      const data = res?.body?.data ?? res?.body;
-      const startedAt =
-        data?.startedAt ?? data?.startAt ?? data?.jobStartedAt ?? null;
-      const startedFlag = data?.started;
-      setOwnerStartedForContractor(Boolean(startedAt) || startedFlag === true);
-    } catch {
-      setOwnerStartedForContractor(false);
-    }
-  }, [jobId, role]);
 
   const fetchJob = useCallback(async () => {
     setErrorMessage(null);
@@ -275,58 +236,41 @@ const JobDetailsScreen = () => {
     setAcceptedLoading(false);
   }, [jobId, role, t]);
 
-  const refreshLocalStart = useCallback(async () => {
-    if (role !== "contractor") {
-      setLocalStartedAt(null);
-      return;
-    }
-    const v = await getJobStartAt(jobId, username);
-    setLocalStartedAt(v);
-  }, [jobId, role, username]);
-
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
         await fetchJob();
-        await refreshLocalStart();
-        await checkOwnerStarted();
       } catch {
         setErrorMessage(t("jobs.common.loadError"));
       } finally {
         setLoading(false);
       }
     })();
-  }, [checkOwnerStarted, fetchJob, refreshLocalStart, t]);
+  }, [fetchJob, t]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       fetchJob().catch(() => {
         setErrorMessage(t("jobs.common.loadError"));
       });
-      refreshLocalStart().catch(() => {});
-      checkOwnerStarted().catch(() => {});
     });
     return unsubscribe;
-  }, [checkOwnerStarted, fetchJob, navigation, refreshLocalStart, t]);
+  }, [fetchJob, navigation, t]);
 
   const canStart = useMemo(() => {
     return role === "owner" && job?.status === "READY";
   }, [job?.status, role]);
 
   const canStartContractor = useMemo(() => {
-    return (
-      role === "contractor" &&
-      (job?.status === "IN_PROGRESS" || ownerStartedForContractor) &&
-      !localStartedAt
-    );
-  }, [job?.status, localStartedAt, ownerStartedForContractor, role]);
+    return role === "contractor" && job?.status === "IN_PROGRESS";
+  }, [job?.status, role]);
 
   const onStart = useCallback(async () => {
     if (!job) return;
     try {
       setSubmitting(true);
-      const startedAt = Date.now();
+      setErrorMessage(null);
       const response = await startJob(job.id);
       if (!response?.response?.ok) {
         setErrorMessage(
@@ -334,15 +278,22 @@ const JobDetailsScreen = () => {
         );
         return;
       }
-      await setJobStartAt(job.id, startedAt, username);
-      await setActiveJobTimer({ jobId: job.id, role, startedAt }, username);
-      navigation.navigate("JobRun", { jobId: job.id, role, startedAt });
-    } catch (e) {
+      const jobDispatcherId = response.body.data.jobDispatcherId;
+      if (!jobDispatcherId) {
+        setErrorMessage(t("jobs.common.actionError"));
+        return;
+      }
+      navigation.navigate("JobRun", {
+        jobId: job.id,
+        jobDispatcherId,
+        role,
+      });
+    } catch {
       setErrorMessage(t("jobs.common.actionError"));
     } finally {
       setSubmitting(false);
     }
-  }, [job, navigation, role, t, username]);
+  }, [job, navigation, role, t]);
 
   const onStartAsContractor = useCallback(async () => {
     if (!job) return;
@@ -350,41 +301,120 @@ const JobDetailsScreen = () => {
     try {
       setSubmitting(true);
       setErrorMessage(null);
-      const startedAt = Date.now();
-      await setJobStartAt(job.id, startedAt, username);
-      await setActiveJobTimer(
-        { jobId: job.id, role: "contractor", startedAt },
-        username,
-      );
-      setLocalStartedAt(startedAt);
+
+      console.log("[JobDetailsAction] contractor confirm start pressed", {
+        jobId: job.id,
+        role,
+      });
+
+      const dispatcherRes = await getJobDispatcher(job.id);
+      if (!dispatcherRes?.response?.ok) {
+        console.warn("[JobDetailsAction] getJobDispatcher check failed", {
+          jobId: job.id,
+          response: dispatcherRes?.body,
+        });
+        setErrorMessage(t("jobs.common.actionError"));
+        return;
+      }
+
+      const jobDispatcherId = dispatcherRes.body.data.jobDispatcherId;
+      if (!jobDispatcherId) {
+        console.error(
+          "[JobDetailsAction] no jobDispatcherId from getJobDispatcher",
+          {
+            jobId: job.id,
+            response: dispatcherRes?.body,
+          },
+        );
+        setErrorMessage(t("jobs.common.actionError"));
+        return;
+      }
+
+      console.log("[JobDetailsAction] contractor navigating to JobRun", {
+        jobId: job.id,
+        jobDispatcherId,
+      });
+
       navigation.navigate("JobRun", {
         jobId: job.id,
+        jobDispatcherId,
         role: "contractor",
-        startedAt,
       });
-    } catch {
+    } catch (err) {
       setErrorMessage(t("jobs.common.actionError"));
+      console.error("[JobDetailsAction] contractor confirm crashed", {
+        jobId: job?.id,
+        role,
+        error: err,
+      });
     } finally {
       setSubmitting(false);
     }
-  }, [canStartContractor, job, navigation, t, username]);
+  }, [canStartContractor, job, navigation, role, t]);
 
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
       await fetchJob();
-      await refreshLocalStart();
-      await checkOwnerStarted();
     } catch {
       setErrorMessage(t("jobs.common.loadError"));
     } finally {
       setRefreshing(false);
     }
-  }, [checkOwnerStarted, fetchJob, refreshLocalStart, t]);
+  }, [fetchJob, t]);
 
-  const onOpenRun = useCallback(() => {
-    navigation.navigate("JobRun", { jobId, role });
-  }, [jobId, navigation, role]);
+  const onOpenRun = useCallback(async () => {
+    if (!job) return;
+    try {
+      setSubmitting(true);
+      setErrorMessage(null);
+
+      console.log("[JobDetailsAction] open run pressed", {
+        jobId: job.id,
+        role,
+      });
+
+      const response = await startJob(jobId);
+      if (!response?.response?.ok) {
+        setErrorMessage(response.body.message ?? t("jobs.common.actionError"));
+        console.warn("[JobDetailsAction] startJob failed", {
+          jobId: job.id,
+          response: response?.body,
+        });
+        return;
+      }
+
+      const jobDispatcherId = response?.body?.data?.jobDispatcherId;
+      if (!jobDispatcherId) {
+        setErrorMessage(t("jobs.common.actionError"));
+        console.error("[JobDetailsAction] no jobDispatcherId in response", {
+          jobId: job.id,
+          response: response?.body,
+        });
+        return;
+      }
+
+      console.log("[JobDetailsAction] startJob API success", {
+        jobId: job.id,
+        jobDispatcherId,
+      });
+
+      navigation.navigate("JobRun", {
+        jobId: job.id,
+        jobDispatcherId,
+        role,
+      });
+    } catch (err) {
+      setErrorMessage(t("jobs.common.actionError"));
+      console.error("[JobDetailsAction] onOpenRun crash", {
+        jobId: job?.id,
+        role,
+        error: err,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }, [job, jobId, navigation, role, t]);
 
   if (loading) {
     return (
@@ -419,7 +449,6 @@ const JobDetailsScreen = () => {
   }
 
   const photoUri = buildPhotoUrl(job?.photo?.storageKey ?? undefined);
-
   return (
     <SafeAreaView
       style={[styles.screen, { backgroundColor: colors.background }]}
@@ -519,10 +548,7 @@ const JobDetailsScreen = () => {
             >
               {t("jobs.details.startJob")}
             </Button>
-          ) : role === "contractor" &&
-            job.status === "READY" &&
-            !ownerStartedForContractor &&
-            !localStartedAt ? (
+          ) : role === "contractor" && job.status === "UNREADY" ? (
             <Button mode="contained" disabled>
               {t("jobs.details.waitForOwnerStart")}
             </Button>
@@ -537,7 +563,7 @@ const JobDetailsScreen = () => {
             </Button>
           ) : (
             <Button mode="contained" onPress={onOpenRun}>
-              {t("jobs.details.openRun")}
+              {t("jobs.details.startJob")}
             </Button>
           )}
           <Button mode="outlined" onPress={() => navigation.goBack()}>

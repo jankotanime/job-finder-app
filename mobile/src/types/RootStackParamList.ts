@@ -36,5 +36,9 @@ export type RootStackParamList = {
   JobsContractor: undefined;
   JobsOwner: undefined;
   JobDetails: { jobId: string; role: "owner" | "contractor" };
-  JobRun: { jobId: string; role: "owner" | "contractor"; startedAt?: number };
+  JobRun: {
+    jobId: string;
+    jobDispatcherId: string;
+    role: "owner" | "contractor";
+  };
 };
