@@ -25,7 +25,6 @@ import {
 
 import type { RootStackParamList } from "../../types/RootStackParamList";
 import type { Job } from "../../types/Job";
-import { useAuth } from "../../contexts/AuthContext";
 import {
   deleteJob,
   finishJob,
@@ -39,122 +38,50 @@ import {
 } from "../../api/jobs/handleJobApi";
 import { uploadCameraImage, uploadGalleryImage } from "../../utils/pickerUtils";
 import {
-  clearActiveJobTimer,
-  getActiveJobTimer,
-  getJobStartAt,
-  setActiveJobTimer,
-  setJobStartAt,
-} from "../../utils/jobTimerStorage";
-import {
   clearContractorFinishedLocally,
   getContractorFinishedLocally,
   setContractorFinishedLocally,
 } from "../../utils/jobLocalCompletion";
+import { useJobRunTimer } from "../../hooks/useJobRunTimer";
+import {
+  type JobWebSocketMessage,
+  useWebSockets,
+} from "../../hooks/useWebSocket";
+import {
+  dispatcherIndicatesStarted,
+  formatDuration,
+  getDispatcherFromPayload,
+  getIdFromListItem,
+  getJobFromListItem,
+  getJobFromPayload,
+  getJobsArrayFromPayload,
+} from "../../utils/jobHelpers";
 
 type JobRunRoute = RouteProp<RootStackParamList, "JobRun">;
 
 type Nav = NativeStackNavigationProp<RootStackParamList, "JobRun">;
 
-const getJobFromPayload = (payload: any): Job | null => {
-  const data = payload?.body?.data;
-  if (data && typeof data === "object") return data as Job;
-  if (payload?.body && typeof payload.body === "object")
-    return payload.body as Job;
-  return null;
-};
-
-const getJobsArrayFromPayload = (payload: any): any[] => {
-  const data = payload?.body?.data;
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.content)) return data.content;
-  if (Array.isArray(payload?.body)) return payload.body;
-  if (Array.isArray(payload)) return payload;
-  return [];
-};
-
-const getIdFromListItem = (item: any): string | null => {
-  const raw =
-    item?.id ??
-    item?.jobId ??
-    item?.job?.id ??
-    item?.job?.jobId ??
-    item?.offerId ??
-    item?.offer?.id ??
-    item?.offer?.jobId ??
-    item?.offer?.job?.id;
-  if (raw == null) return null;
-  return String(raw);
-};
-
-const getJobFromListItem = (item: any): Job | null => {
-  const first = item?.job ?? item?.offer?.job ?? item?.offer ?? item;
-  if (!first || typeof first !== "object") return null;
-
-  const direct = first as any;
-  if (direct?.id && typeof direct?.title === "string") return direct as Job;
-
-  const nested = direct?.job;
-  if (nested?.id && typeof nested?.title === "string") return nested as Job;
-
-  return null;
-};
-
-type JobDispatcher = {
-  finishedAt?: string | null;
-  startedAt?: string | number | null;
-  startAt?: string | number | null;
-  started?: boolean | null;
-};
-
-const dispatcherIndicatesStarted = (d: JobDispatcher | null): boolean => {
-  if (!d) return false;
-  const startedAt = (d as any)?.startedAt ?? (d as any)?.startAt ?? null;
-  const startedFlag = (d as any)?.started;
-  if (startedFlag === true) return true;
-  return Boolean(startedAt);
-};
-
-const getDispatcherFromPayload = (payload: any): JobDispatcher | null => {
-  const data = payload?.body?.data;
-  if (data && typeof data === "object") return data as JobDispatcher;
-  if (payload?.body && typeof payload.body === "object")
-    return payload.body as JobDispatcher;
-  return null;
-};
-
-const pad2 = (n: number) => String(n).padStart(2, "0");
-
-const formatElapsed = (ms: number) => {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
-};
-
 const JobRunScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { height: windowHeight } = useWindowDimensions();
-  const { userInfo, user } = useAuth();
-  const username = (userInfo?.username ?? user ?? "").trim();
 
   const route = useRoute<JobRunRoute>();
   const navigation = useNavigation<Nav>();
-  const { jobId, role, startedAt: startedAtFromParams } = route.params;
+  const { jobId, jobDispatcherId, role } = route.params;
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { elapsedMs, handleSignal: handleTimerSignal } = useJobRunTimer(
+    job?.status,
+  );
 
   const [contractorFinishedAt, setContractorFinishedAt] = useState<
     string | null
   >(null);
   const [contractorFinishSent, setContractorFinishSent] = useState(false);
   const [ownerFinalizedSeen, setOwnerFinalizedSeen] = useState(false);
-
-  const [startAt, setStartAt] = useState<number | null>(null);
-  const [now, setNow] = useState<number>(() => Date.now());
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<
@@ -163,6 +90,23 @@ const JobRunScreen = () => {
   const [description, setDescription] = useState("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const handleWebSocketMessage = useCallback(
+    (message: JobWebSocketMessage) => {
+      if (message.signalType === "JOB_START") {
+        setJob((prev) =>
+          prev && prev.status !== "IN_PROGRESS"
+            ? ({ ...prev, status: "IN_PROGRESS" } as Job)
+            : prev,
+        );
+      }
+
+      handleTimerSignal(message);
+    },
+    [handleTimerSignal],
+  );
+
+  useWebSockets(jobDispatcherId, { onMessage: handleWebSocketMessage });
 
   const fetchJob = useCallback(async () => {
     setErrorMessage(null);
@@ -237,104 +181,14 @@ const JobRunScreen = () => {
   }, [fetchJob, t]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        if (!job) return;
-
-        if (
-          typeof startedAtFromParams === "number" &&
-          Number.isFinite(startedAtFromParams)
-        ) {
-          setStartAt(startedAtFromParams);
-          await setActiveJobTimer(
-            {
-              jobId,
-              role,
-              startedAt: startedAtFromParams,
-            },
-            username,
-          );
-          return;
-        }
-
-        if (
-          job.status === "FINISHED_FAILURE" ||
-          job.status === "FINISHED_SUCCESS"
-        ) {
-          await clearActiveJobTimer(jobId, username);
-          await clearContractorFinishedLocally(jobId);
-        }
-
-        const fromKey = await getJobStartAt(jobId, username);
-        const active = await getActiveJobTimer(username);
-
-        if (job.status === "READY") {
-          if (role === "contractor") {
-            setStartAt(null);
-            await clearActiveJobTimer(jobId, username);
-            return;
-          }
-
-          if (fromKey) {
-            setStartAt(fromKey);
-            await setActiveJobTimer(
-              { jobId, role, startedAt: fromKey },
-              username,
-            );
-            return;
-          }
-
-          if (active?.jobId === jobId && typeof active.startedAt === "number") {
-            setStartAt(active.startedAt);
-            return;
-          }
-
-          setStartAt(null);
-          await clearActiveJobTimer(jobId, username);
-          return;
-        }
-
-        if (role === "contractor" && job.status === "IN_PROGRESS") {
-          if (fromKey) {
-            setStartAt(fromKey);
-            await setActiveJobTimer(
-              { jobId, role, startedAt: fromKey },
-              username,
-            );
-            return;
-          }
-
-          if (active?.jobId === jobId && typeof active.startedAt === "number") {
-            setStartAt(active.startedAt);
-            return;
-          }
-
-          setStartAt(null);
-          await clearActiveJobTimer(jobId, username);
-          return;
-        }
-
-        if (fromKey) {
-          setStartAt(fromKey);
-          await setActiveJobTimer(
-            { jobId, role, startedAt: fromKey },
-            username,
-          );
-          return;
-        }
-
-        if (active?.jobId === jobId && typeof active.startedAt === "number") {
-          setStartAt(active.startedAt);
-          return;
-        }
-
-        const fallback = Date.now();
-        setStartAt(fallback);
-        await setJobStartAt(jobId, fallback, username);
-        await setActiveJobTimer({ jobId, role, startedAt: fallback }, username);
-      } catch (e) {}
-    })();
-  }, [job, jobId, role, startedAtFromParams, username]);
+    if (!job) return;
+    if (
+      job.status === "FINISHED_FAILURE" ||
+      job.status === "FINISHED_SUCCESS"
+    ) {
+      clearContractorFinishedLocally(jobId).catch(() => {});
+    }
+  }, [job, jobId]);
 
   useEffect(() => {
     setContractorFinishedAt(null);
@@ -343,7 +197,6 @@ const JobRunScreen = () => {
   }, [jobId]);
 
   useEffect(() => {
-    // jeśli wykonawca już kliknął zakończ wcześniej, blokujemy ponowne wysłanie
     if (role !== "contractor") return;
     let cancelled = false;
     (async () => {
@@ -351,14 +204,13 @@ const JobRunScreen = () => {
         const finishedLocal = await getContractorFinishedLocally(jobId);
         if (!cancelled && finishedLocal) {
           setContractorFinishSent(true);
-          await clearActiveJobTimer(jobId, username);
         }
       } catch {}
     })();
     return () => {
       cancelled = true;
     };
-  }, [jobId, role, username]);
+  }, [jobId, role]);
 
   useEffect(() => {
     if (role !== "contractor") return;
@@ -452,29 +304,17 @@ const JobRunScreen = () => {
     return () => clearInterval(interval);
   }, [fetchJob, role]);
 
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const elapsedMs = useMemo(() => {
-    if (!startAt) return 0;
-    return now - startAt;
-  }, [now, startAt]);
-
   const isInProgress = job?.status === "IN_PROGRESS";
-  const isLocallyStartedOwner = role === "owner" && Boolean(startAt);
-  const isLocallyStartedContractor = role === "contractor" && Boolean(startAt);
   const canReport =
-    role === "owner"
-      ? isInProgress || isLocallyStartedOwner
-      : isInProgress && isLocallyStartedContractor && !contractorFinishSent;
+    isInProgress && (role !== "contractor" || !contractorFinishSent);
   const canFinish =
     role === "owner"
       ? isInProgress && Boolean(contractorFinishedAt)
-      : isInProgress && isLocallyStartedContractor && !contractorFinishSent;
+      : isInProgress && !contractorFinishSent;
 
-  const canStart = role === "owner" && job?.status === "READY" && !startAt;
+  const canStart = role === "owner" && job?.status === "READY";
+  const canConfirmAsContractor =
+    role === "contractor" && isInProgress && !elapsedMs;
 
   const openDialog = useCallback((mode: "problem" | "noProblem" | "finish") => {
     setDialogMode(mode);
@@ -496,35 +336,30 @@ const JobRunScreen = () => {
     openDialog("finish");
   }, [canFinish, openDialog]);
 
-  const onPressStart = useCallback(async () => {
-    if (!job) return;
-    if (!canStart) return;
+  const onPressConfirmAsContractor = useCallback(async () => {
+    if (!canConfirmAsContractor) return;
     try {
       setSubmitting(true);
       setErrorMessage(null);
 
-      const startedAt = Date.now();
-      const res = await startJob(job.id);
-      if (!res?.response?.ok) {
-        setErrorMessage(res?.body?.message ?? t("jobs.common.actionError"));
-        return;
-      }
+      console.log("[JobRunAction] contractor confirm start pressed", {
+        jobId,
+        role,
+      });
 
-      setStartAt(startedAt);
-      await setJobStartAt(job.id, startedAt, username);
-      await setActiveJobTimer({ jobId: job.id, role, startedAt }, username);
-
-      setJob((prev) =>
-        prev ? { ...prev, status: "IN_PROGRESS" as any } : prev,
+      console.log(
+        "[JobRunAction] contractor subscribed to job-dispatch topic via WS",
+        { jobId },
       );
-
-      await fetchJob();
     } catch {
       setErrorMessage(t("jobs.common.actionError"));
+      console.error("[JobRunAction] contractor confirm crashed", {
+        jobId,
+      });
     } finally {
       setSubmitting(false);
     }
-  }, [canStart, fetchJob, job, jobId, role, t, username]);
+  }, [canConfirmAsContractor, jobId, t]);
 
   const pickFromCamera = useCallback(async () => {
     const uri = await uploadCameraImage();
@@ -551,16 +386,43 @@ const JobRunScreen = () => {
       let shouldGoToMainAfter = false;
 
       if (dialogMode === "problem") {
+        console.log("[JobRunAction] problem report submit", {
+          jobId,
+          role,
+          descriptionLength: trimmed.length,
+          hasPhoto: Boolean(photoUri),
+        });
+
         await reportProblemTrue(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
+        console.log("[JobRunAction] reportProblemTrue sent via REST API", {
+          jobId,
+        });
       } else if (dialogMode === "noProblem") {
+        console.log("[JobRunAction] no-problem report submit", {
+          jobId,
+          role,
+          descriptionLength: trimmed.length,
+          hasPhoto: Boolean(photoUri),
+        });
+
         await reportProblemFalse(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
+        console.log("[JobRunAction] reportProblemFalse sent via REST API", {
+          jobId,
+        });
       } else {
+        console.log("[JobRunAction] finish submit", {
+          jobId,
+          role,
+          descriptionLength: trimmed.length,
+          hasPhoto: Boolean(photoUri),
+        });
+
         const response = await finishJob(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
@@ -569,12 +431,15 @@ const JobRunScreen = () => {
           setErrorMessage(
             response?.body?.message ?? t("jobs.common.actionError"),
           );
+          console.warn("[JobRunAction] finishJob failed", {
+            jobId,
+            response: response?.body,
+          });
           return;
         }
 
         if (role === "contractor") {
           await setContractorFinishedLocally(jobId);
-          await clearActiveJobTimer(jobId, username);
           setContractorFinishSent(true);
           shouldGoToMainAfter = false;
         } else {
@@ -582,10 +447,14 @@ const JobRunScreen = () => {
             await deleteJob(jobId);
           } catch {}
 
-          await clearActiveJobTimer(jobId, username);
           await clearContractorFinishedLocally(jobId);
           shouldGoToMainAfter = true;
         }
+
+        console.log("[JobRunAction] finishJob sent via REST API", {
+          jobId,
+          role,
+        });
       }
 
       setDialogOpen(false);
@@ -600,39 +469,22 @@ const JobRunScreen = () => {
       await fetchJob();
     } catch {
       setErrorMessage(t("jobs.common.actionError"));
+      console.error("[JobRunAction] submit dialog crashed", {
+        jobId,
+        dialogMode,
+        role,
+      });
     } finally {
       setSubmitting(false);
     }
-  }, [
-    description,
-    dialogMode,
-    fetchJob,
-    jobId,
-    navigation,
-    photoUri,
-    role,
-    t,
-    username,
-  ]);
+  }, [description, dialogMode, fetchJob, jobId, navigation, photoUri, role, t]);
 
   const timerTitle = useMemo(() => {
     if (role === "owner") return t("jobs.run.timerTitleOwner");
     return t("jobs.run.timerTitleContractor");
   }, [role, t]);
 
-  const contractorNickname = useMemo(() => {
-    const username = job?.contractor?.username;
-    if (username) return username;
-    const first = job?.contractor?.firstName;
-    const last = job?.contractor?.lastName;
-    const full = [first, last].filter(Boolean).join(" ");
-    return full || t("jobs.details.contractor");
-  }, [
-    job?.contractor?.firstName,
-    job?.contractor?.lastName,
-    job?.contractor?.username,
-    t,
-  ]);
+  const timerValue = useMemo(() => formatDuration(elapsedMs), [elapsedMs]);
 
   if (loading) {
     return (
@@ -670,7 +522,6 @@ const JobRunScreen = () => {
       </SafeAreaView>
     );
   }
-
   return (
     <SafeAreaView
       style={[styles.screen, { backgroundColor: colors.background }]}
@@ -700,18 +551,12 @@ const JobRunScreen = () => {
                 {timerTitle}
               </Text>
               <Text style={[styles.timer, { color: colors.primary }]}>
-                {formatElapsed(elapsedMs)}
+                {timerValue}
               </Text>
 
-              {role === "contractor" && job?.status === "READY" ? (
+              {role === "contractor" && job.status === "READY" ? (
                 <Text style={{ color: colors.onSurfaceVariant, marginTop: 4 }}>
                   {t("jobs.run.waitingForOwnerStart")}
-                </Text>
-              ) : null}
-
-              {!startAt ? (
-                <Text style={{ color: colors.onSurfaceVariant, marginTop: 4 }}>
-                  {t("jobs.run.noStartInfo")}
                 </Text>
               ) : null}
 
@@ -729,16 +574,24 @@ const JobRunScreen = () => {
           </Card>
 
           <View style={styles.actions}>
-            {canStart ? (
+            {role === "owner" && isInProgress ? (
+              <Text
+                style={{ color: colors.onSurfaceVariant, marginVertical: 8 }}
+              >
+                {t("jobs.run.waitingForContractorConfirm")}
+              </Text>
+            ) : null}
+
+            {/* {canConfirmAsContractor ? (
               <Button
                 mode="contained"
-                onPress={onPressStart}
+                onPress={onPressConfirmAsContractor}
                 loading={submitting}
                 disabled={submitting}
               >
-                {t("jobs.details.startJob")}
+                {t("jobs.run.confirmStart")}
               </Button>
-            ) : null}
+            ) : null} */}
 
             <Button
               mode="contained"

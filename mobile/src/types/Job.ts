@@ -1,6 +1,7 @@
 import { Tag } from "./Tag";
 
 export type JobStatus =
+  | "UNREADY"
   | "READY"
   | "IN_PROGRESS"
   | "FINISHED_FAILURE"
