@@ -13,5 +13,5 @@ export const createWsClient = () =>
     reconnectDelay: 0,
     heartbeatIncoming: 0,
     heartbeatOutgoing: 0,
-    debug: (str) => console.log("STOMP: ", str),
+    debug: () => {},
   });

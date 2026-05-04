@@ -1,5 +1,4 @@
 import type { Client, StompSubscription } from "@stomp/stompjs";
-import EncryptedStorage from "react-native-encrypted-storage";
 import { useEffect, useRef } from "react";
 import { createWsClient } from "../api/websocketClient";
 
@@ -28,36 +27,10 @@ export const useWebSockets = (
     clientRef.current = wsClient;
 
     const setupConnection = async () => {
-      console.log("[JobWS] init", {
-        jobDispatcherId,
-        topicDestination,
-        subscribeDestination,
-      });
-
-      const authRaw = await EncryptedStorage.getItem("auth");
-      let authorizationHeader = "";
-
-      if (authRaw) {
-        try {
-          const parsedAuth = JSON.parse(authRaw);
-          if (parsedAuth?.accessToken) {
-            authorizationHeader = `Bearer ${parsedAuth.accessToken}`;
-          }
-        } catch (error) {
-          console.warn("[JobWS] failed to parse auth storage", error);
-        }
-      }
-
       if (cancelled) return;
 
-      wsClient.onConnect = (frame) => {
-        console.log("CONNECTED OK: ", frame);
-        console.log("[JobWS] connected", { topicDestination });
-
+      wsClient.onConnect = () => {
         if (subscriptionRef.current) {
-          console.log("[JobWS] unsubscribe previous subscription", {
-            topicDestination,
-          });
           subscriptionRef.current.unsubscribe();
         }
 
@@ -68,63 +41,19 @@ export const useWebSockets = (
 
             try {
               parsedMessage = JSON.parse(message.body) as JobWebSocketMessage;
-            } catch (error) {
-              console.warn("[JobWS] failed to parse message body", error);
-            }
-
-            console.log("[JobWS] incoming message from topic", {
-              topicDestination,
-              body: message.body,
-            });
+            } catch {}
 
             if (parsedMessage) {
               options.onMessage?.(parsedMessage);
             }
           },
         );
-
-        console.log("[JobWS] subscribed to topic", { topicDestination });
-
-        console.log("[JobWS] sending subscribe signal", {
-          subscribeDestination,
-        });
         wsClient.publish({
           destination: subscribeDestination,
         });
-        console.log("[JobWS] subscribe signal sent", { subscribeDestination });
-      };
-
-      wsClient.onStompError = (frame) => {
-        console.error("[JobWS] STOMP ERROR", {
-          body: frame.body,
-          headers: frame.headers,
-        });
-      };
-
-      wsClient.onWebSocketClose = (event) => {
-        console.log("[JobWS] websocket closed", {
-          code: event.code,
-          reason: event.reason,
-          wasClean: event.wasClean,
-        });
-        if (!cancelled && !wsClient.connected) {
-          console.warn("[JobWS] socket closed before STOMP CONNECTED", {
-            topicDestination,
-            active: wsClient.active,
-            connected: wsClient.connected,
-          });
-        }
-      };
-
-      wsClient.onWebSocketError = (event) => {
-        console.log("[JobWS] websocket error", event);
       };
 
       if (!wsClient.active && !wsClient.connected) {
-        console.log("[JobWS] activate client", {
-          topicDestination,
-          hasAuthorization: Boolean(authorizationHeader),
-        });
         wsClient.activate();
       }
     };
@@ -134,11 +63,9 @@ export const useWebSockets = (
     return () => {
       cancelled = true;
       if (subscriptionRef.current) {
-        console.log("[JobWS] cleanup unsubscribe", { topicDestination });
         subscriptionRef.current.unsubscribe();
         subscriptionRef.current = null;
       }
-      console.log("[JobWS] deactivate client", { topicDestination });
       wsClient.deactivate();
       if (clientRef.current === wsClient) {
         clientRef.current = null;

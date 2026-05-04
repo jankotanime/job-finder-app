@@ -560,10 +560,6 @@ const JobRunScreen = () => {
                 </Text>
               ) : null}
 
-              <Text style={{ color: colors.onSurfaceVariant, marginTop: 4 }}>
-                {t("jobs.run.noStartInfo")}
-              </Text>
-
               <Divider style={{ marginVertical: 14 }} />
 
               <Text variant="titleMedium" style={{ fontWeight: "700" }}>
