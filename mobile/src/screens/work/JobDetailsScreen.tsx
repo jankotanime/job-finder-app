@@ -30,6 +30,12 @@ import {
   startJob,
 } from "../../api/jobs/handleJobApi";
 import { buildPhotoUrl } from "../../utils/photoUrl";
+import {
+  getIdFromListItem,
+  getJobFromListItem,
+  getJobFromPayload,
+  getJobsArrayFromPayload,
+} from "../../utils/jobHelpers";
 
 type JobDetailsRoute = RouteProp<RootStackParamList, "JobDetails">;
 
@@ -45,20 +51,6 @@ type Candidate = {
 const toArray = <T,>(value: T | T[] | null | undefined): T[] => {
   if (!value) return [];
   return Array.isArray(value) ? value : [value];
-};
-
-const getJobsArrayFromPayload = (payload: any): any[] => {
-  const data = payload?.body?.data;
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.content)) return data.content;
-  if (Array.isArray(payload?.body)) return payload.body;
-  if (Array.isArray(payload)) return payload;
-  return [];
-};
-
-const getIdFromListItem = (item: any): string | null => {
-  if (item.id == null) return null;
-  return String(item.id);
 };
 
 const extractAcceptedCandidatesFromOwnerJob = (ownerJob: any): Candidate[] => {
@@ -89,27 +81,6 @@ const extractAcceptedCandidatesFromOwnerJob = (ownerJob: any): Candidate[] => {
     if (!dedup.has(key)) dedup.set(key, c);
   }
   return [...dedup.values()];
-};
-
-const getJobFromPayload = (payload: any): Job | null => {
-  const data = payload?.body?.data;
-  if (data && typeof data === "object") return data as Job;
-  if (payload?.body && typeof payload.body === "object")
-    return payload.body as Job;
-  return null;
-};
-
-const getJobFromListItem = (item: any): Job | null => {
-  const first = item?.job ?? item?.offer?.job ?? item?.offer ?? item;
-  if (!first || typeof first !== "object") return null;
-
-  const direct = first as any;
-  if (direct?.id && typeof direct?.title === "string") return direct as Job;
-
-  const nested = direct?.job;
-  if (nested?.id && typeof nested?.title === "string") return nested as Job;
-
-  return null;
 };
 
 const statusKey = (status: Job["status"]) => {

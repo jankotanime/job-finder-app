@@ -42,89 +42,24 @@ import {
   getContractorFinishedLocally,
   setContractorFinishedLocally,
 } from "../../utils/jobLocalCompletion";
+import { useJobRunTimer } from "../../hooks/useJobRunTimer";
 import {
   type JobWebSocketMessage,
   useWebSockets,
 } from "../../hooks/useWebSocket";
+import {
+  dispatcherIndicatesStarted,
+  formatDuration,
+  getDispatcherFromPayload,
+  getIdFromListItem,
+  getJobFromListItem,
+  getJobFromPayload,
+  getJobsArrayFromPayload,
+} from "../../utils/jobHelpers";
 
 type JobRunRoute = RouteProp<RootStackParamList, "JobRun">;
 
 type Nav = NativeStackNavigationProp<RootStackParamList, "JobRun">;
-
-const getJobFromPayload = (payload: any): Job | null => {
-  const data = payload?.body?.data;
-  if (data && typeof data === "object") return data as Job;
-  if (payload?.body && typeof payload.body === "object")
-    return payload.body as Job;
-  return null;
-};
-
-const getJobsArrayFromPayload = (payload: any): any[] => {
-  const data = payload?.body?.data;
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.content)) return data.content;
-  if (Array.isArray(payload?.body)) return payload.body;
-  if (Array.isArray(payload)) return payload;
-  return [];
-};
-
-const getIdFromListItem = (item: any): string | null => {
-  const raw = item.id;
-  if (raw == null) return null;
-  return String(raw);
-};
-
-const getJobFromListItem = (item: any): Job | null => {
-  const first = item?.job ?? item?.offer?.job ?? item?.offer ?? item;
-  if (!first || typeof first !== "object") return null;
-
-  const direct = first as any;
-  if (direct?.id && typeof direct?.title === "string") return direct as Job;
-
-  const nested = direct?.job;
-  if (nested?.id && typeof nested?.title === "string") return nested as Job;
-
-  return null;
-};
-
-type JobDispatcher = {
-  finishedAt?: string | null;
-  startedAt?: string | number | null;
-  startAt?: string | number | null;
-  started?: boolean | null;
-};
-
-const dispatcherIndicatesStarted = (d: JobDispatcher | null): boolean => {
-  if (!d) return false;
-  const startedAt = (d as any)?.startedAt ?? (d as any)?.startAt ?? null;
-  const startedFlag = (d as any)?.started;
-  if (startedFlag === true) return true;
-  return Boolean(startedAt);
-};
-
-const getDispatcherFromPayload = (payload: any): JobDispatcher | null => {
-  const data = payload?.body?.data;
-  if (data && typeof data === "object") return data as JobDispatcher;
-  if (payload?.body && typeof payload.body === "object")
-    return payload.body as JobDispatcher;
-  return null;
-};
-
-const formatDuration = (valueMs: number | null) => {
-  if (valueMs == null || !Number.isFinite(valueMs) || valueMs < 0) {
-    return "--:--:--";
-  }
-
-  const totalSeconds = Math.floor(valueMs / 1000);
-  const hours = Math.floor(totalSeconds / 3600)
-    .toString()
-    .padStart(2, "0");
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
-};
 
 const JobRunScreen = () => {
   const { colors } = useTheme();
@@ -138,8 +73,9 @@ const JobRunScreen = () => {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [elapsedMs, setElapsedMs] = useState<number | null>(null);
-  const [timerStartedAtMs, setTimerStartedAtMs] = useState<number | null>(null);
+  const { elapsedMs, handleSignal: handleTimerSignal } = useJobRunTimer(
+    job?.status,
+  );
 
   const [contractorFinishedAt, setContractorFinishedAt] = useState<
     string | null
@@ -155,27 +91,20 @@ const JobRunScreen = () => {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleWebSocketMessage = useCallback((message: JobWebSocketMessage) => {
-    if (message.signalType === "JOB_START") {
-      const serverTimeMs = message.time ? Date.parse(message.time) : NaN;
-      const elapsedFromServer = Number(message.timePassedMilisecods ?? 0);
-      const startedAtMs = Number.isFinite(serverTimeMs)
-        ? serverTimeMs - elapsedFromServer
-        : Date.now() - elapsedFromServer;
+  const handleWebSocketMessage = useCallback(
+    (message: JobWebSocketMessage) => {
+      if (message.signalType === "JOB_START") {
+        setJob((prev) =>
+          prev && prev.status !== "IN_PROGRESS"
+            ? ({ ...prev, status: "IN_PROGRESS" } as Job)
+            : prev,
+        );
+      }
 
-      setTimerStartedAtMs(startedAtMs);
-      setElapsedMs(Math.max(0, Date.now() - startedAtMs));
-      return;
-    }
-
-    if (
-      message.signalType === "JOB_FINISH" ||
-      message.signalType === "JOB_STOP"
-    ) {
-      setTimerStartedAtMs(null);
-      setElapsedMs(null);
-    }
-  }, []);
+      handleTimerSignal(message);
+    },
+    [handleTimerSignal],
+  );
 
   useWebSockets(jobDispatcherId, { onMessage: handleWebSocketMessage });
 
@@ -265,37 +194,7 @@ const JobRunScreen = () => {
     setContractorFinishedAt(null);
     setContractorFinishSent(false);
     setOwnerFinalizedSeen(false);
-    setElapsedMs(null);
-    setTimerStartedAtMs(null);
   }, [jobId]);
-
-  useEffect(() => {
-    if (!job || job.status !== "IN_PROGRESS" || timerStartedAtMs == null) {
-      return;
-    }
-
-    const tick = () => {
-      setElapsedMs(Math.max(0, Date.now() - timerStartedAtMs));
-    };
-
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [job, timerStartedAtMs]);
-
-  useEffect(() => {
-    if (!job) return;
-
-    if (job.status !== "IN_PROGRESS") {
-      setTimerStartedAtMs(null);
-      setElapsedMs(null);
-      return;
-    }
-
-    if (timerStartedAtMs === null) {
-      setTimerStartedAtMs(Date.now());
-    }
-  }, [job, timerStartedAtMs]);
 
   useEffect(() => {
     if (role !== "contractor") return;
@@ -586,20 +485,6 @@ const JobRunScreen = () => {
   }, [role, t]);
 
   const timerValue = useMemo(() => formatDuration(elapsedMs), [elapsedMs]);
-
-  const contractorNickname = useMemo(() => {
-    const username = job?.contractor?.username;
-    if (username) return username;
-    const first = job?.contractor?.firstName;
-    const last = job?.contractor?.lastName;
-    const full = [first, last].filter(Boolean).join(" ");
-    return full || t("jobs.details.contractor");
-  }, [
-    job?.contractor?.firstName,
-    job?.contractor?.lastName,
-    job?.contractor?.username,
-    t,
-  ]);
 
   if (loading) {
     return (

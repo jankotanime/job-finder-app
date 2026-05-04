@@ -50,18 +50,6 @@ export const useWebSockets = (
 
       if (cancelled) return;
 
-      wsClient.connectHeaders = authorizationHeader
-        ? { Authorization: authorizationHeader }
-        : {};
-
-      console.log("[JobWS] client config", {
-        brokerURL: process.env.EXPO_PUBLIC_BROKER_URL,
-        connectHeaders: {
-          ...wsClient.connectHeaders,
-          Authorization: authorizationHeader ? "[set]" : "[missing]",
-        },
-      });
-
       wsClient.onConnect = (frame) => {
         console.log("CONNECTED OK: ", frame);
         console.log("[JobWS] connected", { topicDestination });
@@ -141,7 +129,7 @@ export const useWebSockets = (
       }
     };
 
-    void setupConnection();
+    setupConnection();
 
     return () => {
       cancelled = true;
