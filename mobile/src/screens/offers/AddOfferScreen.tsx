@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   ScrollView,
@@ -50,7 +50,9 @@ const AddOfferScreen = () => {
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
   const { userInfo } = useAuth();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [tagInputLayoutY, setTagInputLayoutY] = useState<number | null>(null);
   const [form, setForm] = useState<FormState>({
     offerPhoto: undefined,
     title: "",
@@ -132,6 +134,16 @@ const AddOfferScreen = () => {
     );
   }, [form.tagInput, form.tags, availableTags]);
 
+  useEffect(() => {
+    if (!filteredTags.length || tagInputLayoutY === null) return;
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollTo({
+        y: Math.max(0, tagInputLayoutY - 24),
+        animated: true,
+      });
+    });
+  }, [filteredTags.length, tagInputLayoutY]);
+
   const onAddTagById = (id: string) => {
     if (!id) return;
     if (form.tags.includes(id)) return;
@@ -206,6 +218,7 @@ const AddOfferScreen = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 30}
       >
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={[
             styles.container,
             { backgroundColor: colors.background },
@@ -347,7 +360,10 @@ const AddOfferScreen = () => {
                 );
             }
           })}
-          <View style={styles.row}>
+          <View
+            style={styles.row}
+            onLayout={(event) => setTagInputLayoutY(event.nativeEvent.layout.y)}
+          >
             <View style={styles.flexItem}>
               <Input
                 placeholder={t("offer.addTag")}
@@ -500,7 +516,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   dropdownScroll: {
-    maxHeight: 200,
+    maxHeight: 150,
   },
   dropdownContent: {
     flexDirection: "row",
@@ -508,7 +524,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dropdownChip: {
-    marginBottom: 6,
+    marginBottom: 5,
     backgroundColor: "#f0f0f0",
     borderRadius: 16,
     paddingHorizontal: 10,

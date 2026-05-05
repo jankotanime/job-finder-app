@@ -155,6 +155,8 @@ const JobRunScreen = () => {
 
         setJob(null);
         setErrorMessage(t("jobs.common.noAccess"));
+        console.log("error Message: ", errorMessage);
+        console.log("jobId: ", jobId);
         return;
       }
       setJob(null);
@@ -179,6 +181,18 @@ const JobRunScreen = () => {
       }
     })();
   }, [fetchJob, t]);
+
+  useEffect(() => {
+    if (!loading && !job && errorMessage) {
+      const timer = setTimeout(() => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Main" as any }],
+        });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, job, errorMessage, navigation]);
 
   useEffect(() => {
     if (!job) return;
@@ -336,31 +350,6 @@ const JobRunScreen = () => {
     openDialog("finish");
   }, [canFinish, openDialog]);
 
-  const onPressConfirmAsContractor = useCallback(async () => {
-    if (!canConfirmAsContractor) return;
-    try {
-      setSubmitting(true);
-      setErrorMessage(null);
-
-      console.log("[JobRunAction] contractor confirm start pressed", {
-        jobId,
-        role,
-      });
-
-      console.log(
-        "[JobRunAction] contractor subscribed to job-dispatch topic via WS",
-        { jobId },
-      );
-    } catch {
-      setErrorMessage(t("jobs.common.actionError"));
-      console.error("[JobRunAction] contractor confirm crashed", {
-        jobId,
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  }, [canConfirmAsContractor, jobId, t]);
-
   const pickFromCamera = useCallback(async () => {
     const uri = await uploadCameraImage();
     if (uri) setPhotoUri(uri);
@@ -373,7 +362,6 @@ const JobRunScreen = () => {
 
   const submitDialog = useCallback(async () => {
     const trimmed = description.trim();
-
     if (!trimmed) {
       setErrorMessage(t("jobs.run.descriptionRequired"));
       return;
@@ -393,10 +381,11 @@ const JobRunScreen = () => {
           hasPhoto: Boolean(photoUri),
         });
 
-        await reportProblemTrue(jobId, {
+        const reportProblemtrue = await reportProblemTrue(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
+        console.log("report problem true: ", reportProblemtrue);
         console.log("[JobRunAction] reportProblemTrue sent via REST API", {
           jobId,
         });
@@ -408,10 +397,11 @@ const JobRunScreen = () => {
           hasPhoto: Boolean(photoUri),
         });
 
-        await reportProblemFalse(jobId, {
+        const reportProblemfalse = await reportProblemFalse(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
+        console.log("report problem false: ", reportProblemfalse);
         console.log("[JobRunAction] reportProblemFalse sent via REST API", {
           jobId,
         });
@@ -486,40 +476,12 @@ const JobRunScreen = () => {
 
   const timerValue = useMemo(() => formatDuration(elapsedMs), [elapsedMs]);
 
-  if (loading) {
+  // Show loading while fetching or waiting to navigate
+  if (loading || !job) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
-    );
-  }
-
-  if (!job) {
-    return (
-      <SafeAreaView
-        style={[styles.screen, { backgroundColor: colors.background }]}
-      >
-        <View style={styles.center}>
-          <Text variant="titleMedium">
-            {errorMessage ?? t("jobs.common.loadError")}
-          </Text>
-          <Button mode="contained" style={{ marginTop: 12 }} onPress={fetchJob}>
-            {t("jobs.common.retry")}
-          </Button>
-          <Button
-            mode="text"
-            style={{ marginTop: 4 }}
-            onPress={() =>
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Main" as any }],
-              })
-            }
-          >
-            {t("jobs.common.back")}
-          </Button>
-        </View>
-      </SafeAreaView>
     );
   }
   return (
@@ -574,14 +536,6 @@ const JobRunScreen = () => {
           </Card>
 
           <View style={styles.actions}>
-            {role === "owner" && isInProgress ? (
-              <Text
-                style={{ color: colors.onSurfaceVariant, marginVertical: 8 }}
-              >
-                {t("jobs.run.waitingForContractorConfirm")}
-              </Text>
-            ) : null}
-
             {/* {canConfirmAsContractor ? (
               <Button
                 mode="contained"

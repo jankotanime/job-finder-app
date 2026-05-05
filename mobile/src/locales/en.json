@@ -177,7 +177,7 @@
       "waitingForOwnerStart": "The owner hasn't started the job yet.",
       "waitingForContractorConfirm": "Waiting for the contractor to confirm...",
       "confirmStart": "Confirm start",
-      "reportProblem": "Report problem",
+      "reportProblem": "Something is wrong",
       "reportNoProblem": "Report no problem",
       "finishJob": "Finish job",
       "contractorFinishedInline": "The contractor clicked finish — you can finalize now.",
