@@ -393,10 +393,11 @@ const JobRunScreen = () => {
           hasPhoto: Boolean(photoUri),
         });
 
-        await reportProblemTrue(jobId, {
+        const reportProblemtrue = await reportProblemTrue(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
+        console.log("report problem true: ", reportProblemtrue);
         console.log("[JobRunAction] reportProblemTrue sent via REST API", {
           jobId,
         });
@@ -408,10 +409,11 @@ const JobRunScreen = () => {
           hasPhoto: Boolean(photoUri),
         });
 
-        await reportProblemFalse(jobId, {
+        const reportProblemfalse = await reportProblemFalse(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
+        console.log("report problem false: ", reportProblemfalse);
         console.log("[JobRunAction] reportProblemFalse sent via REST API", {
           jobId,
         });
@@ -574,14 +576,6 @@ const JobRunScreen = () => {
           </Card>
 
           <View style={styles.actions}>
-            {role === "owner" && isInProgress ? (
-              <Text
-                style={{ color: colors.onSurfaceVariant, marginVertical: 8 }}
-              >
-                {t("jobs.run.waitingForContractorConfirm")}
-              </Text>
-            ) : null}
-
             {/* {canConfirmAsContractor ? (
               <Button
                 mode="contained"
