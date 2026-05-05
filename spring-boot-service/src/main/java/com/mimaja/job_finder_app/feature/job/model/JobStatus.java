@@ -1,6 +1,7 @@
 package com.mimaja.job_finder_app.feature.job.model;
 
 public enum JobStatus {
+    UNREADY,
     READY,
     IN_PROGRESS,
     FINISHED_FAILURE,

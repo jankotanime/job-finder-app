@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../contexts/AuthContext";
 import { applyForOffer } from "../../api/offers/handleOffersApi";
 import { useTheme } from "react-native-paper";
@@ -39,7 +39,6 @@ import useSelectCv from "../../hooks/useSelectCv";
 import Footer from "../../components/main/Footer";
 import CvInfo from "../../components/main/CvInfo";
 import ErrorNotification from "../../components/reusable/ErrorNotification";
-import ActiveJobTimerFloating from "../../components/jobs/ActiveJobTimerFloating";
 import useMainOffersDeck from "../../hooks/useMainOffersDeck";
 import { ExtensionStorage } from "@bacons/apple-targets";
 
@@ -70,8 +69,9 @@ const createEmptyWidgetStats = (): WidgetStats => ({
 const MainScreen = () => {
   const swiperRef = useRef<SwiperCardRefType | null>(null);
   const { colors } = useTheme();
+  const navigation = useNavigation<any>();
   const { addStorageOffer, offersVersion } = useOfferStorageContext();
-  const { tokens, loading, userInfo } = useAuth();
+  const { tokens, loading, userInfo, inProgressJob } = useAuth();
   const [isActivePressAnim, setIsActivePressAnim] = useState<boolean>(false);
   const [errorText, setErrorText] = useState<string | null>(null);
   const expandAnim = useRef(new Animated.Value(0)).current;
@@ -84,6 +84,25 @@ const MainScreen = () => {
   const { filters, setFiltersList, clearFilters } = useFilter();
   const { selectedIds, reload } = useSelectCv();
   const cvId = selectedIds?.[0];
+
+  useEffect(() => {
+    console.log(inProgressJob);
+    if (inProgressJob) {
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: "JobRun" as any,
+            params: {
+              jobId: inProgressJob.jobId,
+              jobDispatcherId: inProgressJob.jobDispatcherId,
+              role: inProgressJob.role,
+            },
+          },
+        ],
+      });
+    }
+  }, [inProgressJob, navigation]);
 
   const {
     offersData,
@@ -351,8 +370,6 @@ const MainScreen = () => {
           />
         </View>
         <Footer />
-
-        <ActiveJobTimerFloating />
       </GestureHandlerRootView>
     </View>
   );

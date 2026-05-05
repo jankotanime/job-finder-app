@@ -21,6 +21,7 @@ import com.mimaja.job_finder_app.feature.job.model.Job;
 import com.mimaja.job_finder_app.feature.job.model.JobStatus;
 import com.mimaja.job_finder_app.feature.job.repository.JobRepository;
 import com.mimaja.job_finder_app.feature.job.service.JobServiceDefault;
+import com.mimaja.job_finder_app.feature.job.utils.JobWebSocketSignalsHandler;
 import com.mimaja.job_finder_app.feature.offer.model.Offer;
 import com.mimaja.job_finder_app.feature.offer.offerphoto.model.OfferPhoto;
 import com.mimaja.job_finder_app.feature.offer.service.OfferService;
@@ -41,6 +42,7 @@ class JobServiceDefaultTest {
     @Mock private JobRepository jobRepository;
     @Mock private OfferService offerService;
     @Mock private FileManagementService fileManagementService;
+    @Mock private JobWebSocketSignalsHandler jobWebSocketSignalsHandler;
 
     private JobServiceDefault jobService;
     private Job testJob;
@@ -52,7 +54,7 @@ class JobServiceDefaultTest {
         testJob = createTestJob();
         testJobDispatcher = createTestJobDispatcher();
         testOffer = createTestOffer();
-        jobService = new JobServiceDefault(jobRepository, offerService, fileManagementService);
+        jobService = new JobServiceDefault(jobRepository, offerService, fileManagementService, jobWebSocketSignalsHandler);
     }
 
     // --- getJobById ---
@@ -235,7 +237,7 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        JobDispatcher result = jobService.startJob(jobId);
+        JobDispatcher result = jobService.startJobOwner(jobId);
         assertThat(result).isNotNull();
     }
 
@@ -246,8 +248,8 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        jobService.startJob(jobId);
-        assertThat(testJob.getStatus()).isEqualTo(JobStatus.IN_PROGRESS);
+        jobService.startJobOwner(jobId);
+        assertThat(testJob.getStatus()).isEqualTo(JobStatus.READY);
     }
 
     @Test
@@ -257,7 +259,7 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        jobService.startJob(jobId);
+        jobService.startJobOwner(jobId);
         verify(jobRepository, times(1)).findById(jobId);
     }
 
@@ -268,7 +270,7 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(null);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
-        jobService.startJob(jobId);
+        jobService.startJobOwner(jobId);
         verify(jobRepository, times(1)).save(any(Job.class));
     }
 
@@ -278,9 +280,9 @@ class JobServiceDefaultTest {
         testJob.setStatus(JobStatus.IN_PROGRESS);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         BusinessException exception =
-                assertThrows(BusinessException.class, () -> jobService.startJob(jobId));
+                assertThrows(BusinessException.class, () -> jobService.startJobOwner(jobId));
         assertThat(exception.getCode())
-                .isEqualTo(BusinessExceptionReason.JOB_HAS_ALREADY_STARTED.getCode());
+                .isEqualTo(BusinessExceptionReason.JOB_NOT_UNREADY.getCode());
     }
 
     @Test
@@ -288,7 +290,101 @@ class JobServiceDefaultTest {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        assertThrows(BusinessException.class, () -> jobService.startJob(jobId));
+        assertThrows(BusinessException.class, () -> jobService.startJobOwner(jobId));
+        verify(jobRepository, times(1)).findById(jobId);
+    }
+
+    // --- startJobContractor ---
+
+    @Test
+    void startJobContractor_shouldReturnNonNullDispatcher_whenJobIsReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobDispatcherWithTimes();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        JobDispatcher result = jobService.startJobContractor(jobId);
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void startJobContractor_shouldSetJobStatusToInProgress_whenJobIsReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobDispatcherWithTimes();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.startJobContractor(jobId);
+        assertThat(testJob.getStatus()).isEqualTo(JobStatus.IN_PROGRESS);
+    }
+
+    @Test
+    void startJobContractor_shouldCallFindById_whenStartingJob() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobDispatcherWithTimes();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.startJobContractor(jobId);
+        verify(jobRepository, times(1)).findById(jobId);
+    }
+
+    @Test
+    void startJobContractor_shouldSetStartedAt_whenJobIsReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobDispatcherWithTimes();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.startJobContractor(jobId);
+        assertThat(testJobDispatcher.getStartedAt()).isNotNull();
+    }
+
+    @Test
+    void startJobContractor_shouldSaveJob_whenJobIsReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobDispatcherWithTimes();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.startJobContractor(jobId);
+        verify(jobRepository, times(1)).save(any(Job.class));
+    }
+
+    @Test
+    void startJobContractor_shouldSendWebSocketSignal_whenJobIsReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.READY);
+        testJob.setJobDispatcher(testJobDispatcher);
+        setupJobDispatcherWithTimes();
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+        jobService.startJobContractor(jobId);
+        verify(jobWebSocketSignalsHandler, times(2)).sendSignalToRoom(any(JobDispatcher.class));
+    }
+
+    @Test
+    void startJobContractor_shouldThrowExceptionWithJobNotReadyCode_whenJobNotReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> jobService.startJobContractor(jobId));
+        assertThat(exception.getCode())
+                .isEqualTo(BusinessExceptionReason.JOB_NOT_READY.getCode());
+    }
+
+    @Test
+    void startJobContractor_shouldCallFindById_whenJobNotReady() {
+        UUID jobId = testJob.getId();
+        testJob.setStatus(JobStatus.IN_PROGRESS);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
+        assertThrows(BusinessException.class, () -> jobService.startJobContractor(jobId));
         verify(jobRepository, times(1)).findById(jobId);
     }
 
@@ -372,8 +468,9 @@ class JobServiceDefaultTest {
     void reportProblemContractorFalse_shouldResetDispatcher_whenOwnerStatusIsNoProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
+        testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
         JobDispatcher result =
                 jobService.reportProblemContractorFalse(jobId, Optional.empty(), "No problem");
@@ -429,8 +526,9 @@ class JobServiceDefaultTest {
     void reportProblemContractorTrue_shouldSetJobFailure_whenOwnerStatusIsProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.PROBLEM);
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
+        testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
         jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
         assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
@@ -440,8 +538,9 @@ class JobServiceDefaultTest {
     void reportProblemContractorTrue_shouldSetJobFailure_whenOwnerStatusIsNoProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusOwner(JobDispatcherIssueStatus.NO_PROBLEM);
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
+        testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
         jobService.reportProblemContractorTrue(jobId, Optional.empty(), "Problem");
         assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
@@ -480,8 +579,9 @@ class JobServiceDefaultTest {
     void reportProblemOwnerFalse_shouldResetDispatcher_whenContractorStatusIsNoProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NO_PROBLEM);
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
+        testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
         JobDispatcher result =
                 jobService.reportProblemOwnerFalse(jobId, Optional.empty(), "No problem");
@@ -521,8 +621,9 @@ class JobServiceDefaultTest {
     void reportProblemOwnerTrue_shouldSetJobFailure_whenContractorStatusIsProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.PROBLEM);
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
+        testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
         jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
         assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
@@ -532,8 +633,9 @@ class JobServiceDefaultTest {
     void reportProblemOwnerTrue_shouldSetJobFailure_whenContractorStatusIsNoProblem() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
         testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NO_PROBLEM);
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
+        testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
         jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
         assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
@@ -543,9 +645,10 @@ class JobServiceDefaultTest {
     void reportProblemOwnerTrue_shouldSetJobFailure_whenJobIsAlreadyFinished() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
-        testJob.setJobDispatcher(testJobDispatcher);
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
         testJobDispatcher.setFinishedAt(LocalDateTime.now());
         testJobDispatcher.setIssueStatusContractor(JobDispatcherIssueStatus.NONE);
+        testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
         jobService.reportProblemOwnerTrue(jobId, Optional.empty(), "Problem");
         assertThat(testJob.getStatus()).isEqualTo(JobStatus.FINISHED_FAILURE);
@@ -571,8 +674,9 @@ class JobServiceDefaultTest {
     void endJobSuccessfulyOwner_shouldReturnJobWithSuccessStatus_whenJobIsFinished() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJobDispatcher.setFinishedAt(LocalDateTime.now().plusHours(1));
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
         testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setFinishedAt(LocalDateTime.now());
         setupJobFindAndSaveMocks(jobId);
         Job result = jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Completed");
         assertThat(result.getStatus()).isEqualTo(JobStatus.FINISHED_SUCCESS);
@@ -582,8 +686,9 @@ class JobServiceDefaultTest {
     void endJobSuccessfulyOwner_shouldCallSave_whenJobIsFinished() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJobDispatcher.setFinishedAt(LocalDateTime.now().plusHours(1));
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
         testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setFinishedAt(LocalDateTime.now());
         setupJobFindAndSaveMocks(jobId);
         jobService.endJobSuccessfulyOwner(jobId, Optional.empty(), "Completed");
         verify(jobRepository, times(2)).save(any(Job.class));
@@ -610,8 +715,9 @@ class JobServiceDefaultTest {
     void endJobSuccessfulyOwner_shouldAddApproval_whenPhotoProvided() {
         UUID jobId = testJob.getId();
         testJob.setStatus(JobStatus.IN_PROGRESS);
+        testJobDispatcher.setFinishedAt(LocalDateTime.now().plusHours(1));
+        testJobDispatcher.setUpdatedAt(LocalDateTime.now());
         testJob.setJobDispatcher(testJobDispatcher);
-        testJobDispatcher.setFinishedAt(LocalDateTime.now());
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(fileManagementService.processFileDetails(any(), any()))
                 .thenReturn(createTestFileDetails());
@@ -640,7 +746,7 @@ class JobServiceDefaultTest {
         testJob.setJobDispatcher(testJobDispatcher);
         setupJobFindAndSaveMocks(jobId);
         jobService.endJobSuccessfulyContractor(jobId, Optional.empty(), "Work completed");
-        verify(jobRepository, times(1)).save(any(Job.class));
+        verify(jobRepository, times(2)).save(any(Job.class));
     }
 
     @Test
@@ -660,6 +766,12 @@ class JobServiceDefaultTest {
     private void setupJobFindAndSaveMocks(UUID jobId) {
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenReturn(testJob);
+    }
+
+    private void setupJobDispatcherWithTimes() {
+        LocalDateTime now = LocalDateTime.now();
+        testJobDispatcher.setStartedAt(now.minusHours(1));
+        testJobDispatcher.setFinishedAt(now);
     }
 
     private MultipartFile createMockPhoto() {

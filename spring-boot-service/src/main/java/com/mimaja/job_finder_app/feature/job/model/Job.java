@@ -47,7 +47,7 @@ public class Job {
     private Double salary;
 
     @Enumerated(EnumType.STRING)
-    private JobStatus status = JobStatus.READY;
+    private JobStatus status = JobStatus.UNREADY;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")

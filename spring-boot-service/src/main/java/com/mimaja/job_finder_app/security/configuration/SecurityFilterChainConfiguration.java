@@ -36,6 +36,8 @@ public class SecurityFilterChainConfiguration {
                                         .permitAll()
                                         .requestMatchers(HttpMethod.GET, "/example-error")
                                         .permitAll()
+                                        .requestMatchers("/ws/**")
+                                        .permitAll()
                                         .requestMatchers(
                                                 RegexRequestMatcher.regexMatcher(
                                                         ADMIN_ROUTES_PATTERN))

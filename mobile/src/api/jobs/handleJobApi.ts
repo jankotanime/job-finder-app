@@ -130,6 +130,7 @@ export const startJob = async (jobId: string) => {
   );
   if (error) console.error("start job error:", error);
   if (!response) throw new Error("No response received");
+  console.log("start job response: ", response);
   return response;
 };
 

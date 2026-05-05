@@ -20,7 +20,12 @@ import { registerWithGoogle } from "../auth/google/registerWithGoogle";
 import { AuthStatus } from "../enums/authStatus";
 import getUserInfo, { User } from "../auth/tokens/getUserInfo";
 import { setTokensApiFetch } from "../api/client";
-import { clearActiveJobTimer } from "../utils/jobTimerStorage";
+import {
+  getJobsAsContractor,
+  getJobsAsOwner,
+  getJobDispatcher,
+} from "../api/jobs/handleJobApi";
+import { Job } from "../types/Job";
 
 type AuthContextType = {
   user: string;
@@ -28,6 +33,11 @@ type AuthContextType = {
   isAuthenticated: boolean;
   userInfo: User | null;
   pendingGoogleIdToken: string | null;
+  inProgressJob: {
+    jobId: string;
+    jobDispatcherId: string;
+    role: "contractor" | "owner";
+  } | null;
   tokens: {
     accessToken: string;
     refreshToken: string;
@@ -86,6 +96,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   userInfo: null,
   pendingGoogleIdToken: "",
+  inProgressJob: null,
   tokens: null,
   signIn: async () => ({
     ok: false,
@@ -114,6 +125,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userInfo, setUserInfo] = useState<User | null>(null);
+  const [inProgressJob, setInProgressJob] = useState<{
+    jobId: string;
+    jobDispatcherId: string;
+    role: "contractor" | "owner";
+  } | null>(null);
   const [tokens, setTokens] = useState<{
     accessToken: string;
     refreshToken: string;
@@ -127,6 +143,77 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     loadTokens();
   }, []);
+
+  useEffect(() => {
+    const checkInProgressJobs = async () => {
+      if (!isAuthenticated) return;
+      try {
+        const responseContractor = await getJobsAsContractor();
+        console.log("chuj: ", responseContractor.body.data);
+        const jobsInProgressContractor = responseContractor.body.data.filter(
+          (job: Job) => job.status === "IN_PROGRESS",
+        );
+
+        const responseOwner = await getJobsAsOwner();
+        console.log("chuj2: ", responseOwner.body.data);
+        const jobsInProgressOwner = responseOwner.body.data.filter(
+          (job: Job) => job.status === "IN_PROGRESS",
+        );
+
+        if (jobsInProgressContractor && jobsInProgressContractor.length > 0) {
+          const job =
+            jobsInProgressContractor[jobsInProgressContractor.length - 1];
+          try {
+            const jobDispatcher = await getJobDispatcher(job.id);
+            const jobDispatcherId =
+              jobDispatcher?.body?.data?.jobDispatcherId || job.id;
+            console.log("contractor job dispatcher: ", jobDispatcherId);
+            setInProgressJob({
+              jobId: job.id,
+              jobDispatcherId,
+              role: "contractor",
+            });
+          } catch (error) {
+            console.error("Error getting contractor dispatcher:", error);
+            setInProgressJob({
+              jobId: job.id,
+              jobDispatcherId: job.id,
+              role: "contractor",
+            });
+          }
+          return;
+        }
+        if (jobsInProgressOwner && jobsInProgressOwner.length > 0) {
+          const job = jobsInProgressOwner[jobsInProgressOwner.length - 1];
+          try {
+            const jobDispatcher = await getJobDispatcher(job.id);
+            const jobDispatcherId =
+              jobDispatcher?.body?.data?.jobDispatcherId || job.id;
+            console.log("owner job dispatcher: ", jobDispatcherId);
+            setInProgressJob({
+              jobId: job.id,
+              jobDispatcherId,
+              role: "owner",
+            });
+          } catch (error) {
+            console.error("Error getting owner dispatcher:", error);
+            setInProgressJob({
+              jobId: job.id,
+              jobDispatcherId: job.id,
+              role: "owner",
+            });
+          }
+          return;
+        }
+        setInProgressJob(null);
+      } catch (error) {
+        console.error("Error checking in-progress jobs:", error);
+        setInProgressJob(null);
+      }
+    };
+
+    checkInProgressJobs();
+  }, [isAuthenticated]);
   const loadTokens = async () => {
     const [saved, error] = await tryCatch(EncryptedStorage.getItem("auth"));
     if (saved) {
@@ -187,10 +274,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { ok: true, status: AuthStatus.LOGGED_IN };
   };
   const signOut = async () => {
-    // try {
-    //   await clearActiveJobTimer(undefined, userInfo?.username ?? user);
-    // } catch {
-    // }
     await EncryptedStorage.removeItem("auth");
     setTokens(null);
     setTokensApiFetch({
@@ -397,6 +480,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         isAuthenticated,
         pendingGoogleIdToken,
+        inProgressJob,
         tokens,
         signIn,
         signOut,

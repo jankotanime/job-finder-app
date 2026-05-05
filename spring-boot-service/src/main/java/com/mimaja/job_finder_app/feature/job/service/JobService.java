@@ -19,7 +19,9 @@ public interface JobService {
 
     void deleteJob(UUID jobId);
 
-    JobDispatcher startJob(UUID jobId);
+    JobDispatcher startJobOwner(UUID jobId);
+
+    JobDispatcher startJobContractor(UUID jobId);
 
     JobDispatcher getJobDispatcherByJobId(UUID jobId);
 

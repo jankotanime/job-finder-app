@@ -29,7 +29,6 @@ Tests are grouped by feature area so it is easier to find related coverage quick
 - `AddOfferButton`
 - `CvChoseButton`
 - `JobManageButton`
-- `ActiveJobTimerFloating`
 - `Filter`
 - `FilterCollapsibleSection`
 - `FilterContent`
