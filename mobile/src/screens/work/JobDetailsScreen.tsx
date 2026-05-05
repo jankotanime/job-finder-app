@@ -254,7 +254,7 @@ const JobDetailsScreen = () => {
         setErrorMessage(t("jobs.common.actionError"));
         return;
       }
-      navigation.navigate("JobRun", {
+      navigation.replace("JobRun", {
         jobId: job.id,
         jobDispatcherId,
         role,
@@ -306,7 +306,7 @@ const JobDetailsScreen = () => {
         jobDispatcherId,
       });
 
-      navigation.navigate("JobRun", {
+      navigation.replace("JobRun", {
         jobId: job.id,
         jobDispatcherId,
         role: "contractor",
@@ -370,7 +370,7 @@ const JobDetailsScreen = () => {
         jobDispatcherId,
       });
 
-      navigation.navigate("JobRun", {
+      navigation.replace("JobRun", {
         jobId: job.id,
         jobDispatcherId,
         role,
