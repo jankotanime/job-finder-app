@@ -197,7 +197,10 @@
       "photoGallery": "Gallery",
       "photoSelected": "Photo attached.",
       "cancel": "Cancel",
-      "send": "Send"
+      "send": "Send",
+      "contractorReportedProblem": "The contractor reported a problem",
+      "ownerReportedProblem": "The owner reported a problem",
+      "respondNoProblem": "Everything is OK"
     }
   },
   "offer": {

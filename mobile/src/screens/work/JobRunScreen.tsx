@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   View,
@@ -16,13 +19,13 @@ import {
   Button,
   Card,
   Dialog,
-  Divider,
   Portal,
   Text,
   TextInput,
   useTheme,
 } from "react-native-paper";
 
+import { useAuth } from "../../contexts/AuthContext";
 import type { RootStackParamList } from "../../types/RootStackParamList";
 import type { Job } from "../../types/Job";
 import {
@@ -64,6 +67,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList, "JobRun">;
 const JobRunScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const { clearInProgressJob } = useAuth();
   const { height: windowHeight } = useWindowDimensions();
 
   const route = useRoute<JobRunRoute>();
@@ -82,6 +86,29 @@ const JobRunScreen = () => {
   >(null);
   const [contractorFinishSent, setContractorFinishSent] = useState(false);
   const [ownerFinalizedSeen, setOwnerFinalizedSeen] = useState(false);
+  const [myIssueStatus, setMyIssueStatus] = useState<string | null>(null);
+  const [otherIssueStatus, setOtherIssueStatus] = useState<string | null>(null);
+
+  const fetchDispatcher = useCallback(async () => {
+    try {
+      const res = await getJobDispatcher(jobId);
+      if (!res?.response?.ok) return;
+      const parsed = getDispatcherFromPayload(res);
+      setContractorFinishedAt(
+        parsed?.finishedAt ? String(parsed.finishedAt) : null,
+      );
+      const ownerStatus = (parsed?.issueStatusOwner as string) ?? null;
+      const contractorStatus =
+        (parsed?.issueStatusContractor as string) ?? null;
+      if (role === "owner") {
+        setMyIssueStatus(ownerStatus);
+        setOtherIssueStatus(contractorStatus);
+      } else {
+        setMyIssueStatus(contractorStatus);
+        setOtherIssueStatus(ownerStatus);
+      }
+    } catch {}
+  }, [jobId, role]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<
@@ -100,10 +127,27 @@ const JobRunScreen = () => {
             : prev,
         );
       }
+      if (message.signalType === "JOB_END_SUCCESSFULLY") {
+        setJob((prev) =>
+          prev && prev.status !== "FINISHED_SUCCESS"
+            ? ({ ...prev, status: "FINISHED_SUCCESS" } as Job)
+            : prev,
+        );
+      }
+      if (message.signalType === "JOB_END_UNSUCCESSFULLY") {
+        setJob((prev) =>
+          prev && prev.status !== "FINISHED_FAILURE"
+            ? ({ ...prev, status: "FINISHED_FAILURE" } as Job)
+            : prev,
+        );
+      }
+      if (message.signalType === "JOB_STOP") {
+        fetchDispatcher().catch(() => {});
+      }
 
       handleTimerSignal(message);
     },
-    [handleTimerSignal],
+    [handleTimerSignal, fetchDispatcher],
   );
 
   useWebSockets(jobDispatcherId, { onMessage: handleWebSocketMessage });
@@ -196,6 +240,21 @@ const JobRunScreen = () => {
 
   useEffect(() => {
     if (!job) return;
+    if (job.status !== "FINISHED_FAILURE" && job.status !== "FINISHED_SUCCESS")
+      return;
+
+    clearInProgressJob();
+    const tId = setTimeout(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Main" as any }],
+      });
+    }, 1500);
+    return () => clearTimeout(tId);
+  }, [job, navigation, clearInProgressJob]);
+
+  useEffect(() => {
+    if (!job) return;
     if (
       job.status === "FINISHED_FAILURE" ||
       job.status === "FINISHED_SUCCESS"
@@ -208,6 +267,8 @@ const JobRunScreen = () => {
     setContractorFinishedAt(null);
     setContractorFinishSent(false);
     setOwnerFinalizedSeen(false);
+    setMyIssueStatus(null);
+    setOtherIssueStatus(null);
   }, [jobId]);
 
   useEffect(() => {
@@ -267,20 +328,12 @@ const JobRunScreen = () => {
       return;
     }
 
-    const poll = async () => {
-      try {
-        const res = await getJobDispatcher(jobId);
-        if (!res?.response?.ok) return;
-        const parsed = getDispatcherFromPayload(res);
-        const finishedAt = parsed?.finishedAt ?? null;
-        setContractorFinishedAt(finishedAt ? String(finishedAt) : null);
-      } catch {}
-    };
-
-    poll();
-    const interval = setInterval(poll, 8000);
+    fetchDispatcher().catch(() => {});
+    const interval = setInterval(() => {
+      fetchDispatcher().catch(() => {});
+    }, 8000);
     return () => clearInterval(interval);
-  }, [job, jobId, role]);
+  }, [job, jobId, role, fetchDispatcher]);
 
   useEffect(() => {
     if (role !== "contractor") return;
@@ -374,45 +427,20 @@ const JobRunScreen = () => {
       let shouldGoToMainAfter = false;
 
       if (dialogMode === "problem") {
-        console.log("[JobRunAction] problem report submit", {
-          jobId,
-          role,
-          descriptionLength: trimmed.length,
-          hasPhoto: Boolean(photoUri),
-        });
-
         const reportProblemtrue = await reportProblemTrue(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
         console.log("report problem true: ", reportProblemtrue);
-        console.log("[JobRunAction] reportProblemTrue sent via REST API", {
-          jobId,
-        });
+        await fetchDispatcher();
       } else if (dialogMode === "noProblem") {
-        console.log("[JobRunAction] no-problem report submit", {
-          jobId,
-          role,
-          descriptionLength: trimmed.length,
-          hasPhoto: Boolean(photoUri),
-        });
-
         const reportProblemfalse = await reportProblemFalse(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
         console.log("report problem false: ", reportProblemfalse);
-        console.log("[JobRunAction] reportProblemFalse sent via REST API", {
-          jobId,
-        });
+        await fetchDispatcher();
       } else {
-        console.log("[JobRunAction] finish submit", {
-          jobId,
-          role,
-          descriptionLength: trimmed.length,
-          hasPhoto: Boolean(photoUri),
-        });
-
         const response = await finishJob(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
@@ -421,10 +449,6 @@ const JobRunScreen = () => {
           setErrorMessage(
             response?.body?.message ?? t("jobs.common.actionError"),
           );
-          console.warn("[JobRunAction] finishJob failed", {
-            jobId,
-            response: response?.body,
-          });
           return;
         }
 
@@ -440,11 +464,6 @@ const JobRunScreen = () => {
           await clearContractorFinishedLocally(jobId);
           shouldGoToMainAfter = true;
         }
-
-        console.log("[JobRunAction] finishJob sent via REST API", {
-          jobId,
-          role,
-        });
       }
 
       setDialogOpen(false);
@@ -459,15 +478,20 @@ const JobRunScreen = () => {
       await fetchJob();
     } catch {
       setErrorMessage(t("jobs.common.actionError"));
-      console.error("[JobRunAction] submit dialog crashed", {
-        jobId,
-        dialogMode,
-        role,
-      });
     } finally {
       setSubmitting(false);
     }
-  }, [description, dialogMode, fetchJob, jobId, navigation, photoUri, role, t]);
+  }, [
+    description,
+    dialogMode,
+    fetchDispatcher,
+    fetchJob,
+    jobId,
+    navigation,
+    photoUri,
+    role,
+    t,
+  ]);
 
   const timerTitle = useMemo(() => {
     if (role === "owner") return t("jobs.run.timerTitleOwner");
@@ -476,7 +500,49 @@ const JobRunScreen = () => {
 
   const timerValue = useMemo(() => formatDuration(elapsedMs), [elapsedMs]);
 
-  // Show loading while fetching or waiting to navigate
+  const statusConfig = useMemo(() => {
+    const s = job?.status;
+    if (s === "IN_PROGRESS") {
+      return {
+        label: t("jobs.details.status.inProgress"),
+        bgColor: colors.primaryContainer,
+        textColor: colors.onPrimaryContainer,
+      };
+    }
+    if (s === "READY") {
+      return {
+        label: t("jobs.details.status.ready"),
+        bgColor: colors.secondaryContainer,
+        textColor: colors.onSecondaryContainer,
+      };
+    }
+    if (s === "FINISHED_SUCCESS") {
+      return {
+        label: t("jobs.details.status.finishedSuccess"),
+        bgColor: colors.primaryContainer,
+        textColor: colors.onPrimaryContainer,
+      };
+    }
+    if (s === "FINISHED_FAILURE") {
+      return {
+        label: t("jobs.details.status.finishedFailure"),
+        bgColor: colors.errorContainer,
+        textColor: colors.onErrorContainer,
+      };
+    }
+    return {
+      label: t("jobs.details.status.unknown"),
+      bgColor: colors.surfaceVariant,
+      textColor: colors.onSurfaceVariant,
+    };
+  }, [job?.status, colors, t]);
+
+  const dialogIcon = useMemo(() => {
+    if (dialogMode === "finish") return "flag-checkered";
+    if (dialogMode === "noProblem") return "check-circle-outline";
+    return "alert-circle-outline";
+  }, [dialogMode]);
+
   if (loading || !job) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
@@ -484,6 +550,7 @@ const JobRunScreen = () => {
       </View>
     );
   }
+
   return (
     <SafeAreaView
       style={[styles.screen, { backgroundColor: colors.background }]}
@@ -494,6 +561,7 @@ const JobRunScreen = () => {
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
+          onScrollBeginDrag={Keyboard.dismiss}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -502,28 +570,51 @@ const JobRunScreen = () => {
           </Text>
 
           {errorMessage ? (
-            <Text style={{ color: colors.error, marginBottom: 8 }}>
-              {errorMessage}
-            </Text>
+            <View
+              style={[
+                styles.messageBanner,
+                { backgroundColor: colors.errorContainer },
+              ]}
+            >
+              <Text style={{ color: colors.onErrorContainer }}>
+                {errorMessage}
+              </Text>
+            </View>
           ) : null}
-
           <Card style={[styles.card, { backgroundColor: colors.surface }]}>
-            <Card.Content>
-              <Text style={{ color: colors.onSurfaceVariant }}>
+            <Card.Content style={styles.timerCardContent}>
+              <View
+                style={[
+                  styles.statusBadge,
+                  { backgroundColor: statusConfig.bgColor },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.statusBadgeText,
+                    { color: statusConfig.textColor },
+                  ]}
+                >
+                  {statusConfig.label}
+                </Text>
+              </View>
+              <Text
+                style={[styles.timerLabel, { color: colors.onSurfaceVariant }]}
+              >
                 {timerTitle}
               </Text>
               <Text style={[styles.timer, { color: colors.primary }]}>
                 {timerValue}
               </Text>
-
               {role === "contractor" && job.status === "READY" ? (
-                <Text style={{ color: colors.onSurfaceVariant, marginTop: 4 }}>
+                <Text style={{ color: colors.onSurfaceVariant, marginTop: 2 }}>
                   {t("jobs.run.waitingForOwnerStart")}
                 </Text>
               ) : null}
-
-              <Divider style={{ marginVertical: 14 }} />
-
+            </Card.Content>
+          </Card>
+          <Card style={[styles.card, { backgroundColor: colors.surface }]}>
+            <Card.Content>
               <Text variant="titleMedium" style={{ fontWeight: "700" }}>
                 {job?.title ?? t("jobs.run.job")}
               </Text>
@@ -534,75 +625,119 @@ const JobRunScreen = () => {
               ) : null}
             </Card.Content>
           </Card>
-
-          <View style={styles.actions}>
-            {/* {canConfirmAsContractor ? (
-              <Button
-                mode="contained"
-                onPress={onPressConfirmAsContractor}
-                loading={submitting}
-                disabled={submitting}
-              >
-                {t("jobs.run.confirmStart")}
-              </Button>
-            ) : null} */}
-
-            <Button
-              mode="contained"
-              onPress={() => openDialog("problem")}
-              disabled={!canReport}
+          {contractorFinishedInline ? (
+            <View
+              style={[
+                styles.messageBanner,
+                { backgroundColor: colors.primaryContainer },
+              ]}
             >
-              {t("jobs.run.reportProblem")}
-            </Button>
-
-            <Button
-              mode="contained"
-              buttonColor={colors.error}
-              onPress={onPressFinish}
-              disabled={!canFinish}
-            >
-              {t("jobs.run.finishJob")}
-            </Button>
-
-            {contractorFinishedInline ? (
-              <Text style={{ color: colors.onSurfaceVariant }}>
+              <Text style={{ color: colors.onPrimaryContainer }}>
                 {t("jobs.run.contractorFinishedInline")}
               </Text>
-            ) : null}
-
-            {role === "contractor" &&
-            contractorFinishSent &&
-            !ownerFinalizedSeen ? (
-              <Text style={{ color: colors.onSurfaceVariant }}>
+            </View>
+          ) : null}
+          {role === "contractor" &&
+          contractorFinishSent &&
+          !ownerFinalizedSeen ? (
+            <View
+              style={[
+                styles.messageBanner,
+                { backgroundColor: colors.secondaryContainer },
+              ]}
+            >
+              <Text style={{ color: colors.onSecondaryContainer }}>
                 {t("jobs.run.finishSentWaitingForOwner")}
               </Text>
-            ) : null}
+            </View>
+          ) : null}
 
-            {role === "contractor" && ownerFinalizedSeen ? (
-              <Text style={{ color: colors.onSurfaceVariant }}>
+          {role === "contractor" && ownerFinalizedSeen ? (
+            <View
+              style={[
+                styles.messageBanner,
+                { backgroundColor: colors.primaryContainer },
+              ]}
+            >
+              <Text style={{ color: colors.onPrimaryContainer }}>
                 {t("jobs.run.ownerFinalizedInline")}
               </Text>
-            ) : null}
-
-            <Button
-              mode="text"
-              onPress={() =>
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: "Main" as any }],
-                })
-              }
+            </View>
+          ) : null}
+          {otherIssueStatus === "PROBLEM" &&
+          isInProgress &&
+          (myIssueStatus === "NONE" || myIssueStatus === null) ? (
+            <Card
+              style={[styles.card, { backgroundColor: colors.errorContainer }]}
             >
-              {t("jobs.common.back")}
-            </Button>
-          </View>
+              <Card.Content style={styles.actionsContent}>
+                <Text
+                  variant="titleSmall"
+                  style={{
+                    color: colors.onErrorContainer,
+                    fontWeight: "700",
+                  }}
+                >
+                  {role === "owner"
+                    ? t("jobs.run.contractorReportedProblem")
+                    : t("jobs.run.ownerReportedProblem")}
+                </Text>
+                <Button
+                  mode="contained"
+                  icon="alert-circle-outline"
+                  buttonColor={colors.error}
+                  onPress={() => openDialog("problem")}
+                  style={styles.actionButton}
+                  contentStyle={styles.actionButtonContent}
+                >
+                  {t("jobs.run.reportProblem")}
+                </Button>
+                <Button
+                  mode="contained-tonal"
+                  icon="check-circle-outline"
+                  onPress={() => openDialog("noProblem")}
+                  style={styles.actionButton}
+                  contentStyle={styles.actionButtonContent}
+                >
+                  {t("jobs.run.respondNoProblem")}
+                </Button>
+              </Card.Content>
+            </Card>
+          ) : null}
+
+          <Card style={[styles.card, { backgroundColor: colors.surface }]}>
+            <Card.Content style={styles.actionsContent}>
+              <Button
+                mode="contained-tonal"
+                icon="alert-circle-outline"
+                onPress={() => openDialog("problem")}
+                disabled={!canReport}
+                style={styles.actionButton}
+                contentStyle={styles.actionButtonContent}
+              >
+                {t("jobs.run.reportProblem")}
+              </Button>
+
+              <Button
+                mode="contained"
+                icon="flag-checkered"
+                buttonColor={colors.error}
+                onPress={onPressFinish}
+                disabled={!canFinish}
+                style={styles.actionButton}
+                contentStyle={styles.actionButtonContent}
+              >
+                {t("jobs.run.finishJob")}
+              </Button>
+            </Card.Content>
+          </Card>
         </ScrollView>
       </KeyboardAvoidingView>
       <Portal>
         <Dialog
           visible={dialogOpen}
-          onDismiss={() => setDialogOpen(false)}
-          style={{ maxHeight: Math.round(windowHeight * 0.8) }}
+          onDismiss={Keyboard.dismiss}
+          style={{ maxHeight: Math.round(windowHeight * 0.85) }}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -616,52 +751,64 @@ const JobRunScreen = () => {
                   ? t("jobs.run.noProblemDialogTitle")
                   : t("jobs.run.problemDialogTitle")}
             </Dialog.Title>
-
             <Dialog.Content style={styles.dialogContent}>
               <ScrollView
-                keyboardShouldPersistTaps="handled"
+                keyboardShouldPersistTaps="always"
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 6 }}
               >
-                {dialogMode === "finish" && role === "contractor" ? (
-                  <Text
-                    style={{ color: colors.onSurfaceVariant, marginBottom: 10 }}
-                  >
-                    {t("jobs.run.contractorFinishLocalHint")}
-                  </Text>
-                ) : null}
-
-                <TextInput
-                  mode="outlined"
-                  label={t("jobs.run.descriptionLabel")}
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                  style={{ marginBottom: 12 }}
-                />
-
-                <View style={{ flexDirection: "row", gap: 10 }}>
-                  <Button mode="outlined" onPress={pickFromCamera}>
-                    {t("jobs.run.photoCamera")}
-                  </Button>
-                  <Button mode="outlined" onPress={pickFromGallery}>
-                    {t("jobs.run.photoGallery")}
-                  </Button>
-                </View>
-
-                {photoUri ? (
-                  <Text
-                    style={{
-                      marginTop: 10,
-                      color: colors.onSurfaceVariant,
-                    }}
-                  >
-                    {t("jobs.run.photoSelected")}
-                  </Text>
-                ) : null}
+                <Pressable onPress={Keyboard.dismiss}>
+                  {dialogMode === "finish" && role === "contractor" ? (
+                    <Text
+                      style={{
+                        color: colors.onSurfaceVariant,
+                        marginBottom: 12,
+                      }}
+                    >
+                      {t("jobs.run.contractorFinishLocalHint")}
+                    </Text>
+                  ) : null}
+                  <TextInput
+                    mode="outlined"
+                    label={t("jobs.run.descriptionLabel")}
+                    value={description}
+                    onChangeText={setDescription}
+                    multiline
+                    returnKeyType="done"
+                    style={styles.dialogTextInput}
+                  />
+                  <View style={styles.photoButtons}>
+                    <Button
+                      mode="outlined"
+                      icon="camera"
+                      onPress={pickFromCamera}
+                      style={styles.photoButton}
+                      contentStyle={styles.photoButtonContent}
+                    >
+                      {t("jobs.run.photoCamera")}
+                    </Button>
+                    <Button
+                      mode="outlined"
+                      icon="image"
+                      onPress={pickFromGallery}
+                      style={styles.photoButton}
+                      contentStyle={styles.photoButtonContent}
+                    >
+                      {t("jobs.run.photoGallery")}
+                    </Button>
+                  </View>
+                  {photoUri ? (
+                    <View style={styles.photoPreviewContainer}>
+                      <Image
+                        source={{ uri: photoUri }}
+                        style={styles.photoPreview}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  ) : null}
+                </Pressable>
               </ScrollView>
             </Dialog.Content>
-
             <Dialog.Actions>
               <Button onPress={() => setDialogOpen(false)}>
                 {t("jobs.run.cancel")}
@@ -697,28 +844,79 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
-    gap: 12,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 24,
+    paddingBottom: 32,
     gap: 12,
   },
   header: {
     fontWeight: "700",
+    marginBottom: 4,
   },
   card: {
-    borderRadius: 14,
+    borderRadius: 16,
+  },
+  timerCardContent: {
+    gap: 4,
+    paddingVertical: 4,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    marginBottom: 8,
+    alignItems: "center",
+  },
+  statusBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  timerLabel: {
+    fontSize: 13,
   },
   timer: {
-    fontSize: 48,
+    fontSize: 52,
     fontWeight: "900",
-    marginTop: 6,
-    letterSpacing: 1,
+    letterSpacing: 2,
+    marginVertical: 2,
   },
-  actions: {
+  messageBanner: {
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  actionsContent: {
     gap: 10,
-    marginTop: 4,
+  },
+  actionButton: {
+    borderRadius: 10,
+  },
+  actionButtonContent: {
+    paddingVertical: 4,
+  },
+  dialogTextInput: {
+    marginBottom: 14,
+  },
+  photoButtons: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  photoButton: {
+    flex: 1,
+    borderRadius: 10,
+  },
+  photoButtonContent: {
+    paddingVertical: 2,
+  },
+  photoPreviewContainer: {
+    marginTop: 14,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  photoPreview: {
+    width: "100%",
+    height: 180,
   },
   center: {
     flex: 1,

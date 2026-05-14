@@ -197,7 +197,10 @@
       "photoGallery": "Galeria",
       "photoSelected": "Dodano zdjęcie.",
       "cancel": "Anuluj",
-      "send": "Wyślij"
+      "send": "Wyślij",
+      "contractorReportedProblem": "Wykonawca zgłosił problem",
+      "ownerReportedProblem": "Zleceniodawca zgłosił problem",
+      "respondNoProblem": "Wszystko OK"
     }
   },
   "offer": {

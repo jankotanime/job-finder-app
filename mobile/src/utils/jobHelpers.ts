@@ -5,6 +5,8 @@ export type JobDispatcher = {
   startedAt?: string | number | null;
   startAt?: string | number | null;
   started?: boolean | null;
+  issueStatusOwner?: string | null;
+  issueStatusContractor?: string | null;
 };
 
 export const getJobFromPayload = (payload: any): Job | null => {
