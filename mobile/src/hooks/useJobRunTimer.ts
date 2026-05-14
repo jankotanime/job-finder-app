@@ -36,8 +36,8 @@ export const useJobRunTimer = (jobStatus: Job["status"] | null | undefined) => {
       }
 
       if (
-        message.signalType === "JOB_FINISH" ||
-        message.signalType === "JOB_STOP"
+        message.signalType === "JOB_END_SUCCESSFULLY" ||
+        message.signalType === "JOB_END_UNSUCCESSFULLY"
       ) {
         resetTimer();
       }
