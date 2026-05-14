@@ -25,6 +25,7 @@ import {
   useTheme,
 } from "react-native-paper";
 
+import { useAuth } from "../../contexts/AuthContext";
 import type { RootStackParamList } from "../../types/RootStackParamList";
 import type { Job } from "../../types/Job";
 import {
@@ -66,6 +67,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList, "JobRun">;
 const JobRunScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const { clearInProgressJob } = useAuth();
   const { height: windowHeight } = useWindowDimensions();
 
   const route = useRoute<JobRunRoute>();
@@ -84,6 +86,29 @@ const JobRunScreen = () => {
   >(null);
   const [contractorFinishSent, setContractorFinishSent] = useState(false);
   const [ownerFinalizedSeen, setOwnerFinalizedSeen] = useState(false);
+  const [myIssueStatus, setMyIssueStatus] = useState<string | null>(null);
+  const [otherIssueStatus, setOtherIssueStatus] = useState<string | null>(null);
+
+  const fetchDispatcher = useCallback(async () => {
+    try {
+      const res = await getJobDispatcher(jobId);
+      if (!res?.response?.ok) return;
+      const parsed = getDispatcherFromPayload(res);
+      setContractorFinishedAt(
+        parsed?.finishedAt ? String(parsed.finishedAt) : null,
+      );
+      const ownerStatus = (parsed?.issueStatusOwner as string) ?? null;
+      const contractorStatus =
+        (parsed?.issueStatusContractor as string) ?? null;
+      if (role === "owner") {
+        setMyIssueStatus(ownerStatus);
+        setOtherIssueStatus(contractorStatus);
+      } else {
+        setMyIssueStatus(contractorStatus);
+        setOtherIssueStatus(ownerStatus);
+      }
+    } catch {}
+  }, [jobId, role]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<
@@ -116,10 +141,13 @@ const JobRunScreen = () => {
             : prev,
         );
       }
+      if (message.signalType === "JOB_STOP") {
+        fetchDispatcher().catch(() => {});
+      }
 
       handleTimerSignal(message);
     },
-    [handleTimerSignal],
+    [handleTimerSignal, fetchDispatcher],
   );
 
   useWebSockets(jobDispatcherId, { onMessage: handleWebSocketMessage });
@@ -212,6 +240,21 @@ const JobRunScreen = () => {
 
   useEffect(() => {
     if (!job) return;
+    if (job.status !== "FINISHED_FAILURE" && job.status !== "FINISHED_SUCCESS")
+      return;
+
+    clearInProgressJob();
+    const tId = setTimeout(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Main" as any }],
+      });
+    }, 1500);
+    return () => clearTimeout(tId);
+  }, [job, navigation, clearInProgressJob]);
+
+  useEffect(() => {
+    if (!job) return;
     if (
       job.status === "FINISHED_FAILURE" ||
       job.status === "FINISHED_SUCCESS"
@@ -224,6 +267,8 @@ const JobRunScreen = () => {
     setContractorFinishedAt(null);
     setContractorFinishSent(false);
     setOwnerFinalizedSeen(false);
+    setMyIssueStatus(null);
+    setOtherIssueStatus(null);
   }, [jobId]);
 
   useEffect(() => {
@@ -283,20 +328,12 @@ const JobRunScreen = () => {
       return;
     }
 
-    const poll = async () => {
-      try {
-        const res = await getJobDispatcher(jobId);
-        if (!res?.response?.ok) return;
-        const parsed = getDispatcherFromPayload(res);
-        const finishedAt = parsed?.finishedAt ?? null;
-        setContractorFinishedAt(finishedAt ? String(finishedAt) : null);
-      } catch {}
-    };
-
-    poll();
-    const interval = setInterval(poll, 8000);
+    fetchDispatcher().catch(() => {});
+    const interval = setInterval(() => {
+      fetchDispatcher().catch(() => {});
+    }, 8000);
     return () => clearInterval(interval);
-  }, [job, jobId, role]);
+  }, [job, jobId, role, fetchDispatcher]);
 
   useEffect(() => {
     if (role !== "contractor") return;
@@ -395,12 +432,14 @@ const JobRunScreen = () => {
           photoUri: photoUri ?? undefined,
         });
         console.log("report problem true: ", reportProblemtrue);
+        await fetchDispatcher();
       } else if (dialogMode === "noProblem") {
         const reportProblemfalse = await reportProblemFalse(jobId, {
           description: trimmed,
           photoUri: photoUri ?? undefined,
         });
         console.log("report problem false: ", reportProblemfalse);
+        await fetchDispatcher();
       } else {
         const response = await finishJob(jobId, {
           description: trimmed,
@@ -442,7 +481,17 @@ const JobRunScreen = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [description, dialogMode, fetchJob, jobId, navigation, photoUri, role, t]);
+  }, [
+    description,
+    dialogMode,
+    fetchDispatcher,
+    fetchJob,
+    jobId,
+    navigation,
+    photoUri,
+    role,
+    t,
+  ]);
 
   const timerTitle = useMemo(() => {
     if (role === "owner") return t("jobs.run.timerTitleOwner");
@@ -615,6 +664,47 @@ const JobRunScreen = () => {
               </Text>
             </View>
           ) : null}
+          {otherIssueStatus === "PROBLEM" &&
+          isInProgress &&
+          (myIssueStatus === "NONE" || myIssueStatus === null) ? (
+            <Card
+              style={[styles.card, { backgroundColor: colors.errorContainer }]}
+            >
+              <Card.Content style={styles.actionsContent}>
+                <Text
+                  variant="titleSmall"
+                  style={{
+                    color: colors.onErrorContainer,
+                    fontWeight: "700",
+                  }}
+                >
+                  {role === "owner"
+                    ? t("jobs.run.contractorReportedProblem")
+                    : t("jobs.run.ownerReportedProblem")}
+                </Text>
+                <Button
+                  mode="contained"
+                  icon="alert-circle-outline"
+                  buttonColor={colors.error}
+                  onPress={() => openDialog("problem")}
+                  style={styles.actionButton}
+                  contentStyle={styles.actionButtonContent}
+                >
+                  {t("jobs.run.reportProblem")}
+                </Button>
+                <Button
+                  mode="contained-tonal"
+                  icon="check-circle-outline"
+                  onPress={() => openDialog("noProblem")}
+                  style={styles.actionButton}
+                  contentStyle={styles.actionButtonContent}
+                >
+                  {t("jobs.run.respondNoProblem")}
+                </Button>
+              </Card.Content>
+            </Card>
+          ) : null}
+
           <Card style={[styles.card, { backgroundColor: colors.surface }]}>
             <Card.Content style={styles.actionsContent}>
               <Button
@@ -641,17 +731,6 @@ const JobRunScreen = () => {
               </Button>
             </Card.Content>
           </Card>
-          <Button
-            mode="text"
-            onPress={() =>
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Main" as any }],
-              })
-            }
-          >
-            {t("jobs.common.back")}
-          </Button>
         </ScrollView>
       </KeyboardAvoidingView>
       <Portal>

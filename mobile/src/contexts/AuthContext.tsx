@@ -52,6 +52,7 @@ type AuthContextType = {
     formState: FormStateRegisterProps,
   ) => Promise<{ ok: boolean; error?: string }>;
   refreshAuth: () => Promise<void>;
+  clearInProgressJob: () => void;
   signWithGoogle: (
     formState: GoogleLoginProps,
   ) => Promise<SignWithGoogleResult>;
@@ -106,6 +107,7 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   signUp: async () => ({ ok: false, error: "not-initialized" }),
   refreshAuth: async () => {},
+  clearInProgressJob: () => {},
   signWithGoogle: async () => ({
     status: AuthStatus.ERROR,
     error: "not-initialized",
@@ -486,6 +488,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signOut,
         signUp,
         refreshAuth: loadTokens,
+        clearInProgressJob: () => setInProgressJob(null),
         signWithGoogle,
         completeGoogleRegistration,
         completeFinalRegistration,
