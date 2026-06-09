@@ -23,9 +23,9 @@
 5. Navigate to mobile folder `cd mobile`
 6. Run mobile app with `npx expo run:ios` or `npx expo run:android`
 
-### Full english setup: [SETUP-en.md](./SETUP-en.md)
+### Full english setup: [SETUP_EN.md](./SETUP_EN.md)
 
-### Full Polish setup: [SETUP-pl.md](./SETUP-pl.md)
+### Full Polish setup: [SETUP_PL.md](./SETUP_PL.md)
 
 ## Project structure
 
